@@ -3,179 +3,1509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThumbGenius — AI YouTube Thumbnail Ideas</title>
+    <title>ThumbGenius — Make Every Thumbnail Click</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
-        .container { max-width: 720px; margin: 0 auto; padding: 48px 20px; }
-        .hero { text-align: center; margin-bottom: 40px; }
-        .hero h1 { font-size: 48px; font-weight: 900; margin-bottom: 12px; }
-        .hero h1 span { color: #facc15; }
-        .hero p { color: #9ca3af; font-size: 18px; margin-bottom: 8px; }
-        .hero .free { color: #4ade80; font-size: 14px; }
-        .card { background: #111; border-radius: 16px; padding: 32px; margin-bottom: 24px; }
-        label { display: block; color: #9ca3af; font-size: 14px; margin-bottom: 8px; }
-        input, select { width: 100%; background: #1f1f1f; color: #fff; border: 1px solid #333; border-radius: 12px; padding: 16px; font-size: 16px; outline: none; margin-bottom: 16px; }
-        input:focus, select:focus { border-color: #facc15; }
-        .btn { width: 100%; background: #facc15; color: #000; font-weight: 900; font-size: 20px; padding: 18px; border: none; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
-        .btn:hover { background: #fde047; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .uses { text-align: center; color: #6b7280; font-size: 13px; margin-top: 12px; }
-        .hidden { display: none; }
-        .loading { text-align: center; padding: 48px; }
-        .loading .emoji { font-size: 48px; animation: bounce 0.8s infinite; }
-        .loading p { color: #9ca3af; margin-top: 12px; }
-        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        .section-title { font-size: 20px; font-weight: 900; color: #facc15; margin-bottom: 16px; }
-        .title-card { background: #1f1f1f; border-radius: 12px; padding: 16px; display: flex; align-items: center; margin-bottom: 10px; }
-        .title-num { color: #6b7280; font-size: 13px; margin-right: 12px; min-width: 20px; }
-        .title-text { flex: 1; font-size: 15px; }
-        .copy-btn { background: none; border: none; color: #facc15; cursor: pointer; font-size: 18px; margin-left: 12px; }
-        .thumb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .thumb-item { background: #1f1f1f; border-radius: 12px; padding: 14px; font-size: 14px; }
-        .thumb-label { color: #6b7280; margin-bottom: 4px; }
-        .thumb-value { color: #fff; }
-        .ctr { grid-column: span 2; }
-        .ctr-score { color: #4ade80; font-weight: 900; }
-        .hook-text { color: #d1d5db; line-height: 1.7; font-size: 15px; }
-        .tip-card { background: #052e16; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
-        .tip-title { color: #4ade80; font-weight: 900; font-size: 18px; margin-bottom: 8px; }
-        .tip-text { color: #d1d5db; font-size: 14px; }
-        .upgrade { background: linear-gradient(135deg, #facc15, #f97316); border-radius: 16px; padding: 32px; text-align: center; color: #000; margin-bottom: 24px; }
-        .upgrade h2 { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
-        .upgrade p { margin-bottom: 20px; font-weight: 500; }
-        .upgrade-btn { background: #000; color: #facc15; font-weight: 900; padding: 16px 32px; border: none; border-radius: 12px; font-size: 18px; cursor: pointer; }
-        .overlay-text { color: #facc15; font-weight: 900; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap');
+
+        :root {
+            --bg: #02020a;
+            --surface: rgba(255,255,255,0.03);
+            --surface2: rgba(255,255,255,0.06);
+            --yellow: #FFE036;
+            --orange: #FF5C00;
+            --pink: #FF2D7A;
+            --cyan: #00F0FF;
+            --white: #FFFFFF;
+            --dim: rgba(255,255,255,0.5);
+            --faint: rgba(255,255,255,0.08);
+            --border: rgba(255,255,255,0.07);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════
+           BACKGROUND CANVAS
+        ══════════════════════════════════ */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ══════════════════════════════════
+           NAV
+        ══════════════════════════════════ */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 48px;
+            height: 72px;
+            background: rgba(2,2,10,0.6);
+            backdrop-filter: blur(40px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--yellow);
+        }
+
+        .logo span { color: var(--white); opacity: 0.5; }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--dim);
+            letter-spacing: 0.3px;
+        }
+
+        .nav-cta {
+            background: var(--yellow);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-cta:hover {
+            background: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* ══════════════════════════════════
+           HERO
+        ══════════════════════════════════ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 80px;
+            padding: 120px 80px 80px;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .hero-left { position: relative; }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,224,54,0.08);
+            border: 1px solid rgba(255,224,54,0.2);
+            border-radius: 100px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--yellow);
+            letter-spacing: 0.5px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.8s 0.1s both;
+        }
+
+        .hero-tag .pulse {
+            width: 6px; height: 6px;
+            background: var(--yellow);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--yellow);
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero-h1 {
+            font-size: clamp(52px, 5.5vw, 80px);
+            font-weight: 800;
+            line-height: 1.02;
+            letter-spacing: -3px;
+            margin-bottom: 28px;
+            animation: fadeUp 0.8s 0.2s both;
+        }
+
+        .hero-h1 .word-make { color: var(--white); }
+
+        .hero-h1 .word-every {
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(255,255,255,0.25);
+        }
+
+        .hero-h1 .word-thumb {
+            position: relative;
+            display: inline-block;
+            color: var(--yellow);
+            filter: drop-shadow(0 0 30px rgba(255,224,54,0.35));
+        }
+
+        .hero-h1 .word-click {
+            background: linear-gradient(90deg, var(--orange), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-p {
+            font-size: 17px;
+            color: var(--dim);
+            line-height: 1.75;
+            font-weight: 400;
+            max-width: 460px;
+            margin-bottom: 44px;
+            animation: fadeUp 0.8s 0.3s both;
+        }
+
+        .hero-form {
+            animation: fadeUp 0.8s 0.4s both;
+        }
+
+        .input-wrap {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 18px 18px 52px;
+            font-size: 15px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--white);
+            outline: none;
+            transition: all 0.25s;
+        }
+
+        input[type="text"]:focus {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(255,224,54,0.4);
+            box-shadow: 0 0 0 4px rgba(255,224,54,0.06), 0 0 40px rgba(255,224,54,0.04);
+        }
+
+        input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .niche-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .niche-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .niche-chip:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--white);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .niche-chip.active {
+            background: rgba(255,224,54,0.1);
+            border-color: rgba(255,224,54,0.4);
+            color: var(--yellow);
+        }
+
+        .btn-gen {
+            width: 100%;
+            background: var(--yellow);
+            color: #000;
+            border: none;
+            border-radius: 14px;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.3px;
+        }
+
+        .btn-gen::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-gen:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(255,224,54,0.35), 0 4px 16px rgba(255,224,54,0.2);
+        }
+
+        .btn-gen:hover::after { opacity: 1; }
+        .btn-gen:active { transform: translateY(0); }
+        .btn-gen:disabled { opacity: 0.4; transform: none !important; box-shadow: none !important; }
+
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 14px;
+        }
+
+        .free-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--dim);
+        }
+
+        .free-badge .dot { color: #22c55e; }
+
+        #usesLeft { font-size: 12px; color: var(--dim); }
+        #usesLeft strong { color: var(--yellow); }
+
+        /* ══════════════════════════════════
+           HERO RIGHT — PREVIEW CARD
+        ══════════════════════════════════ */
+        .hero-right {
+            position: relative;
+            animation: fadeUp 0.8s 0.5s both;
+        }
+
+        .preview-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .preview-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,224,54,0.6) 50%, transparent 100%);
+        }
+
+        .preview-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .preview-dots { display: flex; gap: 6px; }
+        .preview-dots span { width: 10px; height: 10px; border-radius: 50%; }
+        .preview-dots span:nth-child(1) { background: #ff5f57; }
+        .preview-dots span:nth-child(2) { background: #ffbd2e; }
+        .preview-dots span:nth-child(3) { background: #28c840; }
+
+        .preview-title-bar {
+            flex: 1;
+            background: var(--faint);
+            border-radius: 6px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            color: var(--dim);
+        }
+
+        .preview-body { padding: 28px 24px; }
+
+        .preview-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,224,54,0.6);
+            margin-bottom: 14px;
+        }
+
+        .preview-title-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--faint);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            animation: slide-in 0.5s both;
+        }
+
+        .preview-title-item:nth-child(1) { animation-delay: 0.8s; }
+        .preview-title-item:nth-child(2) { animation-delay: 1.0s; }
+        .preview-title-item:nth-child(3) { animation-delay: 1.2s; }
+
+        @keyframes slide-in {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .preview-title-item:hover {
+            background: rgba(255,224,54,0.06);
+            border-color: rgba(255,224,54,0.15);
+        }
+
+        .preview-num {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--yellow);
+            opacity: 0.6;
+            min-width: 16px;
+        }
+
+        .preview-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; flex: 1; }
+
+        .preview-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
+
+        .thumb-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .thumb-mini-item {
+            background: var(--faint);
+            border-radius: 10px;
+            padding: 12px;
+            animation: slide-in 0.5s 1.4s both;
+        }
+
+        .thumb-mini-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 6px;
+        }
+
+        .thumb-mini-val { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+        .thumb-mini-val.hl { color: var(--yellow); font-weight: 700; font-size: 14px; }
+
+        .ctr-mini {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(255,224,54,0.06);
+            border: 1px solid rgba(255,224,54,0.12);
+            border-radius: 10px;
+            animation: slide-in 0.5s 1.6s both;
+        }
+
+        .ctr-mini-label { font-size: 11px; color: var(--dim); }
+        .ctr-mini-score { font-size: 22px; font-weight: 800; color: var(--yellow); letter-spacing: -1px; }
+
+        /* ══════════════════════════════════
+           LOADING
+        ══════════════════════════════════ */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 80px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .loading-spinner {
+            width: 48px; height: 48px;
+            border: 2px solid rgba(255,224,54,0.1);
+            border-top-color: var(--yellow);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .loading p { color: var(--dim); font-size: 14px; }
+
+        /* ══════════════════════════════════
+           RESULTS
+        ══════════════════════════════════ */
+        .results {
+            display: none;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 0 40px 100px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .results-header h2 {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 8px;
+        }
+
+        .results-header p { color: var(--dim); font-size: 15px; }
+
+        .rblock {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.5s both;
+        }
+
+        .rblock::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,224,54,0.4), transparent);
+        }
+
+        .rblock-head {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,224,54,0.6);
+            margin-bottom: 20px;
+        }
+
+        .title-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 6px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .title-row:hover {
+            background: rgba(255,224,54,0.04);
+            border-color: rgba(255,224,54,0.12);
+            transform: translateX(4px);
+        }
+
+        .title-row .n {
+            font-size: 11px;
+            font-weight: 800;
+            color: rgba(255,224,54,0.3);
+            min-width: 20px;
+            padding-top: 3px;
+        }
+
+        .title-row .t { flex: 1; font-size: 15px; font-weight: 500; line-height: 1.5; }
+
+        .title-row .cp {
+            opacity: 0;
+            font-size: 14px;
+            background: none;
+            border: none;
+            color: var(--yellow);
+            cursor: pointer;
+            padding: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .title-row:hover .cp { opacity: 1; }
+
+        .tgrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .titem {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .titem.wide { grid-column: span 2; }
+
+        .titem-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            margin-bottom: 8px;
+        }
+
+        .titem-val { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+        .titem-val.big { font-size: 22px; font-weight: 800; color: var(--yellow); letter-spacing: -0.5px; }
+
+        .ctr-big-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .ctr-num {
+            font-size: 52px;
+            font-weight: 800;
+            letter-spacing: -3px;
+            line-height: 1;
+            color: var(--yellow);
+        }
+
+        .hook-p {
+            font-size: 16px;
+            line-height: 1.9;
+            color: rgba(255,255,255,0.65);
+            font-style: italic;
+            font-weight: 300;
+            padding-left: 20px;
+            border-left: 2px solid rgba(255,224,54,0.4);
+        }
+
+        .tip-rblock {
+            background: linear-gradient(135deg, rgba(255,92,0,0.07), rgba(255,45,122,0.05));
+            border: 1px solid rgba(255,92,0,0.15);
+            border-radius: 20px;
+            padding: 28px 32px;
+            margin-bottom: 14px;
+        }
+
+        .tip-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; }
+        .tip-val { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.7; }
+
+        .copy-sm {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.4);
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .copy-sm:hover {
+            border-color: rgba(255,224,54,0.3);
+            color: var(--yellow);
+        }
+
+        /* ══════════════════════════════════
+           UPGRADE
+        ══════════════════════════════════ */
+        .upgrade {
+            display: none;
+            max-width: 640px;
+            margin: 60px auto;
+            padding: 0 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .upgrade-box {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,224,54,0.15);
+            border-radius: 28px;
+            padding: 56px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upgrade-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow), var(--pink));
+        }
+
+        .upgrade-box h2 {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 14px;
+        }
+
+        .upgrade-box p { color: var(--dim); margin-bottom: 32px; font-size: 15px; line-height: 1.6; }
+
+        .btn-pay {
+            background: linear-gradient(135deg, var(--yellow), var(--orange));
+            color: #000;
+            border: none;
+            border-radius: 14px;
+            padding: 18px 44px;
+            font-size: 16px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.25s;
+            letter-spacing: -0.3px;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 60px rgba(255,224,54,0.3);
+        }
+
+        /* ══════════════════════════════════
+           HOW IT WORKS
+        ══════════════════════════════════ */
+        .hiw {
+            padding: 120px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-kicker {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--yellow);
+            opacity: 0.7;
+            margin-bottom: 16px;
+        }
+
+        .section-h {
+            font-size: clamp(40px, 5vw, 64px);
+            font-weight: 800;
+            letter-spacing: -3px;
+            line-height: 1.02;
+            margin-bottom: 64px;
+        }
+
+        .section-h em {
+            font-style: normal;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .step-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,224,54,0.2);
+            transform: translateY(-6px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .step-n {
+            font-size: 100px;
+            font-weight: 800;
+            color: rgba(255,255,255,0.03);
+            position: absolute;
+            top: 10px; right: 20px;
+            line-height: 1;
+            letter-spacing: -6px;
+        }
+
+        .step-emoji { font-size: 40px; margin-bottom: 24px; }
+
+        .step-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .step-card p { font-size: 14px; color: var(--dim); line-height: 1.7; }
+
+        /* ══════════════════════════════════
+           BEFORE / AFTER
+        ══════════════════════════════════ */
+        .ba {
+            padding: 80px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .ba-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 64px;
+        }
+
+        .ba-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        .ba-box-head {
+            padding: 18px 28px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ba-box-head.b { color: rgba(255,255,255,0.25); }
+        .ba-box-head.a { color: var(--yellow); background: rgba(255,224,54,0.04); border-color: rgba(255,224,54,0.1); }
+
+        .ba-box-body { padding: 28px; }
+
+        .bad-t {
+            font-size: 14px;
+            color: rgba(255,255,255,0.18);
+            text-decoration: line-through;
+            padding: 9px 14px;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .good-t {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            padding: 12px 16px;
+            background: rgba(255,224,54,0.06);
+            border-radius: 10px;
+            border-left: 2px solid rgba(255,224,54,0.4);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .ctr-show {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .ctr-show-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .ctr-show-label { font-size: 11px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+        .ctr-show-val { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+        .ctr-show-val.lo { color: rgba(255,255,255,0.2); }
+        .ctr-show-val.hi { color: var(--yellow); }
+
+        .ctr-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .ctr-bar-fill { height: 100%; border-radius: 2px; }
+        .ctr-bar-fill.lo { background: rgba(255,255,255,0.1); width: 18%; }
+        .ctr-bar-fill.hi { background: linear-gradient(90deg, var(--orange), var(--yellow)); width: 85%; }
+
+        /* ══════════════════════════════════
+           PRICING
+        ══════════════════════════════════ */
+        .pricing {
+            padding: 120px 80px;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 64px;
+        }
+
+        .plan-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 44px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .plan-box:hover { transform: translateY(-4px); }
+
+        .plan-box.pro {
+            background: linear-gradient(145deg, rgba(255,224,54,0.05), rgba(255,92,0,0.05));
+            border-color: rgba(255,224,54,0.2);
+        }
+
+        .plan-box.pro::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--orange), var(--yellow));
+        }
+
+        .plan-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            color: #000;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .plan-name { font-size: 13px; font-weight: 600; color: var(--dim); margin-bottom: 16px; letter-spacing: 0.3px; }
+
+        .plan-price {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -4px;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .plan-price.pro-price { color: var(--yellow); }
+
+        .plan-period { font-size: 13px; color: var(--dim); margin-bottom: 32px; }
+
+        .plan-feats { list-style: none; }
+
+        .plan-feats li {
+            font-size: 14px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.65);
+        }
+
+        .plan-feats li:last-child { border: none; }
+        .plan-feats li .y { color: #22c55e; font-size: 15px; }
+        .plan-feats li .n2 { color: rgba(255,255,255,0.15); font-size: 15px; }
+
+        /* ══════════════════════════════════
+           FOOTER
+        ══════════════════════════════════ */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        footer .logo { font-size: 18px; }
+        footer p { font-size: 13px; color: var(--dim); }
+        footer a { color: var(--yellow); text-decoration: none; font-size: 13px; }
+
+        /* ══════════════════════════════════
+           ANIMATIONS
+        ══════════════════════════════════ */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ══════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .hero { grid-template-columns: 1fr; gap: 60px; padding: 100px 40px 60px; }
+            .hero-right { display: none; }
+            nav { padding: 0 24px; }
+            .hiw, .ba, .pricing { padding: 80px 24px; }
+            .steps { grid-template-columns: 1fr; }
+            .ba-wrap { grid-template-columns: 1fr; }
+            .plan-grid { grid-template-columns: 1fr; }
+            footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
+            .results { padding: 0 20px 80px; }
+            .tgrid { grid-template-columns: 1fr; }
+            .titem.wide { grid-column: span 1; }
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="hero">
-        <h1>🎯 <span>ThumbGenius</span></h1>
-        <p>Paste your video topic → Get viral titles + thumbnail concept + hook script</p>
-        <p class="free">✅ 3 free generations — no signup needed</p>
+
+<!-- ANIMATED BACKGROUND -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+    <div class="logo">Thumb<span>Genius</span></div>
+    <div class="nav-right">
+        <span class="nav-badge">3 Free Generations · No Signup</span>
+        <button class="nav-cta" onclick="document.getElementById('topic').focus()">Try Free →</button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-left">
+        <div class="hero-tag">
+            <span class="pulse"></span>
+            AI-Powered YouTube Growth Tool
+        </div>
+
+        <h1 class="hero-h1">
+            <span class="word-make">Make every</span><br>
+            <span class="word-thumb">thumbnail</span><br>
+            <span class="word-click">click.</span>
+        </h1>
+
+        <p class="hero-p">
+            Paste your video topic. Get 5 viral titles, a ready-to-use thumbnail concept, and a hook script — all in under 10 seconds.
+        </p>
+
+        <div class="hero-form">
+            <div class="input-wrap">
+                <span class="input-icon">🎬</span>
+                <input type="text" id="topic" placeholder="e.g. I tested 5 budget phones under ₹10,000" />
+            </div>
+
+            <div class="niche-row" id="nicheRow">
+                <div class="niche-chip active" data-niche="tech">📱 Tech</div>
+                <div class="niche-chip" data-niche="finance">💰 Finance</div>
+                <div class="niche-chip" data-niche="gaming">🎮 Gaming</div>
+                <div class="niche-chip" data-niche="fitness">💪 Fitness</div>
+                <div class="niche-chip" data-niche="food">🍕 Food</div>
+                <div class="niche-chip" data-niche="travel">✈️ Travel</div>
+                <div class="niche-chip" data-niche="education">📚 Education</div>
+                <div class="niche-chip" data-niche="motivation">🔥 Motivation</div>
+                <div class="niche-chip" data-niche="beauty">💄 Beauty</div>
+                <div class="niche-chip" data-niche="entertainment">🎬 Entertainment</div>
+                <div class="niche-chip" data-niche="more" id="moreChip" onclick="toggleMoreNiches(event)">➕ More</div>
+</div>
+<div class="niche-row" id="moreNiches" style="display:none;margin-top:4px">
+    <div class="niche-chip" data-niche="business">📈 Business</div>
+    <div class="niche-chip" data-niche="productivity">🧠 Productivity</div>
+    <div class="niche-chip" data-niche="cricket">🏏 Cricket</div>
+    <div class="niche-chip" data-niche="automobiles">🚗 Automobiles</div>
+    <div class="niche-chip" data-niche="examprep">🎓 Exam Prep</div>
+    <div class="niche-chip" data-niche="health">💊 Health</div>
+    <div class="niche-chip" data-niche="pets">🐾 Pets</div>
+    <div class="niche-chip" data-niche="music">🎵 Music</div>
+    <div class="niche-chip" data-niche="realestate">🏠 Real Estate</div>
+    <div class="niche-chip" data-niche="spirituality">🌿 Spirituality</div>
+
+            </div>
+
+            <button class="btn-gen" id="generateBtn" onclick="generate()">
+                ⚡ Generate My Content Package
+            </button>
+
+            <div class="form-footer">
+                <div class="free-badge"><span class="dot">●</span> 3 free · no signup</div>
+                <div id="usesLeft"><strong>3</strong> remaining</div>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <label for="topic">Your Video Topic</label>
-        <input id="topic" type="text" placeholder="e.g. I tested 5 budget phones under 10,000"/>
-        <label for="niche">Your Niche</label>
-        <select id="niche">
-            <option value="tech">📱 Tech</option>
-            <option value="finance">💰 Finance</option>
-            <option value="fitness">💪 Fitness</option>
-            <option value="gaming">🎮 Gaming</option>
-            <option value="food">🍕 Food</option>
-            <option value="travel">✈️ Travel</option>
-            <option value="education">📚 Education</option>
-            <option value="motivation">🔥 Motivation</option>
-            <option value="beauty">💄 Beauty</option>
-            <option value="entertainment">🎬 Entertainment</option>
-        </select>
-        <button class="btn" id="generateBtn" onclick="generate()">⚡ Generate My Content Package</button>
-        <p class="uses" id="usesLeft">3 free generations remaining</p>
+    <div class="hero-right">
+        <div class="preview-card">
+            <div class="preview-header">
+                <div class="preview-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="preview-title-bar">thumbgenius.in</div>
+            </div>
+            <div class="preview-body">
+                <div class="preview-section-label">⚡ 5 Viral Titles Generated</div>
+                <div class="preview-title-item">
+                    <span class="preview-num">01</span>
+                    <span class="preview-text">I Used This ₹15,000 Phone For 30 Days — Honest Truth</span>
+                </div>
+                <div class="preview-title-item">
+                    <span class="preview-num">02</span>
+                    <span class="preview-text">They Don't Want You To Know This About Budget Phones</span>
+                </div>
+                <div class="preview-title-item">
+                    <span class="preview-num">03</span>
+                    <span class="preview-text">5 Budget Phones That Actually Beat Flagships in 2025</span>
+                </div>
+                <div class="preview-divider"></div>
+                <div class="preview-section-label">🎨 Thumbnail Concept</div>
+                <div class="thumb-mini">
+                    <div class="thumb-mini-item">
+                        <div class="thumb-mini-label">Text Overlay</div>
+                        <div class="thumb-mini-val hl">BUDGET KING</div>
+                    </div>
+                    <div class="thumb-mini-item">
+                        <div class="thumb-mini-label">Emotion</div>
+                        <div class="thumb-mini-val">Curiosity + Shock</div>
+                    </div>
+                    <div class="thumb-mini-item">
+                        <div class="thumb-mini-label">Expression</div>
+                        <div class="thumb-mini-val">Surprised face</div>
+                    </div>
+                    <div class="thumb-mini-item">
+                        <div class="thumb-mini-label">Background</div>
+                        <div class="thumb-mini-val">Blue gradient, phone close-up</div>
+                    </div>
+                </div>
+                <div class="ctr-mini">
+                    <span class="ctr-mini-label">🎯 Predicted CTR Score</span>
+                    <span class="ctr-mini-score">8.7/10</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+    <div class="loading-spinner"></div>
+    <h3>Analyzing viral patterns…</h3>
+    <p>Studying 10M+ videos for your niche</p>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+    <div class="results-header">
+        <h2>Your Content Package ✦</h2>
+        <p>Click any title to copy. Use the hook script word for word.</p>
     </div>
 
-    <div id="loading" class="hidden loading">
-        <div class="emoji">🤖</div>
-        <p>AI is analyzing viral patterns...</p>
+    <div class="rblock">
+        <div class="rblock-head">🔥 5 Viral Title Options</div>
+        <div id="titles"></div>
     </div>
 
-    <div id="results" class="hidden">
-        <div class="card">
-            <div class="section-title">🔥 5 Viral Title Options</div>
-            <div id="titles"></div>
-        </div>
-        <div class="card">
-            <div class="section-title">🎨 Thumbnail Concept</div>
-            <div class="thumb-grid" id="thumbnail"></div>
-        </div>
-        <div class="card">
-            <div class="section-title">🎬 Hook Script (First 15 seconds)</div>
-            <p class="hook-text" id="hook"></p>
-            <button class="copy-btn" onclick="copyText('hook')" style="margin-top:12px;font-size:14px;color:#facc15;">📋 Copy Script</button>
-        </div>
-        <div class="tip-card">
-            <div class="tip-title">💡 Niche Tip</div>
-            <p class="tip-text" id="nicheTip"></p>
-        </div>
+    <div class="rblock">
+        <div class="rblock-head">🎨 Thumbnail Concept</div>
+        <div class="tgrid" id="thumbnail"></div>
     </div>
 
-    <div id="upgradeBanner" class="hidden upgrade">
-        <h2>🚀 You've used all 3 free generations!</h2>
-        <p>Upgrade for unlimited access — titles, thumbnails and hooks for every video</p>
-        <button class="upgrade-btn">Get Unlimited Access — ₹749/month</button>
+    <div class="rblock">
+        <div class="rblock-head">🎬 Hook Script — First 15 Seconds</div>
+        <p class="hook-p" id="hook"></p>
+        <button class="copy-sm" onclick="copyText('hook')">📋 Copy Script</button>
+    </div>
+
+    <div class="tip-rblock">
+        <div class="tip-label">💡 Niche Intelligence</div>
+        <p class="tip-val" id="nicheTip"></p>
     </div>
 </div>
 
+<!-- UPGRADE -->
+<div class="upgrade" id="upgradeBanner">
+    <div class="upgrade-box">
+        <h2>All 3 free<br>generations used.</h2>
+        <p>Upgrade for unlimited titles, thumbnail concepts, and hook scripts for every single video you make.</p>
+        <button class="btn-pay">Get Unlimited Access — ₹749/month</button>
+    </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="hiw">
+    <div class="section-kicker">How it works</div>
+    <div class="section-h">Three steps.<br><em>One viral video.</em></div>
+    <div class="steps">
+        <div class="step-card">
+            <div class="step-n">01</div>
+            <div class="step-emoji">✍️</div>
+            <h3>Paste Your Topic</h3>
+            <p>Type your video idea in plain English. Choose your niche. That's all the input we need.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-n">02</div>
+            <div class="step-emoji">🤖</div>
+            <h3>AI Generates</h3>
+            <p>Our AI analyzes millions of viral videos and generates your complete content package in seconds.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-n">03</div>
+            <div class="step-emoji">📈</div>
+            <h3>Publish & Grow</h3>
+            <p>Use the title, recreate the thumbnail, read the hook — and watch your click-through rate climb.</p>
+        </div>
+    </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="ba">
+    <div style="max-width:1100px;margin:0 auto">
+        <div class="section-kicker">Before vs After</div>
+        <div class="section-h">See what<br><em>ThumbGenius</em> does.</div>
+        <div class="ba-wrap">
+            <div class="ba-box">
+                <div class="ba-box-head b">❌ Without ThumbGenius</div>
+                <div class="ba-box-body">
+                    <div class="bad-t">My review of the Redmi Note 14</div>
+                    <div class="bad-t">Budget phone video 2025</div>
+                    <div class="bad-t">Is the Redmi Note 14 worth it?</div>
+                    <div class="ctr-show">
+                        <div class="ctr-show-row">
+                            <span class="ctr-show-label">Estimated CTR</span>
+                            <span class="ctr-show-val lo">1.8%</span>
+                        </div>
+                        <div class="ctr-bar"><div class="ctr-bar-fill lo"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="ba-box">
+                <div class="ba-box-head a">✅ With ThumbGenius</div>
+                <div class="ba-box-body">
+                    <div class="good-t">I Used This ₹15,000 Phone For 30 Days — Honest Truth</div>
+                    <div class="good-t">They Don't Want You To Know This About Budget Phones</div>
+                    <div class="good-t">5 Budget Phones That Beat Flagships in 2025</div>
+                    <div class="ctr-show">
+                        <div class="ctr-show-row">
+                            <span class="ctr-show-label">Estimated CTR</span>
+                            <span class="ctr-show-val hi">8.5%</span>
+                        </div>
+                        <div class="ctr-bar"><div class="ctr-bar-fill hi"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing">
+    <div class="section-kicker">Pricing</div>
+    <div class="section-h">Simple,<br><em>honest</em> pricing.</div>
+    <div class="plan-grid">
+        <div class="plan-box">
+            <div class="plan-name">Free Forever</div>
+            <div class="plan-price">₹0</div>
+            <div class="plan-period">No credit card · No signup</div>
+            <ul class="plan-feats">
+                <li><span class="y">✓</span> 3 generations / month</li>
+                <li><span class="y">✓</span> All 10 niches</li>
+                <li><span class="y">✓</span> Titles + concept + hook</li>
+                <li><span class="n2">✗</span> Unlimited generations</li>
+                <li><span class="n2">✗</span> Priority speed</li>
+            </ul>
+        </div>
+        <div class="plan-box pro">
+            <div class="plan-badge">Most Popular</div>
+            <div class="plan-name">Unlimited</div>
+            <div class="plan-price pro-price">₹749</div>
+            <div class="plan-period">per month · cancel anytime</div>
+            <ul class="plan-feats">
+                <li><span class="y">✓</span> Unlimited generations</li>
+                <li><span class="y">✓</span> All 10 niches</li>
+                <li><span class="y">✓</span> Titles + concept + hook</li>
+                <li><span class="y">✓</span> Priority AI speed</li>
+                <li><span class="y">✓</span> Early access to new features</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="logo">Thumb<span>Genius</span></div>
+    <p>© 2025 ThumbGenius · Made for YouTubers</p>
+    <a href="mailto:hello@thumbgenius.in">hello@thumbgenius.in</a>
+</footer>
+
 <script>
+/* ── CANVAS BACKGROUND ── */
+(function() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+
+    function createParticles() {
+        particles = [];
+        for (let i = 0; i < 60; i++) {
+            particles.push({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: Math.random() * 1.5 + 0.3,
+                dx: (Math.random() - 0.5) * 0.3,
+                dy: (Math.random() - 0.5) * 0.3,
+                a: Math.random() * 0.4 + 0.1,
+                color: ['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)]
+            });
+        }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+
+        // Gradient background
+        const grad = ctx.createRadialGradient(W*0.2, H*0.1, 0, W*0.2, H*0.1, W*0.6);
+        grad.addColorStop(0, 'rgba(255,224,54,0.04)');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        const grad2 = ctx.createRadialGradient(W*0.8, H*0.7, 0, W*0.8, H*0.7, W*0.5);
+        grad2.addColorStop(0, 'rgba(255,45,122,0.05)');
+        grad2.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad2;
+        ctx.fillRect(0, 0, W, H);
+
+        // Particles
+        particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.a;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+
+            p.x += p.dx; p.y += p.dy;
+            if (p.x < 0 || p.x > W) p.dx *= -1;
+            if (p.y < 0 || p.y > H) p.dy *= -1;
+        });
+
+        // Grid lines
+        ctx.globalAlpha = 0.025;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.5;
+        const step = 80;
+        for (let x = 0; x < W; x += step) {
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        }
+        for (let y = 0; y < H; y += step) {
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        requestAnimationFrame(draw);
+    }
+
+    resize();
+    createParticles();
+    draw();
+    window.addEventListener('resize', () => { resize(); createParticles(); });
+})();
+
+function toggleMoreNiches(e) {
+    e.stopPropagation();
+    const more = document.getElementById("moreNiches");
+    const chip = document.getElementById("moreChip");
+    if (more.style.display === "none") {
+        more.style.display = "flex";
+        more.style.flexWrap = "wrap";
+        more.style.gap = "8px";
+        chip.textContent = "➖ Less";
+    } else {
+        more.style.display = "none";
+        chip.textContent = "➕ More";
+    }
+}
+
+/* ── NICHE CHIPS ── */
+let selectedNiche = 'tech';
+document.querySelectorAll('.niche-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        selectedNiche = chip.dataset.niche;
+    });
+});
+
+/* ── GENERATE ── */
 async function generate() {
     const topic = document.getElementById('topic').value.trim();
-    const niche = document.getElementById('niche').value;
-    if (!topic) { alert('Please enter a video topic!'); return; }
+    if (!topic) {
+        const el = document.getElementById('topic');
+        el.style.borderColor = 'rgba(255,92,0,0.6)';
+        el.style.boxShadow = '0 0 0 4px rgba(255,92,0,0.1)';
+        el.focus();
+        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2000);
+        return;
+    }
 
-    document.getElementById('loading').classList.remove('hidden');
-    document.getElementById('results').classList.add('hidden');
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('upgradeBanner').style.display = 'none';
     document.getElementById('generateBtn').disabled = true;
+    document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     try {
         const res = await fetch('/generate', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({topic, niche})
+            body: JSON.stringify({ topic, niche: selectedNiche })
         });
         const data = await res.json();
 
         if (data.error === 'free_limit_reached') {
-            document.getElementById('upgradeBanner').classList.remove('hidden');
-            document.getElementById('loading').classList.add('hidden');
-            document.getElementById('generateBtn').disabled = false;
+            document.getElementById('upgradeBanner').style.display = 'block';
+            document.getElementById('upgradeBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
+
         if (data.error) { alert(data.error); return; }
 
         // Titles
         document.getElementById('titles').innerHTML = data.titles.map((t, i) => `
-            <div class="title-card">
-                <span class="title-num">${i+1}</span>
-                <span class="title-text">${t}</span>
-                <button class="copy-btn" onclick="copyToClipboard(this)" data-text="${t.replace(/"/g,'&quot;')}">📋</button>
+            <div class="title-row" onclick="copyToClipboard('${t.replace(/'/g,"\\'")}', this)">
+                <span class="n">0${i+1}</span>
+                <span class="t">${t}</span>
+                <button class="cp" title="Copy">📋</button>
             </div>`).join('');
 
         // Thumbnail
         const th = data.thumbnail;
         document.getElementById('thumbnail').innerHTML = `
-            <div class="thumb-item"><div class="thumb-label">Background</div><div class="thumb-value">${th.background}</div></div>
-            <div class="thumb-item"><div class="thumb-label">Expression</div><div class="thumb-value">${th.face_expression}</div></div>
-            <div class="thumb-item"><div class="thumb-label">Text Overlay</div><div class="thumb-value overlay-text">${th.text_overlay}</div></div>
-            <div class="thumb-item"><div class="thumb-label">Emotion</div><div class="thumb-value">${th.emotion_trigger}</div></div>
-            <div class="thumb-item ctr"><div class="thumb-label">CTR Score</div><div class="thumb-value"><span class="ctr-score">${th.ctr_score}/10</span> — ${th.why_it_works}</div></div>`;
+            <div class="titem">
+                <div class="titem-label">Background</div>
+                <div class="titem-val">${th.background}</div>
+            </div>
+            <div class="titem">
+                <div class="titem-label">Expression</div>
+                <div class="titem-val">${th.face_expression}</div>
+            </div>
+            <div class="titem">
+                <div class="titem-label">Text Overlay</div>
+                <div class="titem-val big">${th.text_overlay}</div>
+            </div>
+            <div class="titem">
+                <div class="titem-label">Emotion</div>
+                <div class="titem-val">${th.emotion_trigger}</div>
+            </div>
+            <div class="titem wide">
+                <div class="titem-label">CTR Score & Why It Works</div>
+                <div class="ctr-big-row" style="margin-top:12px">
+                    <div class="ctr-num">${th.ctr_score}</div>
+                    <div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${th.why_it_works}</div>
+                </div>
+            </div>`;
 
         document.getElementById('hook').textContent = data.hook_script;
         document.getElementById('nicheTip').textContent = data.niche_tip;
 
         if (data.uses_remaining !== undefined) {
-            document.getElementById('usesLeft').textContent = data.uses_remaining + ' free generations remaining';
+            document.getElementById('usesLeft').innerHTML = `<strong>${data.uses_remaining}</strong> remaining`;
         }
 
-        document.getElementById('results').classList.remove('hidden');
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch(e) {
         alert('Something went wrong. Please try again.');
     } finally {
-        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('loading').style.display = 'none';
         document.getElementById('generateBtn').disabled = false;
     }
 }
 
-function copyToClipboard(btn) {
-    const text = btn.getAttribute('data-text');
-    navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+function copyToClipboard(text, el) {
+    navigator.clipboard.writeText(text).then(() => {
+        const cp = el.querySelector('.cp');
+        cp.textContent = '✅';
+        setTimeout(() => cp.textContent = '📋', 1500);
+    });
 }
 
 function copyText(id) {
     navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => alert('Copied!'));
 }
+
+document.getElementById('topic').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generate();
+});
 </script>
 </body>
 </html>
