@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThumbGenius — Make Every Thumbnail Click</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Clash+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap');
-
         :root {
             --bg: #02020a;
             --surface: rgba(255,255,255,0.03);
@@ -23,1044 +21,388 @@
         }
 
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
         html { scroll-behavior: smooth; }
-
-        body {
-            background: var(--bg);
-            color: var(--white);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ══════════════════════════════════
-           BACKGROUND CANVAS
-        ══════════════════════════════════ */
-        #bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ══════════════════════════════════
-           NAV
-        ══════════════════════════════════ */
-        nav {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 200;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 48px;
-            height: 72px;
-            background: rgba(2,2,10,0.6);
-            backdrop-filter: blur(40px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--yellow);
-        }
-
-        .logo span { color: var(--white); opacity: 0.5; }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .nav-badge {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--dim);
-            letter-spacing: 0.3px;
-        }
-
-        .nav-cta {
-            background: var(--yellow);
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-size: 13px;
-            font-weight: 700;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            letter-spacing: 0.2px;
-        }
-
-        .nav-cta:hover {
-            background: #fff;
-            transform: translateY(-1px);
-        }
-
-        /* ══════════════════════════════════
-           HERO
-        ══════════════════════════════════ */
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            gap: 80px;
-            padding: 120px 80px 80px;
-            z-index: 10;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .hero-left { position: relative; }
-
-        .hero-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,224,54,0.08);
-            border: 1px solid rgba(255,224,54,0.2);
-            border-radius: 100px;
-            padding: 8px 16px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--yellow);
-            letter-spacing: 0.5px;
-            margin-bottom: 32px;
-            animation: fadeUp 0.8s 0.1s both;
-        }
-
-        .hero-tag .pulse {
-            width: 6px; height: 6px;
-            background: var(--yellow);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--yellow);
-            animation: blink 2s infinite;
-        }
-
-        @keyframes blink {
-            0%,100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .hero-h1 {
-            font-size: clamp(52px, 5.5vw, 80px);
-            font-weight: 800;
-            line-height: 1.02;
-            letter-spacing: -3px;
-            margin-bottom: 28px;
-            animation: fadeUp 0.8s 0.2s both;
-        }
-
-        .hero-h1 .word-make { color: var(--white); }
-
-        .hero-h1 .word-every {
-            color: transparent;
-            -webkit-text-stroke: 1.5px rgba(255,255,255,0.25);
-        }
-
-        .hero-h1 .word-thumb {
-            position: relative;
-            display: inline-block;
-            color: var(--yellow);
-            filter: drop-shadow(0 0 30px rgba(255,224,54,0.35));
-        }
-
-        .hero-h1 .word-click {
-            background: linear-gradient(90deg, var(--orange), var(--pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-p {
-            font-size: 17px;
-            color: var(--dim);
-            line-height: 1.75;
-            font-weight: 400;
-            max-width: 460px;
-            margin-bottom: 44px;
-            animation: fadeUp 0.8s 0.3s both;
-        }
-
-        .hero-form {
-            animation: fadeUp 0.8s 0.4s both;
-        }
-
-        .input-wrap {
-            position: relative;
-            margin-bottom: 12px;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 18px;
-            pointer-events: none;
-        }
-
-        input[type="text"] {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 18px 18px 18px 52px;
-            font-size: 15px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--white);
-            outline: none;
-            transition: all 0.25s;
-        }
-
-        input[type="text"]:focus {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(255,224,54,0.4);
-            box-shadow: 0 0 0 4px rgba(255,224,54,0.06), 0 0 40px rgba(255,224,54,0.04);
-        }
-
-        input::placeholder { color: rgba(255,255,255,0.2); }
-
-        .niche-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
-        .niche-chip {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 13px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--dim);
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .niche-chip:hover {
-            background: rgba(255,255,255,0.08);
-            color: var(--white);
-            border-color: rgba(255,255,255,0.15);
-        }
-
-        .niche-chip.active {
-            background: rgba(255,224,54,0.1);
-            border-color: rgba(255,224,54,0.4);
-            color: var(--yellow);
-        }
-
-        .btn-gen {
-            width: 100%;
-            background: var(--yellow);
-            color: #000;
-            border: none;
-            border-radius: 14px;
-            padding: 18px;
-            font-size: 16px;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer;
-            transition: all 0.25s;
-            position: relative;
-            overflow: hidden;
-            letter-spacing: -0.3px;
-        }
-
-        .btn-gen::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .btn-gen:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 16px 48px rgba(255,224,54,0.35), 0 4px 16px rgba(255,224,54,0.2);
-        }
-
-        .btn-gen:hover::after { opacity: 1; }
-        .btn-gen:active { transform: translateY(0); }
-        .btn-gen:disabled { opacity: 0.4; transform: none !important; box-shadow: none !important; }
-
-        .form-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 14px;
-        }
-
-        .free-badge {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: var(--dim);
-        }
-
-        .free-badge .dot { color: #22c55e; }
-
-        #usesLeft { font-size: 12px; color: var(--dim); }
-        #usesLeft strong { color: var(--yellow); }
-
-        /* ══════════════════════════════════
-           HERO RIGHT — PREVIEW CARD
-        ══════════════════════════════════ */
-        .hero-right {
-            position: relative;
-            animation: fadeUp 0.8s 0.5s both;
-        }
-
-        .preview-card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-            position: relative;
-        }
-
-        .preview-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent 0%, rgba(255,224,54,0.6) 50%, transparent 100%);
-        }
-
-        .preview-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .preview-dots { display: flex; gap: 6px; }
-        .preview-dots span { width: 10px; height: 10px; border-radius: 50%; }
-        .preview-dots span:nth-child(1) { background: #ff5f57; }
-        .preview-dots span:nth-child(2) { background: #ffbd2e; }
-        .preview-dots span:nth-child(3) { background: #28c840; }
-
-        .preview-title-bar {
-            flex: 1;
-            background: var(--faint);
-            border-radius: 6px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            font-size: 11px;
-            color: var(--dim);
-        }
-
-        .preview-body { padding: 28px 24px; }
-
-        .preview-section-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255,224,54,0.6);
-            margin-bottom: 14px;
-        }
-
-        .preview-title-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            background: var(--faint);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-            animation: slide-in 0.5s both;
-        }
-
-        .preview-title-item:nth-child(1) { animation-delay: 0.8s; }
-        .preview-title-item:nth-child(2) { animation-delay: 1.0s; }
-        .preview-title-item:nth-child(3) { animation-delay: 1.2s; }
-
-        @keyframes slide-in {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .preview-title-item:hover {
-            background: rgba(255,224,54,0.06);
-            border-color: rgba(255,224,54,0.15);
-        }
-
-        .preview-num {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--yellow);
-            opacity: 0.6;
-            min-width: 16px;
-        }
-
-        .preview-text { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.4; flex: 1; }
-
-        .preview-divider {
-            height: 1px;
-            background: var(--border);
-            margin: 20px 0;
-        }
-
-        .thumb-mini {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .thumb-mini-item {
-            background: var(--faint);
-            border-radius: 10px;
-            padding: 12px;
-            animation: slide-in 0.5s 1.4s both;
-        }
-
-        .thumb-mini-label {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.3);
-            margin-bottom: 6px;
-        }
-
-        .thumb-mini-val { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.4; }
-        .thumb-mini-val.hl { color: var(--yellow); font-weight: 700; font-size: 14px; }
-
-        .ctr-mini {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 16px;
-            padding: 12px 16px;
-            background: rgba(255,224,54,0.06);
-            border: 1px solid rgba(255,224,54,0.12);
-            border-radius: 10px;
-            animation: slide-in 0.5s 1.6s both;
-        }
-
-        .ctr-mini-label { font-size: 11px; color: var(--dim); }
-        .ctr-mini-score { font-size: 22px; font-weight: 800; color: var(--yellow); letter-spacing: -1px; }
-
-        /* ══════════════════════════════════
-           LOADING
-        ══════════════════════════════════ */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 80px 24px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .loading-spinner {
-            width: 48px; height: 48px;
-            border: 2px solid rgba(255,224,54,0.1);
-            border-top-color: var(--yellow);
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .loading h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-        }
-
-        .loading p { color: var(--dim); font-size: 14px; }
-
-        /* ══════════════════════════════════
-           RESULTS
-        ══════════════════════════════════ */
-        .results {
-            display: none;
-            max-width: 780px;
-            margin: 0 auto;
-            padding: 0 40px 100px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .results-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .results-header h2 {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            margin-bottom: 8px;
-        }
-
-        .results-header p { color: var(--dim); font-size: 15px; }
-
-        .rblock {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            margin-bottom: 14px;
-            position: relative;
-            overflow: hidden;
-            animation: fadeUp 0.5s both;
-        }
-
-        .rblock::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 20%; right: 20%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,224,54,0.4), transparent);
-        }
-
-        .rblock-head {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255,224,54,0.6);
-            margin-bottom: 20px;
-        }
-
-        .title-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 14px;
-            border-radius: 12px;
-            margin-bottom: 6px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .title-row:hover {
-            background: rgba(255,224,54,0.04);
-            border-color: rgba(255,224,54,0.12);
-            transform: translateX(4px);
-        }
-
-        .title-row .n {
-            font-size: 11px;
-            font-weight: 800;
-            color: rgba(255,224,54,0.3);
-            min-width: 20px;
-            padding-top: 3px;
-        }
-
-        .title-row .t { flex: 1; font-size: 15px; font-weight: 500; line-height: 1.5; }
-
-        .title-row .cp {
-            opacity: 0;
-            font-size: 14px;
-            background: none;
-            border: none;
-            color: var(--yellow);
-            cursor: pointer;
-            padding: 4px;
-            transition: opacity 0.2s;
-        }
-
-        .title-row:hover .cp { opacity: 1; }
-
-        .tgrid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .titem {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .titem.wide { grid-column: span 2; }
-
-        .titem-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.25);
-            margin-bottom: 8px;
-        }
-
-        .titem-val { font-size: 14px; color: rgba(255,255,255,0.8); line-height: 1.5; }
-        .titem-val.big { font-size: 22px; font-weight: 800; color: var(--yellow); letter-spacing: -0.5px; }
-
-        .ctr-big-row {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .ctr-num {
-            font-size: 52px;
-            font-weight: 800;
-            letter-spacing: -3px;
-            line-height: 1;
-            color: var(--yellow);
-        }
-
-        .hook-p {
-            font-size: 16px;
-            line-height: 1.9;
-            color: rgba(255,255,255,0.65);
-            font-style: italic;
-            font-weight: 300;
-            padding-left: 20px;
-            border-left: 2px solid rgba(255,224,54,0.4);
-        }
-
-        .tip-rblock {
-            background: linear-gradient(135deg, rgba(255,92,0,0.07), rgba(255,45,122,0.05));
-            border: 1px solid rgba(255,92,0,0.15);
-            border-radius: 20px;
-            padding: 28px 32px;
-            margin-bottom: 14px;
-        }
-
-        .tip-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 12px; }
-        .tip-val { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.7; }
-
-        .copy-sm {
-            background: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.4);
-            padding: 9px 18px;
-            border-radius: 9px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 16px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: all 0.2s;
-        }
-
-        .copy-sm:hover {
-            border-color: rgba(255,224,54,0.3);
-            color: var(--yellow);
-        }
-
-        /* ══════════════════════════════════
-           UPGRADE
-        ══════════════════════════════════ */
-        .upgrade {
-            display: none;
-            max-width: 640px;
-            margin: 60px auto;
-            padding: 0 40px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .upgrade-box {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,224,54,0.15);
-            border-radius: 28px;
-            padding: 56px 48px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upgrade-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--orange), var(--yellow), var(--pink));
-        }
-
-        .upgrade-box h2 {
-            font-size: 40px;
-            font-weight: 800;
-            letter-spacing: -2px;
-            margin-bottom: 14px;
-        }
-
-        .upgrade-box p { color: var(--dim); margin-bottom: 32px; font-size: 15px; line-height: 1.6; }
-
-        .btn-pay {
-            background: linear-gradient(135deg, var(--yellow), var(--orange));
-            color: #000;
-            border: none;
-            border-radius: 14px;
-            padding: 18px 44px;
-            font-size: 16px;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            cursor: pointer;
-            transition: all 0.25s;
-            letter-spacing: -0.3px;
-        }
-
-        .btn-pay:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 60px rgba(255,224,54,0.3);
-        }
-
-        /* ══════════════════════════════════
-           HOW IT WORKS
-        ══════════════════════════════════ */
-        .hiw {
-            padding: 120px 80px;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
-        }
-
-        .section-kicker {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--yellow);
-            opacity: 0.7;
-            margin-bottom: 16px;
-        }
-
-        .section-h {
-            font-size: clamp(40px, 5vw, 64px);
-            font-weight: 800;
-            letter-spacing: -3px;
-            line-height: 1.02;
-            margin-bottom: 64px;
-        }
-
-        .section-h em {
-            font-style: normal;
-            color: transparent;
-            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
-        }
-
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .step-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px 32px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-        }
-
-        .step-card:hover {
-            background: rgba(255,255,255,0.05);
-            border-color: rgba(255,224,54,0.2);
-            transform: translateY(-6px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-        }
-
-        .step-n {
-            font-size: 100px;
-            font-weight: 800;
-            color: rgba(255,255,255,0.03);
-            position: absolute;
-            top: 10px; right: 20px;
-            line-height: 1;
-            letter-spacing: -6px;
-        }
-
-        .step-emoji { font-size: 40px; margin-bottom: 24px; }
-
-        .step-card h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
-        }
-
-        .step-card p { font-size: 14px; color: var(--dim); line-height: 1.7; }
-
-        /* ══════════════════════════════════
-           BEFORE / AFTER
-        ══════════════════════════════════ */
-        .ba {
-            padding: 80px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .ba-wrap {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 64px;
-        }
-
-        .ba-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            overflow: hidden;
-        }
-
-        .ba-box-head {
-            padding: 18px 28px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ba-box-head.b { color: rgba(255,255,255,0.25); }
-        .ba-box-head.a { color: var(--yellow); background: rgba(255,224,54,0.04); border-color: rgba(255,224,54,0.1); }
-
-        .ba-box-body { padding: 28px; }
-
-        .bad-t {
-            font-size: 14px;
-            color: rgba(255,255,255,0.18);
-            text-decoration: line-through;
-            padding: 9px 14px;
-            margin-bottom: 8px;
-            font-style: italic;
-        }
-
-        .good-t {
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.85);
-            padding: 12px 16px;
-            background: rgba(255,224,54,0.06);
-            border-radius: 10px;
-            border-left: 2px solid rgba(255,224,54,0.4);
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .ctr-show {
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .ctr-show-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .ctr-show-label { font-size: 11px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
-        .ctr-show-val { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-        .ctr-show-val.lo { color: rgba(255,255,255,0.2); }
-        .ctr-show-val.hi { color: var(--yellow); }
-
-        .ctr-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .ctr-bar-fill { height: 100%; border-radius: 2px; }
-        .ctr-bar-fill.lo { background: rgba(255,255,255,0.1); width: 18%; }
-        .ctr-bar-fill.hi { background: linear-gradient(90deg, var(--orange), var(--yellow)); width: 85%; }
-
-        /* ══════════════════════════════════
-           PRICING
-        ══════════════════════════════════ */
-        .pricing {
-            padding: 120px 80px;
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 10;
-        }
-
-        .plan-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 64px;
-        }
-
-        .plan-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 44px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s;
-        }
-
-        .plan-box:hover { transform: translateY(-4px); }
-
-        .plan-box.pro {
-            background: linear-gradient(145deg, rgba(255,224,54,0.05), rgba(255,92,0,0.05));
-            border-color: rgba(255,224,54,0.2);
-        }
-
-        .plan-box.pro::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--orange), var(--yellow));
-        }
-
-        .plan-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--orange), var(--yellow));
-            color: #000;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            padding: 4px 12px;
-            border-radius: 100px;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-
-        .plan-name { font-size: 13px; font-weight: 600; color: var(--dim); margin-bottom: 16px; letter-spacing: 0.3px; }
-
-        .plan-price {
-            font-size: 56px;
-            font-weight: 800;
-            letter-spacing: -4px;
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-
-        .plan-price.pro-price { color: var(--yellow); }
-
-        .plan-period { font-size: 13px; color: var(--dim); margin-bottom: 32px; }
-
-        .plan-feats { list-style: none; }
-
-        .plan-feats li {
-            font-size: 14px;
-            padding: 11px 0;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: rgba(255,255,255,0.65);
-        }
-
-        .plan-feats li:last-child { border: none; }
-        .plan-feats li .y { color: #22c55e; font-size: 15px; }
-        .plan-feats li .n2 { color: rgba(255,255,255,0.15); font-size: 15px; }
-
-        /* ══════════════════════════════════
-           FOOTER
-        ══════════════════════════════════ */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 40px 80px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        footer .logo { font-size: 18px; }
-        footer p { font-size: 13px; color: var(--dim); }
-        footer a { color: var(--yellow); text-decoration: none; font-size: 13px; }
-
-        /* ══════════════════════════════════
-           ANIMATIONS
-        ══════════════════════════════════ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(28px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ══════════════════════════════════
-           RESPONSIVE
-        ══════════════════════════════════ */
-        @media (max-width: 1024px) {
-            .hero { grid-template-columns: 1fr; gap: 60px; padding: 100px 40px 60px; }
-            .hero-right { display: none; }
-            nav { padding: 0 24px; }
-            .hiw, .ba, .pricing { padding: 80px 24px; }
-            .steps { grid-template-columns: 1fr; }
-            .ba-wrap { grid-template-columns: 1fr; }
-            .plan-grid { grid-template-columns: 1fr; }
-            footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
-            .results { padding: 0 20px 80px; }
-            .tgrid { grid-template-columns: 1fr; }
-            .titem.wide { grid-column: span 1; }
+        body { background:var(--bg); color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; overflow-x:hidden; min-height:100vh; }
+        #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+        /* NAV */
+        nav { position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:72px; background:rgba(2,2,10,0.6); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
+        .logo { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:var(--yellow); }
+        .logo span { color:var(--white); opacity:0.5; }
+        .nav-right { display:flex; align-items:center; gap:16px; }
+        .nav-badge { font-size:12px; font-weight:600; color:var(--dim); letter-spacing:0.3px; }
+        .nav-cta { background:var(--yellow); color:#000; border:none; border-radius:10px; padding:10px 20px; font-size:13px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .nav-cta:hover { background:#fff; transform:translateY(-1px); }
+        .nav-tab { background:transparent; color:var(--dim); border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+        .nav-tab:hover { color:var(--white); border-color:rgba(255,255,255,0.2); }
+        .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); }
+
+        /* PAGES */
+        .page { display:none; }
+        .page.active { display:block; }
+
+        /* HERO */
+        .hero { position:relative; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:80px; padding:120px 80px 80px; z-index:10; max-width:1400px; margin:0 auto; }
+        .hero-tag { display:inline-flex; align-items:center; gap:10px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); border-radius:100px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--yellow); letter-spacing:0.5px; margin-bottom:32px; animation:fadeUp 0.8s 0.1s both; }
+        .hero-tag .pulse { width:6px; height:6px; background:var(--yellow); border-radius:50%; box-shadow:0 0 10px var(--yellow); animation:blink 2s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .hero-h1 { font-size:clamp(52px,5.5vw,80px); font-weight:800; line-height:1.02; letter-spacing:-3px; margin-bottom:28px; animation:fadeUp 0.8s 0.2s both; }
+        .hero-h1 .word-thumb { color:var(--yellow); filter:drop-shadow(0 0 30px rgba(255,224,54,0.35)); }
+        .hero-h1 .word-click { background:linear-gradient(90deg,var(--orange),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .hero-h1 .word-every { color:transparent; -webkit-text-stroke:1.5px rgba(255,255,255,0.25); }
+        .hero-p { font-size:17px; color:var(--dim); line-height:1.75; font-weight:400; max-width:460px; margin-bottom:44px; animation:fadeUp 0.8s 0.3s both; }
+        .hero-form { animation:fadeUp 0.8s 0.4s both; }
+        .input-wrap { position:relative; margin-bottom:12px; }
+        .input-icon { position:absolute; left:18px; top:50%; transform:translateY(-50%); font-size:18px; pointer-events:none; }
+        input[type="text"] { width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:14px; padding:18px 18px 18px 52px; font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--white); outline:none; transition:all 0.25s; }
+        input[type="text"]:focus { background:rgba(255,255,255,0.07); border-color:rgba(255,224,54,0.4); box-shadow:0 0 0 4px rgba(255,224,54,0.06); }
+        input::placeholder { color:rgba(255,255,255,0.2); }
+        .niche-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+        .niche-chip { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--dim); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+        .niche-chip:hover { background:rgba(255,255,255,0.08); color:var(--white); border-color:rgba(255,255,255,0.15); }
+        .niche-chip.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
+        .btn-gen { width:100%; background:var(--yellow); color:#000; border:none; border-radius:14px; padding:18px; font-size:16px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; letter-spacing:-0.3px; }
+        .btn-gen::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent); opacity:0; transition:opacity 0.3s; }
+        .btn-gen:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(255,224,54,0.35); }
+        .btn-gen:hover::after { opacity:1; }
+        .btn-gen:active { transform:translateY(0); }
+        .btn-gen:disabled { opacity:0.4; transform:none !important; box-shadow:none !important; }
+        .form-footer { display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
+        .free-badge { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--dim); }
+        .free-badge .dot { color:#22c55e; }
+        #usesLeft { font-size:12px; color:var(--dim); }
+        #usesLeft strong { color:var(--yellow); }
+
+        /* HERO RIGHT */
+        .hero-right { position:relative; animation:fadeUp 0.8s 0.5s both; }
+        .preview-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:24px; overflow:hidden; backdrop-filter:blur(20px); position:relative; }
+        .preview-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 0%,rgba(255,224,54,0.6) 50%,transparent 100%); }
+        .preview-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+        .preview-dots { display:flex; gap:6px; }
+        .preview-dots span { width:10px; height:10px; border-radius:50%; }
+        .preview-dots span:nth-child(1){background:#ff5f57} .preview-dots span:nth-child(2){background:#ffbd2e} .preview-dots span:nth-child(3){background:#28c840}
+        .preview-title-bar { flex:1; background:var(--faint); border-radius:6px; height:28px; display:flex; align-items:center; padding:0 12px; font-size:11px; color:var(--dim); }
+        .preview-body { padding:28px 24px; }
+        .preview-section-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:14px; }
+        .preview-title-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--faint); border-radius:10px; margin-bottom:8px; border:1px solid transparent; transition:all 0.2s; animation:slide-in 0.5s both; }
+        .preview-title-item:nth-child(1){animation-delay:0.8s} .preview-title-item:nth-child(2){animation-delay:1.0s} .preview-title-item:nth-child(3){animation-delay:1.2s}
+        .preview-title-item:hover { background:rgba(255,224,54,0.06); border-color:rgba(255,224,54,0.15); }
+        @keyframes slide-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+        .preview-num { font-size:10px; font-weight:700; color:var(--yellow); opacity:0.6; min-width:16px; }
+        .preview-text { font-size:13px; color:rgba(255,255,255,0.8); line-height:1.4; flex:1; }
+        .preview-divider { height:1px; background:var(--border); margin:20px 0; }
+        .thumb-mini { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .thumb-mini-item { background:var(--faint); border-radius:10px; padding:12px; animation:slide-in 0.5s 1.4s both; }
+        .thumb-mini-label { font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:6px; }
+        .thumb-mini-val { font-size:12px; color:rgba(255,255,255,0.7); line-height:1.4; }
+        .thumb-mini-val.hl { color:var(--yellow); font-weight:700; font-size:14px; }
+        .ctr-mini { display:flex; align-items:center; justify-content:space-between; margin-top:16px; padding:12px 16px; background:rgba(255,224,54,0.06); border:1px solid rgba(255,224,54,0.12); border-radius:10px; animation:slide-in 0.5s 1.6s both; }
+        .ctr-mini-label { font-size:11px; color:var(--dim); }
+        .ctr-mini-score { font-size:22px; font-weight:800; color:var(--yellow); letter-spacing:-1px; }
+
+        /* LOADING */
+        .loading { display:none; text-align:center; padding:80px 24px; position:relative; z-index:10; }
+        .loading-spinner { width:48px; height:48px; border:2px solid rgba(255,224,54,0.1); border-top-color:var(--yellow); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 20px; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .loading h3 { font-size:20px; font-weight:700; margin-bottom:8px; letter-spacing:-0.5px; }
+        .loading p { color:var(--dim); font-size:14px; }
+
+        /* RESULTS */
+        .results { display:none; max-width:780px; margin:0 auto; padding:0 40px 100px; position:relative; z-index:10; }
+        .results-header { text-align:center; margin-bottom:40px; }
+        .results-header h2 { font-size:36px; font-weight:800; letter-spacing:-1.5px; margin-bottom:8px; }
+        .results-header p { color:var(--dim); font-size:15px; }
+        .rblock { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:14px; position:relative; overflow:hidden; animation:fadeUp 0.5s both; }
+        .rblock::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,224,54,0.4),transparent); }
+        .rblock-head { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:20px; }
+        .title-row { display:flex; align-items:flex-start; gap:14px; padding:14px; border-radius:12px; margin-bottom:6px; border:1px solid transparent; cursor:pointer; transition:all 0.2s; }
+        .title-row:hover { background:rgba(255,224,54,0.04); border-color:rgba(255,224,54,0.12); transform:translateX(4px); }
+        .title-row .n { font-size:11px; font-weight:800; color:rgba(255,224,54,0.3); min-width:20px; padding-top:3px; }
+        .title-row .t { flex:1; font-size:15px; font-weight:500; line-height:1.5; }
+        .title-row .cp { opacity:0; font-size:14px; background:none; border:none; color:var(--yellow); cursor:pointer; padding:4px; transition:opacity 0.2s; }
+        .title-row:hover .cp { opacity:1; }
+        .tgrid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .titem { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:12px; padding:16px; }
+        .titem.wide { grid-column:span 2; }
+        .titem-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,255,255,0.25); margin-bottom:8px; }
+        .titem-val { font-size:14px; color:rgba(255,255,255,0.8); line-height:1.5; }
+        .titem-val.big { font-size:22px; font-weight:800; color:var(--yellow); letter-spacing:-0.5px; }
+        .ctr-big-row { display:flex; align-items:center; gap:20px; }
+        .ctr-num { font-size:52px; font-weight:800; letter-spacing:-3px; line-height:1; color:var(--yellow); }
+        .hook-p { font-size:16px; line-height:1.9; color:rgba(255,255,255,0.65); font-style:italic; font-weight:300; padding-left:20px; border-left:2px solid rgba(255,224,54,0.4); }
+
+        /* IMAGE BLOCK */
+        .image-rblock { background:rgba(255,224,54,0.03); border:1px solid rgba(255,224,54,0.12); border-radius:20px; padding:32px; margin-bottom:14px; position:relative; overflow:hidden; }
+        .image-rblock::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,224,54,0.5),transparent); }
+        .img-desc { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px; line-height:1.6; }
+        .img-desc strong { color:var(--yellow); }
+        .btn-img { background:linear-gradient(135deg,var(--orange),var(--yellow)); color:#000; border:none; border-radius:12px; padding:16px 32px; font-size:15px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; display:inline-flex; align-items:center; gap:8px; }
+        .btn-img:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(255,224,54,0.3); }
+        .btn-img:disabled { opacity:0.4; transform:none !important; }
+        .img-loading { display:none; margin-top:24px; text-align:center; }
+        .img-loading p { color:rgba(255,255,255,0.4); font-size:13px; margin-top:10px; }
+        .img-result { display:none; margin-top:24px; }
+        .img-result img { width:100%; border-radius:16px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+        .img-actions { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+        .btn-download { background:var(--yellow); color:#000; border:none; border-radius:10px; padding:12px 24px; font-size:14px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; }
+        .btn-download:hover { background:#fff; }
+        .btn-regen { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px solid var(--border); border-radius:10px; padding:12px 24px; font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-regen:hover { background:rgba(255,255,255,0.1); color:var(--white); }
+        .img-upgrade { display:none; margin-top:20px; padding:20px; background:rgba(255,224,54,0.06); border:1px solid rgba(255,224,54,0.15); border-radius:12px; text-align:center; }
+        .img-upgrade p:first-child { color:var(--yellow); font-weight:700; margin-bottom:6px; }
+        .img-upgrade p:last-child { color:rgba(255,255,255,0.4); font-size:13px; }
+
+        .tip-rblock { background:linear-gradient(135deg,rgba(255,92,0,0.07),rgba(255,45,122,0.05)); border:1px solid rgba(255,92,0,0.15); border-radius:20px; padding:28px 32px; margin-bottom:14px; }
+        .tip-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:12px; }
+        .tip-val { font-size:15px; color:rgba(255,255,255,0.65); line-height:1.7; }
+        .copy-sm { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); padding:9px 18px; border-radius:9px; font-size:12px; cursor:pointer; margin-top:16px; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; }
+        .copy-sm:hover { border-color:rgba(255,224,54,0.3); color:var(--yellow); }
+
+        /* TAGS BLOCK */
+        .tags-rblock { background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.12); border-radius:20px; padding:32px; margin-bottom:14px; position:relative; overflow:hidden; }
+        .tags-rblock::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(0,240,255,0.4),transparent); }
+        .tags-section { margin-bottom:20px; }
+        .tags-section:last-child { margin-bottom:0; }
+        .tags-section-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(0,240,255,0.5); margin-bottom:10px; }
+        .tags-wrap { display:flex; flex-wrap:wrap; gap:8px; }
+        .tag-chip { background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.15); border-radius:7px; padding:6px 12px; font-size:12px; color:rgba(255,255,255,0.7); cursor:pointer; transition:all 0.2s; user-select:none; }
+        .tag-chip:hover { background:rgba(0,240,255,0.12); border-color:rgba(0,240,255,0.3); color:var(--white); }
+        .tag-chip.copied { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:#22c55e; }
+        .tags-copy-all { background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.2); color:var(--cyan); border-radius:9px; padding:9px 18px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; margin-top:16px; }
+        .tags-copy-all:hover { background:rgba(0,240,255,0.15); }
+
+        /* SAVE TO HISTORY BUTTON */
+        .btn-save { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--dim); border-radius:10px; padding:10px 20px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; margin-top:20px; }
+        .btn-save:hover { background:rgba(255,224,54,0.08); border-color:rgba(255,224,54,0.3); color:var(--yellow); }
+        .btn-save.saved { color:#22c55e; border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.06); }
+
+        /* UPGRADE */
+        .upgrade { display:none; max-width:640px; margin:60px auto; padding:0 40px; position:relative; z-index:10; }
+        .upgrade-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,224,54,0.15); border-radius:28px; padding:56px 48px; text-align:center; position:relative; overflow:hidden; }
+        .upgrade-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow),var(--pink)); }
+        .upgrade-box h2 { font-size:40px; font-weight:800; letter-spacing:-2px; margin-bottom:14px; }
+        .upgrade-box p { color:var(--dim); margin-bottom:32px; font-size:15px; line-height:1.6; }
+        .btn-pay { background:linear-gradient(135deg,var(--yellow),var(--orange)); color:#000; border:none; border-radius:14px; padding:18px 44px; font-size:16px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; letter-spacing:-0.3px; }
+        .btn-pay:hover { transform:translateY(-3px); box-shadow:0 20px 60px rgba(255,224,54,0.3); }
+
+        /* HOW IT WORKS */
+        .hiw { padding:120px 80px; max-width:1200px; margin:0 auto; position:relative; z-index:10; }
+        .section-kicker { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--yellow); opacity:0.7; margin-bottom:16px; }
+        .section-h { font-size:clamp(40px,5vw,64px); font-weight:800; letter-spacing:-3px; line-height:1.02; margin-bottom:64px; }
+        .section-h em { font-style:normal; color:transparent; -webkit-text-stroke:1px rgba(255,255,255,0.2); }
+        .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .step-card { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:40px 32px; position:relative; overflow:hidden; transition:all 0.3s; }
+        .step-card:hover { background:rgba(255,255,255,0.05); border-color:rgba(255,224,54,0.2); transform:translateY(-6px); box-shadow:0 30px 60px rgba(0,0,0,0.4); }
+        .step-n { font-size:100px; font-weight:800; color:rgba(255,255,255,0.03); position:absolute; top:10px; right:20px; line-height:1; letter-spacing:-6px; }
+        .step-emoji { font-size:40px; margin-bottom:24px; }
+        .step-card h3 { font-size:20px; font-weight:700; margin-bottom:12px; letter-spacing:-0.5px; }
+        .step-card p { font-size:14px; color:var(--dim); line-height:1.7; }
+
+        /* BEFORE AFTER */
+        .ba { padding:80px; position:relative; z-index:10; }
+        .ba-wrap { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:64px; }
+        .ba-box { background:var(--surface); border:1px solid var(--border); border-radius:24px; overflow:hidden; }
+        .ba-box-head { padding:18px 28px; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+        .ba-box-head.b { color:rgba(255,255,255,0.25); }
+        .ba-box-head.a { color:var(--yellow); background:rgba(255,224,54,0.04); border-color:rgba(255,224,54,0.1); }
+        .ba-box-body { padding:28px; }
+        .bad-t { font-size:14px; color:rgba(255,255,255,0.18); text-decoration:line-through; padding:9px 14px; margin-bottom:8px; font-style:italic; }
+        .good-t { font-size:14px; font-weight:600; color:rgba(255,255,255,0.85); padding:12px 16px; background:rgba(255,224,54,0.06); border-radius:10px; border-left:2px solid rgba(255,224,54,0.4); margin-bottom:8px; line-height:1.4; }
+        .ctr-show { margin-top:24px; padding-top:20px; border-top:1px solid var(--border); }
+        .ctr-show-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+        .ctr-show-label { font-size:11px; color:var(--dim); letter-spacing:1px; text-transform:uppercase; }
+        .ctr-show-val { font-size:20px; font-weight:800; letter-spacing:-0.5px; }
+        .ctr-show-val.lo { color:rgba(255,255,255,0.2); }
+        .ctr-show-val.hi { color:var(--yellow); }
+        .ctr-bar { height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; }
+        .ctr-bar-fill { height:100%; border-radius:2px; }
+        .ctr-bar-fill.lo { background:rgba(255,255,255,0.1); width:18%; }
+        .ctr-bar-fill.hi { background:linear-gradient(90deg,var(--orange),var(--yellow)); width:85%; }
+
+        /* PRICING */
+        .pricing { padding:120px 80px; max-width:900px; margin:0 auto; position:relative; z-index:10; }
+        .plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:64px; }
+        .plan-box { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:44px; position:relative; overflow:hidden; transition:transform 0.3s; }
+        .plan-box:hover { transform:translateY(-4px); }
+        .plan-box.pro { background:linear-gradient(145deg,rgba(255,224,54,0.05),rgba(255,92,0,0.05)); border-color:rgba(255,224,54,0.2); }
+        .plan-box.pro::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow)); }
+        .plan-badge { display:inline-block; background:linear-gradient(135deg,var(--orange),var(--yellow)); color:#000; font-size:10px; font-weight:800; letter-spacing:1px; padding:4px 12px; border-radius:100px; text-transform:uppercase; margin-bottom:20px; }
+        .plan-name { font-size:13px; font-weight:600; color:var(--dim); margin-bottom:16px; letter-spacing:0.3px; }
+        .plan-price { font-size:56px; font-weight:800; letter-spacing:-4px; line-height:1; margin-bottom:6px; }
+        .plan-price.pro-price { color:var(--yellow); }
+        .plan-period { font-size:13px; color:var(--dim); margin-bottom:32px; }
+        .plan-feats { list-style:none; }
+        .plan-feats li { font-size:14px; padding:11px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; color:rgba(255,255,255,0.65); }
+        .plan-feats li:last-child { border:none; }
+        .plan-feats li .y { color:#22c55e; font-size:15px; }
+        .plan-feats li .n2 { color:rgba(255,255,255,0.15); font-size:15px; }
+
+        /* FOOTER */
+        footer { border-top:1px solid var(--border); padding:40px 80px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
+        footer .logo { font-size:18px; }
+        footer p { font-size:13px; color:var(--dim); }
+        footer a { color:var(--yellow); text-decoration:none; font-size:13px; }
+
+        /* ═══════════════════════════════════
+           HISTORY PAGE
+        ═══════════════════════════════════ */
+        .feature-page { padding:100px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:10; min-height:100vh; }
+        .feature-page-title { font-size:clamp(32px,4vw,52px); font-weight:800; letter-spacing:-2px; margin-bottom:8px; }
+        .feature-page-sub { color:var(--dim); font-size:16px; margin-bottom:48px; }
+
+        .history-empty { text-align:center; padding:80px 24px; color:var(--dim); }
+        .history-empty .big-emoji { font-size:64px; margin-bottom:16px; }
+        .history-empty h3 { font-size:20px; font-weight:700; color:var(--white); margin-bottom:8px; }
+
+        .history-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:14px; position:relative; transition:all 0.2s; }
+        .history-card:hover { border-color:rgba(255,224,54,0.15); background:rgba(255,255,255,0.04); }
+        .history-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }
+        .history-topic { font-size:16px; font-weight:700; color:var(--white); letter-spacing:-0.3px; }
+        .history-meta { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .history-niche-badge { background:rgba(255,224,54,0.1); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; letter-spacing:0.5px; }
+        .history-date { font-size:11px; color:rgba(255,255,255,0.25); }
+        .history-titles { list-style:none; }
+        .history-titles li { font-size:13px; color:rgba(255,255,255,0.55); padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; align-items:center; gap:8px; }
+        .history-titles li:last-child { border:none; }
+        .history-titles li::before { content:'→'; color:rgba(255,224,54,0.3); font-size:11px; }
+        .history-actions { display:flex; gap:8px; margin-top:16px; }
+        .btn-reload { background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:8px; padding:8px 16px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-reload:hover { background:rgba(255,224,54,0.15); }
+        .btn-del { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.25); border-radius:8px; padding:8px 16px; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-del:hover { border-color:rgba(255,45,122,0.3); color:var(--pink); }
+
+        /* ═══════════════════════════════════
+           A/B TESTER PAGE
+        ═══════════════════════════════════ */
+        .ab-intro { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:24px; }
+        .ab-intro p { color:var(--dim); font-size:15px; line-height:1.7; }
+        .ab-input-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+        .ab-input-box { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; }
+        .ab-input-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+        .ab-input-label.a-label { color:var(--cyan); }
+        .ab-input-label.b-label { color:var(--pink); }
+        textarea { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:10px; padding:14px; font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--white); outline:none; resize:none; transition:all 0.25s; min-height:80px; }
+        textarea:focus { border-color:rgba(255,224,54,0.3); background:rgba(255,255,255,0.06); }
+        textarea::placeholder { color:rgba(255,255,255,0.2); }
+        .btn-ab { background:linear-gradient(135deg,var(--cyan),#0099ff); color:#000; border:none; border-radius:12px; padding:16px 32px; font-size:15px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; width:100%; margin-bottom:24px; }
+        .btn-ab:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(0,229,255,0.25); }
+        .btn-ab:disabled { opacity:0.4; transform:none !important; }
+        .ab-result { display:none; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:32px; }
+        .ab-verdict { text-align:center; margin-bottom:28px; }
+        .ab-verdict-label { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--dim); margin-bottom:10px; }
+        .ab-winner { font-size:32px; font-weight:800; letter-spacing:-1px; }
+        .ab-winner.cyan { color:var(--cyan); }
+        .ab-winner.pink { color:var(--pink); }
+        .ab-scores { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+        .ab-score-box { border-radius:14px; padding:20px; text-align:center; }
+        .ab-score-box.a { background:rgba(0,229,255,0.06); border:1px solid rgba(0,229,255,0.15); }
+        .ab-score-box.b { background:rgba(255,45,122,0.06); border:1px solid rgba(255,45,122,0.15); }
+        .ab-score-title { font-size:13px; color:var(--dim); margin-bottom:8px; line-height:1.4; }
+        .ab-score-num { font-size:36px; font-weight:800; letter-spacing:-2px; }
+        .ab-score-num.a { color:var(--cyan); }
+        .ab-score-num.b { color:var(--pink); }
+        .ab-reasoning { font-size:14px; color:rgba(255,255,255,0.6); line-height:1.7; padding:20px; background:rgba(255,255,255,0.02); border-radius:12px; }
+
+        /* ═══════════════════════════════════
+           CHANNEL ANALYZER PAGE
+        ═══════════════════════════════════ */
+        .analyzer-input-wrap { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:24px; }
+        .analyzer-input-wrap p { color:var(--dim); font-size:14px; margin-bottom:20px; line-height:1.6; }
+        .channel-input-row { display:flex; gap:12px; }
+        .channel-input-row input { flex:1; padding:16px 20px 16px 20px; }
+        .btn-analyze { background:var(--yellow); color:#000; border:none; border-radius:12px; padding:16px 28px; font-size:15px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
+        .btn-analyze:hover { background:#fff; transform:translateY(-1px); }
+        .btn-analyze:disabled { opacity:0.4; transform:none !important; }
+        .analyzer-result { display:none; }
+        .analyzer-score-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+        .analyzer-score-box { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; text-align:center; }
+        .analyzer-score-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:8px; }
+        .analyzer-score-num { font-size:40px; font-weight:800; letter-spacing:-2px; color:var(--yellow); }
+        .analyzer-score-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px; }
+        .analyzer-section { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:14px; }
+        .analyzer-section-title { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:16px; }
+        .issue-item { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+        .issue-item:last-child { border:none; }
+        .issue-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+        .issue-text { font-size:14px; color:rgba(255,255,255,0.65); line-height:1.5; }
+        .issue-text strong { color:var(--white); display:block; margin-bottom:3px; font-size:14px; }
+
+        /* ═══════════════════════════════════
+           TRENDING TOPICS PAGE
+        ═══════════════════════════════════ */
+        .trending-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:32px; }
+        .trending-filter { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 16px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--dim); cursor:pointer; transition:all 0.2s; }
+        .trending-filter:hover { color:var(--white); border-color:rgba(255,255,255,0.15); }
+        .trending-filter.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
+        .trending-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+        .trending-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; transition:all 0.2s; cursor:pointer; }
+        .trending-card:hover { background:rgba(255,224,54,0.04); border-color:rgba(255,224,54,0.15); transform:translateY(-2px); }
+        .trending-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+        .trending-niche { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,224,54,0.5); }
+        .trending-heat { font-size:12px; color:var(--orange); }
+        .trending-topic { font-size:15px; font-weight:700; color:var(--white); line-height:1.4; margin-bottom:8px; letter-spacing:-0.3px; }
+        .trending-why { font-size:12px; color:var(--dim); line-height:1.5; }
+        .trending-use-btn { margin-top:14px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:7px; padding:7px 14px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .trending-use-btn:hover { background:rgba(255,224,54,0.15); }
+        .trending-loading { text-align:center; padding:60px 24px; color:var(--dim); }
+
+        @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+        @media (max-width:1024px) {
+            .hero { grid-template-columns:1fr; gap:60px; padding:100px 40px 60px; }
+            .hero-right { display:none; }
+            nav { padding:0 16px; height:auto; padding-top:12px; padding-bottom:12px; flex-wrap:wrap; gap:8px; }
+            .nav-badge { display:none; }
+            .feature-page { padding:100px 24px 60px; }
+            .hiw, .ba, .pricing { padding:80px 24px; }
+            .steps { grid-template-columns:1fr; }
+            .ba-wrap { grid-template-columns:1fr; }
+            .plan-grid { grid-template-columns:1fr; }
+            footer { padding:32px 24px; flex-direction:column; gap:16px; text-align:center; }
+            .results { padding:0 20px 80px; }
+            .tgrid { grid-template-columns:1fr; }
+            .titem.wide { grid-column:span 1; }
+            .ab-input-row { grid-template-columns:1fr; }
+            .ab-scores { grid-template-columns:1fr; }
+            .analyzer-score-row { grid-template-columns:1fr 1fr; }
+            .trending-grid { grid-template-columns:1fr; }
         }
     </style>
 </head>
 <body>
 
-<!-- ANIMATED BACKGROUND -->
 <canvas id="bg-canvas"></canvas>
 
-<!-- NAV -->
 <nav>
     <div class="logo">Thumb<span>Genius</span></div>
     <div class="nav-right">
         <span class="nav-badge">3 Free Generations · No Signup</span>
-        <button class="nav-cta" onclick="document.getElementById('topic').focus()">Try Free →</button>
+        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">🏠 Home</button>
+        <button class="nav-tab" id="tab-history" onclick="showPage('history')">📁 History</button>
+        <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">⚡ A/B Test</button>
+        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">🔍 Analyzer</button>
+        <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">🔥 Trending</button>
+        <button class="nav-cta" onclick="document.getElementById('topic').focus(); showPage('home')">Try Free →</button>
     </div>
 </nav>
 
-<!-- HERO -->
+<!-- ═══════════ HOME PAGE ═══════════ -->
+<div class="page active" id="page-home">
+
 <section class="hero">
     <div class="hero-left">
-        <div class="hero-tag">
-            <span class="pulse"></span>
-            AI-Powered YouTube Growth Tool
-        </div>
-
+        <div class="hero-tag"><span class="pulse"></span>AI-Powered YouTube Growth Tool</div>
         <h1 class="hero-h1">
             <span class="word-make">Make every</span><br>
             <span class="word-thumb">thumbnail</span><br>
             <span class="word-click">click.</span>
         </h1>
-
-        <p class="hero-p">
-            Paste your video topic. Get 5 viral titles, a ready-to-use thumbnail concept, and a hook script — all in under 10 seconds.
-        </p>
-
+        <p class="hero-p">Paste your video topic. Get 5 viral titles, a thumbnail concept, a real AI-generated thumbnail image, and a hook script — in seconds.</p>
         <div class="hero-form">
             <div class="input-wrap">
                 <span class="input-icon">🎬</span>
                 <input type="text" id="topic" placeholder="e.g. I tested 5 budget phones under ₹10,000" />
             </div>
-
             <div class="niche-row" id="nicheRow">
                 <div class="niche-chip active" data-niche="tech">📱 Tech</div>
                 <div class="niche-chip" data-niche="finance">💰 Finance</div>
@@ -1073,155 +415,145 @@
                 <div class="niche-chip" data-niche="beauty">💄 Beauty</div>
                 <div class="niche-chip" data-niche="entertainment">🎬 Entertainment</div>
                 <div class="niche-chip" data-niche="more" id="moreChip" onclick="toggleMoreNiches(event)">➕ More</div>
-</div>
-<div class="niche-row" id="moreNiches" style="display:none;margin-top:4px">
-    <div class="niche-chip" data-niche="business">📈 Business</div>
-    <div class="niche-chip" data-niche="productivity">🧠 Productivity</div>
-    <div class="niche-chip" data-niche="cricket">🏏 Cricket</div>
-    <div class="niche-chip" data-niche="automobiles">🚗 Automobiles</div>
-    <div class="niche-chip" data-niche="examprep">🎓 Exam Prep</div>
-    <div class="niche-chip" data-niche="health">💊 Health</div>
-    <div class="niche-chip" data-niche="pets">🐾 Pets</div>
-    <div class="niche-chip" data-niche="music">🎵 Music</div>
-    <div class="niche-chip" data-niche="realestate">🏠 Real Estate</div>
-    <div class="niche-chip" data-niche="spirituality">🌿 Spirituality</div>
-
             </div>
-
-            <button class="btn-gen" id="generateBtn" onclick="generate()">
-                ⚡ Generate My Content Package
-            </button>
-
+            <div class="niche-row" id="moreNiches" style="display:none;margin-top:4px">
+                <div class="niche-chip" data-niche="business">📈 Business</div>
+                <div class="niche-chip" data-niche="productivity">🧠 Productivity</div>
+                <div class="niche-chip" data-niche="cricket">🏏 Cricket</div>
+                <div class="niche-chip" data-niche="automobiles">🚗 Automobiles</div>
+                <div class="niche-chip" data-niche="examprep">🎓 Exam Prep</div>
+                <div class="niche-chip" data-niche="health">💊 Health</div>
+                <div class="niche-chip" data-niche="pets">🐾 Pets</div>
+                <div class="niche-chip" data-niche="music">🎵 Music</div>
+                <div class="niche-chip" data-niche="realestate">🏠 Real Estate</div>
+                <div class="niche-chip" data-niche="spirituality">🌿 Spirituality</div>
+            </div>
+            <button class="btn-gen" id="generateBtn" onclick="generate()">⚡ Generate My Content Package</button>
             <div class="form-footer">
                 <div class="free-badge"><span class="dot">●</span> 3 free · no signup</div>
                 <div id="usesLeft"><strong>3</strong> remaining</div>
             </div>
         </div>
     </div>
-
     <div class="hero-right">
         <div class="preview-card">
             <div class="preview-header">
-                <div class="preview-dots">
-                    <span></span><span></span><span></span>
-                </div>
+                <div class="preview-dots"><span></span><span></span><span></span></div>
                 <div class="preview-title-bar">thumbgenius.in</div>
             </div>
             <div class="preview-body">
                 <div class="preview-section-label">⚡ 5 Viral Titles Generated</div>
-                <div class="preview-title-item">
-                    <span class="preview-num">01</span>
-                    <span class="preview-text">I Used This ₹15,000 Phone For 30 Days — Honest Truth</span>
-                </div>
-                <div class="preview-title-item">
-                    <span class="preview-num">02</span>
-                    <span class="preview-text">They Don't Want You To Know This About Budget Phones</span>
-                </div>
-                <div class="preview-title-item">
-                    <span class="preview-num">03</span>
-                    <span class="preview-text">5 Budget Phones That Actually Beat Flagships in 2025</span>
-                </div>
+                <div class="preview-title-item"><span class="preview-num">01</span><span class="preview-text">I Used This ₹15,000 Phone For 30 Days — Honest Truth</span></div>
+                <div class="preview-title-item"><span class="preview-num">02</span><span class="preview-text">They Don't Want You To Know This About Budget Phones</span></div>
+                <div class="preview-title-item"><span class="preview-num">03</span><span class="preview-text">5 Budget Phones That Actually Beat Flagships in 2025</span></div>
                 <div class="preview-divider"></div>
-                <div class="preview-section-label">🎨 Thumbnail Concept</div>
+                <div class="preview-section-label">🎨 Thumbnail Concept + AI Image</div>
                 <div class="thumb-mini">
-                    <div class="thumb-mini-item">
-                        <div class="thumb-mini-label">Text Overlay</div>
-                        <div class="thumb-mini-val hl">BUDGET KING</div>
-                    </div>
-                    <div class="thumb-mini-item">
-                        <div class="thumb-mini-label">Emotion</div>
-                        <div class="thumb-mini-val">Curiosity + Shock</div>
-                    </div>
-                    <div class="thumb-mini-item">
-                        <div class="thumb-mini-label">Expression</div>
-                        <div class="thumb-mini-val">Surprised face</div>
-                    </div>
-                    <div class="thumb-mini-item">
-                        <div class="thumb-mini-label">Background</div>
-                        <div class="thumb-mini-val">Blue gradient, phone close-up</div>
-                    </div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Text Overlay</div><div class="thumb-mini-val hl">BUDGET KING</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Emotion</div><div class="thumb-mini-val">Curiosity + Shock</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Expression</div><div class="thumb-mini-val">Surprised face</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Background</div><div class="thumb-mini-val">Blue gradient, phone close-up</div></div>
                 </div>
-                <div class="ctr-mini">
-                    <span class="ctr-mini-label">🎯 Predicted CTR Score</span>
-                    <span class="ctr-mini-score">8.7/10</span>
-                </div>
+                <div class="ctr-mini"><span class="ctr-mini-label">🎯 Predicted CTR Score</span><span class="ctr-mini-score">8.7/10</span></div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- LOADING -->
 <div class="loading" id="loading">
     <div class="loading-spinner"></div>
     <h3>Analyzing viral patterns…</h3>
     <p>Studying 10M+ videos for your niche</p>
 </div>
 
-<!-- RESULTS -->
 <div class="results" id="results">
     <div class="results-header">
         <h2>Your Content Package ✦</h2>
-        <p>Click any title to copy. Use the hook script word for word.</p>
+        <p>Click any title to copy. Generate your thumbnail image below.</p>
     </div>
-
     <div class="rblock">
         <div class="rblock-head">🔥 5 Viral Title Options</div>
         <div id="titles"></div>
     </div>
-
     <div class="rblock">
         <div class="rblock-head">🎨 Thumbnail Concept</div>
         <div class="tgrid" id="thumbnail"></div>
     </div>
-
+    <div class="image-rblock">
+        <div class="rblock-head">🖼️ AI Thumbnail Image</div>
+        <p class="img-desc">Generate an actual thumbnail image from the concept above. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
+        <button class="btn-img" id="imageBtn" onclick="generateImage()">🎨 Generate Thumbnail Image</button>
+        <p id="imgUsesLeft" style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px">1 free image generation remaining</p>
+        <div class="img-loading" id="imgLoading">
+            <div class="loading-spinner"></div>
+            <p>Creating your thumbnail image… (~15 seconds)</p>
+        </div>
+        <div class="img-result" id="imgResult">
+            <img id="thumbnailImg" src="" alt="Generated Thumbnail" />
+            <div class="img-actions">
+                <a id="downloadBtn" href="" download="thumbgenius-thumbnail.png" class="btn-download">⬇️ Download Thumbnail</a>
+                <button class="btn-regen" onclick="generateImage()">🔄 Regenerate</button>
+            </div>
+        </div>
+        <div class="img-upgrade" id="imgUpgrade">
+            <p>🚀 Free image used!</p>
+            <p>Upgrade to ₹749/month for 50 thumbnail images + unlimited concepts</p>
+        </div>
+    </div>
     <div class="rblock">
         <div class="rblock-head">🎬 Hook Script — First 15 Seconds</div>
         <p class="hook-p" id="hook"></p>
         <button class="copy-sm" onclick="copyText('hook')">📋 Copy Script</button>
     </div>
-
     <div class="tip-rblock">
         <div class="tip-label">💡 Niche Intelligence</div>
         <p class="tip-val" id="nicheTip"></p>
     </div>
+
+    <div class="tags-rblock">
+        <div class="rblock-head">📌 YouTube Tag Suggestions</div>
+        <div class="tags-section">
+            <div class="tags-section-label">Primary Tags — Exact Match</div>
+            <div class="tags-wrap" id="tagsPrimary"></div>
+        </div>
+        <div class="tags-section">
+            <div class="tags-section-label">Secondary Tags — Broader Topics</div>
+            <div class="tags-wrap" id="tagsSecondary"></div>
+        </div>
+        <div class="tags-section">
+            <div class="tags-section-label">Long-tail Tags — Full Search Phrases</div>
+            <div class="tags-wrap" id="tagsLongtail"></div>
+        </div>
+        <div class="tags-section">
+            <div class="tags-section-label">Hindi / Hinglish Tags 🇮🇳</div>
+            <div class="tags-wrap" id="tagsHindi"></div>
+        </div>
+        <button class="tags-copy-all" onclick="copyAllTags()">📋 Copy All 20 Tags</button>
+    </div>
+
+    <div style="text-align:center">
+        <button class="btn-save" id="saveBtn" onclick="saveToHistory()">💾 Save to History</button>
+    </div>
 </div>
 
-<!-- UPGRADE -->
 <div class="upgrade" id="upgradeBanner">
     <div class="upgrade-box">
         <h2>All 3 free<br>generations used.</h2>
-        <p>Upgrade for unlimited titles, thumbnail concepts, and hook scripts for every single video you make.</p>
+        <p>Upgrade for unlimited titles, thumbnail concepts, AI images, and hook scripts for every video.</p>
         <button class="btn-pay">Get Unlimited Access — ₹749/month</button>
     </div>
 </div>
 
-<!-- HOW IT WORKS -->
 <section class="hiw">
     <div class="section-kicker">How it works</div>
     <div class="section-h">Three steps.<br><em>One viral video.</em></div>
     <div class="steps">
-        <div class="step-card">
-            <div class="step-n">01</div>
-            <div class="step-emoji">✍️</div>
-            <h3>Paste Your Topic</h3>
-            <p>Type your video idea in plain English. Choose your niche. That's all the input we need.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-n">02</div>
-            <div class="step-emoji">🤖</div>
-            <h3>AI Generates</h3>
-            <p>Our AI analyzes millions of viral videos and generates your complete content package in seconds.</p>
-        </div>
-        <div class="step-card">
-            <div class="step-n">03</div>
-            <div class="step-emoji">📈</div>
-            <h3>Publish & Grow</h3>
-            <p>Use the title, recreate the thumbnail, read the hook — and watch your click-through rate climb.</p>
-        </div>
+        <div class="step-card"><div class="step-n">01</div><div class="step-emoji">✍️</div><h3>Paste Your Topic</h3><p>Type your video idea in plain English. Choose your niche. That's all the input we need.</p></div>
+        <div class="step-card"><div class="step-n">02</div><div class="step-emoji">🤖</div><h3>AI Generates</h3><p>Our AI analyzes millions of viral videos and generates your complete content package including a real thumbnail image.</p></div>
+        <div class="step-card"><div class="step-n">03</div><div class="step-emoji">📈</div><h3>Publish & Grow</h3><p>Use the title, download the thumbnail, read the hook — and watch your click-through rate climb.</p></div>
     </div>
 </section>
 
-<!-- BEFORE / AFTER -->
 <section class="ba">
     <div style="max-width:1100px;margin:0 auto">
         <div class="section-kicker">Before vs After</div>
@@ -1233,13 +565,7 @@
                     <div class="bad-t">My review of the Redmi Note 14</div>
                     <div class="bad-t">Budget phone video 2025</div>
                     <div class="bad-t">Is the Redmi Note 14 worth it?</div>
-                    <div class="ctr-show">
-                        <div class="ctr-show-row">
-                            <span class="ctr-show-label">Estimated CTR</span>
-                            <span class="ctr-show-val lo">1.8%</span>
-                        </div>
-                        <div class="ctr-bar"><div class="ctr-bar-fill lo"></div></div>
-                    </div>
+                    <div class="ctr-show"><div class="ctr-show-row"><span class="ctr-show-label">Estimated CTR</span><span class="ctr-show-val lo">1.8%</span></div><div class="ctr-bar"><div class="ctr-bar-fill lo"></div></div></div>
                 </div>
             </div>
             <div class="ba-box">
@@ -1248,20 +574,13 @@
                     <div class="good-t">I Used This ₹15,000 Phone For 30 Days — Honest Truth</div>
                     <div class="good-t">They Don't Want You To Know This About Budget Phones</div>
                     <div class="good-t">5 Budget Phones That Beat Flagships in 2025</div>
-                    <div class="ctr-show">
-                        <div class="ctr-show-row">
-                            <span class="ctr-show-label">Estimated CTR</span>
-                            <span class="ctr-show-val hi">8.5%</span>
-                        </div>
-                        <div class="ctr-bar"><div class="ctr-bar-fill hi"></div></div>
-                    </div>
+                    <div class="ctr-show"><div class="ctr-show-row"><span class="ctr-show-label">Estimated CTR</span><span class="ctr-show-val hi">8.5%</span></div><div class="ctr-bar"><div class="ctr-bar-fill hi"></div></div></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- PRICING -->
 <section class="pricing">
     <div class="section-kicker">Pricing</div>
     <div class="section-h">Simple,<br><em>honest</em> pricing.</div>
@@ -1271,11 +590,12 @@
             <div class="plan-price">₹0</div>
             <div class="plan-period">No credit card · No signup</div>
             <ul class="plan-feats">
-                <li><span class="y">✓</span> 3 generations / month</li>
-                <li><span class="y">✓</span> All 10 niches</li>
-                <li><span class="y">✓</span> Titles + concept + hook</li>
+                <li><span class="y">✓</span> 3 concept generations/month</li>
+                <li><span class="y">✓</span> 1 AI thumbnail image</li>
+                <li><span class="y">✓</span> All 20 niches</li>
                 <li><span class="n2">✗</span> Unlimited generations</li>
-                <li><span class="n2">✗</span> Priority speed</li>
+                <li><span class="n2">✗</span> History & saved generations</li>
+                <li><span class="n2">✗</span> A/B Title Tester</li>
             </ul>
         </div>
         <div class="plan-box pro">
@@ -1284,11 +604,12 @@
             <div class="plan-price pro-price">₹749</div>
             <div class="plan-period">per month · cancel anytime</div>
             <ul class="plan-feats">
-                <li><span class="y">✓</span> Unlimited generations</li>
-                <li><span class="y">✓</span> All 10 niches</li>
-                <li><span class="y">✓</span> Titles + concept + hook</li>
-                <li><span class="y">✓</span> Priority AI speed</li>
-                <li><span class="y">✓</span> Early access to new features</li>
+                <li><span class="y">✓</span> Unlimited concept generations</li>
+                <li><span class="y">✓</span> 50 AI thumbnail images/month</li>
+                <li><span class="y">✓</span> All 20 niches</li>
+                <li><span class="y">✓</span> Save & access history</li>
+                <li><span class="y">✓</span> A/B Title Tester</li>
+                <li><span class="y">✓</span> Channel Analyzer</li>
             </ul>
         </div>
     </div>
@@ -1300,212 +621,508 @@
     <a href="mailto:hello@thumbgenius.in">hello@thumbgenius.in</a>
 </footer>
 
+</div><!-- end home page -->
+
+<!-- ═══════════ HISTORY PAGE ═══════════ -->
+<div class="page" id="page-history">
+    <div class="feature-page">
+        <div class="section-kicker">Your Saved Work</div>
+        <div class="feature-page-title">Generation History</div>
+        <p class="feature-page-sub">All your saved content packages. Click any result to reload it.</p>
+        <div id="historyContent"></div>
+    </div>
+</div>
+
+<!-- ═══════════ A/B TESTER PAGE ═══════════ -->
+<div class="page" id="page-ab">
+    <div class="feature-page">
+        <div class="section-kicker">Title Optimization</div>
+        <div class="feature-page-title">A/B Title Tester</div>
+        <p class="feature-page-sub">Paste two title options. AI tells you which one will get more clicks and why.</p>
+
+        <div class="ab-intro">
+            <p>Got two title ideas and can't decide? Paste them below and our AI will score each one for CTR potential, emotional pull, and clarity — then tell you which one to use.</p>
+        </div>
+
+        <div class="ab-input-row">
+            <div class="ab-input-box">
+                <div class="ab-input-label a-label">Title A</div>
+                <textarea id="titleA" placeholder="e.g. I Tested 5 Budget Phones Under ₹10,000"></textarea>
+            </div>
+            <div class="ab-input-box">
+                <div class="ab-input-label b-label">Title B</div>
+                <textarea id="titleB" placeholder="e.g. The TRUTH About Budget Phones Nobody Tells You"></textarea>
+            </div>
+        </div>
+
+        <button class="btn-ab" id="abBtn" onclick="runABTest()">⚡ Test These Titles</button>
+
+        <div class="ab-result" id="abResult">
+            <div class="ab-verdict">
+                <div class="ab-verdict-label">Winner</div>
+                <div class="ab-winner" id="abWinner"></div>
+            </div>
+            <div class="ab-scores">
+                <div class="ab-score-box a">
+                    <div class="ab-score-title" id="abTitleA"></div>
+                    <div class="ab-score-num a" id="abScoreA"></div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px">/ 10</div>
+                </div>
+                <div class="ab-score-box b">
+                    <div class="ab-score-title" id="abTitleB"></div>
+                    <div class="ab-score-num b" id="abScoreB"></div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px">/ 10</div>
+                </div>
+            </div>
+            <div class="ab-reasoning" id="abReasoning"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ CHANNEL ANALYZER PAGE ═══════════ -->
+<div class="page" id="page-analyzer">
+    <div class="feature-page">
+        <div class="section-kicker">Channel Intelligence</div>
+        <div class="feature-page-title">Channel Analyzer</div>
+        <p class="feature-page-sub">Paste your YouTube channel URL. Get an instant audit of what's hurting your CTR.</p>
+
+        <div class="analyzer-input-wrap">
+            <p>Enter your YouTube channel URL or paste 3–5 of your recent video titles separated by commas. Our AI will identify patterns, weaknesses, and opportunities in your titling strategy.</p>
+            <div class="channel-input-row">
+                <input type="text" id="channelInput" placeholder="e.g. My Review of Phone X, Top 5 Gadgets, Unboxing Video..." style="padding-left:20px" />
+                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">🔍 Analyze</button>
+            </div>
+        </div>
+
+        <div class="analyzer-result" id="analyzerResult">
+            <div class="analyzer-score-row">
+                <div class="analyzer-score-box">
+                    <div class="analyzer-score-label">CTR Potential</div>
+                    <div class="analyzer-score-num" id="scoreCTR">—</div>
+                    <div class="analyzer-score-sub">out of 10</div>
+                </div>
+                <div class="analyzer-score-box">
+                    <div class="analyzer-score-label">Emotion Score</div>
+                    <div class="analyzer-score-num" id="scoreEmotion">—</div>
+                    <div class="analyzer-score-sub">out of 10</div>
+                </div>
+                <div class="analyzer-score-box">
+                    <div class="analyzer-score-label">Clarity Score</div>
+                    <div class="analyzer-score-num" id="scoreClarity">—</div>
+                    <div class="analyzer-score-sub">out of 10</div>
+                </div>
+            </div>
+            <div class="analyzer-section">
+                <div class="analyzer-section-title">⚠️ Issues Found</div>
+                <div id="analyzerIssues"></div>
+            </div>
+            <div class="analyzer-section">
+                <div class="analyzer-section-title">✅ Improvements</div>
+                <div id="analyzerFixes"></div>
+            </div>
+            <div class="analyzer-section">
+                <div class="analyzer-section-title">💡 Rewritten Titles</div>
+                <div id="analyzerRewrite"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ TRENDING TOPICS PAGE ═══════════ -->
+<div class="page" id="page-trending">
+    <div class="feature-page">
+        <div class="section-kicker">This Week's Hot Topics</div>
+        <div class="feature-page-title">Trending in India 🇮🇳</div>
+        <p class="feature-page-sub">AI-curated viral topics by niche. Click any topic to instantly generate your content package.</p>
+
+        <div class="trending-filters">
+            <div class="trending-filter active" onclick="filterTrending('all', this)">All</div>
+            <div class="trending-filter" onclick="filterTrending('tech', this)">📱 Tech</div>
+            <div class="trending-filter" onclick="filterTrending('finance', this)">💰 Finance</div>
+            <div class="trending-filter" onclick="filterTrending('gaming', this)">🎮 Gaming</div>
+            <div class="trending-filter" onclick="filterTrending('fitness', this)">💪 Fitness</div>
+            <div class="trending-filter" onclick="filterTrending('cricket', this)">🏏 Cricket</div>
+            <div class="trending-filter" onclick="filterTrending('automobiles', this)">🚗 Auto</div>
+            <div class="trending-filter" onclick="filterTrending('examprep', this)">🎓 Exam Prep</div>
+        </div>
+
+        <div id="trendingLoading" class="trending-loading">
+            <div class="loading-spinner" style="margin:0 auto 16px"></div>
+            <p>Fetching trending topics for India…</p>
+        </div>
+        <div class="trending-grid" id="trendingGrid" style="display:none"></div>
+    </div>
+</div>
+
 <script>
-/* ── CANVAS BACKGROUND ── */
+/* ═══ CANVAS BACKGROUND ═══ */
 (function() {
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let W, H, particles = [];
-
-    function resize() {
-        W = canvas.width = window.innerWidth;
-        H = canvas.height = window.innerHeight;
-    }
-
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
     function createParticles() {
         particles = [];
-        for (let i = 0; i < 60; i++) {
-            particles.push({
-                x: Math.random() * W,
-                y: Math.random() * H,
-                r: Math.random() * 1.5 + 0.3,
-                dx: (Math.random() - 0.5) * 0.3,
-                dy: (Math.random() - 0.5) * 0.3,
-                a: Math.random() * 0.4 + 0.1,
-                color: ['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)]
-            });
-        }
+        for(let i=0;i<60;i++) particles.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.5+0.3, dx:(Math.random()-0.5)*0.3, dy:(Math.random()-0.5)*0.3, a:Math.random()*0.4+0.1, color:['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)] });
     }
-
     function draw() {
-        ctx.clearRect(0, 0, W, H);
-
-        // Gradient background
-        const grad = ctx.createRadialGradient(W*0.2, H*0.1, 0, W*0.2, H*0.1, W*0.6);
-        grad.addColorStop(0, 'rgba(255,224,54,0.04)');
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, H);
-
-        const grad2 = ctx.createRadialGradient(W*0.8, H*0.7, 0, W*0.8, H*0.7, W*0.5);
-        grad2.addColorStop(0, 'rgba(255,45,122,0.05)');
-        grad2.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad2;
-        ctx.fillRect(0, 0, W, H);
-
-        // Particles
-        particles.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.a;
-            ctx.fill();
-            ctx.globalAlpha = 1;
-
-            p.x += p.dx; p.y += p.dy;
-            if (p.x < 0 || p.x > W) p.dx *= -1;
-            if (p.y < 0 || p.y > H) p.dy *= -1;
-        });
-
-        // Grid lines
-        ctx.globalAlpha = 0.025;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 0.5;
-        const step = 80;
-        for (let x = 0; x < W; x += step) {
-            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-        }
-        for (let y = 0; y < H; y += step) {
-            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-
-        requestAnimationFrame(draw);
+        ctx.clearRect(0,0,W,H);
+        const g1=ctx.createRadialGradient(W*0.2,H*0.1,0,W*0.2,H*0.1,W*0.6); g1.addColorStop(0,'rgba(255,224,54,0.04)'); g1.addColorStop(1,'transparent'); ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
+        const g2=ctx.createRadialGradient(W*0.8,H*0.7,0,W*0.8,H*0.7,W*0.5); g2.addColorStop(0,'rgba(255,45,122,0.05)'); g2.addColorStop(1,'transparent'); ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
+        particles.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=p.color; ctx.globalAlpha=p.a; ctx.fill(); ctx.globalAlpha=1; p.x+=p.dx; p.y+=p.dy; if(p.x<0||p.x>W)p.dx*=-1; if(p.y<0||p.y>H)p.dy*=-1; });
+        ctx.globalAlpha=0.025; ctx.strokeStyle='#ffffff'; ctx.lineWidth=0.5;
+        for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+        for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+        ctx.globalAlpha=1; requestAnimationFrame(draw);
     }
-
-    resize();
-    createParticles();
-    draw();
-    window.addEventListener('resize', () => { resize(); createParticles(); });
+    resize(); createParticles(); draw();
+    window.addEventListener('resize',()=>{resize();createParticles();});
 })();
 
-function toggleMoreNiches(e) {
-    e.stopPropagation();
-    const more = document.getElementById("moreNiches");
-    const chip = document.getElementById("moreChip");
-    if (more.style.display === "none") {
-        more.style.display = "flex";
-        more.style.flexWrap = "wrap";
-        more.style.gap = "8px";
-        chip.textContent = "➖ Less";
-    } else {
-        more.style.display = "none";
-        chip.textContent = "➕ More";
-    }
+/* ═══ PAGE NAVIGATION ═══ */
+function showPage(name) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('page-'+name).classList.add('active');
+    document.getElementById('tab-'+name).classList.add('active');
+    window.scrollTo(0,0);
+    if(name==='history') renderHistory();
+    if(name==='trending') loadTrending();
 }
 
-/* ── NICHE CHIPS ── */
+/* ═══ NICHE CHIPS ═══ */
 let selectedNiche = 'tech';
 document.querySelectorAll('.niche-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-        document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('active'));
+    if(chip.id==='moreChip') return;
+    chip.addEventListener('click',()=>{
+        document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
         chip.classList.add('active');
         selectedNiche = chip.dataset.niche;
     });
 });
 
-/* ── GENERATE ── */
-async function generate() {
-    const topic = document.getElementById('topic').value.trim();
-    if (!topic) {
-        const el = document.getElementById('topic');
-        el.style.borderColor = 'rgba(255,92,0,0.6)';
-        el.style.boxShadow = '0 0 0 4px rgba(255,92,0,0.1)';
-        el.focus();
-        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2000);
-        return;
-    }
-
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('results').style.display = 'none';
-    document.getElementById('upgradeBanner').style.display = 'none';
-    document.getElementById('generateBtn').disabled = true;
-    document.getElementById('loading').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    try {
-        const res = await fetch('/generate', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ topic, niche: selectedNiche })
-        });
-        const data = await res.json();
-
-        if (data.error === 'free_limit_reached') {
-            document.getElementById('upgradeBanner').style.display = 'block';
-            document.getElementById('upgradeBanner').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
-
-        if (data.error) { alert(data.error); return; }
-
-        // Titles
-        document.getElementById('titles').innerHTML = data.titles.map((t, i) => `
-            <div class="title-row" onclick="copyToClipboard('${t.replace(/'/g,"\\'")}', this)">
-                <span class="n">0${i+1}</span>
-                <span class="t">${t}</span>
-                <button class="cp" title="Copy">📋</button>
-            </div>`).join('');
-
-        // Thumbnail
-        const th = data.thumbnail;
-        document.getElementById('thumbnail').innerHTML = `
-            <div class="titem">
-                <div class="titem-label">Background</div>
-                <div class="titem-val">${th.background}</div>
-            </div>
-            <div class="titem">
-                <div class="titem-label">Expression</div>
-                <div class="titem-val">${th.face_expression}</div>
-            </div>
-            <div class="titem">
-                <div class="titem-label">Text Overlay</div>
-                <div class="titem-val big">${th.text_overlay}</div>
-            </div>
-            <div class="titem">
-                <div class="titem-label">Emotion</div>
-                <div class="titem-val">${th.emotion_trigger}</div>
-            </div>
-            <div class="titem wide">
-                <div class="titem-label">CTR Score & Why It Works</div>
-                <div class="ctr-big-row" style="margin-top:12px">
-                    <div class="ctr-num">${th.ctr_score}</div>
-                    <div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${th.why_it_works}</div>
-                </div>
-            </div>`;
-
-        document.getElementById('hook').textContent = data.hook_script;
-        document.getElementById('nicheTip').textContent = data.niche_tip;
-
-        if (data.uses_remaining !== undefined) {
-            document.getElementById('usesLeft').innerHTML = `<strong>${data.uses_remaining}</strong> remaining`;
-        }
-
-        document.getElementById('results').style.display = 'block';
-        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    } catch(e) {
-        alert('Something went wrong. Please try again.');
-    } finally {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('generateBtn').disabled = false;
-    }
+function toggleMoreNiches(e) {
+    e.stopPropagation();
+    const more = document.getElementById('moreNiches');
+    const chip = document.getElementById('moreChip');
+    if(more.style.display==='none'){more.style.display='flex';more.style.flexWrap='wrap';more.style.gap='8px';chip.textContent='➖ Less';}
+    else{more.style.display='none';chip.textContent='➕ More';}
 }
 
-function copyToClipboard(text, el) {
+/* ═══ GENERATE ═══ */
+let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
+
+async function generate() {
+    const topic = document.getElementById('topic').value.trim();
+    if(!topic){
+        const el=document.getElementById('topic');
+        el.style.borderColor='rgba(255,92,0,0.6)'; el.style.boxShadow='0 0 0 4px rgba(255,92,0,0.1)'; el.focus();
+        setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2000); return;
+    }
+    document.getElementById('loading').style.display='block';
+    document.getElementById('results').style.display='none';
+    document.getElementById('upgradeBanner').style.display='none';
+    document.getElementById('generateBtn').disabled=true;
+    document.getElementById('loading').scrollIntoView({behavior:'smooth',block:'center'});
+    try {
+        const res = await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,niche:selectedNiche})});
+        const data = await res.json();
+        if(data.error==='free_limit_reached'){document.getElementById('upgradeBanner').style.display='block';document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;}
+        if(data.error){alert(data.error);return;}
+        document.getElementById('titles').innerHTML = data.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${t.replace(/'/g,"\\'")}', this)"><span class="n">0${i+1}</span><span class="t">${t}</span><button class="cp">📋</button></div>`).join('');
+        const th=data.thumbnail;
+        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${th.background}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${th.face_expression}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${th.text_overlay}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${th.emotion_trigger}</div></div><div class="titem wide"><div class="titem-label">CTR Score & Analysis</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${th.ctr_score}</div><div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${th.why_it_works}</div></div></div>`;
+        lastConcept=th.background+'. Face expression: '+th.face_expression;
+        lastTextOverlay=th.text_overlay;
+        lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
+        document.getElementById('imgResult').style.display='none';
+        document.getElementById('imgUpgrade').style.display='none';
+        document.getElementById('imgLoading').style.display='none';
+        document.getElementById('imageBtn').disabled=false;
+        document.getElementById('hook').textContent=data.hook_script;
+        document.getElementById('nicheTip').textContent=data.niche_tip;
+        if(data.tags) renderTags(data.tags);
+        if(data.uses_remaining!==undefined) document.getElementById('usesLeft').innerHTML=`<strong>${data.uses_remaining}</strong> remaining`;
+        const saveBtn=document.getElementById('saveBtn');
+        saveBtn.textContent='💾 Save to History'; saveBtn.classList.remove('saved');
+        document.getElementById('results').style.display='block';
+        document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+    } catch(e){alert('Something went wrong. Please try again.');}
+    finally{document.getElementById('loading').style.display='none';document.getElementById('generateBtn').disabled=false;}
+}
+
+/* ═══ GENERATE IMAGE ═══ */
+async function generateImage() {
+    if(!lastConcept){alert('Please generate a content package first!');return;}
+    document.getElementById('imgLoading').style.display='block';
+    document.getElementById('imgResult').style.display='none';
+    document.getElementById('imgUpgrade').style.display='none';
+    document.getElementById('imageBtn').disabled=true;
+    try {
+        const res=await fetch('/generate-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({concept:lastConcept,text_overlay:lastTextOverlay,niche:selectedNiche})});
+        const data=await res.json();
+        if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
+        if(data.error){alert(data.error);return;}
+        document.getElementById('thumbnailImg').src=data.image_url;
+        document.getElementById('downloadBtn').href=data.image_url;
+        document.getElementById('imgResult').style.display='block';
+        if(data.images_remaining!==undefined) document.getElementById('imgUsesLeft').textContent=data.images_remaining+' free image generations remaining';
+    } catch(e){alert('Image generation failed. Please try again.');}
+    finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
+}
+
+/* ═══ HISTORY ═══ */
+function saveToHistory() {
+    if(!lastGeneratedData){alert('Generate something first!');return;}
+    const history = JSON.parse(localStorage.getItem('tg_history')||'[]');
+    history.unshift({...lastGeneratedData, id:Date.now()});
+    if(history.length>20) history.pop();
+    localStorage.setItem('tg_history', JSON.stringify(history));
+    const btn=document.getElementById('saveBtn');
+    btn.textContent='✅ Saved!'; btn.classList.add('saved');
+    setTimeout(()=>{btn.textContent='💾 Save to History';btn.classList.remove('saved');},2000);
+}
+
+function renderHistory() {
+    const history = JSON.parse(localStorage.getItem('tg_history')||'[]');
+    const el = document.getElementById('historyContent');
+    if(history.length===0){
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click "Save to History"</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate →</button></div>`;
+        return;
+    }
+    el.innerHTML = history.map(h=>`
+        <div class="history-card">
+            <div class="history-card-top">
+                <div class="history-topic">${h.topic}</div>
+                <div class="history-meta">
+                    <span class="history-niche-badge">${h.niche}</span>
+                    <span class="history-date">${h.date}</span>
+                </div>
+            </div>
+            <ul class="history-titles">
+                ${h.titles.slice(0,3).map(t=>`<li>${t}</li>`).join('')}
+            </ul>
+            <div class="history-actions">
+                <button class="btn-reload" onclick="reloadFromHistory(${h.id})">↩ Reload Results</button>
+                <button class="btn-del" onclick="deleteHistory(${h.id})">🗑 Delete</button>
+            </div>
+        </div>`).join('');
+}
+
+function reloadFromHistory(id) {
+    const history = JSON.parse(localStorage.getItem('tg_history')||'[]');
+    const h = history.find(x=>x.id===id);
+    if(!h) return;
+    showPage('home');
+    setTimeout(()=>{
+        document.getElementById('topic').value=h.topic;
+        document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
+        const chip=document.querySelector(`[data-niche="${h.niche}"]`);
+        if(chip) chip.classList.add('active');
+        selectedNiche=h.niche;
+        lastGeneratedData=h;
+        document.getElementById('titles').innerHTML=h.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${t.replace(/'/g,"\\'")}', this)"><span class="n">0${i+1}</span><span class="t">${t}</span><button class="cp">📋</button></div>`).join('');
+        const th=h.thumbnail;
+        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${th.background}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${th.face_expression}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${th.text_overlay}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${th.emotion_trigger}</div></div><div class="titem wide"><div class="titem-label">CTR Score</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${th.ctr_score}</div><div class="titem-val" style="flex:1;font-size:15px">/ 10 — ${th.why_it_works}</div></div></div>`;
+        document.getElementById('hook').textContent=h.hook;
+        document.getElementById('nicheTip').textContent=h.tip;
+        document.getElementById('results').style.display='block';
+        document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+    },300);
+}
+
+function deleteHistory(id) {
+    let history = JSON.parse(localStorage.getItem('tg_history')||'[]');
+    history = history.filter(x=>x.id!==id);
+    localStorage.setItem('tg_history',JSON.stringify(history));
+    renderHistory();
+}
+
+/* ═══ A/B TESTER ═══ */
+async function runABTest() {
+    const a=document.getElementById('titleA').value.trim();
+    const b=document.getElementById('titleB').value.trim();
+    if(!a||!b){alert('Please enter both titles!');return;}
+    document.getElementById('abBtn').disabled=true;
+    document.getElementById('abBtn').textContent='⏳ Analyzing…';
+    document.getElementById('abResult').style.display='none';
+    try {
+        const res = await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                model:'claude-sonnet-4-20250514',
+                max_tokens:1000,
+                messages:[{role:'user',content:`You are a YouTube CTR expert. Compare these two video titles and respond ONLY in valid JSON with no markdown:
+Title A: "${a}"
+Title B: "${b}"
+Return: {"winner":"A or B","score_a":number_1_to_10,"score_b":number_1_to_10,"reasoning":"2-3 sentences explaining which title will get more clicks and why, focusing on curiosity, emotion, and clarity"}`}]
+            })
+        });
+        const data=await res.json();
+        const text=data.content[0].text.replace(/```json|```/g,'').trim();
+        const result=JSON.parse(text);
+        document.getElementById('abTitleA').textContent=a.length>60?a.substring(0,60)+'…':a;
+        document.getElementById('abTitleB').textContent=b.length>60?b.substring(0,60)+'…':b;
+        document.getElementById('abScoreA').textContent=result.score_a;
+        document.getElementById('abScoreB').textContent=result.score_b;
+        const winnerEl=document.getElementById('abWinner');
+        winnerEl.textContent=`Title ${result.winner} Wins`;
+        winnerEl.className='ab-winner '+(result.winner==='A'?'cyan':'pink');
+        document.getElementById('abReasoning').textContent=result.reasoning;
+        document.getElementById('abResult').style.display='block';
+        document.getElementById('abResult').scrollIntoView({behavior:'smooth',block:'start'});
+    } catch(e){alert('Test failed. Please try again.');}
+    finally{document.getElementById('abBtn').disabled=false;document.getElementById('abBtn').textContent='⚡ Test These Titles';}
+}
+
+/* ═══ CHANNEL ANALYZER ═══ */
+async function runAnalysis() {
+    const input=document.getElementById('channelInput').value.trim();
+    if(!input){alert('Please enter your video titles!');return;}
+    document.getElementById('analyzeBtn').disabled=true;
+    document.getElementById('analyzeBtn').textContent='⏳ Analyzing…';
+    document.getElementById('analyzerResult').style.display='none';
+    try {
+        const res = await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                model:'claude-sonnet-4-20250514',
+                max_tokens:1500,
+                messages:[{role:'user',content:`You are a YouTube growth expert. Analyze these video titles from an Indian YouTube creator and respond ONLY in valid JSON with no markdown:
+Titles: "${input}"
+Return: {
+  "ctr_score": number_1_to_10,
+  "emotion_score": number_1_to_10,
+  "clarity_score": number_1_to_10,
+  "issues": [{"title":"Issue name","detail":"explanation"}],
+  "fixes": [{"title":"Fix name","detail":"how to apply it"}],
+  "rewrites": [{"original":"original title","improved":"better version"}]
+}`}]
+            })
+        });
+        const data=await res.json();
+        const text=data.content[0].text.replace(/```json|```/g,'').trim();
+        const result=JSON.parse(text);
+        document.getElementById('scoreCTR').textContent=result.ctr_score;
+        document.getElementById('scoreEmotion').textContent=result.emotion_score;
+        document.getElementById('scoreClarity').textContent=result.clarity_score;
+        document.getElementById('analyzerIssues').innerHTML=result.issues.map(i=>`<div class="issue-item"><span class="issue-icon">⚠️</span><div class="issue-text"><strong>${i.title}</strong>${i.detail}</div></div>`).join('');
+        document.getElementById('analyzerFixes').innerHTML=result.fixes.map(f=>`<div class="issue-item"><span class="issue-icon">✅</span><div class="issue-text"><strong>${f.title}</strong>${f.detail}</div></div>`).join('');
+        document.getElementById('analyzerRewrite').innerHTML=result.rewrites.map(r=>`<div class="issue-item"><span class="issue-icon">✏️</span><div class="issue-text"><strong style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-weight:400">${r.original}</strong><strong style="color:var(--yellow)">${r.improved}</strong></div></div>`).join('');
+        document.getElementById('analyzerResult').style.display='block';
+        document.getElementById('analyzerResult').scrollIntoView({behavior:'smooth',block:'start'});
+    } catch(e){alert('Analysis failed. Please try again.');}
+    finally{document.getElementById('analyzeBtn').disabled=false;document.getElementById('analyzeBtn').textContent='🔍 Analyze';}
+}
+
+/* ═══ TRENDING TOPICS ═══ */
+let allTrendingTopics=[];
+
+async function loadTrending() {
+    if(allTrendingTopics.length>0) return;
+    document.getElementById('trendingLoading').style.display='block';
+    document.getElementById('trendingGrid').style.display='none';
+    try {
+        const res = await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                model:'claude-sonnet-4-20250514',
+                max_tokens:2000,
+                messages:[{role:'user',content:`Generate 16 trending YouTube video topics for Indian creators right now in 2025. Mix of niches. Respond ONLY in valid JSON array with no markdown:
+[{"niche":"tech","topic":"video topic idea","why":"why this is trending now in India","heat":"🔥🔥🔥 or 🔥🔥 or 🔥"}]
+Niches to cover: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation (2 each)`}]
+            })
+        });
+        const data=await res.json();
+        const text=data.content[0].text.replace(/```json|```/g,'').trim();
+        allTrendingTopics=JSON.parse(text);
+        renderTrending('all');
+    } catch(e){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';}
+    finally{document.getElementById('trendingLoading').style.display='none';}
+}
+
+function renderTrending(filter) {
+    const topics = filter==='all'?allTrendingTopics:allTrendingTopics.filter(t=>t.niche===filter);
+    const grid = document.getElementById('trendingGrid');
+    grid.style.display='grid';
+    grid.innerHTML = topics.map(t=>`
+        <div class="trending-card">
+            <div class="trending-card-top">
+                <span class="trending-niche">${t.niche.toUpperCase()}</span>
+                <span class="trending-heat">${t.heat}</span>
+            </div>
+            <div class="trending-topic">${t.topic}</div>
+            <div class="trending-why">${t.why}</div>
+            <button class="trending-use-btn" onclick="useTrendingTopic('${t.topic.replace(/'/g,"\\'")}','${t.niche}')">⚡ Use This Topic</button>
+        </div>`).join('');
+}
+
+function filterTrending(niche, el) {
+    document.querySelectorAll('.trending-filter').forEach(f=>f.classList.remove('active'));
+    el.classList.add('active');
+    if(allTrendingTopics.length>0) renderTrending(niche);
+}
+
+function useTrendingTopic(topic, niche) {
+    showPage('home');
+    setTimeout(()=>{
+        document.getElementById('topic').value=topic;
+        document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
+        const chip=document.querySelector(`[data-niche="${niche}"]`);
+        if(chip) chip.classList.add('active');
+        selectedNiche=niche;
+        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
+    },300);
+}
+
+/* ═══ TAGS ═══ */
+let allTagsFlat = [];
+
+function renderTags(tags) {
+    allTagsFlat = [...tags.primary, ...tags.secondary, ...tags.longtail, ...tags.hindi_mix];
+    const render = (id, arr) => {
+        document.getElementById(id).innerHTML = arr.map(t =>
+            `<span class="tag-chip" onclick="copyTag(this,'${t.replace(/'/g,"\'")}')">${t}</span>`
+        ).join('');
+    };
+    render('tagsPrimary', tags.primary);
+    render('tagsSecondary', tags.secondary);
+    render('tagsLongtail', tags.longtail);
+    render('tagsHindi', tags.hindi_mix);
+}
+
+function copyTag(el, text) {
     navigator.clipboard.writeText(text).then(() => {
-        const cp = el.querySelector('.cp');
-        cp.textContent = '✅';
-        setTimeout(() => cp.textContent = '📋', 1500);
+        el.classList.add('copied');
+        el.textContent = '✅ ' + text;
+        setTimeout(() => { el.classList.remove('copied'); el.textContent = text; }, 1500);
+    });
+}
+
+function copyAllTags() {
+    const text = allTagsFlat.join(', ');
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.tags-copy-all');
+        btn.textContent = '✅ All Tags Copied!';
+        setTimeout(() => btn.textContent = '📋 Copy All 20 Tags', 2000);
+    });
+}
+
+/* ═══ UTILITIES ═══ */
+function copyToClipboard(text,el) {
+    navigator.clipboard.writeText(text).then(()=>{
+        const cp=el.querySelector('.cp'); cp.textContent='✅'; setTimeout(()=>cp.textContent='📋',1500);
     });
 }
 
 function copyText(id) {
-    navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => alert('Copied!'));
+    navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert('Copied!'));
 }
 
-document.getElementById('topic').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generate();
-});
+document.getElementById('topic').addEventListener('keydown',e=>{if(e.key==='Enter') generate();});
 </script>
 </body>
 </html>

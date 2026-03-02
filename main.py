@@ -13,8 +13,10 @@ templates = Jinja2Templates(directory="templates")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Simple in-memory free tier tracking
-free_uses = {}  # {ip: count}
+free_uses = {}      # {ip: count}
+image_uses = {}     # {ip: count}
 MAX_FREE = 3
+MAX_FREE_IMAGES = 1  # 1 free image generation
 
 def get_ip(request: Request):
     return request.client.host
@@ -33,7 +35,6 @@ async def generate(request: Request):
     if not topic:
         return JSONResponse({"error": "Please enter a video topic"}, status_code=400)
 
-    # Check free tier limit
     uses = free_uses.get(ip, 0)
     if uses >= MAX_FREE:
         return JSONResponse({
@@ -52,11 +53,9 @@ async def generate(request: Request):
         )
 
         raw = response.choices[0].message.content
-        # Clean JSON if wrapped in backticks
         raw = raw.strip().strip("```json").strip("```").strip()
         result = json.loads(raw)
 
-        # Increment free use counter
         free_uses[ip] = uses + 1
         result["uses_remaining"] = MAX_FREE - (uses + 1)
 
@@ -64,6 +63,52 @@ async def generate(request: Request):
 
     except json.JSONDecodeError:
         return JSONResponse({"error": "AI returned invalid response. Please try again."}, status_code=500)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.post("/generate-image")
+async def generate_image(request: Request):
+    ip = get_ip(request)
+    data = await request.json()
+    concept = data.get("concept", "").strip()
+    text_overlay = data.get("text_overlay", "").strip()
+    niche = data.get("niche", "general").strip()
+
+    if not concept:
+        return JSONResponse({"error": "No concept provided"}, status_code=400)
+
+    img_uses = image_uses.get(ip, 0)
+    if img_uses >= MAX_FREE_IMAGES:
+        return JSONResponse({
+            "error": "image_limit_reached",
+            "message": "You've used your free image generation. Upgrade for more."
+        }, status_code=403)
+
+    try:
+        image_prompt = f"""Professional YouTube thumbnail image.
+Background: {concept}
+Large bold text overlay saying: {text_overlay}
+Style: Ultra high contrast, vibrant colors, professional YouTube thumbnail.
+The text must be very large, bold and clearly readable.
+Make it extremely eye-catching and click-worthy.
+16:9 aspect ratio. No watermarks. No borders."""
+
+        response = client.images.generate(
+            model="dall-e-3",
+            prompt=image_prompt,
+            size="1792x1024",
+            quality="standard",
+            n=1
+        )
+
+        image_url = response.data[0].url
+        image_uses[ip] = img_uses + 1
+
+        return JSONResponse({
+            "image_url": image_url,
+            "images_remaining": MAX_FREE_IMAGES - (img_uses + 1)
+        })
+
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
