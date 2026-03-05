@@ -158,19 +158,6 @@
         .copy-sm { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); padding:9px 18px; border-radius:9px; font-size:12px; cursor:pointer; margin-top:16px; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; }
         .copy-sm:hover { border-color:rgba(255,224,54,0.3); color:var(--yellow); }
 
-        /* TAGS BLOCK */
-        .tags-rblock { background:rgba(0,240,255,0.03); border:1px solid rgba(0,240,255,0.12); border-radius:20px; padding:32px; margin-bottom:14px; position:relative; overflow:hidden; }
-        .tags-rblock::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(0,240,255,0.4),transparent); }
-        .tags-section { margin-bottom:20px; }
-        .tags-section:last-child { margin-bottom:0; }
-        .tags-section-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(0,240,255,0.5); margin-bottom:10px; }
-        .tags-wrap { display:flex; flex-wrap:wrap; gap:8px; }
-        .tag-chip { background:rgba(0,240,255,0.06); border:1px solid rgba(0,240,255,0.15); border-radius:7px; padding:6px 12px; font-size:12px; color:rgba(255,255,255,0.7); cursor:pointer; transition:all 0.2s; user-select:none; }
-        .tag-chip:hover { background:rgba(0,240,255,0.12); border-color:rgba(0,240,255,0.3); color:var(--white); }
-        .tag-chip.copied { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.3); color:#22c55e; }
-        .tags-copy-all { background:rgba(0,240,255,0.08); border:1px solid rgba(0,240,255,0.2); color:var(--cyan); border-radius:9px; padding:9px 18px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; margin-top:16px; }
-        .tags-copy-all:hover { background:rgba(0,240,255,0.15); }
-
         /* SAVE TO HISTORY BUTTON */
         .btn-save { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--dim); border-radius:10px; padding:10px 20px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; margin-top:20px; }
         .btn-save:hover { background:rgba(255,224,54,0.08); border-color:rgba(255,224,54,0.3); color:var(--yellow); }
@@ -509,28 +496,6 @@
         <div class="tip-label">💡 Niche Intelligence</div>
         <p class="tip-val" id="nicheTip"></p>
     </div>
-
-    <div class="tags-rblock">
-        <div class="rblock-head">📌 YouTube Tag Suggestions</div>
-        <div class="tags-section">
-            <div class="tags-section-label">Primary Tags — Exact Match</div>
-            <div class="tags-wrap" id="tagsPrimary"></div>
-        </div>
-        <div class="tags-section">
-            <div class="tags-section-label">Secondary Tags — Broader Topics</div>
-            <div class="tags-wrap" id="tagsSecondary"></div>
-        </div>
-        <div class="tags-section">
-            <div class="tags-section-label">Long-tail Tags — Full Search Phrases</div>
-            <div class="tags-wrap" id="tagsLongtail"></div>
-        </div>
-        <div class="tags-section">
-            <div class="tags-section-label">Hindi / Hinglish Tags 🇮🇳</div>
-            <div class="tags-wrap" id="tagsHindi"></div>
-        </div>
-        <button class="tags-copy-all" onclick="copyAllTags()">📋 Copy All 20 Tags</button>
-    </div>
-
     <div style="text-align:center">
         <button class="btn-save" id="saveBtn" onclick="saveToHistory()">💾 Save to History</button>
     </div>
@@ -829,9 +794,9 @@ async function generate() {
         const data = await res.json();
         if(data.error==='free_limit_reached'){document.getElementById('upgradeBanner').style.display='block';document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;}
         if(data.error){alert(data.error);return;}
-        document.getElementById('titles').innerHTML = data.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${t.replace(/'/g,"\\'")}', this)"><span class="n">0${i+1}</span><span class="t">${t}</span><button class="cp">📋</button></div>`).join('');
+        document.getElementById('titles').innerHTML = data.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}', this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
         const th=data.thumbnail;
-        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${th.background}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${th.face_expression}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${th.text_overlay}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${th.emotion_trigger}</div></div><div class="titem wide"><div class="titem-label">CTR Score & Analysis</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${th.ctr_score}</div><div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${th.why_it_works}</div></div></div>`;
+        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score & Analysis</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${escapeHtml(th.why_it_works)}</div></div></div>`;
         lastConcept=th.background+'. Face expression: '+th.face_expression;
         lastTextOverlay=th.text_overlay;
         lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
@@ -841,7 +806,6 @@ async function generate() {
         document.getElementById('imageBtn').disabled=false;
         document.getElementById('hook').textContent=data.hook_script;
         document.getElementById('nicheTip').textContent=data.niche_tip;
-        if(data.tags) renderTags(data.tags);
         if(data.uses_remaining!==undefined) document.getElementById('usesLeft').innerHTML=`<strong>${data.uses_remaining}</strong> remaining`;
         const saveBtn=document.getElementById('saveBtn');
         saveBtn.textContent='💾 Save to History'; saveBtn.classList.remove('saved');
@@ -864,9 +828,19 @@ async function generateImage() {
         if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
         if(data.error){alert(data.error);return;}
         document.getElementById('thumbnailImg').src=data.image_url;
-        document.getElementById('downloadBtn').href=data.image_url;
+        // Fetch image as blob for reliable download (DALL-E URLs expire)
+        fetch(data.image_url)
+            .then(r=>r.blob())
+            .then(blob=>{
+                const blobUrl=URL.createObjectURL(blob);
+                document.getElementById('downloadBtn').href=blobUrl;
+            })
+            .catch(()=>{document.getElementById('downloadBtn').href=data.image_url;});
         document.getElementById('imgResult').style.display='block';
-        if(data.images_remaining!==undefined) document.getElementById('imgUsesLeft').textContent=data.images_remaining+' free image generations remaining';
+        if(data.images_remaining!==undefined) {
+            const n = data.images_remaining;
+            document.getElementById('imgUsesLeft').textContent = n + ' free image generation' + (n===1?'':'s') + ' remaining';
+        }
     } catch(e){alert('Image generation failed. Please try again.');}
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
 }
@@ -893,14 +867,14 @@ function renderHistory() {
     el.innerHTML = history.map(h=>`
         <div class="history-card">
             <div class="history-card-top">
-                <div class="history-topic">${h.topic}</div>
+                <div class="history-topic">${escapeHtml(h.topic)}</div>
                 <div class="history-meta">
-                    <span class="history-niche-badge">${h.niche}</span>
-                    <span class="history-date">${h.date}</span>
+                    <span class="history-niche-badge">${escapeHtml(h.niche)}</span>
+                    <span class="history-date">${escapeHtml(h.date)}</span>
                 </div>
             </div>
             <ul class="history-titles">
-                ${h.titles.slice(0,3).map(t=>`<li>${t}</li>`).join('')}
+                ${h.titles.slice(0,3).map(t=>`<li>${escapeHtml(t)}</li>`).join('')}
             </ul>
             <div class="history-actions">
                 <button class="btn-reload" onclick="reloadFromHistory(${h.id})">↩ Reload Results</button>
@@ -921,9 +895,9 @@ function reloadFromHistory(id) {
         if(chip) chip.classList.add('active');
         selectedNiche=h.niche;
         lastGeneratedData=h;
-        document.getElementById('titles').innerHTML=h.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${t.replace(/'/g,"\\'")}', this)"><span class="n">0${i+1}</span><span class="t">${t}</span><button class="cp">📋</button></div>`).join('');
+        document.getElementById('titles').innerHTML=h.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}', this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
         const th=h.thumbnail;
-        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${th.background}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${th.face_expression}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${th.text_overlay}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${th.emotion_trigger}</div></div><div class="titem wide"><div class="titem-label">CTR Score</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${th.ctr_score}</div><div class="titem-val" style="flex:1;font-size:15px">/ 10 — ${th.why_it_works}</div></div></div>`;
+        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px">/ 10 — ${escapeHtml(th.why_it_works)}</div></div></div>`;
         document.getElementById('hook').textContent=h.hook;
         document.getElementById('nicheTip').textContent=h.tip;
         document.getElementById('results').style.display='block';
@@ -947,21 +921,13 @@ async function runABTest() {
     document.getElementById('abBtn').textContent='⏳ Analyzing…';
     document.getElementById('abResult').style.display='none';
     try {
-        const res = await fetch('https://api.anthropic.com/v1/messages',{
+        const res = await fetch('/ab-test',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                model:'claude-sonnet-4-20250514',
-                max_tokens:1000,
-                messages:[{role:'user',content:`You are a YouTube CTR expert. Compare these two video titles and respond ONLY in valid JSON with no markdown:
-Title A: "${a}"
-Title B: "${b}"
-Return: {"winner":"A or B","score_a":number_1_to_10,"score_b":number_1_to_10,"reasoning":"2-3 sentences explaining which title will get more clicks and why, focusing on curiosity, emotion, and clarity"}`}]
-            })
+            body:JSON.stringify({titleA:a,titleB:b})
         });
-        const data=await res.json();
-        const text=data.content[0].text.replace(/```json|```/g,'').trim();
-        const result=JSON.parse(text);
+        const result=await res.json();
+        if(result.error){alert(result.error);return;}
         document.getElementById('abTitleA').textContent=a.length>60?a.substring(0,60)+'…':a;
         document.getElementById('abTitleB').textContent=b.length>60?b.substring(0,60)+'…':b;
         document.getElementById('abScoreA').textContent=result.score_a;
@@ -984,33 +950,19 @@ async function runAnalysis() {
     document.getElementById('analyzeBtn').textContent='⏳ Analyzing…';
     document.getElementById('analyzerResult').style.display='none';
     try {
-        const res = await fetch('https://api.anthropic.com/v1/messages',{
+        const res = await fetch('/analyze-channel',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                model:'claude-sonnet-4-20250514',
-                max_tokens:1500,
-                messages:[{role:'user',content:`You are a YouTube growth expert. Analyze these video titles from an Indian YouTube creator and respond ONLY in valid JSON with no markdown:
-Titles: "${input}"
-Return: {
-  "ctr_score": number_1_to_10,
-  "emotion_score": number_1_to_10,
-  "clarity_score": number_1_to_10,
-  "issues": [{"title":"Issue name","detail":"explanation"}],
-  "fixes": [{"title":"Fix name","detail":"how to apply it"}],
-  "rewrites": [{"original":"original title","improved":"better version"}]
-}`}]
-            })
+            body:JSON.stringify({titles:input})
         });
-        const data=await res.json();
-        const text=data.content[0].text.replace(/```json|```/g,'').trim();
-        const result=JSON.parse(text);
+        const result=await res.json();
+        if(result.error){alert(result.error);return;}
         document.getElementById('scoreCTR').textContent=result.ctr_score;
         document.getElementById('scoreEmotion').textContent=result.emotion_score;
         document.getElementById('scoreClarity').textContent=result.clarity_score;
-        document.getElementById('analyzerIssues').innerHTML=result.issues.map(i=>`<div class="issue-item"><span class="issue-icon">⚠️</span><div class="issue-text"><strong>${i.title}</strong>${i.detail}</div></div>`).join('');
-        document.getElementById('analyzerFixes').innerHTML=result.fixes.map(f=>`<div class="issue-item"><span class="issue-icon">✅</span><div class="issue-text"><strong>${f.title}</strong>${f.detail}</div></div>`).join('');
-        document.getElementById('analyzerRewrite').innerHTML=result.rewrites.map(r=>`<div class="issue-item"><span class="issue-icon">✏️</span><div class="issue-text"><strong style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-weight:400">${r.original}</strong><strong style="color:var(--yellow)">${r.improved}</strong></div></div>`).join('');
+        document.getElementById('analyzerIssues').innerHTML=result.issues.map(i=>`<div class="issue-item"><span class="issue-icon">⚠️</span><div class="issue-text"><strong>${escapeHtml(i.title)}</strong>${escapeHtml(i.detail)}</div></div>`).join('');
+        document.getElementById('analyzerFixes').innerHTML=result.fixes.map(f=>`<div class="issue-item"><span class="issue-icon">✅</span><div class="issue-text"><strong>${escapeHtml(f.title)}</strong>${escapeHtml(f.detail)}</div></div>`).join('');
+        document.getElementById('analyzerRewrite').innerHTML=result.rewrites.map(r=>`<div class="issue-item"><span class="issue-icon">✏️</span><div class="issue-text"><strong style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-weight:400">${escapeHtml(r.original)}</strong><strong style="color:var(--yellow)">${escapeHtml(r.improved)}</strong></div></div>`).join('');
         document.getElementById('analyzerResult').style.display='block';
         document.getElementById('analyzerResult').scrollIntoView({behavior:'smooth',block:'start'});
     } catch(e){alert('Analysis failed. Please try again.');}
@@ -1025,20 +977,9 @@ async function loadTrending() {
     document.getElementById('trendingLoading').style.display='block';
     document.getElementById('trendingGrid').style.display='none';
     try {
-        const res = await fetch('https://api.anthropic.com/v1/messages',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                model:'claude-sonnet-4-20250514',
-                max_tokens:2000,
-                messages:[{role:'user',content:`Generate 16 trending YouTube video topics for Indian creators right now in 2025. Mix of niches. Respond ONLY in valid JSON array with no markdown:
-[{"niche":"tech","topic":"video topic idea","why":"why this is trending now in India","heat":"🔥🔥🔥 or 🔥🔥 or 🔥"}]
-Niches to cover: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation (2 each)`}]
-            })
-        });
-        const data=await res.json();
-        const text=data.content[0].text.replace(/```json|```/g,'').trim();
-        allTrendingTopics=JSON.parse(text);
+        const res = await fetch('/trending',{method:'GET'});
+        allTrendingTopics=await res.json();
+        if(allTrendingTopics.error){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';return;}
         renderTrending('all');
     } catch(e){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';}
     finally{document.getElementById('trendingLoading').style.display='none';}
@@ -1046,17 +987,18 @@ Niches to cover: tech, finance, gaming, fitness, cricket, automobiles, examprep,
 
 function renderTrending(filter) {
     const topics = filter==='all'?allTrendingTopics:allTrendingTopics.filter(t=>t.niche===filter);
+    window._currentTrendingTopics = topics;
     const grid = document.getElementById('trendingGrid');
     grid.style.display='grid';
-    grid.innerHTML = topics.map(t=>`
+    grid.innerHTML = topics.map((t,idx)=>`
         <div class="trending-card">
             <div class="trending-card-top">
-                <span class="trending-niche">${t.niche.toUpperCase()}</span>
-                <span class="trending-heat">${t.heat}</span>
+                <span class="trending-niche">${escapeHtml(t.niche.toUpperCase())}</span>
+                <span class="trending-heat">${escapeHtml(t.heat)}</span>
             </div>
-            <div class="trending-topic">${t.topic}</div>
-            <div class="trending-why">${t.why}</div>
-            <button class="trending-use-btn" onclick="useTrendingTopic('${t.topic.replace(/'/g,"\\'")}','${t.niche}')">⚡ Use This Topic</button>
+            <div class="trending-topic">${escapeHtml(t.topic)}</div>
+            <div class="trending-why">${escapeHtml(t.why)}</div>
+            <button class="trending-use-btn" onclick="useTrendingTopic(${idx})">⚡ Use This Topic</button>
         </div>`).join('');
 }
 
@@ -1066,7 +1008,11 @@ function filterTrending(niche, el) {
     if(allTrendingTopics.length>0) renderTrending(niche);
 }
 
-function useTrendingTopic(topic, niche) {
+function useTrendingTopic(idx) {
+    const t = window._currentTrendingTopics && window._currentTrendingTopics[idx];
+    if(!t) return;
+    const topic = t.topic;
+    const niche = t.niche;
     showPage('home');
     setTimeout(()=>{
         document.getElementById('topic').value=topic;
@@ -1078,40 +1024,17 @@ function useTrendingTopic(topic, niche) {
     },300);
 }
 
-/* ═══ TAGS ═══ */
-let allTagsFlat = [];
-
-function renderTags(tags) {
-    allTagsFlat = [...tags.primary, ...tags.secondary, ...tags.longtail, ...tags.hindi_mix];
-    const render = (id, arr) => {
-        document.getElementById(id).innerHTML = arr.map(t =>
-            `<span class="tag-chip" onclick="copyTag(this,'${t.replace(/'/g,"\'")}')">${t}</span>`
-        ).join('');
-    };
-    render('tagsPrimary', tags.primary);
-    render('tagsSecondary', tags.secondary);
-    render('tagsLongtail', tags.longtail);
-    render('tagsHindi', tags.hindi_mix);
-}
-
-function copyTag(el, text) {
-    navigator.clipboard.writeText(text).then(() => {
-        el.classList.add('copied');
-        el.textContent = '✅ ' + text;
-        setTimeout(() => { el.classList.remove('copied'); el.textContent = text; }, 1500);
-    });
-}
-
-function copyAllTags() {
-    const text = allTagsFlat.join(', ');
-    navigator.clipboard.writeText(text).then(() => {
-        const btn = document.querySelector('.tags-copy-all');
-        btn.textContent = '✅ All Tags Copied!';
-        setTimeout(() => btn.textContent = '📋 Copy All 20 Tags', 2000);
-    });
-}
-
 /* ═══ UTILITIES ═══ */
+function escapeHtml(str) {
+    if(!str) return '';
+    return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+}
+
 function copyToClipboard(text,el) {
     navigator.clipboard.writeText(text).then(()=>{
         const cp=el.querySelector('.cp'); cp.textContent='✅'; setTimeout(()=>cp.textContent='📋',1500);
