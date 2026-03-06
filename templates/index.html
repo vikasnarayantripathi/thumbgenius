@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThumbGenius — Make Every Thumbnail Click</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Oswald:wght@700&family=Bebas+Neue&family=Montserrat:wght@900&family=Russo+One&family=Bangers&family=Black+Han+Sans&family=Boogaloo&family=Righteous&family=Permanent+Marker&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         :root {
@@ -153,7 +153,28 @@
         .img-loading { display:none; margin-top:24px; text-align:center; }
         .img-loading p { color:rgba(255,255,255,0.4); font-size:13px; margin-top:10px; }
         .img-result { display:none; margin-top:24px; }
-        .img-result img { width:100%; border-radius:16px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+        .img-canvas-wrap { position:relative; display:inline-block; width:100%; }
+        .img-canvas-wrap img { width:100%; border-radius:16px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 20px 60px rgba(0,0,0,0.5); display:block; }
+        .img-title-overlay { position:absolute; bottom:0; left:0; right:0; padding:40px 20px 20px; background:linear-gradient(transparent,rgba(0,0,0,0.85)); border-radius:0 0 16px 16px; pointer-events:none; }
+        .img-title-overlay span { color:#fff; font-size:clamp(16px,3.5vw,26px); font-weight:800; line-height:1.25; text-shadow:0 2px 12px rgba(0,0,0,0.9); display:block; }
+        .img-font-selector { margin-top:12px; }
+        .img-font-selector-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:8px; display:block; }
+        .img-font-chips { display:flex; gap:8px; flex-wrap:wrap; }
+        .img-font-chip { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px 14px; font-size:13px; color:rgba(255,255,255,0.55); cursor:pointer; transition:all 0.2s; }
+        .img-font-chip:hover { border-color:rgba(255,224,54,0.3); color:var(--yellow); }
+        .img-font-chip.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.5); color:var(--yellow); }
+        .img-color-chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+        .img-color-chip { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all 0.2s; flex-shrink:0; }
+        .img-color-chip:hover { transform:scale(1.15); }
+        .img-color-chip.active { border-color:#fff; transform:scale(1.2); }
+        .img-title-selector { margin-bottom:14px; }
+        .img-title-selector-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:10px; display:block; }
+        .img-title-chips { display:flex; gap:8px; flex-wrap:wrap; }
+        .img-title-chip { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:7px 12px; font-size:12px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif; text-align:left; }
+        .img-title-chip:hover { border-color:rgba(255,224,54,0.3); color:var(--yellow); }
+        .img-title-chip.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.5); color:var(--yellow); }
+        .img-title-chip-none { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:7px 12px; font-size:12px; color:rgba(255,255,255,0.3); cursor:pointer; transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif; }
+        .img-title-chip-none:hover { color:rgba(255,255,255,0.6); }
         .img-actions { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
         .btn-download { background:var(--yellow); color:#000; border:none; border-radius:10px; padding:12px 24px; font-size:14px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; }
         .btn-download:hover { background:#fff; }
@@ -582,9 +603,28 @@
         <p id="imgUsesLeft" style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px">1 free image generation remaining</p>
         <div class="img-loading" id="imgLoading"><div class="loading-spinner"></div><p>Creating your thumbnail image&hellip; (~15 seconds)</p></div>
         <div class="img-result" id="imgResult">
-            <img id="thumbnailImg" src="" alt="Generated Thumbnail" />
+            <div class="img-title-selector" id="imgTitleSelector" style="display:none">
+                <span class="img-title-selector-label">&#x1F3AF; Select a title to overlay on image</span>
+                <div class="img-title-chips" id="imgTitleChips"></div>
+                <div id="imgFontColorWrap" style="display:none">
+                    <div class="img-font-selector" style="margin-top:14px">
+                        <span class="img-font-selector-label">&#x1F524; Font Style</span>
+                        <div class="img-font-chips" id="imgFontChips"></div>
+                    </div>
+                    <div class="img-font-selector" style="margin-top:10px">
+                        <span class="img-font-selector-label">&#x1F3A8; Text Color</span>
+                        <div class="img-color-chips" id="imgColorChips"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="img-canvas-wrap">
+                <img id="thumbnailImg" src="" alt="Generated Thumbnail" />
+                <div class="img-title-overlay" id="imgTitleOverlay" style="display:none">
+                    <span id="imgOverlayText"></span>
+                </div>
+            </div>
             <div class="img-actions">
-                <a id="downloadBtn" href="" download="thumbgenius-thumbnail.png" class="btn-download">&#x2B07;&#xFE0F; Download Thumbnail</a>
+                <button class="btn-download" id="downloadBtn" onclick="downloadWithTitle()">&#x2B07;&#xFE0F; Download Thumbnail</button>
                 <button class="btn-regen" onclick="generateImage()">&#x1F504; Regenerate</button>
             </div>
         </div>
@@ -858,7 +898,7 @@ function logout(){
 }
 
 function openPaymentModal(plan){
-    if(plan)selectPlan(plan);
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
     document.getElementById('paymentModal').classList.add('open');
     if(currentUserEmail)document.getElementById('paymentEmail').value=currentUserEmail;
 }
@@ -898,7 +938,7 @@ async function startCheckout(){
             },
             modal:{ondismiss:function(){btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}}
         });
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+        rzp.open();
     }catch(e){alert('Payment setup failed. Please try again.');btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}
 }
 
@@ -977,6 +1017,7 @@ async function generateImage(){
         document.getElementById('thumbnailImg').src=data.image_url;
         fetch(data.image_url).then(r=>r.blob()).then(blob=>{const u=URL.createObjectURL(blob);document.getElementById('downloadBtn').href=u;}).catch(()=>{document.getElementById('downloadBtn').href=data.image_url;});
         document.getElementById('imgResult').style.display='block';
+        renderImgTitleChips();
         if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
     }catch(e){alert('Image generation failed. Please try again.');}
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
@@ -1158,6 +1199,141 @@ function loadTrending(){initTrending();}
 function filterTrending(){}
 function renderTrending(){}
 function useTrendingTopic(){}
+
+const THUMB_FONTS = [
+    {id:'oswald',     label:'Oswald',    family:'Oswald, sans-serif',           weight:'700'},
+    {id:'bebas',      label:'Bebas',     family:'"Bebas Neue", sans-serif',      weight:'400'},
+    {id:'montserrat', label:'Montserrat',family:'Montserrat, sans-serif',        weight:'900'},
+    {id:'russo',      label:'Russo',     family:'"Russo One", sans-serif',       weight:'400'},
+    {id:'bangers',    label:'Bangers',   family:'Bangers, sans-serif',           weight:'400'},
+    {id:'marker',     label:'Marker',    family:'"Permanent Marker", cursive',   weight:'400'},
+    {id:'righteous',  label:'Righteous', family:'Righteous, sans-serif',         weight:'400'},
+    {id:'jakarta',    label:'Jakarta',   family:'"Plus Jakarta Sans", sans-serif',weight:'800'},
+];
+const THUMB_COLORS = [
+    {id:'white',  hex:'#FFFFFF'}, {id:'yellow', hex:'#FFE036'},
+    {id:'orange', hex:'#FF5C00'}, {id:'pink',   hex:'#FF2D7A'},
+    {id:'cyan',   hex:'#00F0FF'}, {id:'green',  hex:'#22c55e'},
+    {id:'red',    hex:'#ef4444'}, {id:'black',  hex:'#000000'},
+];
+let activeFont = THUMB_FONTS[Math.floor(Math.random()*THUMB_FONTS.length)];
+let activeColor = THUMB_COLORS[0];
+
+function renderImgTitleChips(){
+    if(!lastGeneratedData||!lastGeneratedData.titles)return;
+    const wrap=document.getElementById('imgTitleChips');
+    const selector=document.getElementById('imgTitleSelector');
+    selector.style.display='block';
+    const noneBtn='<button class="img-title-chip-none" onclick="clearImgTitle()">&#x2715; No title</button>';
+    wrap.innerHTML=noneBtn+lastGeneratedData.titles.map((t,i)=>{
+        const short=t.length>55?t.substring(0,55)+'...':t;
+        const safe=t.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+        return '<button class="img-title-chip" data-title="'+safe+'" onclick="selectImgTitle(this)">'+escapeHtml(short)+'</button>';
+    }).join('');
+    renderFontChips();
+    renderColorChips();
+}
+
+function renderFontChips(){
+    // Pick a random font as default each time
+    activeFont=THUMB_FONTS[Math.floor(Math.random()*THUMB_FONTS.length)];
+    document.getElementById('imgFontChips').innerHTML=THUMB_FONTS.map(f=>{
+        const active=f.id===activeFont.id?'active':'';
+        return `<button class="img-font-chip ${active}" style="font-family:${f.family}" onclick="selectFont('${f.id}',this)">${f.label}</button>`;
+    }).join('');
+    applyOverlayStyle();
+}
+
+function renderColorChips(){
+    activeColor=THUMB_COLORS[0];
+    document.getElementById('imgColorChips').innerHTML=THUMB_COLORS.map(c=>{
+        const active=c.id===activeColor.id?'active':'';
+        return `<div class="img-color-chip ${active}" style="background:${c.hex}" onclick="selectColor('${c.id}',this)" title="${c.id}"></div>`;
+    }).join('');
+}
+
+function selectFont(id,el){
+    activeFont=THUMB_FONTS.find(f=>f.id===id)||THUMB_FONTS[0];
+    document.querySelectorAll('.img-font-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    applyOverlayStyle();
+}
+
+function selectColor(id,el){
+    activeColor=THUMB_COLORS.find(c=>c.id===id)||THUMB_COLORS[0];
+    document.querySelectorAll('.img-color-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    applyOverlayStyle();
+}
+
+function applyOverlayStyle(){
+    const span=document.getElementById('imgOverlayText');
+    span.style.fontFamily=activeFont.family;
+    span.style.fontWeight=activeFont.weight;
+    span.style.color=activeColor.hex;
+    span.style.textShadow=activeColor.id==='black'?'0 2px 8px rgba(255,255,255,0.3)':'0 2px 12px rgba(0,0,0,0.9)';
+}
+
+function selectImgTitle(el){
+    const title=el.dataset.title||el.getAttribute('data-title')||'';
+    document.querySelectorAll('.img-title-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('imgOverlayText').textContent=title;
+    document.getElementById('imgTitleOverlay').style.display='block';
+    document.getElementById('imgFontColorWrap').style.display='block';
+    applyOverlayStyle();
+}
+
+function clearImgTitle(){
+    document.querySelectorAll('.img-title-chip').forEach(c=>c.classList.remove('active'));
+    document.getElementById('imgTitleOverlay').style.display='none';
+    document.getElementById('imgFontColorWrap').style.display='none';
+}
+
+function downloadWithTitle(){
+    const img=document.getElementById('thumbnailImg');
+    const overlay=document.getElementById('imgTitleOverlay');
+    const titleText=document.getElementById('imgOverlayText').textContent;
+    const canvas=document.createElement('canvas');
+    canvas.width=img.naturalWidth||1280;
+    canvas.height=img.naturalHeight||720;
+    const ctx=canvas.getContext('2d');
+    const imgEl=new Image();
+    imgEl.crossOrigin='anonymous';
+    imgEl.onload=function(){
+        ctx.drawImage(imgEl,0,0,canvas.width,canvas.height);
+        if(titleText&&overlay.style.display!=='none'){
+            const grad=ctx.createLinearGradient(0,canvas.height*0.5,0,canvas.height);
+            grad.addColorStop(0,'rgba(0,0,0,0)');grad.addColorStop(1,'rgba(0,0,0,0.88)');
+            ctx.fillStyle=grad;ctx.fillRect(0,0,canvas.width,canvas.height);
+            const fs=Math.max(32,Math.min(64,canvas.width/14));
+            ctx.font=activeFont.weight+' '+fs+'px '+activeFont.family;
+            ctx.fillStyle=activeColor.hex;
+            ctx.textAlign='left';
+            ctx.shadowColor=activeColor.id==='black'?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.9)';
+            ctx.shadowBlur=10;
+            const maxW=canvas.width-80;
+            const words=titleText.split(' ');
+            let lines=[],line='';
+            words.forEach(w=>{
+                const test=line+(line?' ':'')+w;
+                if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w;}
+                else line=test;
+            });
+            if(line)lines.push(line);
+            const lineH=fs*1.25;
+            let y=canvas.height-40-(lines.length-1)*lineH;
+            lines.forEach(l=>{ctx.fillText(l,40,y);y+=lineH;});
+        }
+        const a=document.createElement('a');a.download='thumbgenius-thumbnail.png';
+        a.href=canvas.toDataURL('image/png');a.click();
+    };
+    imgEl.onerror=function(){
+        const a=document.createElement('a');a.download='thumbgenius-thumbnail.png';
+        a.href=img.src;a.click();
+    };
+    imgEl.src=img.src;
+}
 
 function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function copyToClipboard(text,el){navigator.clipboard.writeText(text).then(()=>{const cp=el.querySelector('.cp');cp.textContent='✅';setTimeout(()=>cp.textContent='📋',1500);});}
