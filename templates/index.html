@@ -576,7 +576,7 @@
                 <li><span class="n2">&#x2717;</span> History &amp; saved results</li>
                 <li><span class="n2">&#x2717;</span> A/B Title Tester</li>
             </ul>
-            <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage("home")">Try Free &rarr;</button>
+        <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage('home')">Try Free &rarr;</button>
         </div>
         <div class="plan-box featured">
             <div class="plan-badge">Most Popular</div>
@@ -898,7 +898,7 @@ function renderHistory(){
     const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
     const el=document.getElementById('historyContent');
     if(history.length===0){
-        el.innerHTML='<div class="history-empty"><div class="big-emoji">&#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>';
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">        el.innerHTML='<div class="history-empty"><div class="big-emoji">&#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>';#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
         return;
     }
     el.innerHTML=history.map(h=>{
