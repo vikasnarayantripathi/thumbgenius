@@ -898,7 +898,7 @@ function renderHistory(){
     const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
     const el=document.getElementById('historyContent');
     if(history.length===0){
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">        el.innerHTML='<div class="history-empty"><div class="big-emoji">&#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>';#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
         return;
     }
     el.innerHTML=history.map(h=>{
