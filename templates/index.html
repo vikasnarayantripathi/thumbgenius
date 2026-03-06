@@ -396,7 +396,7 @@
     <div class="logo">Thumb<span>Genius</span></div>
     <div class="nav-right">
         <span class="nav-badge" id="navBadge">3 Free Generations &middot; No Signup</span>
-        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">&#x1F3E0; Home</button>
+        <button class="nav-tab active" id="tab-home" onclick='showPage("home")'>&#x1F3E0; Home</button>
         <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C1; History</button>
         <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
         <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Analyzer</button>
@@ -576,7 +576,7 @@
                 <li><span class="n2">&#x2717;</span> History &amp; saved results</li>
                 <li><span class="n2">&#x2717;</span> A/B Title Tester</li>
             </ul>
-            <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage('home')">Try Free &rarr;</button>
+            <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage("home")">Try Free &rarr;</button>
         </div>
         <div class="plan-box featured">
             <div class="plan-badge">Most Popular</div>
@@ -897,27 +897,15 @@ function saveToHistory(){
 function renderHistory(){
     const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
     const el=document.getElementById('historyContent');
-    if(history.length===0){el.innerHTML='<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate →</button></div>';return;}
-    el.innerHTML=history.map(h=>`<div class="history-card"><div class="history-card-top"><div class="history-topic">${escapeHtml(h.topic)}</div><div class="history-meta"><span class="history-niche-badge">${escapeHtml(h.niche)}</span><span class="history-date">${escapeHtml(h.date)}</span></div></div><ul class="history-titles">${h.titles.slice(0,3).map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul><div class="history-actions"><button class="btn-reload" onclick="reloadFromHistory(${h.id})">↩ Reload</button><button class="btn-del" onclick="deleteHistory(${h.id})">🗑 Delete</button></div></div>`).join('');
+    if(history.length===0){
+        el.innerHTML='<div class="history-empty"><div class="big-emoji">&#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>';
+        return;
+    }
+    el.innerHTML=history.map(h=>{
+        const titles=h.titles.slice(0,3).map(t=>'<li>'+escapeHtml(t)+'</li>').join('');
+        return '<div class="history-card"><div class="history-card-top"><div class="history-topic">'+escapeHtml(h.topic)+'</div><div class="history-meta"><span class="history-niche-badge">'+escapeHtml(h.niche)+'</span><span class="history-date">'+escapeHtml(h.date)+'</span></div></div><ul class="history-titles">'+titles+'</ul><div class="history-actions"><button class="btn-reload" onclick="reloadFromHistory('+h.id+')">&#x21A9; Reload</button><button class="btn-del" onclick="deleteHistory('+h.id+')">&#x1F5D1; Delete</button></div></div>';
+    }).join('');
 }
-
-function reloadFromHistory(id){
-    const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
-    const h=history.find(x=>x.id===id);if(!h)return;
-    showPage('home');
-    setTimeout(()=>{
-        document.getElementById('topic').value=h.topic;
-        document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
-        const chip=document.querySelector(`[data-niche="${h.niche}"]`);if(chip)chip.classList.add('active');
-        selectedNiche=h.niche;lastGeneratedData=h;
-        document.getElementById('titles').innerHTML=h.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}',this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
-        const th=h.thumbnail;
-        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px">/ 10 — ${escapeHtml(th.why_it_works)}</div></div></div>`;
-        document.getElementById('hook').textContent=h.hook;document.getElementById('nicheTip').textContent=h.tip;
-        document.getElementById('results').style.display='block';document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-    },300);
-}
-
 function deleteHistory(id){
     let history=JSON.parse(localStorage.getItem('tg_history')||'[]');
     history=history.filter(x=>x.id!==id);localStorage.setItem('tg_history',JSON.stringify(history));renderHistory();
@@ -983,7 +971,7 @@ function filterTrending(niche,el){
 
 function useTrendingTopic(idx){
     const t=window._currentTrendingTopics&&window._currentTrendingTopics[idx];if(!t)return;
-    showPage('home');
+    showPage("home");
     setTimeout(()=>{
         document.getElementById('topic').value=t.topic;
         document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
