@@ -5,27 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThumbGenius — Make Every Thumbnail Click</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"><\/script>
     <style>
         :root {
-            --bg: #02020a;
-            --surface: rgba(255,255,255,0.03);
-            --surface2: rgba(255,255,255,0.06);
-            --yellow: #FFE036;
-            --orange: #FF5C00;
-            --pink: #FF2D7A;
-            --cyan: #00F0FF;
-            --white: #FFFFFF;
-            --dim: rgba(255,255,255,0.5);
-            --faint: rgba(255,255,255,0.08);
-            --border: rgba(255,255,255,0.07);
+            --bg: #02020a; --surface: rgba(255,255,255,0.03); --surface2: rgba(255,255,255,0.06);
+            --yellow: #FFE036; --orange: #FF5C00; --pink: #FF2D7A; --cyan: #00F0FF;
+            --white: #FFFFFF; --dim: rgba(255,255,255,0.5); --faint: rgba(255,255,255,0.08); --border: rgba(255,255,255,0.07);
         }
-
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         html { scroll-behavior: smooth; }
         body { background:var(--bg); color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; overflow-x:hidden; min-height:100vh; }
         #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
-
-        /* NAV */
+        #userStatusBar { display:none; position:fixed; top:72px; left:0; right:0; z-index:199; background:rgba(255,224,54,0.06); border-bottom:1px solid rgba(255,224,54,0.12); padding:8px 48px; align-items:center; justify-content:space-between; }
+        #userStatusBar.visible { display:flex; }
+        .status-left { display:flex; align-items:center; gap:12px; }
+        .status-plan { background:rgba(255,224,54,0.15); border:1px solid rgba(255,224,54,0.3); color:var(--yellow); font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; letter-spacing:0.5px; text-transform:uppercase; }
+        .status-email { color:var(--dim); font-size:12px; }
+        .status-usage { color:rgba(255,255,255,0.3); font-size:12px; }
+        .status-right { display:flex; align-items:center; gap:8px; }
+        .btn-logout { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.3); border-radius:6px; padding:4px 12px; font-size:11px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-logout:hover { border-color:#FF2D7A; color:#FF2D7A; }
         nav { position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:72px; background:rgba(2,2,10,0.6); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
         .logo { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:var(--yellow); }
         .logo span { color:var(--white); opacity:0.5; }
@@ -36,12 +35,35 @@
         .nav-tab { background:transparent; color:var(--dim); border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
         .nav-tab:hover { color:var(--white); border-color:rgba(255,255,255,0.2); }
         .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); }
-
-        /* PAGES */
-        .page { display:none; }
-        .page.active { display:block; }
-
-        /* HERO */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(2,2,10,0.88); backdrop-filter:blur(20px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:520px; width:100%; position:relative; overflow:hidden; }
+        .modal::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow),var(--pink)); }
+        .modal-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.06); border:none; color:rgba(255,255,255,0.4); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
+        .modal-close:hover { background:rgba(255,45,122,0.15); color:#FF2D7A; }
+        .modal-header { padding:40px 40px 0; text-align:center; }
+        .modal-header h2 { font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:8px; }
+        .modal-header p { color:var(--dim); font-size:14px; line-height:1.6; }
+        .plan-tabs { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:24px 40px 0; }
+        .plan-tab { border:1px solid var(--border); border-radius:16px; padding:20px; cursor:pointer; transition:all 0.2s; position:relative; }
+        .plan-tab.selected { border-color:rgba(255,224,54,0.5); background:rgba(255,224,54,0.06); }
+        .plan-tab.selected::after { content:'\2713'; position:absolute; top:12px; right:12px; background:var(--yellow); color:#000; width:20px; height:20px; border-radius:50%; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+        .plan-tab-name { font-size:11px; font-weight:700; color:var(--dim); margin-bottom:6px; letter-spacing:1px; text-transform:uppercase; }
+        .plan-tab-price { font-size:26px; font-weight:800; letter-spacing:-1px; color:var(--yellow); margin-bottom:2px; }
+        .plan-tab-price span { font-size:12px; font-weight:400; color:var(--dim); }
+        .plan-tab-feats { margin-top:10px; list-style:none; }
+        .plan-tab-feats li { font-size:11px; color:rgba(255,255,255,0.35); padding:2px 0; display:flex; align-items:center; gap:6px; }
+        .plan-tab-feats li::before { content:'\2713'; color:var(--yellow); font-size:10px; flex-shrink:0; }
+        .modal-email-section { padding:20px 40px 0; }
+        .modal-email-section label { font-size:11px; font-weight:700; color:var(--dim); letter-spacing:1px; text-transform:uppercase; display:block; margin-bottom:8px; }
+        .modal-email-input { width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:14px 18px; font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--white); outline:none; transition:all 0.25s; }
+        .modal-email-input:focus { border-color:rgba(255,224,54,0.4); background:rgba(255,255,255,0.07); }
+        .modal-footer { padding:24px 40px 40px; }
+        .btn-checkout { width:100%; background:linear-gradient(135deg,var(--yellow),var(--orange)); color:#000; border:none; border-radius:14px; padding:18px; font-size:16px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; margin-bottom:12px; }
+        .btn-checkout:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(255,224,54,0.3); }
+        .btn-checkout:disabled { opacity:0.5; transform:none !important; cursor:not-allowed; }
+        .modal-secure { text-align:center; font-size:11px; color:rgba(255,255,255,0.2); }
+        .page { display:none; } .page.active { display:block; }
         .hero { position:relative; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:80px; padding:120px 80px 80px; z-index:10; max-width:1400px; margin:0 auto; }
         .hero-tag { display:inline-flex; align-items:center; gap:10px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); border-radius:100px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--yellow); letter-spacing:0.5px; margin-bottom:32px; animation:fadeUp 0.8s 0.1s both; }
         .hero-tag .pulse { width:6px; height:6px; background:var(--yellow); border-radius:50%; box-shadow:0 0 10px var(--yellow); animation:blink 2s infinite; }
@@ -49,8 +71,7 @@
         .hero-h1 { font-size:clamp(52px,5.5vw,80px); font-weight:800; line-height:1.02; letter-spacing:-3px; margin-bottom:28px; animation:fadeUp 0.8s 0.2s both; }
         .hero-h1 .word-thumb { color:var(--yellow); filter:drop-shadow(0 0 30px rgba(255,224,54,0.35)); }
         .hero-h1 .word-click { background:linear-gradient(90deg,var(--orange),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .hero-h1 .word-every { color:transparent; -webkit-text-stroke:1.5px rgba(255,255,255,0.25); }
-        .hero-p { font-size:17px; color:var(--dim); line-height:1.75; font-weight:400; max-width:460px; margin-bottom:44px; animation:fadeUp 0.8s 0.3s both; }
+        .hero-p { font-size:17px; color:var(--dim); line-height:1.75; max-width:460px; margin-bottom:44px; animation:fadeUp 0.8s 0.3s both; }
         .hero-form { animation:fadeUp 0.8s 0.4s both; }
         .input-wrap { position:relative; margin-bottom:12px; }
         .input-icon { position:absolute; left:18px; top:50%; transform:translateY(-50%); font-size:18px; pointer-events:none; }
@@ -62,18 +83,13 @@
         .niche-chip:hover { background:rgba(255,255,255,0.08); color:var(--white); border-color:rgba(255,255,255,0.15); }
         .niche-chip.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
         .btn-gen { width:100%; background:var(--yellow); color:#000; border:none; border-radius:14px; padding:18px; font-size:16px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; letter-spacing:-0.3px; }
-        .btn-gen::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.2),transparent); opacity:0; transition:opacity 0.3s; }
         .btn-gen:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(255,224,54,0.35); }
-        .btn-gen:hover::after { opacity:1; }
-        .btn-gen:active { transform:translateY(0); }
         .btn-gen:disabled { opacity:0.4; transform:none !important; box-shadow:none !important; }
         .form-footer { display:flex; align-items:center; justify-content:space-between; margin-top:14px; }
         .free-badge { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--dim); }
         .free-badge .dot { color:#22c55e; }
         #usesLeft { font-size:12px; color:var(--dim); }
         #usesLeft strong { color:var(--yellow); }
-
-        /* HERO RIGHT */
         .hero-right { position:relative; animation:fadeUp 0.8s 0.5s both; }
         .preview-card { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:24px; overflow:hidden; backdrop-filter:blur(20px); position:relative; }
         .preview-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent 0%,rgba(255,224,54,0.6) 50%,transparent 100%); }
@@ -86,7 +102,6 @@
         .preview-section-label { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:14px; }
         .preview-title-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--faint); border-radius:10px; margin-bottom:8px; border:1px solid transparent; transition:all 0.2s; animation:slide-in 0.5s both; }
         .preview-title-item:nth-child(1){animation-delay:0.8s} .preview-title-item:nth-child(2){animation-delay:1.0s} .preview-title-item:nth-child(3){animation-delay:1.2s}
-        .preview-title-item:hover { background:rgba(255,224,54,0.06); border-color:rgba(255,224,54,0.15); }
         @keyframes slide-in { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
         .preview-num { font-size:10px; font-weight:700; color:var(--yellow); opacity:0.6; min-width:16px; }
         .preview-text { font-size:13px; color:rgba(255,255,255,0.8); line-height:1.4; flex:1; }
@@ -99,15 +114,11 @@
         .ctr-mini { display:flex; align-items:center; justify-content:space-between; margin-top:16px; padding:12px 16px; background:rgba(255,224,54,0.06); border:1px solid rgba(255,224,54,0.12); border-radius:10px; animation:slide-in 0.5s 1.6s both; }
         .ctr-mini-label { font-size:11px; color:var(--dim); }
         .ctr-mini-score { font-size:22px; font-weight:800; color:var(--yellow); letter-spacing:-1px; }
-
-        /* LOADING */
         .loading { display:none; text-align:center; padding:80px 24px; position:relative; z-index:10; }
         .loading-spinner { width:48px; height:48px; border:2px solid rgba(255,224,54,0.1); border-top-color:var(--yellow); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 20px; }
         @keyframes spin { to{transform:rotate(360deg)} }
         .loading h3 { font-size:20px; font-weight:700; margin-bottom:8px; letter-spacing:-0.5px; }
         .loading p { color:var(--dim); font-size:14px; }
-
-        /* RESULTS */
         .results { display:none; max-width:780px; margin:0 auto; padding:0 40px 100px; position:relative; z-index:10; }
         .results-header { text-align:center; margin-bottom:40px; }
         .results-header h2 { font-size:36px; font-weight:800; letter-spacing:-1.5px; margin-bottom:8px; }
@@ -130,8 +141,6 @@
         .ctr-big-row { display:flex; align-items:center; gap:20px; }
         .ctr-num { font-size:52px; font-weight:800; letter-spacing:-3px; line-height:1; color:var(--yellow); }
         .hook-p { font-size:16px; line-height:1.9; color:rgba(255,255,255,0.65); font-style:italic; font-weight:300; padding-left:20px; border-left:2px solid rgba(255,224,54,0.4); }
-
-        /* IMAGE BLOCK */
         .image-rblock { background:rgba(255,224,54,0.03); border:1px solid rgba(255,224,54,0.12); border-radius:20px; padding:32px; margin-bottom:14px; position:relative; overflow:hidden; }
         .image-rblock::before { content:''; position:absolute; top:0; left:20%; right:20%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,224,54,0.5),transparent); }
         .img-desc { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px; line-height:1.6; }
@@ -151,19 +160,14 @@
         .img-upgrade { display:none; margin-top:20px; padding:20px; background:rgba(255,224,54,0.06); border:1px solid rgba(255,224,54,0.15); border-radius:12px; text-align:center; }
         .img-upgrade p:first-child { color:var(--yellow); font-weight:700; margin-bottom:6px; }
         .img-upgrade p:last-child { color:rgba(255,255,255,0.4); font-size:13px; }
-
         .tip-rblock { background:linear-gradient(135deg,rgba(255,92,0,0.07),rgba(255,45,122,0.05)); border:1px solid rgba(255,92,0,0.15); border-radius:20px; padding:28px 32px; margin-bottom:14px; }
         .tip-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--orange); margin-bottom:12px; }
         .tip-val { font-size:15px; color:rgba(255,255,255,0.65); line-height:1.7; }
         .copy-sm { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); padding:9px 18px; border-radius:9px; font-size:12px; cursor:pointer; margin-top:16px; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; }
         .copy-sm:hover { border-color:rgba(255,224,54,0.3); color:var(--yellow); }
-
-        /* SAVE TO HISTORY BUTTON */
         .btn-save { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--dim); border-radius:10px; padding:10px 20px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; margin-top:20px; }
         .btn-save:hover { background:rgba(255,224,54,0.08); border-color:rgba(255,224,54,0.3); color:var(--yellow); }
         .btn-save.saved { color:#22c55e; border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.06); }
-
-        /* UPGRADE */
         .upgrade { display:none; max-width:640px; margin:60px auto; padding:0 40px; position:relative; z-index:10; }
         .upgrade-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,224,54,0.15); border-radius:28px; padding:56px 48px; text-align:center; position:relative; overflow:hidden; }
         .upgrade-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow),var(--pink)); }
@@ -171,8 +175,6 @@
         .upgrade-box p { color:var(--dim); margin-bottom:32px; font-size:15px; line-height:1.6; }
         .btn-pay { background:linear-gradient(135deg,var(--yellow),var(--orange)); color:#000; border:none; border-radius:14px; padding:18px 44px; font-size:16px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; letter-spacing:-0.3px; }
         .btn-pay:hover { transform:translateY(-3px); box-shadow:0 20px 60px rgba(255,224,54,0.3); }
-
-        /* HOW IT WORKS */
         .hiw { padding:120px 80px; max-width:1200px; margin:0 auto; position:relative; z-index:10; }
         .section-kicker { font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--yellow); opacity:0.7; margin-bottom:16px; }
         .section-h { font-size:clamp(40px,5vw,64px); font-weight:800; letter-spacing:-3px; line-height:1.02; margin-bottom:64px; }
@@ -184,10 +186,8 @@
         .step-emoji { font-size:40px; margin-bottom:24px; }
         .step-card h3 { font-size:20px; font-weight:700; margin-bottom:12px; letter-spacing:-0.5px; }
         .step-card p { font-size:14px; color:var(--dim); line-height:1.7; }
-
-        /* BEFORE AFTER */
         .ba { padding:80px; position:relative; z-index:10; }
-        .ba-wrap { max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:64px; }
+        .ba-wrap { max-width:1100px; margin:64px auto 0; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
         .ba-box { background:var(--surface); border:1px solid var(--border); border-radius:24px; overflow:hidden; }
         .ba-box-head { padding:18px 28px; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
         .ba-box-head.b { color:rgba(255,255,255,0.25); }
@@ -205,62 +205,52 @@
         .ctr-bar-fill { height:100%; border-radius:2px; }
         .ctr-bar-fill.lo { background:rgba(255,255,255,0.1); width:18%; }
         .ctr-bar-fill.hi { background:linear-gradient(90deg,var(--orange),var(--yellow)); width:85%; }
-
-        /* PRICING */
-        .pricing { padding:120px 80px; max-width:900px; margin:0 auto; position:relative; z-index:10; }
-        .plan-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:64px; }
-        .plan-box { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:44px; position:relative; overflow:hidden; transition:transform 0.3s; }
+        .pricing { padding:120px 80px; max-width:1050px; margin:0 auto; position:relative; z-index:10; }
+        .plan-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:64px; }
+        .plan-box { background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:36px; position:relative; overflow:hidden; transition:transform 0.3s; }
         .plan-box:hover { transform:translateY(-4px); }
-        .plan-box.pro { background:linear-gradient(145deg,rgba(255,224,54,0.05),rgba(255,92,0,0.05)); border-color:rgba(255,224,54,0.2); }
-        .plan-box.pro::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow)); }
+        .plan-box.featured { background:linear-gradient(145deg,rgba(255,224,54,0.05),rgba(255,92,0,0.05)); border-color:rgba(255,224,54,0.2); }
+        .plan-box.featured::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow)); }
         .plan-badge { display:inline-block; background:linear-gradient(135deg,var(--orange),var(--yellow)); color:#000; font-size:10px; font-weight:800; letter-spacing:1px; padding:4px 12px; border-radius:100px; text-transform:uppercase; margin-bottom:20px; }
-        .plan-name { font-size:13px; font-weight:600; color:var(--dim); margin-bottom:16px; letter-spacing:0.3px; }
-        .plan-price { font-size:56px; font-weight:800; letter-spacing:-4px; line-height:1; margin-bottom:6px; }
-        .plan-price.pro-price { color:var(--yellow); }
-        .plan-period { font-size:13px; color:var(--dim); margin-bottom:32px; }
+        .plan-name { font-size:13px; font-weight:600; color:var(--dim); margin-bottom:16px; }
+        .plan-price { font-size:48px; font-weight:800; letter-spacing:-3px; line-height:1; margin-bottom:6px; }
+        .plan-price.accent { color:var(--yellow); }
+        .plan-period { font-size:13px; color:var(--dim); margin-bottom:24px; }
         .plan-feats { list-style:none; }
-        .plan-feats li { font-size:14px; padding:11px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; color:rgba(255,255,255,0.65); }
+        .plan-feats li { font-size:13px; padding:9px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; color:rgba(255,255,255,0.65); }
         .plan-feats li:last-child { border:none; }
         .plan-feats li .y { color:#22c55e; font-size:15px; }
         .plan-feats li .n2 { color:rgba(255,255,255,0.15); font-size:15px; }
-
-        /* FOOTER */
+        .btn-plan { width:100%; background:var(--yellow); color:#000; border:none; border-radius:12px; padding:14px; font-size:14px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; margin-top:24px; display:block; text-align:center; }
+        .btn-plan:hover { background:#fff; transform:translateY(-1px); }
+        .btn-plan.ghost { background:rgba(255,255,255,0.06); color:var(--dim); }
+        .btn-plan.ghost:hover { background:rgba(255,255,255,0.1); color:var(--white); transform:none; }
         footer { border-top:1px solid var(--border); padding:40px 80px; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:10; }
         footer .logo { font-size:18px; }
         footer p { font-size:13px; color:var(--dim); }
         footer a { color:var(--yellow); text-decoration:none; font-size:13px; }
-
-        /* ═══════════════════════════════════
-           HISTORY PAGE
-        ═══════════════════════════════════ */
         .feature-page { padding:100px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:10; min-height:100vh; }
         .feature-page-title { font-size:clamp(32px,4vw,52px); font-weight:800; letter-spacing:-2px; margin-bottom:8px; }
         .feature-page-sub { color:var(--dim); font-size:16px; margin-bottom:48px; }
-
         .history-empty { text-align:center; padding:80px 24px; color:var(--dim); }
         .history-empty .big-emoji { font-size:64px; margin-bottom:16px; }
         .history-empty h3 { font-size:20px; font-weight:700; color:var(--white); margin-bottom:8px; }
-
-        .history-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:14px; position:relative; transition:all 0.2s; }
+        .history-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:14px; transition:all 0.2s; }
         .history-card:hover { border-color:rgba(255,224,54,0.15); background:rgba(255,255,255,0.04); }
         .history-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }
         .history-topic { font-size:16px; font-weight:700; color:var(--white); letter-spacing:-0.3px; }
         .history-meta { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-        .history-niche-badge { background:rgba(255,224,54,0.1); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; letter-spacing:0.5px; }
+        .history-niche-badge { background:rgba(255,224,54,0.1); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); font-size:11px; font-weight:700; padding:4px 10px; border-radius:6px; }
         .history-date { font-size:11px; color:rgba(255,255,255,0.25); }
         .history-titles { list-style:none; }
         .history-titles li { font-size:13px; color:rgba(255,255,255,0.55); padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); display:flex; align-items:center; gap:8px; }
         .history-titles li:last-child { border:none; }
-        .history-titles li::before { content:'→'; color:rgba(255,224,54,0.3); font-size:11px; }
+        .history-titles li::before { content:'\2192'; color:rgba(255,224,54,0.3); font-size:11px; }
         .history-actions { display:flex; gap:8px; margin-top:16px; }
         .btn-reload { background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:8px; padding:8px 16px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .btn-reload:hover { background:rgba(255,224,54,0.15); }
         .btn-del { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:rgba(255,255,255,0.25); border-radius:8px; padding:8px 16px; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .btn-del:hover { border-color:rgba(255,45,122,0.3); color:var(--pink); }
-
-        /* ═══════════════════════════════════
-           A/B TESTER PAGE
-        ═══════════════════════════════════ */
         .ab-intro { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:24px; }
         .ab-intro p { color:var(--dim); font-size:15px; line-height:1.7; }
         .ab-input-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
@@ -289,14 +279,10 @@
         .ab-score-num.a { color:var(--cyan); }
         .ab-score-num.b { color:var(--pink); }
         .ab-reasoning { font-size:14px; color:rgba(255,255,255,0.6); line-height:1.7; padding:20px; background:rgba(255,255,255,0.02); border-radius:12px; }
-
-        /* ═══════════════════════════════════
-           CHANNEL ANALYZER PAGE
-        ═══════════════════════════════════ */
         .analyzer-input-wrap { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:24px; }
         .analyzer-input-wrap p { color:var(--dim); font-size:14px; margin-bottom:20px; line-height:1.6; }
         .channel-input-row { display:flex; gap:12px; }
-        .channel-input-row input { flex:1; padding:16px 20px 16px 20px; }
+        .channel-input-row input { flex:1; padding:16px 20px; }
         .btn-analyze { background:var(--yellow); color:#000; border:none; border-radius:12px; padding:16px 28px; font-size:15px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; white-space:nowrap; }
         .btn-analyze:hover { background:#fff; transform:translateY(-1px); }
         .btn-analyze:disabled { opacity:0.4; transform:none !important; }
@@ -312,17 +298,13 @@
         .issue-item:last-child { border:none; }
         .issue-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
         .issue-text { font-size:14px; color:rgba(255,255,255,0.65); line-height:1.5; }
-        .issue-text strong { color:var(--white); display:block; margin-bottom:3px; font-size:14px; }
-
-        /* ═══════════════════════════════════
-           TRENDING TOPICS PAGE
-        ═══════════════════════════════════ */
+        .issue-text strong { color:var(--white); display:block; margin-bottom:3px; }
         .trending-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:32px; }
         .trending-filter { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 16px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--dim); cursor:pointer; transition:all 0.2s; }
         .trending-filter:hover { color:var(--white); border-color:rgba(255,255,255,0.15); }
         .trending-filter.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
         .trending-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
-        .trending-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; transition:all 0.2s; cursor:pointer; }
+        .trending-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; transition:all 0.2s; }
         .trending-card:hover { background:rgba(255,224,54,0.04); border-color:rgba(255,224,54,0.15); transform:translateY(-2px); }
         .trending-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
         .trending-niche { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,224,54,0.5); }
@@ -332,16 +314,15 @@
         .trending-use-btn { margin-top:14px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:7px; padding:7px 14px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .trending-use-btn:hover { background:rgba(255,224,54,0.15); }
         .trending-loading { text-align:center; padding:60px 24px; color:var(--dim); }
-
         @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
-
         @media (max-width:1024px) {
             .hero { grid-template-columns:1fr; gap:60px; padding:100px 40px 60px; }
             .hero-right { display:none; }
             nav { padding:0 16px; height:auto; padding-top:12px; padding-bottom:12px; flex-wrap:wrap; gap:8px; }
             .nav-badge { display:none; }
+            #userStatusBar { padding:8px 16px; flex-wrap:wrap; }
             .feature-page { padding:100px 24px 60px; }
-            .hiw, .ba, .pricing { padding:80px 24px; }
+            .hiw,.ba,.pricing { padding:80px 24px; }
             .steps { grid-template-columns:1fr; }
             .ba-wrap { grid-template-columns:1fr; }
             .plan-grid { grid-template-columns:1fr; }
@@ -353,71 +334,120 @@
             .ab-scores { grid-template-columns:1fr; }
             .analyzer-score-row { grid-template-columns:1fr 1fr; }
             .trending-grid { grid-template-columns:1fr; }
+            .plan-tabs { grid-template-columns:1fr; }
         }
     </style>
 </head>
 <body>
-
 <canvas id="bg-canvas"></canvas>
+
+<div id="userStatusBar">
+    <div class="status-left">
+        <span class="status-plan" id="statusPlanBadge">FREE</span>
+        <span class="status-email" id="statusEmail"></span>
+        <span class="status-usage" id="statusUsage"></span>
+    </div>
+    <div class="status-right">
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="paymentModal">
+    <div class="modal">
+        <button class="modal-close" onclick="closePaymentModal()">&#x2715;</button>
+        <div class="modal-header">
+            <h2>Upgrade ThumbGenius</h2>
+            <p>Unlock unlimited YouTube growth tools for Indian creators</p>
+        </div>
+        <div class="plan-tabs">
+            <div class="plan-tab selected" id="planTabCreator" onclick="selectPlan('creator')">
+                <div class="plan-tab-name">CREATOR</div>
+                <div class="plan-tab-price">&#x20B9;749<span>/mo</span></div>
+                <ul class="plan-tab-feats">
+                    <li>100 generations/month</li>
+                    <li>20 AI thumbnail images</li>
+                    <li>A/B Tester + Analyzer</li>
+                    <li>Save history</li>
+                </ul>
+            </div>
+            <div class="plan-tab" id="planTabPro" onclick="selectPlan('pro')">
+                <div class="plan-tab-name">PRO</div>
+                <div class="plan-tab-price">&#x20B9;1,449<span>/mo</span></div>
+                <ul class="plan-tab-feats">
+                    <li>300 generations/month</li>
+                    <li>50 AI thumbnail images</li>
+                    <li>All Creator features</li>
+                    <li>Priority support</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-email-section">
+            <label>Your Email Address</label>
+            <input type="text" class="modal-email-input" id="paymentEmail" placeholder="hello@example.com" />
+        </div>
+        <div class="modal-footer">
+            <button class="btn-checkout" id="checkoutBtn" onclick="startCheckout()">&#x26A1; Pay &#x20B9;749/month with Razorpay</button>
+            <div class="modal-secure">&#x1F512; Secured by Razorpay &middot; Cancel anytime &middot; Auto-renews monthly</div>
+        </div>
+    </div>
+</div>
 
 <nav>
     <div class="logo">Thumb<span>Genius</span></div>
     <div class="nav-right">
-        <span class="nav-badge">3 Free Generations · No Signup</span>
-        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">🏠 Home</button>
-        <button class="nav-tab" id="tab-history" onclick="showPage('history')">📁 History</button>
-        <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">⚡ A/B Test</button>
-        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">🔍 Analyzer</button>
-        <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">🔥 Trending</button>
-        <button class="nav-cta" onclick="document.getElementById('topic').focus(); showPage('home')">Try Free →</button>
+        <span class="nav-badge" id="navBadge">3 Free Generations &middot; No Signup</span>
+        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">&#x1F3E0; Home</button>
+        <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C1; History</button>
+        <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
+        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Analyzer</button>
+        <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
+        <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
     </div>
 </nav>
 
-<!-- ═══════════ HOME PAGE ═══════════ -->
 <div class="page active" id="page-home">
-
 <section class="hero">
     <div class="hero-left">
         <div class="hero-tag"><span class="pulse"></span>AI-Powered YouTube Growth Tool</div>
         <h1 class="hero-h1">
-            <span class="word-make">Make every</span><br>
+            <span>Make every</span><br>
             <span class="word-thumb">thumbnail</span><br>
             <span class="word-click">click.</span>
         </h1>
-        <p class="hero-p">Paste your video topic. Get 5 viral titles, a thumbnail concept, a real AI-generated thumbnail image, and a hook script — in seconds.</p>
+        <p class="hero-p">Paste your video topic. Get 5 viral titles, a thumbnail concept, a real AI-generated thumbnail image, and a hook script &mdash; in seconds.</p>
         <div class="hero-form">
             <div class="input-wrap">
-                <span class="input-icon">🎬</span>
-                <input type="text" id="topic" placeholder="e.g. I tested 5 budget phones under ₹10,000" />
+                <span class="input-icon">&#x1F3AC;</span>
+                <input type="text" id="topic" placeholder="e.g. I tested 5 budget phones under &#x20B9;10,000" />
             </div>
             <div class="niche-row" id="nicheRow">
-                <div class="niche-chip active" data-niche="tech">📱 Tech</div>
-                <div class="niche-chip" data-niche="finance">💰 Finance</div>
-                <div class="niche-chip" data-niche="gaming">🎮 Gaming</div>
-                <div class="niche-chip" data-niche="fitness">💪 Fitness</div>
-                <div class="niche-chip" data-niche="food">🍕 Food</div>
-                <div class="niche-chip" data-niche="travel">✈️ Travel</div>
-                <div class="niche-chip" data-niche="education">📚 Education</div>
-                <div class="niche-chip" data-niche="motivation">🔥 Motivation</div>
-                <div class="niche-chip" data-niche="beauty">💄 Beauty</div>
-                <div class="niche-chip" data-niche="entertainment">🎬 Entertainment</div>
-                <div class="niche-chip" data-niche="more" id="moreChip" onclick="toggleMoreNiches(event)">➕ More</div>
+                <div class="niche-chip active" data-niche="tech">&#x1F4F1; Tech</div>
+                <div class="niche-chip" data-niche="finance">&#x1F4B0; Finance</div>
+                <div class="niche-chip" data-niche="gaming">&#x1F3AE; Gaming</div>
+                <div class="niche-chip" data-niche="fitness">&#x1F4AA; Fitness</div>
+                <div class="niche-chip" data-niche="food">&#x1F355; Food</div>
+                <div class="niche-chip" data-niche="travel">&#x2708;&#xFE0F; Travel</div>
+                <div class="niche-chip" data-niche="education">&#x1F4DA; Education</div>
+                <div class="niche-chip" data-niche="motivation">&#x1F525; Motivation</div>
+                <div class="niche-chip" data-niche="beauty">&#x1F484; Beauty</div>
+                <div class="niche-chip" data-niche="entertainment">&#x1F3AC; Entertainment</div>
+                <div class="niche-chip" data-niche="more" id="moreChip" onclick="toggleMoreNiches(event)">&#x2795; More</div>
             </div>
             <div class="niche-row" id="moreNiches" style="display:none;margin-top:4px">
-                <div class="niche-chip" data-niche="business">📈 Business</div>
-                <div class="niche-chip" data-niche="productivity">🧠 Productivity</div>
-                <div class="niche-chip" data-niche="cricket">🏏 Cricket</div>
-                <div class="niche-chip" data-niche="automobiles">🚗 Automobiles</div>
-                <div class="niche-chip" data-niche="examprep">🎓 Exam Prep</div>
-                <div class="niche-chip" data-niche="health">💊 Health</div>
-                <div class="niche-chip" data-niche="pets">🐾 Pets</div>
-                <div class="niche-chip" data-niche="music">🎵 Music</div>
-                <div class="niche-chip" data-niche="realestate">🏠 Real Estate</div>
-                <div class="niche-chip" data-niche="spirituality">🌿 Spirituality</div>
+                <div class="niche-chip" data-niche="business">&#x1F4C8; Business</div>
+                <div class="niche-chip" data-niche="productivity">&#x1F9E0; Productivity</div>
+                <div class="niche-chip" data-niche="cricket">&#x1F3CF; Cricket</div>
+                <div class="niche-chip" data-niche="automobiles">&#x1F697; Automobiles</div>
+                <div class="niche-chip" data-niche="examprep">&#x1F393; Exam Prep</div>
+                <div class="niche-chip" data-niche="health">&#x1F48A; Health</div>
+                <div class="niche-chip" data-niche="pets">&#x1F43E; Pets</div>
+                <div class="niche-chip" data-niche="music">&#x1F3B5; Music</div>
+                <div class="niche-chip" data-niche="realestate">&#x1F3E0; Real Estate</div>
+                <div class="niche-chip" data-niche="spirituality">&#x1F33F; Spirituality</div>
             </div>
-            <button class="btn-gen" id="generateBtn" onclick="generate()">⚡ Generate My Content Package</button>
+            <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate My Content Package</button>
             <div class="form-footer">
-                <div class="free-badge"><span class="dot">●</span> 3 free · no signup</div>
+                <div class="free-badge"><span class="dot">&#x25CF;</span> <span id="freeBadgeText">3 free &middot; no signup</span></div>
                 <div id="usesLeft"><strong>3</strong> remaining</div>
             </div>
         </div>
@@ -429,19 +459,19 @@
                 <div class="preview-title-bar">thumbgenius.in</div>
             </div>
             <div class="preview-body">
-                <div class="preview-section-label">⚡ 5 Viral Titles Generated</div>
-                <div class="preview-title-item"><span class="preview-num">01</span><span class="preview-text">I Used This ₹15,000 Phone For 30 Days — Honest Truth</span></div>
+                <div class="preview-section-label">&#x26A1; 5 Viral Titles Generated</div>
+                <div class="preview-title-item"><span class="preview-num">01</span><span class="preview-text">I Used This &#x20B9;15,000 Phone For 30 Days &mdash; Honest Truth</span></div>
                 <div class="preview-title-item"><span class="preview-num">02</span><span class="preview-text">They Don't Want You To Know This About Budget Phones</span></div>
                 <div class="preview-title-item"><span class="preview-num">03</span><span class="preview-text">5 Budget Phones That Actually Beat Flagships in 2025</span></div>
                 <div class="preview-divider"></div>
-                <div class="preview-section-label">🎨 Thumbnail Concept + AI Image</div>
+                <div class="preview-section-label">&#x1F3A8; Thumbnail Concept + AI Image</div>
                 <div class="thumb-mini">
                     <div class="thumb-mini-item"><div class="thumb-mini-label">Text Overlay</div><div class="thumb-mini-val hl">BUDGET KING</div></div>
                     <div class="thumb-mini-item"><div class="thumb-mini-label">Emotion</div><div class="thumb-mini-val">Curiosity + Shock</div></div>
                     <div class="thumb-mini-item"><div class="thumb-mini-label">Expression</div><div class="thumb-mini-val">Surprised face</div></div>
                     <div class="thumb-mini-item"><div class="thumb-mini-label">Background</div><div class="thumb-mini-val">Blue gradient, phone close-up</div></div>
                 </div>
-                <div class="ctr-mini"><span class="ctr-mini-label">🎯 Predicted CTR Score</span><span class="ctr-mini-score">8.7/10</span></div>
+                <div class="ctr-mini"><span class="ctr-mini-label">&#x1F3AF; Predicted CTR Score</span><span class="ctr-mini-score">8.7/10</span></div>
             </div>
         </div>
     </div>
@@ -449,63 +479,47 @@
 
 <div class="loading" id="loading">
     <div class="loading-spinner"></div>
-    <h3>Analyzing viral patterns…</h3>
+    <h3>Analyzing viral patterns&hellip;</h3>
     <p>Studying 10M+ videos for your niche</p>
 </div>
 
 <div class="results" id="results">
-    <div class="results-header">
-        <h2>Your Content Package ✦</h2>
-        <p>Click any title to copy. Generate your thumbnail image below.</p>
-    </div>
-    <div class="rblock">
-        <div class="rblock-head">🔥 5 Viral Title Options</div>
-        <div id="titles"></div>
-    </div>
-    <div class="rblock">
-        <div class="rblock-head">🎨 Thumbnail Concept</div>
-        <div class="tgrid" id="thumbnail"></div>
-    </div>
+    <div class="results-header"><h2>Your Content Package &#x2736;</h2><p>Click any title to copy. Generate your thumbnail image below.</p></div>
+    <div class="rblock"><div class="rblock-head">&#x1F525; 5 Viral Title Options</div><div id="titles"></div></div>
+    <div class="rblock"><div class="rblock-head">&#x1F3A8; Thumbnail Concept</div><div class="tgrid" id="thumbnail"></div></div>
     <div class="image-rblock">
-        <div class="rblock-head">🖼️ AI Thumbnail Image</div>
-        <p class="img-desc">Generate an actual thumbnail image from the concept above. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
-        <button class="btn-img" id="imageBtn" onclick="generateImage()">🎨 Generate Thumbnail Image</button>
+        <div class="rblock-head">&#x1F5BC;&#xFE0F; AI Thumbnail Image</div>
+        <p class="img-desc" id="imgDesc">Generate an actual thumbnail image from the concept above. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
+        <button class="btn-img" id="imageBtn" onclick="generateImage()">&#x1F3A8; Generate Thumbnail Image</button>
         <p id="imgUsesLeft" style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px">1 free image generation remaining</p>
-        <div class="img-loading" id="imgLoading">
-            <div class="loading-spinner"></div>
-            <p>Creating your thumbnail image… (~15 seconds)</p>
-        </div>
+        <div class="img-loading" id="imgLoading"><div class="loading-spinner"></div><p>Creating your thumbnail image&hellip; (~15 seconds)</p></div>
         <div class="img-result" id="imgResult">
             <img id="thumbnailImg" src="" alt="Generated Thumbnail" />
             <div class="img-actions">
-                <a id="downloadBtn" href="" download="thumbgenius-thumbnail.png" class="btn-download">⬇️ Download Thumbnail</a>
-                <button class="btn-regen" onclick="generateImage()">🔄 Regenerate</button>
+                <a id="downloadBtn" href="" download="thumbgenius-thumbnail.png" class="btn-download">&#x2B07;&#xFE0F; Download Thumbnail</a>
+                <button class="btn-regen" onclick="generateImage()">&#x1F504; Regenerate</button>
             </div>
         </div>
         <div class="img-upgrade" id="imgUpgrade">
-            <p>🚀 Free image used!</p>
-            <p>Upgrade to ₹749/month for 50 thumbnail images + unlimited concepts</p>
+            <p>&#x1F680; Free image used!</p>
+            <p>Upgrade to Creator plan for 20 thumbnail images/month</p>
+            <button class="btn-pay" style="margin-top:12px;padding:12px 28px;font-size:14px" onclick="openPaymentModal()">Upgrade Now &rarr;</button>
         </div>
     </div>
     <div class="rblock">
-        <div class="rblock-head">🎬 Hook Script — First 15 Seconds</div>
+        <div class="rblock-head">&#x1F3AC; Hook Script &mdash; First 15 Seconds</div>
         <p class="hook-p" id="hook"></p>
-        <button class="copy-sm" onclick="copyText('hook')">📋 Copy Script</button>
+        <button class="copy-sm" onclick="copyText('hook')">&#x1F4CB; Copy Script</button>
     </div>
-    <div class="tip-rblock">
-        <div class="tip-label">💡 Niche Intelligence</div>
-        <p class="tip-val" id="nicheTip"></p>
-    </div>
-    <div style="text-align:center">
-        <button class="btn-save" id="saveBtn" onclick="saveToHistory()">💾 Save to History</button>
-    </div>
+    <div class="tip-rblock"><div class="tip-label">&#x1F4A1; Niche Intelligence</div><p class="tip-val" id="nicheTip"></p></div>
+    <div style="text-align:center"><button class="btn-save" id="saveBtn" onclick="saveToHistory()">&#x1F4BE; Save to History</button></div>
 </div>
 
 <div class="upgrade" id="upgradeBanner">
     <div class="upgrade-box">
         <h2>All 3 free<br>generations used.</h2>
-        <p>Upgrade for unlimited titles, thumbnail concepts, AI images, and hook scripts for every video.</p>
-        <button class="btn-pay">Get Unlimited Access — ₹749/month</button>
+        <p>Upgrade to Creator plan for 100 generations, 20 AI images, A/B testing, and channel analysis &mdash; every month.</p>
+        <button class="btn-pay" onclick="openPaymentModal()">Get Creator Plan &mdash; &#x20B9;749/month &rarr;</button>
     </div>
 </div>
 
@@ -513,9 +527,9 @@
     <div class="section-kicker">How it works</div>
     <div class="section-h">Three steps.<br><em>One viral video.</em></div>
     <div class="steps">
-        <div class="step-card"><div class="step-n">01</div><div class="step-emoji">✍️</div><h3>Paste Your Topic</h3><p>Type your video idea in plain English. Choose your niche. That's all the input we need.</p></div>
-        <div class="step-card"><div class="step-n">02</div><div class="step-emoji">🤖</div><h3>AI Generates</h3><p>Our AI analyzes millions of viral videos and generates your complete content package including a real thumbnail image.</p></div>
-        <div class="step-card"><div class="step-n">03</div><div class="step-emoji">📈</div><h3>Publish & Grow</h3><p>Use the title, download the thumbnail, read the hook — and watch your click-through rate climb.</p></div>
+        <div class="step-card"><div class="step-n">01</div><div class="step-emoji">&#x270D;&#xFE0F;</div><h3>Paste Your Topic</h3><p>Type your video idea in plain English. Choose your niche. That's all the input we need.</p></div>
+        <div class="step-card"><div class="step-n">02</div><div class="step-emoji">&#x1F916;</div><h3>AI Generates</h3><p>Our AI analyzes millions of viral videos and generates your complete content package including a real thumbnail image.</p></div>
+        <div class="step-card"><div class="step-n">03</div><div class="step-emoji">&#x1F4C8;</div><h3>Publish &amp; Grow</h3><p>Use the title, download the thumbnail, read the hook &mdash; and watch your click-through rate climb.</p></div>
     </div>
 </section>
 
@@ -525,7 +539,7 @@
         <div class="section-h">See what<br><em>ThumbGenius</em> does.</div>
         <div class="ba-wrap">
             <div class="ba-box">
-                <div class="ba-box-head b">❌ Without ThumbGenius</div>
+                <div class="ba-box-head b">&#x274C; Without ThumbGenius</div>
                 <div class="ba-box-body">
                     <div class="bad-t">My review of the Redmi Note 14</div>
                     <div class="bad-t">Budget phone video 2025</div>
@@ -534,9 +548,9 @@
                 </div>
             </div>
             <div class="ba-box">
-                <div class="ba-box-head a">✅ With ThumbGenius</div>
+                <div class="ba-box-head a">&#x2705; With ThumbGenius</div>
                 <div class="ba-box-body">
-                    <div class="good-t">I Used This ₹15,000 Phone For 30 Days — Honest Truth</div>
+                    <div class="good-t">I Used This &#x20B9;15,000 Phone For 30 Days &mdash; Honest Truth</div>
                     <div class="good-t">They Don't Want You To Know This About Budget Phones</div>
                     <div class="good-t">5 Budget Phones That Beat Flagships in 2025</div>
                     <div class="ctr-show"><div class="ctr-show-row"><span class="ctr-show-label">Estimated CTR</span><span class="ctr-show-val hi">8.5%</span></div><div class="ctr-bar"><div class="ctr-bar-fill hi"></div></div></div>
@@ -552,43 +566,57 @@
     <div class="plan-grid">
         <div class="plan-box">
             <div class="plan-name">Free Forever</div>
-            <div class="plan-price">₹0</div>
-            <div class="plan-period">No credit card · No signup</div>
+            <div class="plan-price">&#x20B9;0</div>
+            <div class="plan-period">No credit card &middot; No signup</div>
             <ul class="plan-feats">
-                <li><span class="y">✓</span> 3 concept generations/month</li>
-                <li><span class="y">✓</span> 1 AI thumbnail image</li>
-                <li><span class="y">✓</span> All 20 niches</li>
-                <li><span class="n2">✗</span> Unlimited generations</li>
-                <li><span class="n2">✗</span> History & saved generations</li>
-                <li><span class="n2">✗</span> A/B Title Tester</li>
+                <li><span class="y">&#x2713;</span> 3 concept generations</li>
+                <li><span class="y">&#x2713;</span> 1 AI thumbnail image</li>
+                <li><span class="y">&#x2713;</span> All 20 niches</li>
+                <li><span class="n2">&#x2717;</span> Unlimited generations</li>
+                <li><span class="n2">&#x2717;</span> History &amp; saved results</li>
+                <li><span class="n2">&#x2717;</span> A/B Title Tester</li>
             </ul>
+            <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage('home')">Try Free &rarr;</button>
         </div>
-        <div class="plan-box pro">
+        <div class="plan-box featured">
             <div class="plan-badge">Most Popular</div>
-            <div class="plan-name">Unlimited</div>
-            <div class="plan-price pro-price">₹749</div>
-            <div class="plan-period">per month · cancel anytime</div>
+            <div class="plan-name">Creator</div>
+            <div class="plan-price accent">&#x20B9;749</div>
+            <div class="plan-period">per month &middot; cancel anytime</div>
             <ul class="plan-feats">
-                <li><span class="y">✓</span> Unlimited concept generations</li>
-                <li><span class="y">✓</span> 50 AI thumbnail images/month</li>
-                <li><span class="y">✓</span> All 20 niches</li>
-                <li><span class="y">✓</span> Save & access history</li>
-                <li><span class="y">✓</span> A/B Title Tester</li>
-                <li><span class="y">✓</span> Channel Analyzer</li>
+                <li><span class="y">&#x2713;</span> 100 generations/month</li>
+                <li><span class="y">&#x2713;</span> 20 AI thumbnail images</li>
+                <li><span class="y">&#x2713;</span> All 20 niches</li>
+                <li><span class="y">&#x2713;</span> Save &amp; access history</li>
+                <li><span class="y">&#x2713;</span> A/B Title Tester</li>
+                <li><span class="y">&#x2713;</span> Channel Analyzer</li>
             </ul>
+            <button class="btn-plan" onclick="openPaymentModal('creator')">Get Creator &rarr;</button>
+        </div>
+        <div class="plan-box">
+            <div class="plan-name">Pro</div>
+            <div class="plan-price">&#x20B9;1,449</div>
+            <div class="plan-period">per month &middot; cancel anytime</div>
+            <ul class="plan-feats">
+                <li><span class="y">&#x2713;</span> 300 generations/month</li>
+                <li><span class="y">&#x2713;</span> 50 AI thumbnail images</li>
+                <li><span class="y">&#x2713;</span> All Creator features</li>
+                <li><span class="y">&#x2713;</span> Priority support</li>
+                <li><span class="y">&#x2713;</span> Early access to new features</li>
+                <li><span class="y">&#x2713;</span> Cancel anytime</li>
+            </ul>
+            <button class="btn-plan" onclick="openPaymentModal('pro')">Get Pro &rarr;</button>
         </div>
     </div>
 </section>
 
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
-    <p>© 2025 ThumbGenius · Made for YouTubers</p>
+    <p>&copy; 2025 ThumbGenius &middot; Made for YouTubers</p>
     <a href="mailto:hello@thumbgenius.in">hello@thumbgenius.in</a>
 </footer>
+</div>
 
-</div><!-- end home page -->
-
-<!-- ═══════════ HISTORY PAGE ═══════════ -->
 <div class="page" id="page-history">
     <div class="feature-page">
         <div class="section-kicker">Your Saved Work</div>
@@ -598,205 +626,228 @@
     </div>
 </div>
 
-<!-- ═══════════ A/B TESTER PAGE ═══════════ -->
 <div class="page" id="page-ab">
     <div class="feature-page">
         <div class="section-kicker">Title Optimization</div>
         <div class="feature-page-title">A/B Title Tester</div>
-        <p class="feature-page-sub">Paste two title options. AI tells you which one will get more clicks and why.</p>
-
-        <div class="ab-intro">
-            <p>Got two title ideas and can't decide? Paste them below and our AI will score each one for CTR potential, emotional pull, and clarity — then tell you which one to use.</p>
-        </div>
-
+        <p class="feature-page-sub">Paste two title options. AI tells you which will get more clicks and why.</p>
+        <div class="ab-intro"><p>Got two title ideas and can't decide? Paste them below and our AI will score each one for CTR potential, emotional pull, and clarity &mdash; then tell you which one to use.</p></div>
         <div class="ab-input-row">
-            <div class="ab-input-box">
-                <div class="ab-input-label a-label">Title A</div>
-                <textarea id="titleA" placeholder="e.g. I Tested 5 Budget Phones Under ₹10,000"></textarea>
-            </div>
-            <div class="ab-input-box">
-                <div class="ab-input-label b-label">Title B</div>
-                <textarea id="titleB" placeholder="e.g. The TRUTH About Budget Phones Nobody Tells You"></textarea>
-            </div>
+            <div class="ab-input-box"><div class="ab-input-label a-label">Title A</div><textarea id="titleA" placeholder="e.g. I Tested 5 Budget Phones Under &#x20B9;10,000"></textarea></div>
+            <div class="ab-input-box"><div class="ab-input-label b-label">Title B</div><textarea id="titleB" placeholder="e.g. The TRUTH About Budget Phones Nobody Tells You"></textarea></div>
         </div>
-
-        <button class="btn-ab" id="abBtn" onclick="runABTest()">⚡ Test These Titles</button>
-
+        <button class="btn-ab" id="abBtn" onclick="runABTest()">&#x26A1; Test These Titles</button>
         <div class="ab-result" id="abResult">
-            <div class="ab-verdict">
-                <div class="ab-verdict-label">Winner</div>
-                <div class="ab-winner" id="abWinner"></div>
-            </div>
+            <div class="ab-verdict"><div class="ab-verdict-label">Winner</div><div class="ab-winner" id="abWinner"></div></div>
             <div class="ab-scores">
-                <div class="ab-score-box a">
-                    <div class="ab-score-title" id="abTitleA"></div>
-                    <div class="ab-score-num a" id="abScoreA"></div>
-                    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px">/ 10</div>
-                </div>
-                <div class="ab-score-box b">
-                    <div class="ab-score-title" id="abTitleB"></div>
-                    <div class="ab-score-num b" id="abScoreB"></div>
-                    <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px">/ 10</div>
-                </div>
+                <div class="ab-score-box a"><div class="ab-score-title" id="abTitleA"></div><div class="ab-score-num a" id="abScoreA"></div><div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px">/ 10</div></div>
+                <div class="ab-score-box b"><div class="ab-score-title" id="abTitleB"></div><div class="ab-score-num b" id="abScoreB"></div><div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:4px">/ 10</div></div>
             </div>
             <div class="ab-reasoning" id="abReasoning"></div>
         </div>
     </div>
 </div>
 
-<!-- ═══════════ CHANNEL ANALYZER PAGE ═══════════ -->
 <div class="page" id="page-analyzer">
     <div class="feature-page">
         <div class="section-kicker">Channel Intelligence</div>
         <div class="feature-page-title">Channel Analyzer</div>
-        <p class="feature-page-sub">Paste your YouTube channel URL. Get an instant audit of what's hurting your CTR.</p>
-
+        <p class="feature-page-sub">Paste your recent video titles. Get an instant CTR audit.</p>
         <div class="analyzer-input-wrap">
-            <p>Enter your YouTube channel URL or paste 3–5 of your recent video titles separated by commas. Our AI will identify patterns, weaknesses, and opportunities in your titling strategy.</p>
+            <p>Enter 3&ndash;5 of your recent video titles separated by commas. Our AI will identify patterns, weaknesses, and opportunities in your titling strategy.</p>
             <div class="channel-input-row">
                 <input type="text" id="channelInput" placeholder="e.g. My Review of Phone X, Top 5 Gadgets, Unboxing Video..." style="padding-left:20px" />
-                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">🔍 Analyze</button>
+                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">&#x1F50D; Analyze</button>
             </div>
         </div>
-
         <div class="analyzer-result" id="analyzerResult">
             <div class="analyzer-score-row">
-                <div class="analyzer-score-box">
-                    <div class="analyzer-score-label">CTR Potential</div>
-                    <div class="analyzer-score-num" id="scoreCTR">—</div>
-                    <div class="analyzer-score-sub">out of 10</div>
-                </div>
-                <div class="analyzer-score-box">
-                    <div class="analyzer-score-label">Emotion Score</div>
-                    <div class="analyzer-score-num" id="scoreEmotion">—</div>
-                    <div class="analyzer-score-sub">out of 10</div>
-                </div>
-                <div class="analyzer-score-box">
-                    <div class="analyzer-score-label">Clarity Score</div>
-                    <div class="analyzer-score-num" id="scoreClarity">—</div>
-                    <div class="analyzer-score-sub">out of 10</div>
-                </div>
+                <div class="analyzer-score-box"><div class="analyzer-score-label">CTR Potential</div><div class="analyzer-score-num" id="scoreCTR">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
+                <div class="analyzer-score-box"><div class="analyzer-score-label">Emotion Score</div><div class="analyzer-score-num" id="scoreEmotion">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
+                <div class="analyzer-score-box"><div class="analyzer-score-label">Clarity Score</div><div class="analyzer-score-num" id="scoreClarity">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
             </div>
-            <div class="analyzer-section">
-                <div class="analyzer-section-title">⚠️ Issues Found</div>
-                <div id="analyzerIssues"></div>
-            </div>
-            <div class="analyzer-section">
-                <div class="analyzer-section-title">✅ Improvements</div>
-                <div id="analyzerFixes"></div>
-            </div>
-            <div class="analyzer-section">
-                <div class="analyzer-section-title">💡 Rewritten Titles</div>
-                <div id="analyzerRewrite"></div>
-            </div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x26A0;&#xFE0F; Issues Found</div><div id="analyzerIssues"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x2705; Improvements</div><div id="analyzerFixes"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x1F4A1; Rewritten Titles</div><div id="analyzerRewrite"></div></div>
         </div>
     </div>
 </div>
 
-<!-- ═══════════ TRENDING TOPICS PAGE ═══════════ -->
 <div class="page" id="page-trending">
     <div class="feature-page">
         <div class="section-kicker">This Week's Hot Topics</div>
-        <div class="feature-page-title">Trending in India 🇮🇳</div>
+        <div class="feature-page-title">Trending in India &#x1F1EE;&#x1F1F3;</div>
         <p class="feature-page-sub">AI-curated viral topics by niche. Click any topic to instantly generate your content package.</p>
-
         <div class="trending-filters">
-            <div class="trending-filter active" onclick="filterTrending('all', this)">All</div>
-            <div class="trending-filter" onclick="filterTrending('tech', this)">📱 Tech</div>
-            <div class="trending-filter" onclick="filterTrending('finance', this)">💰 Finance</div>
-            <div class="trending-filter" onclick="filterTrending('gaming', this)">🎮 Gaming</div>
-            <div class="trending-filter" onclick="filterTrending('fitness', this)">💪 Fitness</div>
-            <div class="trending-filter" onclick="filterTrending('cricket', this)">🏏 Cricket</div>
-            <div class="trending-filter" onclick="filterTrending('automobiles', this)">🚗 Auto</div>
-            <div class="trending-filter" onclick="filterTrending('examprep', this)">🎓 Exam Prep</div>
+            <div class="trending-filter active" onclick="filterTrending('all',this)">All</div>
+            <div class="trending-filter" onclick="filterTrending('tech',this)">&#x1F4F1; Tech</div>
+            <div class="trending-filter" onclick="filterTrending('finance',this)">&#x1F4B0; Finance</div>
+            <div class="trending-filter" onclick="filterTrending('gaming',this)">&#x1F3AE; Gaming</div>
+            <div class="trending-filter" onclick="filterTrending('fitness',this)">&#x1F4AA; Fitness</div>
+            <div class="trending-filter" onclick="filterTrending('cricket',this)">&#x1F3CF; Cricket</div>
+            <div class="trending-filter" onclick="filterTrending('automobiles',this)">&#x1F697; Auto</div>
+            <div class="trending-filter" onclick="filterTrending('examprep',this)">&#x1F393; Exam Prep</div>
         </div>
-
-        <div id="trendingLoading" class="trending-loading">
-            <div class="loading-spinner" style="margin:0 auto 16px"></div>
-            <p>Fetching trending topics for India…</p>
-        </div>
+        <div id="trendingLoading" class="trending-loading"><div class="loading-spinner" style="margin:0 auto 16px"></div><p>Fetching trending topics for India&hellip;</p></div>
         <div class="trending-grid" id="trendingGrid" style="display:none"></div>
     </div>
 </div>
-
 <script>
-/* ═══ CANVAS BACKGROUND ═══ */
-(function() {
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    let W, H, particles = [];
-    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-    function createParticles() {
-        particles = [];
-        for(let i=0;i<60;i++) particles.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.5+0.3, dx:(Math.random()-0.5)*0.3, dy:(Math.random()-0.5)*0.3, a:Math.random()*0.4+0.1, color:['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)] });
-    }
-    function draw() {
+let selectedNiche='tech', selectedPlan='creator';
+let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
+let currentUserEmail=localStorage.getItem('tg_email')||'';
+let currentUserPlan=localStorage.getItem('tg_plan')||'free';
+
+(function(){
+    const canvas=document.getElementById('bg-canvas');
+    const ctx=canvas.getContext('2d');
+    let W,H,particles=[];
+    function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+    function createParticles(){particles=[];for(let i=0;i<60;i++)particles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,dx:(Math.random()-0.5)*0.3,dy:(Math.random()-0.5)*0.3,a:Math.random()*0.4+0.1,color:['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)]});}
+    function draw(){
         ctx.clearRect(0,0,W,H);
-        const g1=ctx.createRadialGradient(W*0.2,H*0.1,0,W*0.2,H*0.1,W*0.6); g1.addColorStop(0,'rgba(255,224,54,0.04)'); g1.addColorStop(1,'transparent'); ctx.fillStyle=g1; ctx.fillRect(0,0,W,H);
-        const g2=ctx.createRadialGradient(W*0.8,H*0.7,0,W*0.8,H*0.7,W*0.5); g2.addColorStop(0,'rgba(255,45,122,0.05)'); g2.addColorStop(1,'transparent'); ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
-        particles.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=p.color; ctx.globalAlpha=p.a; ctx.fill(); ctx.globalAlpha=1; p.x+=p.dx; p.y+=p.dy; if(p.x<0||p.x>W)p.dx*=-1; if(p.y<0||p.y>H)p.dy*=-1; });
-        ctx.globalAlpha=0.025; ctx.strokeStyle='#ffffff'; ctx.lineWidth=0.5;
+        const g1=ctx.createRadialGradient(W*0.2,H*0.1,0,W*0.2,H*0.1,W*0.6);g1.addColorStop(0,'rgba(255,224,54,0.04)');g1.addColorStop(1,'transparent');ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
+        const g2=ctx.createRadialGradient(W*0.8,H*0.7,0,W*0.8,H*0.7,W*0.5);g2.addColorStop(0,'rgba(255,45,122,0.05)');g2.addColorStop(1,'transparent');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
+        particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.globalAlpha=p.a;ctx.fill();ctx.globalAlpha=1;p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;});
+        ctx.globalAlpha=0.025;ctx.strokeStyle='#ffffff';ctx.lineWidth=0.5;
         for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
         for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-        ctx.globalAlpha=1; requestAnimationFrame(draw);
+        ctx.globalAlpha=1;requestAnimationFrame(draw);
     }
-    resize(); createParticles(); draw();
+    resize();createParticles();draw();
     window.addEventListener('resize',()=>{resize();createParticles();});
 })();
 
-/* ═══ PAGE NAVIGATION ═══ */
-function showPage(name) {
+function getHeaders(){const h={'Content-Type':'application/json'};if(currentUserEmail)h['X-User-Email']=currentUserEmail;return h;}
+
+async function loadUserStatus(){
+    if(!currentUserEmail){updateUIForFree();return;}
+    try{
+        const res=await fetch('/user/status',{headers:getHeaders()});
+        const data=await res.json();
+        currentUserPlan=data.plan||'free';
+        localStorage.setItem('tg_plan',currentUserPlan);
+        updateUIForPlan(data);
+    }catch(e){updateUIForFree();}
+}
+
+function updateUIForPlan(data){
+    const plan=data.plan||'free';
+    if(currentUserEmail && plan!=='free' && data.is_active){
+        document.getElementById('userStatusBar').classList.add('visible');
+        document.getElementById('statusPlanBadge').textContent=plan.toUpperCase();
+        document.getElementById('statusEmail').textContent=currentUserEmail;
+        const genLeft=(data.generations_limit||100)-(data.generations_used||0);
+        const imgLeft=(data.images_limit||20)-(data.images_used||0);
+        document.getElementById('statusUsage').textContent=genLeft+' generations · '+imgLeft+' images left';
+        document.getElementById('navCtaBtn').textContent='✓ '+plan.charAt(0).toUpperCase()+plan.slice(1);
+        document.getElementById('navBadge').textContent=plan.charAt(0).toUpperCase()+plan.slice(1)+' Plan Active';
+        document.getElementById('usesLeft').innerHTML='<strong>'+genLeft+'</strong> remaining';
+        document.getElementById('freeBadgeText').textContent=genLeft+' generations left';
+        document.getElementById('imgDesc').innerHTML='Generate an actual thumbnail image. <strong>'+imgLeft+' images remaining</strong> this month.';
+    }else{updateUIForFree();}
+}
+
+function updateUIForFree(){
+    document.getElementById('userStatusBar').classList.remove('visible');
+    document.getElementById('navCtaBtn').textContent='Upgrade →';
+    document.getElementById('navBadge').textContent='3 Free Generations · No Signup';
+}
+
+function logout(){
+    localStorage.removeItem('tg_email');localStorage.removeItem('tg_plan');
+    currentUserEmail='';currentUserPlan='free';updateUIForFree();
+}
+
+function openPaymentModal(plan){
+    if(plan)selectPlan(plan);
+    document.getElementById('paymentModal').classList.add('open');
+    if(currentUserEmail)document.getElementById('paymentEmail').value=currentUserEmail;
+}
+function closePaymentModal(){document.getElementById('paymentModal').classList.remove('open');}
+function selectPlan(plan){
+    selectedPlan=plan;
+    document.getElementById('planTabCreator').classList.toggle('selected',plan==='creator');
+    document.getElementById('planTabPro').classList.toggle('selected',plan==='pro');
+    document.getElementById('checkoutBtn').textContent='⚡ Pay '+(plan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';
+}
+
+async function startCheckout(){
+    const email=document.getElementById('paymentEmail').value.trim().toLowerCase();
+    if(!email||!email.includes('@')){
+        const el=document.getElementById('paymentEmail');
+        el.style.borderColor='rgba(255,92,0,0.6)';setTimeout(()=>el.style.borderColor='',2000);el.focus();return;
+    }
+    const btn=document.getElementById('checkoutBtn');
+    btn.disabled=true;btn.textContent='⏳ Setting up payment…';
+    try{
+        const res=await fetch('/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,plan:selectedPlan})});
+        const data=await res.json();
+        if(data.error){alert(data.error);btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';return;}
+        const rzp=new Razorpay({
+            key:data.razorpay_key,subscription_id:data.subscription_id,
+            name:'ThumbGenius',description:selectedPlan.charAt(0).toUpperCase()+selectedPlan.slice(1)+' Plan',
+            prefill:{email},theme:{color:'#FFE036'},
+            handler:function(){
+                currentUserEmail=email;
+                localStorage.setItem('tg_email',email);localStorage.setItem('tg_plan',selectedPlan);
+                closePaymentModal();
+                const div=document.createElement('div');
+                div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d1a;border:1px solid rgba(255,224,54,0.3);border-radius:20px;padding:40px;text-align:center;z-index:2000;max-width:400px;width:90%';
+                div.innerHTML='<div style="font-size:48px;margin-bottom:16px">🎉</div><h2 style="font-size:24px;font-weight:800;color:#FFE036;margin-bottom:8px">Payment Successful!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6">Check <strong style="color:#fff">'+email+'</strong> for your magic link to activate your account!</p><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#FFE036;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Got it →</button>';
+                document.body.appendChild(div);
+                setTimeout(loadUserStatus,4000);
+            },
+            modal:{ondismiss:function(){btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}}
+        });
+        rzp.open();
+    }catch(e){alert('Payment setup failed. Please try again.');btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}
+}
+
+function showPage(name){
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
     document.getElementById('page-'+name).classList.add('active');
     document.getElementById('tab-'+name).classList.add('active');
     window.scrollTo(0,0);
-    if(name==='history') renderHistory();
-    if(name==='trending') loadTrending();
+    if(name==='history')renderHistory();
+    if(name==='trending')loadTrending();
 }
 
-/* ═══ NICHE CHIPS ═══ */
-let selectedNiche = 'tech';
-document.querySelectorAll('.niche-chip').forEach(chip => {
-    if(chip.id==='moreChip') return;
+document.querySelectorAll('.niche-chip').forEach(chip=>{
+    if(chip.id==='moreChip')return;
     chip.addEventListener('click',()=>{
         document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
-        chip.classList.add('active');
-        selectedNiche = chip.dataset.niche;
+        chip.classList.add('active');selectedNiche=chip.dataset.niche;
     });
 });
 
-function toggleMoreNiches(e) {
+function toggleMoreNiches(e){
     e.stopPropagation();
-    const more = document.getElementById('moreNiches');
-    const chip = document.getElementById('moreChip');
+    const more=document.getElementById('moreNiches');const chip=document.getElementById('moreChip');
     if(more.style.display==='none'){more.style.display='flex';more.style.flexWrap='wrap';more.style.gap='8px';chip.textContent='➖ Less';}
     else{more.style.display='none';chip.textContent='➕ More';}
 }
 
-/* ═══ GENERATE ═══ */
-let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
-
-async function generate() {
-    const topic = document.getElementById('topic').value.trim();
-    if(!topic){
-        const el=document.getElementById('topic');
-        el.style.borderColor='rgba(255,92,0,0.6)'; el.style.boxShadow='0 0 0 4px rgba(255,92,0,0.1)'; el.focus();
-        setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2000); return;
-    }
+async function generate(){
+    const topic=document.getElementById('topic').value.trim();
+    if(!topic){const el=document.getElementById('topic');el.style.borderColor='rgba(255,92,0,0.6)';el.style.boxShadow='0 0 0 4px rgba(255,92,0,0.1)';el.focus();setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2000);return;}
     document.getElementById('loading').style.display='block';
     document.getElementById('results').style.display='none';
     document.getElementById('upgradeBanner').style.display='none';
     document.getElementById('generateBtn').disabled=true;
     document.getElementById('loading').scrollIntoView({behavior:'smooth',block:'center'});
-    try {
-        const res = await fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,niche:selectedNiche})});
-        const data = await res.json();
-        if(data.error==='free_limit_reached'){document.getElementById('upgradeBanner').style.display='block';document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;}
+    try{
+        const res=await fetch('/generate',{method:'POST',headers:getHeaders(),body:JSON.stringify({topic,niche:selectedNiche})});
+        const data=await res.json();
+        if(data.error==='free_limit_reached'||data.error==='limit_reached'){
+            document.getElementById('upgradeBanner').style.display='block';
+            document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;
+        }
         if(data.error){alert(data.error);return;}
-        document.getElementById('titles').innerHTML = data.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}', this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
+        document.getElementById('titles').innerHTML=data.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}',this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
         const th=data.thumbnail;
-        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score & Analysis</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${escapeHtml(th.why_it_works)}</div></div></div>`;
+        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score &amp; Analysis</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${escapeHtml(th.why_it_works)}</div></div></div>`;
         lastConcept=th.background+'. Face expression: '+th.face_expression;
         lastTextOverlay=th.text_overlay;
         lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
@@ -806,246 +857,149 @@ async function generate() {
         document.getElementById('imageBtn').disabled=false;
         document.getElementById('hook').textContent=data.hook_script;
         document.getElementById('nicheTip').textContent=data.niche_tip;
-        if(data.uses_remaining!==undefined) document.getElementById('usesLeft').innerHTML=`<strong>${data.uses_remaining}</strong> remaining`;
-        const saveBtn=document.getElementById('saveBtn');
-        saveBtn.textContent='💾 Save to History'; saveBtn.classList.remove('saved');
+        if(data.uses_remaining!==undefined)document.getElementById('usesLeft').innerHTML=`<strong>${data.uses_remaining}</strong> remaining`;
+        const saveBtn=document.getElementById('saveBtn');saveBtn.textContent='💾 Save to History';saveBtn.classList.remove('saved');
         document.getElementById('results').style.display='block';
         document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-    } catch(e){alert('Something went wrong. Please try again.');}
+    }catch(e){alert('Something went wrong. Please try again.');}
     finally{document.getElementById('loading').style.display='none';document.getElementById('generateBtn').disabled=false;}
 }
 
-/* ═══ GENERATE IMAGE ═══ */
-async function generateImage() {
+async function generateImage(){
     if(!lastConcept){alert('Please generate a content package first!');return;}
     document.getElementById('imgLoading').style.display='block';
     document.getElementById('imgResult').style.display='none';
     document.getElementById('imgUpgrade').style.display='none';
     document.getElementById('imageBtn').disabled=true;
-    try {
-        const res=await fetch('/generate-image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({concept:lastConcept,text_overlay:lastTextOverlay,niche:selectedNiche})});
+    try{
+        const res=await fetch('/generate-image',{method:'POST',headers:getHeaders(),body:JSON.stringify({concept:lastConcept,text_overlay:lastTextOverlay,niche:selectedNiche})});
         const data=await res.json();
         if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
         if(data.error){alert(data.error);return;}
         document.getElementById('thumbnailImg').src=data.image_url;
-        // Fetch image as blob for reliable download (DALL-E URLs expire)
-        fetch(data.image_url)
-            .then(r=>r.blob())
-            .then(blob=>{
-                const blobUrl=URL.createObjectURL(blob);
-                document.getElementById('downloadBtn').href=blobUrl;
-            })
-            .catch(()=>{document.getElementById('downloadBtn').href=data.image_url;});
+        fetch(data.image_url).then(r=>r.blob()).then(blob=>{const u=URL.createObjectURL(blob);document.getElementById('downloadBtn').href=u;}).catch(()=>{document.getElementById('downloadBtn').href=data.image_url;});
         document.getElementById('imgResult').style.display='block';
-        if(data.images_remaining!==undefined) {
-            const n = data.images_remaining;
-            document.getElementById('imgUsesLeft').textContent = n + ' free image generation' + (n===1?'':'s') + ' remaining';
-        }
-    } catch(e){alert('Image generation failed. Please try again.');}
+        if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
+    }catch(e){alert('Image generation failed. Please try again.');}
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
 }
 
-/* ═══ HISTORY ═══ */
-function saveToHistory() {
+function saveToHistory(){
     if(!lastGeneratedData){alert('Generate something first!');return;}
-    const history = JSON.parse(localStorage.getItem('tg_history')||'[]');
-    history.unshift({...lastGeneratedData, id:Date.now()});
-    if(history.length>20) history.pop();
-    localStorage.setItem('tg_history', JSON.stringify(history));
-    const btn=document.getElementById('saveBtn');
-    btn.textContent='✅ Saved!'; btn.classList.add('saved');
+    const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
+    history.unshift({...lastGeneratedData,id:Date.now()});
+    if(history.length>20)history.pop();
+    localStorage.setItem('tg_history',JSON.stringify(history));
+    const btn=document.getElementById('saveBtn');btn.textContent='✅ Saved!';btn.classList.add('saved');
     setTimeout(()=>{btn.textContent='💾 Save to History';btn.classList.remove('saved');},2000);
 }
 
-function renderHistory() {
-    const history = JSON.parse(localStorage.getItem('tg_history')||'[]');
-    const el = document.getElementById('historyContent');
-    if(history.length===0){
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click "Save to History"</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate →</button></div>`;
-        return;
-    }
-    el.innerHTML = history.map(h=>`
-        <div class="history-card">
-            <div class="history-card-top">
-                <div class="history-topic">${escapeHtml(h.topic)}</div>
-                <div class="history-meta">
-                    <span class="history-niche-badge">${escapeHtml(h.niche)}</span>
-                    <span class="history-date">${escapeHtml(h.date)}</span>
-                </div>
-            </div>
-            <ul class="history-titles">
-                ${h.titles.slice(0,3).map(t=>`<li>${escapeHtml(t)}</li>`).join('')}
-            </ul>
-            <div class="history-actions">
-                <button class="btn-reload" onclick="reloadFromHistory(${h.id})">↩ Reload Results</button>
-                <button class="btn-del" onclick="deleteHistory(${h.id})">🗑 Delete</button>
-            </div>
-        </div>`).join('');
+function renderHistory(){
+    const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
+    const el=document.getElementById('historyContent');
+    if(history.length===0){el.innerHTML='<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate →</button></div>';return;}
+    el.innerHTML=history.map(h=>`<div class="history-card"><div class="history-card-top"><div class="history-topic">${escapeHtml(h.topic)}</div><div class="history-meta"><span class="history-niche-badge">${escapeHtml(h.niche)}</span><span class="history-date">${escapeHtml(h.date)}</span></div></div><ul class="history-titles">${h.titles.slice(0,3).map(t=>`<li>${escapeHtml(t)}</li>`).join('')}</ul><div class="history-actions"><button class="btn-reload" onclick="reloadFromHistory(${h.id})">↩ Reload</button><button class="btn-del" onclick="deleteHistory(${h.id})">🗑 Delete</button></div></div>`).join('');
 }
 
-function reloadFromHistory(id) {
-    const history = JSON.parse(localStorage.getItem('tg_history')||'[]');
-    const h = history.find(x=>x.id===id);
-    if(!h) return;
+function reloadFromHistory(id){
+    const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
+    const h=history.find(x=>x.id===id);if(!h)return;
     showPage('home');
     setTimeout(()=>{
         document.getElementById('topic').value=h.topic;
         document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
-        const chip=document.querySelector(`[data-niche="${h.niche}"]`);
-        if(chip) chip.classList.add('active');
-        selectedNiche=h.niche;
-        lastGeneratedData=h;
-        document.getElementById('titles').innerHTML=h.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}', this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
+        const chip=document.querySelector(`[data-niche="${h.niche}"]`);if(chip)chip.classList.add('active');
+        selectedNiche=h.niche;lastGeneratedData=h;
+        document.getElementById('titles').innerHTML=h.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}',this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
         const th=h.thumbnail;
         document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px">/ 10 — ${escapeHtml(th.why_it_works)}</div></div></div>`;
-        document.getElementById('hook').textContent=h.hook;
-        document.getElementById('nicheTip').textContent=h.tip;
-        document.getElementById('results').style.display='block';
-        document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+        document.getElementById('hook').textContent=h.hook;document.getElementById('nicheTip').textContent=h.tip;
+        document.getElementById('results').style.display='block';document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
     },300);
 }
 
-function deleteHistory(id) {
-    let history = JSON.parse(localStorage.getItem('tg_history')||'[]');
-    history = history.filter(x=>x.id!==id);
-    localStorage.setItem('tg_history',JSON.stringify(history));
-    renderHistory();
+function deleteHistory(id){
+    let history=JSON.parse(localStorage.getItem('tg_history')||'[]');
+    history=history.filter(x=>x.id!==id);localStorage.setItem('tg_history',JSON.stringify(history));renderHistory();
 }
 
-/* ═══ A/B TESTER ═══ */
-async function runABTest() {
-    const a=document.getElementById('titleA').value.trim();
-    const b=document.getElementById('titleB').value.trim();
+async function runABTest(){
+    const a=document.getElementById('titleA').value.trim();const b=document.getElementById('titleB').value.trim();
     if(!a||!b){alert('Please enter both titles!');return;}
-    document.getElementById('abBtn').disabled=true;
-    document.getElementById('abBtn').textContent='⏳ Analyzing…';
+    document.getElementById('abBtn').disabled=true;document.getElementById('abBtn').textContent='⏳ Analyzing…';
     document.getElementById('abResult').style.display='none';
-    try {
-        const res = await fetch('/ab-test',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({titleA:a,titleB:b})
-        });
-        const result=await res.json();
-        if(result.error){alert(result.error);return;}
+    try{
+        const res=await fetch('/ab-test',{method:'POST',headers:getHeaders(),body:JSON.stringify({titleA:a,titleB:b})});
+        const result=await res.json();if(result.error){alert(result.error);return;}
         document.getElementById('abTitleA').textContent=a.length>60?a.substring(0,60)+'…':a;
         document.getElementById('abTitleB').textContent=b.length>60?b.substring(0,60)+'…':b;
-        document.getElementById('abScoreA').textContent=result.score_a;
-        document.getElementById('abScoreB').textContent=result.score_b;
-        const winnerEl=document.getElementById('abWinner');
-        winnerEl.textContent=`Title ${result.winner} Wins`;
-        winnerEl.className='ab-winner '+(result.winner==='A'?'cyan':'pink');
+        document.getElementById('abScoreA').textContent=result.score_a;document.getElementById('abScoreB').textContent=result.score_b;
+        const winnerEl=document.getElementById('abWinner');winnerEl.textContent='Title '+result.winner+' Wins';winnerEl.className='ab-winner '+(result.winner==='A'?'cyan':'pink');
         document.getElementById('abReasoning').textContent=result.reasoning;
-        document.getElementById('abResult').style.display='block';
-        document.getElementById('abResult').scrollIntoView({behavior:'smooth',block:'start'});
-    } catch(e){alert('Test failed. Please try again.');}
+        document.getElementById('abResult').style.display='block';document.getElementById('abResult').scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(e){alert('Test failed. Please try again.');}
     finally{document.getElementById('abBtn').disabled=false;document.getElementById('abBtn').textContent='⚡ Test These Titles';}
 }
 
-/* ═══ CHANNEL ANALYZER ═══ */
-async function runAnalysis() {
-    const input=document.getElementById('channelInput').value.trim();
-    if(!input){alert('Please enter your video titles!');return;}
-    document.getElementById('analyzeBtn').disabled=true;
-    document.getElementById('analyzeBtn').textContent='⏳ Analyzing…';
+async function runAnalysis(){
+    const input=document.getElementById('channelInput').value.trim();if(!input){alert('Please enter your video titles!');return;}
+    document.getElementById('analyzeBtn').disabled=true;document.getElementById('analyzeBtn').textContent='⏳ Analyzing…';
     document.getElementById('analyzerResult').style.display='none';
-    try {
-        const res = await fetch('/analyze-channel',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({titles:input})
-        });
-        const result=await res.json();
-        if(result.error){alert(result.error);return;}
-        document.getElementById('scoreCTR').textContent=result.ctr_score;
-        document.getElementById('scoreEmotion').textContent=result.emotion_score;
-        document.getElementById('scoreClarity').textContent=result.clarity_score;
+    try{
+        const res=await fetch('/analyze-channel',{method:'POST',headers:getHeaders(),body:JSON.stringify({titles:input})});
+        const result=await res.json();if(result.error){alert(result.error);return;}
+        document.getElementById('scoreCTR').textContent=result.ctr_score;document.getElementById('scoreEmotion').textContent=result.emotion_score;document.getElementById('scoreClarity').textContent=result.clarity_score;
         document.getElementById('analyzerIssues').innerHTML=result.issues.map(i=>`<div class="issue-item"><span class="issue-icon">⚠️</span><div class="issue-text"><strong>${escapeHtml(i.title)}</strong>${escapeHtml(i.detail)}</div></div>`).join('');
         document.getElementById('analyzerFixes').innerHTML=result.fixes.map(f=>`<div class="issue-item"><span class="issue-icon">✅</span><div class="issue-text"><strong>${escapeHtml(f.title)}</strong>${escapeHtml(f.detail)}</div></div>`).join('');
-        document.getElementById('analyzerRewrite').innerHTML=result.rewrites.map(r=>`<div class="issue-item"><span class="issue-icon">✏️</span><div class="issue-text"><strong style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-weight:400">${escapeHtml(r.original)}</strong><strong style="color:var(--yellow)">${escapeHtml(r.improved)}</strong></div></div>`).join('');
-        document.getElementById('analyzerResult').style.display='block';
-        document.getElementById('analyzerResult').scrollIntoView({behavior:'smooth',block:'start'});
-    } catch(e){alert('Analysis failed. Please try again.');}
+        document.getElementById('analyzerRewrite').innerHTML=result.rewrites.map(r=>`<div class="issue-item"><span class="issue-icon">✏️</span><div class="issue-text"><strong style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-weight:400">${escapeHtml(r.original)}</strong><strong style="color:#FFE036">${escapeHtml(r.improved)}</strong></div></div>`).join('');
+        document.getElementById('analyzerResult').style.display='block';document.getElementById('analyzerResult').scrollIntoView({behavior:'smooth',block:'start'});
+    }catch(e){alert('Analysis failed. Please try again.');}
     finally{document.getElementById('analyzeBtn').disabled=false;document.getElementById('analyzeBtn').textContent='🔍 Analyze';}
 }
 
-/* ═══ TRENDING TOPICS ═══ */
 let allTrendingTopics=[];
-
-async function loadTrending() {
-    if(allTrendingTopics.length>0) return;
-    document.getElementById('trendingLoading').style.display='block';
-    document.getElementById('trendingGrid').style.display='none';
-    try {
-        const res = await fetch('/trending',{method:'GET'});
-        allTrendingTopics=await res.json();
+async function loadTrending(){
+    if(allTrendingTopics.length>0)return;
+    document.getElementById('trendingLoading').style.display='block';document.getElementById('trendingGrid').style.display='none';
+    try{
+        const res=await fetch('/trending',{method:'GET'});allTrendingTopics=await res.json();
         if(allTrendingTopics.error){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';return;}
         renderTrending('all');
-    } catch(e){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';}
+    }catch(e){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';}
     finally{document.getElementById('trendingLoading').style.display='none';}
 }
 
-function renderTrending(filter) {
-    const topics = filter==='all'?allTrendingTopics:allTrendingTopics.filter(t=>t.niche===filter);
-    window._currentTrendingTopics = topics;
-    const grid = document.getElementById('trendingGrid');
-    grid.style.display='grid';
-    grid.innerHTML = topics.map((t,idx)=>`
-        <div class="trending-card">
-            <div class="trending-card-top">
-                <span class="trending-niche">${escapeHtml(t.niche.toUpperCase())}</span>
-                <span class="trending-heat">${escapeHtml(t.heat)}</span>
-            </div>
-            <div class="trending-topic">${escapeHtml(t.topic)}</div>
-            <div class="trending-why">${escapeHtml(t.why)}</div>
-            <button class="trending-use-btn" onclick="useTrendingTopic(${idx})">⚡ Use This Topic</button>
-        </div>`).join('');
+function renderTrending(filter){
+    const topics=filter==='all'?allTrendingTopics:allTrendingTopics.filter(t=>t.niche===filter);
+    window._currentTrendingTopics=topics;
+    const grid=document.getElementById('trendingGrid');grid.style.display='grid';
+    grid.innerHTML=topics.map((t,idx)=>`<div class="trending-card"><div class="trending-card-top"><span class="trending-niche">${escapeHtml(t.niche.toUpperCase())}</span><span class="trending-heat">${escapeHtml(t.heat)}</span></div><div class="trending-topic">${escapeHtml(t.topic)}</div><div class="trending-why">${escapeHtml(t.why)}</div><button class="trending-use-btn" onclick="useTrendingTopic(${idx})">⚡ Use This Topic</button></div>`).join('');
 }
 
-function filterTrending(niche, el) {
-    document.querySelectorAll('.trending-filter').forEach(f=>f.classList.remove('active'));
-    el.classList.add('active');
-    if(allTrendingTopics.length>0) renderTrending(niche);
+function filterTrending(niche,el){
+    document.querySelectorAll('.trending-filter').forEach(f=>f.classList.remove('active'));el.classList.add('active');
+    if(allTrendingTopics.length>0)renderTrending(niche);
 }
 
-function useTrendingTopic(idx) {
-    const t = window._currentTrendingTopics && window._currentTrendingTopics[idx];
-    if(!t) return;
-    const topic = t.topic;
-    const niche = t.niche;
+function useTrendingTopic(idx){
+    const t=window._currentTrendingTopics&&window._currentTrendingTopics[idx];if(!t)return;
     showPage('home');
     setTimeout(()=>{
-        document.getElementById('topic').value=topic;
+        document.getElementById('topic').value=t.topic;
         document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
-        const chip=document.querySelector(`[data-niche="${niche}"]`);
-        if(chip) chip.classList.add('active');
-        selectedNiche=niche;
-        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
+        const chip=document.querySelector(`[data-niche="${t.niche}"]`);if(chip)chip.classList.add('active');
+        selectedNiche=t.niche;document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
     },300);
 }
 
-/* ═══ UTILITIES ═══ */
-function escapeHtml(str) {
-    if(!str) return '';
-    return String(str)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#39;');
-}
+function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function copyToClipboard(text,el){navigator.clipboard.writeText(text).then(()=>{const cp=el.querySelector('.cp');cp.textContent='✅';setTimeout(()=>cp.textContent='📋',1500);});}
+function copyText(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert('Copied!'));}
 
-function copyToClipboard(text,el) {
-    navigator.clipboard.writeText(text).then(()=>{
-        const cp=el.querySelector('.cp'); cp.textContent='✅'; setTimeout(()=>cp.textContent='📋',1500);
-    });
-}
+document.getElementById('topic').addEventListener('keydown',e=>{if(e.key==='Enter')generate();});
+document.getElementById('paymentModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePaymentModal();});
 
-function copyText(id) {
-    navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert('Copied!'));
-}
-
-document.getElementById('topic').addEventListener('keydown',e=>{if(e.key==='Enter') generate();});
+loadUserStatus();
 </script>
 </body>
 </html>

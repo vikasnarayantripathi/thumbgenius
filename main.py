@@ -1,7 +1,6 @@
 """
-ThumbGenius — main.py
-Production-ready FastAPI backend
-Handles 2500+ concurrent users via async I/O + connection pooling
+ThumbGenius — main.py v3
+Full production system: Supabase + Redis + Razorpay + Resend
 """
 
 from fastapi import FastAPI, Request
@@ -12,8 +11,8 @@ from fastapi.middleware.gzip import GZipMiddleware
 from contextlib import asynccontextmanager
 from openai import AsyncOpenAI
 from dotenv import load_dotenv
-import os, json, time, asyncio, logging
-from collections import defaultdict
+import os, json, time, asyncio, logging, hashlib, hmac, secrets
+import httpx
 
 load_dotenv()
 
@@ -21,44 +20,286 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("thumbgenius")
 
+# ─── ENV ──────────────────────────────────────────────────────────────────────
+OPENAI_API_KEY           = os.getenv("OPENAI_API_KEY")
+SUPABASE_URL             = os.getenv("SUPABASE_URL")
+SUPABASE_ANON_KEY        = os.getenv("SUPABASE_ANON_KEY")
+UPSTASH_REDIS_REST_URL   = os.getenv("UPSTASH_REDIS_REST_URL")
+UPSTASH_REDIS_REST_TOKEN = os.getenv("UPSTASH_REDIS_REST_TOKEN")
+RAZORPAY_KEY_ID          = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET      = os.getenv("RAZORPAY_KEY_SECRET")
+RAZORPAY_WEBHOOK_SECRET  = os.getenv("RAZORPAY_WEBHOOK_SECRET")
+RAZORPAY_CREATOR_PLAN_ID = os.getenv("RAZORPAY_CREATOR_PLAN_ID")
+RAZORPAY_PRO_PLAN_ID     = os.getenv("RAZORPAY_PRO_PLAN_ID")
+RESEND_API_KEY           = os.getenv("RESEND_API_KEY")
+APP_URL                  = os.getenv("APP_URL", "https://thumbgenius.in")
+FROM_EMAIL               = os.getenv("FROM_EMAIL", "hello@thumbgenius.in")
+
+MAX_FREE        = 3
+MAX_FREE_IMAGES = 1
+PLAN_LIMITS = {
+    "free":    {"generations": 3,   "images": 1},
+    "creator": {"generations": 100, "images": 20},
+    "pro":     {"generations": 300, "images": 50},
+}
+
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("ThumbGenius starting up...")
+    logger.info("ThumbGenius v3 starting up...")
     yield
     logger.info("ThumbGenius shutting down...")
 
 # ─── App ──────────────────────────────────────────────────────────────────────
 app = FastAPI(lifespan=lifespan)
-
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://thumbgenius.in", "https://www.thumbgenius.in"],
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "X-User-Email"],
 )
 
 templates = Jinja2Templates(directory="templates")
+client = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=2, timeout=30.0)
 
-# AsyncOpenAI — non-blocking, handles thousands of concurrent requests
-client = AsyncOpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    max_retries=2,
-    timeout=30.0,
-)
+# ─── Redis (Upstash REST) ──────────────────────────────────────────────────────
+async def redis_get(key: str):
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as h:
+            r = await h.get(
+                f"{UPSTASH_REDIS_REST_URL}/get/{key}",
+                headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"}
+            )
+            data = r.json()
+            return data.get("result")
+    except Exception as e:
+        logger.warning(f"Redis GET error: {e}")
+        return None
 
-# ─── Rate limiting ────────────────────────────────────────────────────────────
-free_uses    = defaultdict(int)
-image_uses   = defaultdict(int)
-MAX_FREE        = 3
-MAX_FREE_IMAGES = 1
+async def redis_set(key: str, value: str, ex: int = None):
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as h:
+            url = f"{UPSTASH_REDIS_REST_URL}/set/{key}/{value}"
+            if ex:
+                url += f"/ex/{ex}"
+            await h.get(
+                url,
+                headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"}
+            )
+    except Exception as e:
+        logger.warning(f"Redis SET error: {e}")
 
+async def redis_incr(key: str) -> int:
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as h:
+            r = await h.get(
+                f"{UPSTASH_REDIS_REST_URL}/incr/{key}",
+                headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"}
+            )
+            return r.json().get("result", 1)
+    except Exception as e:
+        logger.warning(f"Redis INCR error: {e}")
+        return 1
+
+async def redis_expire(key: str, seconds: int):
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as h:
+            await h.get(
+                f"{UPSTASH_REDIS_REST_URL}/expire/{key}/{seconds}",
+                headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"}
+            )
+    except Exception as e:
+        logger.warning(f"Redis EXPIRE error: {e}")
+
+# ─── Supabase ──────────────────────────────────────────────────────────────────
+SUPABASE_HEADERS = {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": f"Bearer {SUPABASE_ANON_KEY}",
+    "Content-Type": "application/json",
+    "Prefer": "return=representation",
+}
+
+async def sb_get_user(email: str) -> dict | None:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            r = await h.get(
+                f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}&select=*",
+                headers=SUPABASE_HEADERS
+            )
+            data = r.json()
+            return data[0] if data else None
+    except Exception as e:
+        logger.error(f"Supabase get_user error: {e}")
+        return None
+
+async def sb_upsert_user(email: str, data: dict):
+    try:
+        payload = {"email": email, **data}
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post(
+                f"{SUPABASE_URL}/rest/v1/users",
+                headers={**SUPABASE_HEADERS, "Prefer": "resolution=merge-duplicates,return=representation"},
+                json=payload
+            )
+    except Exception as e:
+        logger.error(f"Supabase upsert error: {e}")
+
+async def sb_update_user(email: str, data: dict):
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.patch(
+                f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}",
+                headers=SUPABASE_HEADERS,
+                json=data
+            )
+    except Exception as e:
+        logger.error(f"Supabase update error: {e}")
+
+async def sb_get_user_by_token(token: str) -> dict | None:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            r = await h.get(
+                f"{SUPABASE_URL}/rest/v1/users?activation_token=eq.{token}&select=*",
+                headers=SUPABASE_HEADERS
+            )
+            data = r.json()
+            return data[0] if data else None
+    except Exception as e:
+        logger.error(f"Supabase get_by_token error: {e}")
+        return None
+
+async def sb_get_user_by_subscription(sub_id: str) -> dict | None:
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            r = await h.get(
+                f"{SUPABASE_URL}/rest/v1/users?razorpay_subscription_id=eq.{sub_id}&select=*",
+                headers=SUPABASE_HEADERS
+            )
+            data = r.json()
+            return data[0] if data else None
+    except Exception as e:
+        logger.error(f"Supabase get_by_subscription error: {e}")
+        return None
+
+# ─── User plan helpers ─────────────────────────────────────────────────────────
+async def get_user_plan(email: str) -> dict:
+    """Get user plan with Redis cache (5 min TTL)"""
+    if not email:
+        return {"plan": "free", "generations_used": 0, "images_used": 0}
+
+    cache_key = f"plan:{email}"
+    cached = await redis_get(cache_key)
+    if cached:
+        try:
+            return json.loads(cached)
+        except Exception:
+            pass
+
+    user = await sb_get_user(email)
+    if not user:
+        return {"plan": "free", "generations_used": 0, "images_used": 0}
+
+    plan_data = {
+        "plan": user.get("plan", "free"),
+        "generations_used": user.get("generations_used", 0),
+        "images_used": user.get("images_used", 0),
+        "is_active": user.get("is_active", False),
+    }
+    await redis_set(cache_key, json.dumps(plan_data), ex=300)
+    return plan_data
+
+async def invalidate_plan_cache(email: str):
+    await redis_set(f"plan:{email}", "", ex=1)
+
+# ─── IP helpers ───────────────────────────────────────────────────────────────
 def get_ip(request: Request) -> str:
     forwarded = request.headers.get("X-Forwarded-For")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host
+
+def get_fingerprint(request: Request) -> str:
+    ip = get_ip(request)
+    ua = request.headers.get("User-Agent", "")[:50]
+    return hashlib.md5(f"{ip}{ua}".encode()).hexdigest()[:16]
+
+async def check_free_limit(request: Request) -> int:
+    """Returns current usage count for free IP tracking"""
+    fp = get_fingerprint(request)
+    key = f"free:{fp}"
+    count = await redis_get(key)
+    return int(count) if count else 0
+
+async def increment_free_limit(request: Request, key_type: str = "gen"):
+    fp = get_fingerprint(request)
+    key = f"{key_type}:{fp}"
+    count = await redis_incr(key)
+    if count == 1:
+        await redis_expire(key, 30 * 24 * 3600)
+
+# ─── Resend email ──────────────────────────────────────────────────────────────
+async def send_magic_link(email: str, token: str, plan: str):
+    activation_url = f"{APP_URL}/activate?token={token}"
+    plan_name = "Creator" if plan == "creator" else "Pro"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "from": f"ThumbGenius <{FROM_EMAIL}>",
+                    "to": [email],
+                    "subject": f"🎉 Activate your ThumbGenius {plan_name} Plan",
+                    "html": f"""
+                    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#02020A;color:#fff;padding:40px;border-radius:12px;">
+                        <h1 style="color:#FDE036;font-size:28px;margin-bottom:8px;">ThumbGenius</h1>
+                        <p style="color:#aaa;margin-bottom:32px;">YouTube Packaging Intelligence</p>
+                        <h2 style="color:#fff;font-size:22px;">Welcome to {plan_name} Plan! 🚀</h2>
+                        <p style="color:#ccc;font-size:16px;line-height:1.6;">
+                            Click the button below to activate your account and start creating viral thumbnails.
+                        </p>
+                        <a href="{activation_url}"
+                           style="display:inline-block;background:#FDE036;color:#02020A;font-weight:bold;
+                                  font-size:18px;padding:16px 40px;border-radius:8px;text-decoration:none;
+                                  margin:24px 0;">
+                            Activate My Account →
+                        </a>
+                        <p style="color:#666;font-size:14px;margin-top:32px;">
+                            This link expires in 24 hours. If you didn't sign up, ignore this email.
+                        </p>
+                        <hr style="border-color:#333;margin:32px 0;">
+                        <p style="color:#444;font-size:12px;">ThumbGenius · thumbgenius.in</p>
+                    </div>
+                    """
+                }
+            )
+        logger.info(f"Magic link sent to {email}")
+    except Exception as e:
+        logger.error(f"Email send error: {e}")
+
+# ─── Razorpay subscription ─────────────────────────────────────────────────────
+async def create_razorpay_subscription(plan: str, email: str) -> dict | None:
+    plan_id = RAZORPAY_CREATOR_PLAN_ID if plan == "creator" else RAZORPAY_PRO_PLAN_ID
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as h:
+            r = await h.post(
+                "https://api.razorpay.com/v1/subscriptions",
+                auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET),
+                json={
+                    "plan_id": plan_id,
+                    "total_count": 12,
+                    "quantity": 1,
+                    "notify_info": {
+                        "notify_phone": None,
+                        "notify_email": email,
+                    }
+                }
+            )
+            return r.json()
+    except Exception as e:
+        logger.error(f"Razorpay create subscription error: {e}")
+        return None
 
 # ─── Niche context ────────────────────────────────────────────────────────────
 NICHE_CONTEXT = {
@@ -110,8 +351,8 @@ Generate a complete viral content package. Respond ONLY in valid JSON with no ma
     "ctr_score": 8.5,
     "why_it_works": "one sentence explaining the psychological hook"
   }},
-  "hook_script": "Write the exact first 15 seconds of the video as a script. Start with a pattern interrupt. Make it impossible to click away.",
-  "niche_tip": "One specific tactical tip for growing in this niche on YouTube India in 2025. Be specific and actionable.",
+  "hook_script": "Write the exact first 15 seconds of the video as a script. Start with a pattern interrupt.",
+  "niche_tip": "One specific tactical tip for growing in this niche on YouTube India in 2025.",
   "tags": {{
     "primary": ["tag1","tag2","tag3","tag4","tag5"],
     "secondary": ["tag6","tag7","tag8","tag9","tag10"],
@@ -135,10 +376,24 @@ def parse_json_safe(raw: str) -> dict:
             raw = raw[4:]
     return json.loads(raw.strip())
 
-# ─── Trending cache with async lock ───────────────────────────────────────────
-_trending_cache: dict = {"data": None, "ts": 0.0}
+# ─── Generation cache ──────────────────────────────────────────────────────────
+async def get_generation_cache(topic: str, niche: str):
+    key = f"gen:{hashlib.md5(f'{topic.lower().strip()}{niche}'.encode()).hexdigest()}"
+    cached = await redis_get(key)
+    if cached:
+        try:
+            return json.loads(cached)
+        except Exception:
+            return None
+    return None
+
+async def set_generation_cache(topic: str, niche: str, result: dict):
+    key = f"gen:{hashlib.md5(f'{topic.lower().strip()}{niche}'.encode()).hexdigest()}"
+    await redis_set(key, json.dumps(result), ex=3600)
+
+# ─── Trending cache ────────────────────────────────────────────────────────────
 _trending_lock = asyncio.Lock()
-TRENDING_TTL = 6 * 3600  # 6 hours — one API call per 6hrs for all users
+TRENDING_TTL = 6 * 3600
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ROUTES
@@ -150,14 +405,186 @@ async def home(request: Request):
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "thumbgenius"}
+    return {"status": "ok", "service": "thumbgenius", "version": "3.0"}
 
+# ─── Subscribe — create Razorpay subscription ─────────────────────────────────
+@app.post("/subscribe")
+async def subscribe(request: Request):
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    email = str(data.get("email", "")).strip().lower()
+    plan  = str(data.get("plan", "")).strip().lower()
+
+    if not email or "@" not in email:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+    if plan not in ["creator", "pro"]:
+        return JSONResponse({"error": "Invalid plan"}, status_code=400)
+
+    # Create Razorpay subscription
+    sub = await create_razorpay_subscription(plan, email)
+    if not sub or "id" not in sub:
+        logger.error(f"Razorpay subscription creation failed: {sub}")
+        return JSONResponse({"error": "Payment setup failed. Please try again."}, status_code=500)
+
+    # Store pending user in Supabase
+    token = secrets.token_urlsafe(32)
+    await sb_upsert_user(email, {
+        "plan": plan,
+        "razorpay_subscription_id": sub["id"],
+        "activation_token": token,
+        "is_active": False,
+    })
+
+    return JSONResponse({
+        "subscription_id": sub["id"],
+        "razorpay_key": RAZORPAY_KEY_ID,
+        "plan": plan,
+        "email": email,
+        "amount": 74900 if plan == "creator" else 144900,
+    })
+
+# ─── Activate — magic link landing page ───────────────────────────────────────
+@app.get("/activate", response_class=HTMLResponse)
+async def activate(request: Request, token: str = ""):
+    if not token:
+        return HTMLResponse("<h1>Invalid link</h1>", status_code=400)
+
+    user = await sb_get_user_by_token(token)
+    if not user:
+        return HTMLResponse("<h1>Link expired or invalid</h1>", status_code=400)
+
+    # Activate user
+    await sb_update_user(user["email"], {
+        "is_active": True,
+        "activation_token": None,
+        "generations_used": 0,
+        "images_used": 0,
+    })
+    await invalidate_plan_cache(user["email"])
+
+    plan_name = "Creator" if user["plan"] == "creator" else "Pro"
+    return HTMLResponse(f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>ThumbGenius — Activated!</title>
+        <meta charset="utf-8">
+        <style>
+            body {{ font-family: Arial, sans-serif; background: #02020A; color: #fff;
+                   display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }}
+            .box {{ text-align: center; padding: 40px; }}
+            h1 {{ color: #FDE036; font-size: 32px; }}
+            p {{ color: #ccc; font-size: 18px; }}
+            a {{ display: inline-block; background: #FDE036; color: #02020A; font-weight: bold;
+                 padding: 16px 40px; border-radius: 8px; text-decoration: none; margin-top: 24px; font-size: 18px; }}
+        </style>
+    </head>
+    <body>
+        <div class="box">
+            <h1>🎉 Account Activated!</h1>
+            <p>Welcome to ThumbGenius <strong>{plan_name}</strong> Plan!</p>
+            <p>Your email: <strong>{user["email"]}</strong></p>
+            <a href="/">Start Creating →</a>
+        </div>
+        <script>
+            localStorage.setItem('tg_email', '{user["email"]}');
+            localStorage.setItem('tg_plan', '{user["plan"]}');
+        </script>
+    </body>
+    </html>
+    """)
+
+# ─── User status ───────────────────────────────────────────────────────────────
+@app.get("/user/status")
+async def user_status(request: Request):
+    email = request.headers.get("X-User-Email", "").strip().lower()
+    if not email:
+        return JSONResponse({"plan": "free", "generations_used": 0, "images_used": 0})
+    plan_data = await get_user_plan(email)
+    limits = PLAN_LIMITS.get(plan_data.get("plan", "free"), PLAN_LIMITS["free"])
+    return JSONResponse({
+        **plan_data,
+        "generations_limit": limits["generations"],
+        "images_limit": limits["images"],
+    })
+
+# ─── Razorpay Webhook ─────────────────────────────────────────────────────────
+@app.post("/webhook/razorpay")
+async def razorpay_webhook(request: Request):
+    try:
+        body = await request.body()
+        sig  = request.headers.get("X-Razorpay-Signature", "")
+
+        # Verify signature
+        expected = hmac.new(
+            RAZORPAY_WEBHOOK_SECRET.encode(),
+            body,
+            hashlib.sha256
+        ).hexdigest()
+
+        if not hmac.compare_digest(expected, sig):
+            logger.warning("Razorpay webhook signature mismatch")
+            return JSONResponse({"status": "ok"})  # Always return 200
+
+        event = json.loads(body)
+        event_type = event.get("event", "")
+        logger.info(f"Razorpay webhook: {event_type}")
+
+        if event_type in ["subscription.activated", "subscription.charged"]:
+            sub = event.get("payload", {}).get("subscription", {}).get("entity", {})
+            sub_id = sub.get("id")
+            if sub_id:
+                user = await sb_get_user_by_subscription(sub_id)
+                if user:
+                    # Reset usage on new billing cycle
+                    await sb_update_user(user["email"], {
+                        "is_active": True,
+                        "generations_used": 0,
+                        "images_used": 0,
+                    })
+                    await invalidate_plan_cache(user["email"])
+
+                    # Send magic link on first activation
+                    if event_type == "subscription.activated":
+                        token = secrets.token_urlsafe(32)
+                        await sb_update_user(user["email"], {"activation_token": token})
+                        asyncio.create_task(send_magic_link(user["email"], token, user["plan"]))
+
+        elif event_type == "subscription.cancelled":
+            sub = event.get("payload", {}).get("subscription", {}).get("entity", {})
+            sub_id = sub.get("id")
+            if sub_id:
+                user = await sb_get_user_by_subscription(sub_id)
+                if user:
+                    await sb_update_user(user["email"], {"plan": "free", "is_active": False})
+                    await invalidate_plan_cache(user["email"])
+
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+
+    return JSONResponse({"status": "ok"})  # Always return 200
+
+# ─── Generate ─────────────────────────────────────────────────────────────────
 @app.post("/generate")
 async def generate(request: Request):
-    ip = get_ip(request)
+    email = request.headers.get("X-User-Email", "").strip().lower()
 
-    if free_uses[ip] >= MAX_FREE:
-        return JSONResponse({"error": "free_limit_reached"}, status_code=403)
+    # Get plan and check limits
+    if email:
+        plan_data = await get_user_plan(email)
+        plan      = plan_data.get("plan", "free")
+        used      = plan_data.get("generations_used", 0)
+        limit     = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])["generations"]
+        if used >= limit:
+            return JSONResponse({"error": "limit_reached", "plan": plan}, status_code=403)
+    else:
+        # IP-based free limit
+        count = await check_free_limit(request)
+        if count >= MAX_FREE:
+            return JSONResponse({"error": "free_limit_reached"}, status_code=403)
 
     try:
         data = await request.json()
@@ -172,6 +599,17 @@ async def generate(request: Request):
     if len(topic) > 300:
         return JSONResponse({"error": "Topic too long"}, status_code=400)
 
+    # Check generation cache first
+    cached = await get_generation_cache(topic, niche)
+    if cached:
+        if email:
+            asyncio.create_task(sb_update_user(email, {"generations_used": used + 1}))
+            asyncio.create_task(invalidate_plan_cache(email))
+        else:
+            asyncio.create_task(increment_free_limit(request))
+        cached["from_cache"] = True
+        return JSONResponse(cached)
+
     try:
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
@@ -183,9 +621,24 @@ async def generate(request: Request):
             max_tokens=1200,
         )
         result = parse_json_safe(response.choices[0].message.content)
-        free_uses[ip] += 1
-        result["uses_remaining"] = MAX_FREE - free_uses[ip]
+
+        # Update usage
+        if email:
+            asyncio.create_task(sb_update_user(email, {"generations_used": used + 1}))
+            asyncio.create_task(invalidate_plan_cache(email))
+            new_limit = limit
+            new_used  = used + 1
+        else:
+            asyncio.create_task(increment_free_limit(request))
+            new_used  = await check_free_limit(request) + 1
+            new_limit = MAX_FREE
+
+        result["uses_remaining"] = max(0, new_limit - new_used)
+
+        # Cache result
+        asyncio.create_task(set_generation_cache(topic, niche, result))
         return JSONResponse(result)
+
     except json.JSONDecodeError:
         logger.error("JSON decode error in /generate")
         return JSONResponse({"error": "AI returned invalid response. Please try again."}, status_code=500)
@@ -193,12 +646,24 @@ async def generate(request: Request):
         logger.error(f"/generate error: {e}")
         return JSONResponse({"error": "Generation failed. Please try again."}, status_code=500)
 
+# ─── Generate Image ───────────────────────────────────────────────────────────
 @app.post("/generate-image")
 async def generate_image(request: Request):
-    ip = get_ip(request)
+    email = request.headers.get("X-User-Email", "").strip().lower()
 
-    if image_uses[ip] >= MAX_FREE_IMAGES:
-        return JSONResponse({"error": "image_limit_reached"}, status_code=403)
+    if email:
+        plan_data = await get_user_plan(email)
+        plan      = plan_data.get("plan", "free")
+        used      = plan_data.get("images_used", 0)
+        limit     = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])["images"]
+        if used >= limit:
+            return JSONResponse({"error": "image_limit_reached", "plan": plan}, status_code=403)
+    else:
+        ip = get_ip(request)
+        img_key = f"img:{hashlib.md5(ip.encode()).hexdigest()[:16]}"
+        img_count = await redis_get(img_key)
+        if img_count and int(img_count) >= MAX_FREE_IMAGES:
+            return JSONResponse({"error": "image_limit_reached"}, status_code=403)
 
     try:
         data = await request.json()
@@ -228,15 +693,25 @@ async def generate_image(request: Request):
             quality="standard",
             n=1,
         )
-        image_uses[ip] += 1
+
+        if email:
+            asyncio.create_task(sb_update_user(email, {"images_used": used + 1}))
+            asyncio.create_task(invalidate_plan_cache(email))
+        else:
+            img_key = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
+            count = await redis_incr(img_key)
+            if count == 1:
+                await redis_expire(img_key, 30 * 24 * 3600)
+
         return JSONResponse({
             "image_url": response.data[0].url,
-            "images_remaining": MAX_FREE_IMAGES - image_uses[ip],
+            "images_remaining": max(0, (limit if email else MAX_FREE_IMAGES) - (used + 1 if email else 1)),
         })
     except Exception as e:
         logger.error(f"/generate-image error: {e}")
         return JSONResponse({"error": "Image generation failed. Please try again."}, status_code=500)
 
+# ─── A/B Test ─────────────────────────────────────────────────────────────────
 @app.post("/ab-test")
 async def ab_test(request: Request):
     try:
@@ -252,15 +727,13 @@ async def ab_test(request: Request):
 
     try:
         response = await client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a YouTube CTR expert. Always respond in valid JSON only."},
+                {"role": "system", "content": "YouTube CTR expert. JSON only."},
                 {"role": "user", "content": (
-                    "Compare these two YouTube video titles for the Indian audience. "
-                    "Respond ONLY in valid JSON with no markdown.\n"
-                    f'Title A: "{title_a}"\n'
-                    f'Title B: "{title_b}"\n'
-                    'Return: {"winner":"A or B","score_a":8,"score_b":7,"reasoning":"2-3 sentences on which gets more clicks and why"}'
+                    "Compare these two YouTube titles for Indian audience. JSON only, no markdown.\n"
+                    f'Title A: "{title_a}"\nTitle B: "{title_b}"\n'
+                    'Return: {"winner":"A or B","score_a":8,"score_b":7,"reasoning":"2-3 sentences"}'
                 )},
             ],
             temperature=0.7,
@@ -272,6 +745,7 @@ async def ab_test(request: Request):
         logger.error(f"/ab-test error: {e}")
         return JSONResponse({"error": "Test failed. Please try again."}, status_code=500)
 
+# ─── Analyze Channel ──────────────────────────────────────────────────────────
 @app.post("/analyze-channel")
 async def analyze_channel(request: Request):
     try:
@@ -280,7 +754,6 @@ async def analyze_channel(request: Request):
         return JSONResponse({"error": "Invalid request"}, status_code=400)
 
     titles = str(data.get("titles", "")).strip()
-
     if not titles:
         return JSONResponse({"error": "Please enter your video titles"}, status_code=400)
 
@@ -288,16 +761,14 @@ async def analyze_channel(request: Request):
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a YouTube growth expert. Always respond in valid JSON only."},
+                {"role": "system", "content": "YouTube growth expert. JSON only."},
                 {"role": "user", "content": (
-                    "Analyze these Indian YouTube video titles. "
-                    "Respond ONLY in valid JSON with no markdown.\n"
+                    "Analyze these Indian YouTube video titles. JSON only, no markdown.\n"
                     f'Titles: "{titles}"\n'
-                    "Return: {"
-                    '"ctr_score":7,"emotion_score":6,"clarity_score":8,'
-                    '"issues":[{"title":"issue name","detail":"explanation"}],'
-                    '"fixes":[{"title":"fix name","detail":"how to apply"}],'
-                    '"rewrites":[{"original":"old title","improved":"better version"}]}'
+                    'Return: {"ctr_score":7,"emotion_score":6,"clarity_score":8,'
+                    '"issues":[{"title":"issue","detail":"explanation"}],'
+                    '"fixes":[{"title":"fix","detail":"how to apply"}],'
+                    '"rewrites":[{"original":"old","improved":"better"}]}'
                 )},
             ],
             temperature=0.7,
@@ -309,41 +780,44 @@ async def analyze_channel(request: Request):
         logger.error(f"/analyze-channel error: {e}")
         return JSONResponse({"error": "Analysis failed. Please try again."}, status_code=500)
 
+# ─── Trending ─────────────────────────────────────────────────────────────────
 @app.get("/trending")
 async def trending():
-    now = time.time()
+    # Check Redis cache first
+    cached = await redis_get("trending:data")
+    if cached:
+        try:
+            return JSONResponse(json.loads(cached))
+        except Exception:
+            pass
 
-    # Fast path: return cached data if fresh
-    if _trending_cache["data"] and now - _trending_cache["ts"] < TRENDING_TTL:
-        return JSONResponse(_trending_cache["data"])
-
-    # Slow path: acquire lock so only ONE request calls OpenAI
-    # All other concurrent requests wait and get the cached result
     async with _trending_lock:
-        if _trending_cache["data"] and now - _trending_cache["ts"] < TRENDING_TTL:
-            return JSONResponse(_trending_cache["data"])
+        # Double-check after acquiring lock
+        cached = await redis_get("trending:data")
+        if cached:
+            try:
+                return JSONResponse(json.loads(cached))
+            except Exception:
+                pass
 
         try:
             response = await client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a YouTube trends expert. Always respond in valid JSON only."},
+                    {"role": "system", "content": "YouTube trends expert. JSON only."},
                     {"role": "user", "content": (
                         "Generate 16 trending YouTube video topics for Indian creators in 2025. "
-                        "Return ONLY a JSON array with no markdown:\n"
-                        '[{"niche":"tech","topic":"video idea","why":"why trending in India now","heat":"fire emoji"}]\n'
-                        "Cover exactly 2 topics each for: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation"
+                        "Return ONLY a JSON array, no markdown:\n"
+                        '[{"niche":"tech","topic":"video idea","why":"why trending now","heat":"🔥"}]\n'
+                        "Cover 2 topics each: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation"
                     )},
                 ],
                 temperature=0.9,
                 max_tokens=1000,
             )
             result = parse_json_safe(response.choices[0].message.content)
-            _trending_cache["data"] = result
-            _trending_cache["ts"] = time.time()
+            await redis_set("trending:data", json.dumps(result), ex=TRENDING_TTL)
             return JSONResponse(result)
         except Exception as e:
             logger.error(f"/trending error: {e}")
-            if _trending_cache["data"]:
-                return JSONResponse(_trending_cache["data"])
             return JSONResponse({"error": "Failed to load trending topics."}, status_code=500)
