@@ -316,18 +316,14 @@
         .trending-loading { text-align:center; padding:60px 24px; color:var(--dim); }
         @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
         @media (max-width:1024px) {
-            .hero { grid-template-columns:1fr; gap:60px; padding:100px 40px 60px; }
+            .hero { grid-template-columns:1fr; gap:40px; padding:100px 24px 60px; }
             .hero-right { display:none; }
-            nav { padding:0 16px; height:auto; padding-top:12px; padding-bottom:12px; flex-wrap:wrap; gap:8px; }
-            .nav-badge { display:none; }
-            #userStatusBar { padding:8px 16px; flex-wrap:wrap; }
-            .feature-page { padding:100px 24px 60px; }
-            .hiw,.ba,.pricing { padding:80px 24px; }
+            .hiw,.ba,.pricing { padding:60px 20px; }
             .steps { grid-template-columns:1fr; }
             .ba-wrap { grid-template-columns:1fr; }
             .plan-grid { grid-template-columns:1fr; }
-            footer { padding:32px 24px; flex-direction:column; gap:16px; text-align:center; }
-            .results { padding:0 20px 80px; }
+            footer { padding:32px 20px; flex-direction:column; gap:16px; text-align:center; }
+            .results { padding:0 16px 80px; }
             .tgrid { grid-template-columns:1fr; }
             .titem.wide { grid-column:span 1; }
             .ab-input-row { grid-template-columns:1fr; }
@@ -335,6 +331,67 @@
             .analyzer-score-row { grid-template-columns:1fr 1fr; }
             .trending-grid { grid-template-columns:1fr; }
             .plan-tabs { grid-template-columns:1fr; }
+            .feature-page { padding:90px 16px 60px; }
+        }
+        @media (max-width:768px) {
+            nav { padding:10px 16px; height:auto; flex-wrap:nowrap; justify-content:space-between; }
+            .nav-right { gap:6px; overflow-x:auto; padding-bottom:2px; }
+            .nav-tab { padding:7px 10px; font-size:11px; white-space:nowrap; }
+            .nav-badge { display:none; }
+            .nav-cta { padding:8px 12px; font-size:12px; white-space:nowrap; flex-shrink:0; }
+            .logo { font-size:18px; flex-shrink:0; }
+            #userStatusBar { padding:8px 16px; flex-wrap:wrap; gap:6px; top:60px; }
+            .hero { padding:80px 16px 40px; }
+            .hero-h1 { font-size:42px; letter-spacing:-2px; }
+            .hero-p { font-size:15px; }
+            .section-h { font-size:36px; letter-spacing:-2px; }
+            .modal { border-radius:20px; margin:10px; }
+            .modal-header { padding:28px 24px 0; }
+            .modal-header h2 { font-size:22px; }
+            .plan-tabs { padding:16px 24px 0; gap:10px; }
+            .plan-tab { padding:16px; }
+            .plan-tab-price { font-size:22px; }
+            .modal-email-section { padding:16px 24px 0; }
+            .modal-footer { padding:16px 24px 28px; }
+            .btn-checkout { font-size:14px; padding:16px; }
+            .rblock { padding:20px; }
+            .image-rblock { padding:20px; }
+            .tip-rblock { padding:20px 24px; }
+            .upgrade-box { padding:36px 24px; }
+            .upgrade-box h2 { font-size:30px; }
+            .hiw,.ba,.pricing { padding:48px 16px; }
+            .step-card { padding:28px 24px; }
+            .pricing { max-width:100%; }
+            .plan-box { padding:28px 24px; }
+            .analyzer-score-row { grid-template-columns:1fr; }
+            .channel-input-row { flex-direction:column; }
+            .btn-analyze { width:100%; }
+            .ab-input-row { grid-template-columns:1fr; }
+            footer { padding:24px 16px; }
+            .ctr-num { font-size:40px; }
+            .results-header h2 { font-size:28px; }
+            .feature-page-title { font-size:28px; }
+        }
+        @media (max-width:480px) {
+            nav { padding:8px 12px; }
+            .nav-tab { padding:6px 8px; font-size:10px; }
+            .nav-cta { padding:7px 10px; font-size:11px; }
+            .logo { font-size:16px; }
+            .hero-h1 { font-size:36px; }
+            .hero { padding:72px 14px 32px; }
+            .modal-header h2 { font-size:20px; }
+            .plan-tabs { grid-template-columns:1fr; }
+            .btn-checkout { font-size:13px; }
+            .section-h { font-size:30px; }
+            .plan-price { font-size:38px; }
+            input[type="text"] { font-size:14px; padding:15px 15px 15px 46px; }
+            .btn-gen { font-size:14px; padding:16px; }
+            .niche-chip { font-size:12px; padding:6px 10px; }
+            .img-actions { flex-direction:column; }
+            .btn-download,.btn-regen { width:100%; text-align:center; justify-content:center; }
+            .history-card { padding:20px 16px; }
+            .trending-card { padding:18px; }
+            .ab-score-num { font-size:28px; }
         }
     </style>
 </head>
@@ -576,7 +633,7 @@
                 <li><span class="n2">&#x2717;</span> History &amp; saved results</li>
                 <li><span class="n2">&#x2717;</span> A/B Title Tester</li>
             </ul>
-        <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage('home')">Try Free &rarr;</button>
+            <button class="btn-plan ghost" onclick="document.getElementById('topic').focus();showPage("home")">Try Free &rarr;</button>
         </div>
         <div class="plan-box featured">
             <div class="plan-badge">Most Popular</div>
@@ -841,7 +898,7 @@ async function generate(){
         const res=await fetch('/generate',{method:'POST',headers:getHeaders(),body:JSON.stringify({topic,niche:selectedNiche})});
         const data=await res.json();
         if(data.error==='free_limit_reached'||data.error==='limit_reached'){
-            document.getElementById('upgradeBanner').style.display='block';
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
             document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;
         }
         if(data.error){alert(data.error);return;}
@@ -898,7 +955,7 @@ function renderHistory(){
     const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
     const el=document.getElementById('historyContent');
     if(history.length===0){
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">&#x1F4C2;</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
         return;
     }
     el.innerHTML=history.map(h=>{
