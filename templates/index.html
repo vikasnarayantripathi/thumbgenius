@@ -16,7 +16,7 @@
         html { scroll-behavior: smooth; }
         body { background:var(--bg); color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; overflow-x:hidden; min-height:100vh; }
         #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
-        #userStatusBar { display:none; position:fixed; top:72px; left:0; right:0; z-index:199; background:rgba(255,224,54,0.06); border-bottom:1px solid rgba(255,224,54,0.12); padding:8px 48px; align-items:center; justify-content:space-between; }
+        #userStatusBar { display:none; position:fixed; top:90px; left:0; right:0; z-index:199; background:rgba(255,224,54,0.06); border-bottom:1px solid rgba(255,224,54,0.12); padding:8px 48px; align-items:center; justify-content:space-between; }
         #userStatusBar.visible { display:flex; }
         .status-left { display:flex; align-items:center; gap:12px; }
         .status-plan { background:rgba(255,224,54,0.15); border:1px solid rgba(255,224,54,0.3); color:var(--yellow); font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; letter-spacing:0.5px; text-transform:uppercase; }
@@ -25,16 +25,18 @@
         .status-right { display:flex; align-items:center; gap:8px; }
         .btn-logout { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.3); border-radius:6px; padding:4px 12px; font-size:11px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .btn-logout:hover { border-color:#FF2D7A; color:#FF2D7A; }
-        nav { position:fixed; top:0; left:0; right:0; z-index:200; display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:72px; background:rgba(2,2,10,0.6); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
+        nav { position:fixed; top:0; left:0; right:0; z-index:200; background:rgba(2,2,10,0.6); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
+        .nav-top { display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:56px; }
+        .nav-bottom { display:flex; align-items:center; gap:8px; padding:0 48px 10px; }
         .logo { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:var(--yellow); }
         .logo span { color:var(--white); opacity:0.5; }
-        .nav-right { display:flex; align-items:center; gap:16px; }
+        .nav-right { display:flex; align-items:center; gap:12px; }
         .nav-badge { font-size:12px; font-weight:600; color:var(--dim); letter-spacing:0.3px; }
-        .nav-cta { background:var(--yellow); color:#000; border:none; border-radius:10px; padding:10px 20px; font-size:13px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .nav-cta { background:var(--yellow); color:#000; border:none; border-radius:10px; padding:9px 18px; font-size:13px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .nav-cta:hover { background:#fff; transform:translateY(-1px); }
-        .nav-tab { background:transparent; color:var(--dim); border:1px solid var(--border); border-radius:10px; padding:10px 16px; font-size:13px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+        .nav-tab { background:transparent; color:var(--dim); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
         .nav-tab:hover { color:var(--white); border-color:rgba(255,255,255,0.2); }
-        .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); }
+        .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); background:rgba(255,224,54,0.05); }
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(2,2,10,0.88); backdrop-filter:blur(20px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
         .modal-overlay.open { display:flex; }
         .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:520px; width:100%; position:relative; overflow:hidden; }
@@ -64,7 +66,7 @@
         .btn-checkout:disabled { opacity:0.5; transform:none !important; cursor:not-allowed; }
         .modal-secure { text-align:center; font-size:11px; color:rgba(255,255,255,0.2); }
         .page { display:none; } .page.active { display:block; }
-        .hero { position:relative; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:80px; padding:120px 80px 80px; z-index:10; max-width:1400px; margin:0 auto; }
+        .hero { position:relative; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:80px; padding:130px 80px 80px; z-index:10; max-width:1400px; margin:0 auto; }
         .hero-tag { display:inline-flex; align-items:center; gap:10px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); border-radius:100px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--yellow); letter-spacing:0.5px; margin-bottom:32px; animation:fadeUp 0.8s 0.1s both; }
         .hero-tag .pulse { width:6px; height:6px; background:var(--yellow); border-radius:50%; box-shadow:0 0 10px var(--yellow); animation:blink 2s infinite; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
@@ -299,21 +301,45 @@
         .issue-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
         .issue-text { font-size:14px; color:rgba(255,255,255,0.65); line-height:1.5; }
         .issue-text strong { color:var(--white); display:block; margin-bottom:3px; }
-        .trending-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:32px; }
-        .trending-filter { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 16px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--dim); cursor:pointer; transition:all 0.2s; }
-        .trending-filter:hover { color:var(--white); border-color:rgba(255,255,255,0.15); }
-        .trending-filter.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
-        .trending-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
-        .trending-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:24px; transition:all 0.2s; }
-        .trending-card:hover { background:rgba(255,224,54,0.04); border-color:rgba(255,224,54,0.15); transform:translateY(-2px); }
-        .trending-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-        .trending-niche { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,224,54,0.5); }
-        .trending-heat { font-size:12px; color:var(--orange); }
-        .trending-topic { font-size:15px; font-weight:700; color:var(--white); line-height:1.4; margin-bottom:8px; letter-spacing:-0.3px; }
-        .trending-why { font-size:12px; color:var(--dim); line-height:1.5; }
-        .trending-use-btn { margin-top:14px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:7px; padding:7px 14px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
-        .trending-use-btn:hover { background:rgba(255,224,54,0.15); }
         .trending-loading { text-align:center; padding:60px 24px; color:var(--dim); }
+        .trending-cat-section { margin-bottom:32px; }
+        .trending-cat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .trending-cat-label { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--dim); }
+        .btn-add-cat { background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.25); color:var(--yellow); border-radius:10px; padding:9px 18px; font-size:13px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
+        .btn-add-cat:hover { background:rgba(255,224,54,0.15); }
+        .trending-selected-cats { display:flex; gap:8px; flex-wrap:wrap; }
+        .selected-cat-chip { display:flex; align-items:center; gap:8px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); border-radius:100px; padding:8px 14px; font-size:13px; font-weight:600; color:var(--yellow); }
+        .selected-cat-chip button { background:none; border:none; color:rgba(255,224,54,0.5); cursor:pointer; font-size:14px; padding:0; line-height:1; }
+        .selected-cat-chip button:hover { color:var(--pink); }
+        .cat-picker-overlay { display:none; position:fixed; inset:0; background:rgba(2,2,10,0.85); backdrop-filter:blur(16px); z-index:500; align-items:center; justify-content:center; padding:20px; }
+        .cat-picker-overlay.open { display:flex; }
+        .cat-picker { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:24px; max-width:480px; width:100%; padding:28px; }
+        .cat-picker-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; font-size:16px; font-weight:700; }
+        .cat-picker-header button { background:rgba(255,255,255,0.06); border:none; color:var(--dim); width:30px; height:30px; border-radius:8px; cursor:pointer; font-size:16px; }
+        .cat-picker-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
+        .cat-picker-item { border:1px solid var(--border); border-radius:12px; padding:14px 10px; text-align:center; cursor:pointer; transition:all 0.2s; font-size:12px; font-weight:600; color:var(--dim); }
+        .cat-picker-item:hover { border-color:rgba(255,224,54,0.3); color:var(--white); }
+        .cat-picker-item.selected { border-color:rgba(255,224,54,0.5); background:rgba(255,224,54,0.08); color:var(--yellow); }
+        .cat-picker-item .cat-icon { font-size:24px; display:block; margin-bottom:6px; }
+        .btn-cat-done { width:100%; background:var(--yellow); color:#000; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; }
+        .trending-category-block { margin-bottom:36px; }
+        .trending-cat-block-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .trending-cat-block-title { font-size:16px; font-weight:800; color:var(--white); display:flex; align-items:center; gap:8px; }
+        .trending-cat-block-count { font-size:11px; color:var(--dim); }
+        .trending-slider-wrap { position:relative; }
+        .trending-slider { display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:4px; }
+        .trending-slider::-webkit-scrollbar { display:none; }
+        .trending-slide { min-width:280px; max-width:280px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:20px; scroll-snap-align:start; transition:border-color 0.2s; flex-shrink:0; }
+        .trending-slide:hover { border-color:rgba(255,224,54,0.2); }
+        .trending-slide-num { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.4); margin-bottom:10px; }
+        .trending-slide-topic { font-size:15px; font-weight:700; color:var(--white); line-height:1.4; margin-bottom:8px; }
+        .trending-slide-why { font-size:12px; color:var(--dim); line-height:1.5; margin-bottom:14px; }
+        .trending-slide-heat { font-size:11px; color:var(--orange); margin-bottom:12px; }
+        .trending-use-btn { background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:7px; padding:8px 16px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; width:100%; }
+        .trending-use-btn:hover { background:rgba(255,224,54,0.15); }
+        .slider-dots { display:flex; gap:6px; margin-top:10px; }
+        .slider-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.15); transition:all 0.2s; }
+        .slider-dot.active { background:var(--yellow); width:18px; border-radius:3px; }
         @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
         @media (max-width:1024px) {
             .hero { grid-template-columns:1fr; gap:40px; padding:100px 24px 60px; }
@@ -334,13 +360,14 @@
             .feature-page { padding:90px 16px 60px; }
         }
         @media (max-width:768px) {
-            nav { padding:10px 16px; height:auto; flex-wrap:nowrap; justify-content:space-between; }
-            .nav-right { gap:6px; overflow-x:auto; padding-bottom:2px; }
-            .nav-tab { padding:7px 10px; font-size:11px; white-space:nowrap; }
+            .nav-top { padding:0 16px; height:48px; }
+            .nav-bottom { padding:0 12px 8px; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+            .nav-bottom::-webkit-scrollbar { display:none; }
+            .nav-tab { padding:6px 10px; font-size:11px; white-space:nowrap; flex-shrink:0; }
             .nav-badge { display:none; }
-            .nav-cta { padding:8px 12px; font-size:12px; white-space:nowrap; flex-shrink:0; }
+            .nav-cta { padding:7px 12px; font-size:12px; white-space:nowrap; flex-shrink:0; }
             .logo { font-size:18px; flex-shrink:0; }
-            #userStatusBar { padding:8px 16px; flex-wrap:wrap; gap:6px; top:60px; }
+            #userStatusBar { padding:8px 16px; flex-wrap:wrap; gap:6px; top:80px; }
             .hero { padding:80px 16px 40px; }
             .hero-h1 { font-size:42px; letter-spacing:-2px; }
             .hero-p { font-size:15px; }
@@ -450,15 +477,19 @@
 </div>
 
 <nav>
-    <div class="logo">Thumb<span>Genius</span></div>
-    <div class="nav-right">
-        <span class="nav-badge" id="navBadge">3 Free Generations &middot; No Signup</span>
+    <div class="nav-top">
+        <div class="logo">Thumb<span>Genius</span></div>
+        <div class="nav-right">
+            <span class="nav-badge" id="navBadge">3 Free Generations &middot; No Signup</span>
+            <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
+        </div>
+    </div>
+    <div class="nav-bottom">
         <button class="nav-tab active" id="tab-home" onclick='showPage("home")'>&#x1F3E0; Home</button>
         <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C1; History</button>
         <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
         <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Analyzer</button>
         <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
-        <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
     </div>
 </nav>
 
@@ -734,19 +765,29 @@
     <div class="feature-page">
         <div class="section-kicker">This Week's Hot Topics</div>
         <div class="feature-page-title">Trending in India &#x1F1EE;&#x1F1F3;</div>
-        <p class="feature-page-sub">AI-curated viral topics by niche. Click any topic to instantly generate your content package.</p>
-        <div class="trending-filters">
-            <div class="trending-filter active" onclick="filterTrending('all',this)">All</div>
-            <div class="trending-filter" onclick="filterTrending('tech',this)">&#x1F4F1; Tech</div>
-            <div class="trending-filter" onclick="filterTrending('finance',this)">&#x1F4B0; Finance</div>
-            <div class="trending-filter" onclick="filterTrending('gaming',this)">&#x1F3AE; Gaming</div>
-            <div class="trending-filter" onclick="filterTrending('fitness',this)">&#x1F4AA; Fitness</div>
-            <div class="trending-filter" onclick="filterTrending('cricket',this)">&#x1F3CF; Cricket</div>
-            <div class="trending-filter" onclick="filterTrending('automobiles',this)">&#x1F697; Auto</div>
-            <div class="trending-filter" onclick="filterTrending('examprep',this)">&#x1F393; Exam Prep</div>
+        <p class="feature-page-sub">Pick categories you care about. Swipe through 3 hot topics per category.</p>
+
+        <div class="trending-cat-section">
+            <div class="trending-cat-header">
+                <span class="trending-cat-label">Your Categories</span>
+                <button class="btn-add-cat" onclick="openCatPicker()">&#x2795; Add Category</button>
+            </div>
+            <div class="trending-selected-cats" id="selectedCats"></div>
         </div>
-        <div id="trendingLoading" class="trending-loading"><div class="loading-spinner" style="margin:0 auto 16px"></div><p>Fetching trending topics for India&hellip;</p></div>
-        <div class="trending-grid" id="trendingGrid" style="display:none"></div>
+
+        <div class="cat-picker-overlay" id="catPickerOverlay" onclick="closeCatPicker()">
+            <div class="cat-picker" onclick="event.stopPropagation()">
+                <div class="cat-picker-header">
+                    <span>Choose Categories</span>
+                    <button onclick="closeCatPicker()">&#x2715;</button>
+                </div>
+                <div class="cat-picker-grid" id="catPickerGrid"></div>
+                <button class="btn-cat-done" onclick="closeCatPicker()">Done</button>
+            </div>
+        </div>
+
+        <div id="trendingLoading" class="trending-loading" style="display:none"><div class="loading-spinner" style="margin:0 auto 16px"></div><p>Fetching trending topics&hellip;</p></div>
+        <div id="trendingCategoryBlocks"></div>
     </div>
 </div>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -857,7 +898,7 @@ async function startCheckout(){
             },
             modal:{ondismiss:function(){btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}}
         });
-        rzp.open();
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
     }catch(e){alert('Payment setup failed. Please try again.');btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}
 }
 
@@ -898,7 +939,7 @@ async function generate(){
         const res=await fetch('/generate',{method:'POST',headers:getHeaders(),body:JSON.stringify({topic,niche:selectedNiche})});
         const data=await res.json();
         if(data.error==='free_limit_reached'||data.error==='limit_reached'){
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+            document.getElementById('upgradeBanner').style.display='block';
             document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;
         }
         if(data.error){alert(data.error);return;}
@@ -1002,40 +1043,121 @@ async function runAnalysis(){
     finally{document.getElementById('analyzeBtn').disabled=false;document.getElementById('analyzeBtn').textContent='🔍 Analyze';}
 }
 
-let allTrendingTopics=[];
-async function loadTrending(){
-    if(allTrendingTopics.length>0)return;
-    document.getElementById('trendingLoading').style.display='block';document.getElementById('trendingGrid').style.display='none';
+// ═══ TRENDING - CATEGORY SYSTEM ═══
+const ALL_CATEGORIES = [
+    {id:'tech',label:'Tech',icon:'📱'},{id:'finance',label:'Finance',icon:'💰'},
+    {id:'gaming',label:'Gaming',icon:'🎮'},{id:'fitness',label:'Fitness',icon:'💪'},
+    {id:'food',label:'Food',icon:'🍕'},{id:'travel',label:'Travel',icon:'✈️'},
+    {id:'education',label:'Education',icon:'📚'},{id:'motivation',label:'Motivation',icon:'🔥'},
+    {id:'beauty',label:'Beauty',icon:'💄'},{id:'entertainment',label:'Entertainment',icon:'🎬'},
+    {id:'business',label:'Business',icon:'📈'},{id:'productivity',label:'Productivity',icon:'🧠'},
+    {id:'cricket',label:'Cricket',icon:'🏏'},{id:'automobiles',label:'Automobiles',icon:'🚗'},
+    {id:'examprep',label:'Exam Prep',icon:'🎓'},{id:'health',label:'Health',icon:'💊'},
+    {id:'pets',label:'Pets',icon:'🐾'},{id:'music',label:'Music',icon:'🎵'},
+    {id:'realestate',label:'Real Estate',icon:'🏠'},{id:'spirituality',label:'Spirituality',icon:'🌿'},
+    {id:'stocks',label:'Stocks',icon:'📉'},{id:'cooking',label:'Cooking',icon:'👨‍🍳'},
+    {id:'fashion',label:'Fashion',icon:'👗'},{id:'parenting',label:'Parenting',icon:'👶'},
+];
+let selectedCategories=JSON.parse(localStorage.getItem('tg_trending_cats')||'["tech","finance","gaming"]');
+let trendingDataCache={};
+
+function initTrending(){renderCatPicker();renderSelectedChips();loadTrendingForSelected();}
+
+function renderCatPicker(){
+    document.getElementById('catPickerGrid').innerHTML=ALL_CATEGORIES.map(c=>{
+        const sel=selectedCategories.includes(c.id);
+        const cls='cat-picker-item'+(sel?' selected':'');
+        return `<div class="${cls}" onclick="toggleCat('${c.id}',this)"><span class="cat-icon">${c.icon}</span>${c.label}</div>`;
+    }).join('');
+}
+
+function toggleCat(id,el){
+    if(selectedCategories.includes(id)){if(selectedCategories.length<=1)return;selectedCategories=selectedCategories.filter(c=>c!==id);el.classList.remove('selected');}
+    else{selectedCategories.push(id);el.classList.add('selected');}
+    localStorage.setItem('tg_trending_cats',JSON.stringify(selectedCategories));
+}
+
+function renderSelectedChips(){
+    document.getElementById('selectedCats').innerHTML=selectedCategories.map(id=>{
+        const cat=ALL_CATEGORIES.find(c=>c.id===id);if(!cat)return '';
+        return `<div class="selected-cat-chip">${cat.icon} ${cat.label}<button onclick="removeCat('${id}')">&#x2715;</button></div>`;
+    }).join('');
+}
+
+function removeCat(id){
+    if(selectedCategories.length<=1)return;
+    selectedCategories=selectedCategories.filter(c=>c!==id);
+    localStorage.setItem('tg_trending_cats',JSON.stringify(selectedCategories));
+    renderSelectedChips();renderCatPicker();renderAllCategoryBlocks();
+}
+
+function openCatPicker(){document.getElementById('catPickerOverlay').classList.add('open');}
+function closeCatPicker(){
+    document.getElementById('catPickerOverlay').classList.remove('open');
+    renderSelectedChips();loadTrendingForSelected();
+}
+
+async function loadTrendingForSelected(){
+    document.getElementById('trendingLoading').style.display='block';
     try{
-        const res=await fetch('/trending',{method:'GET'});allTrendingTopics=await res.json();
-        if(allTrendingTopics.error){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';return;}
-        renderTrending('all');
+        const res=await fetch('/trending');const data=await res.json();
+        if(!Array.isArray(data))return;
+        trendingDataCache={};
+        data.forEach(t=>{if(!trendingDataCache[t.niche])trendingDataCache[t.niche]=[];trendingDataCache[t.niche].push(t);});
+        renderAllCategoryBlocks();
     }catch(e){document.getElementById('trendingLoading').innerHTML='<p>Failed to load. Please refresh.</p>';}
     finally{document.getElementById('trendingLoading').style.display='none';}
 }
 
-function renderTrending(filter){
-    const topics=filter==='all'?allTrendingTopics:allTrendingTopics.filter(t=>t.niche===filter);
-    window._currentTrendingTopics=topics;
-    const grid=document.getElementById('trendingGrid');grid.style.display='grid';
-    grid.innerHTML=topics.map((t,idx)=>`<div class="trending-card"><div class="trending-card-top"><span class="trending-niche">${escapeHtml(t.niche.toUpperCase())}</span><span class="trending-heat">${escapeHtml(t.heat)}</span></div><div class="trending-topic">${escapeHtml(t.topic)}</div><div class="trending-why">${escapeHtml(t.why)}</div><button class="trending-use-btn" onclick="useTrendingTopic(${idx})">⚡ Use This Topic</button></div>`).join('');
+function renderAllCategoryBlocks(){
+    const container=document.getElementById('trendingCategoryBlocks');
+    container.innerHTML=selectedCategories.map(catId=>{
+        const cat=ALL_CATEGORIES.find(c=>c.id===catId);if(!cat)return '';
+        const topics=trendingDataCache[catId]||[];
+        if(topics.length===0)return '<div class="trending-category-block"><div class="trending-cat-block-header"><div class="trending-cat-block-title">'+cat.icon+' '+cat.label+'</div></div><p style="color:var(--dim);font-size:13px">No topics yet.</p></div>';
+        const slides=topics.map((t,i)=>'<div class="trending-slide"><div class="trending-slide-num">TOPIC '+(i+1)+' OF '+topics.length+'</div><div class="trending-slide-heat">'+escapeHtml(t.heat||'🔥 Trending')+'</div><div class="trending-slide-topic">'+escapeHtml(t.topic)+'</div><div class="trending-slide-why">'+escapeHtml(t.why||'')+'</div><button class="trending-use-btn" onclick="useTrendingTopicDirect(this)">⚡ Use This Topic</button></div>').join('');
+        const dots=topics.map((_,i)=>'<div class="slider-dot '+(i===0?'active':'')+'" ></div>').join('');
+        return '<div class="trending-category-block"><div class="trending-cat-block-header"><div class="trending-cat-block-title">'+cat.icon+' '+cat.label+' <span class="trending-cat-block-count">'+topics.length+' topics</span></div></div><div class="trending-slider-wrap"><div class="trending-slider" id="slider-'+catId+'" data-cat="'+catId+'" onscroll="updateDots(this)">'+slides+'</div><div class="slider-dots" id="dots-'+catId+'">'+dots+'</div></div></div>';
+    }).join('');
+    // Store topic data on slide elements
+    selectedCategories.forEach(catId=>{
+        const topics=trendingDataCache[catId]||[];
+        const slider=document.getElementById('slider-'+catId);
+        if(!slider)return;
+        const slides=slider.querySelectorAll('.trending-slide');
+        slides.forEach((slide,i)=>{
+            if(topics[i]){slide.dataset.topic=topics[i].topic;slide.dataset.niche=catId;}
+        });
+    });
 }
 
-function filterTrending(niche,el){
-    document.querySelectorAll('.trending-filter').forEach(f=>f.classList.remove('active'));el.classList.add('active');
-    if(allTrendingTopics.length>0)renderTrending(niche);
+function updateDots(sliderEl){
+    const catId=sliderEl.dataset.cat;
+    const dots=document.querySelectorAll('#dots-'+catId+' .slider-dot');
+    const idx=Math.round(sliderEl.scrollLeft/300);
+    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
 }
 
-function useTrendingTopic(idx){
-    const t=window._currentTrendingTopics&&window._currentTrendingTopics[idx];if(!t)return;
-    showPage("home");
+function useTrendingTopicDirect(btn){
+    const slide=btn.closest('.trending-slide');
+    const topic=slide.dataset.topic;const niche=slide.dataset.niche;
+    if(!topic)return;
+    showPage('home');
     setTimeout(()=>{
-        document.getElementById('topic').value=t.topic;
+        document.getElementById('topic').value=topic;
         document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
-        const chip=document.querySelector(`[data-niche="${t.niche}"]`);if(chip)chip.classList.add('active');
-        selectedNiche=t.niche;document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
+        const chip=document.querySelector('[data-niche="'+niche+'"]');
+        if(chip)chip.classList.add('active');
+        selectedNiche=niche;
+        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
     },300);
 }
+
+let allTrendingTopics=[];
+function loadTrending(){initTrending();}
+function filterTrending(){}
+function renderTrending(){}
+function useTrendingTopic(){}
 
 function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function copyToClipboard(text,el){navigator.clipboard.writeText(text).then(()=>{const cp=el.querySelector('.cp');cp.textContent='✅';setTimeout(()=>cp.textContent='📋',1500);});}
