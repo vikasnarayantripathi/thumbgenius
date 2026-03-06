@@ -1201,20 +1201,24 @@ function renderTrending(){}
 function useTrendingTopic(){}
 
 const THUMB_FONTS = [
-    {id:'oswald',     label:'Oswald',    family:'Oswald, sans-serif',           weight:'700'},
-    {id:'bebas',      label:'Bebas',     family:'"Bebas Neue", sans-serif',      weight:'400'},
-    {id:'montserrat', label:'Montserrat',family:'Montserrat, sans-serif',        weight:'900'},
-    {id:'russo',      label:'Russo',     family:'"Russo One", sans-serif',       weight:'400'},
-    {id:'bangers',    label:'Bangers',   family:'Bangers, sans-serif',           weight:'400'},
-    {id:'marker',     label:'Marker',    family:'"Permanent Marker", cursive',   weight:'400'},
-    {id:'righteous',  label:'Righteous', family:'Righteous, sans-serif',         weight:'400'},
-    {id:'jakarta',    label:'Jakarta',   family:'"Plus Jakarta Sans", sans-serif',weight:'800'},
+    {id:'impact',     label:'Impact',    family:'Impact, sans-serif',            cssfamily:'Impact',            weight:'900'},
+    {id:'oswald',     label:'Oswald',    family:'Oswald, sans-serif',            cssfamily:'Oswald',            weight:'700'},
+    {id:'bebas',      label:'Bebas',     family:'"Bebas Neue", sans-serif',      cssfamily:'Bebas Neue',        weight:'400'},
+    {id:'montserrat', label:'Montserrat',family:'Montserrat, sans-serif',        cssfamily:'Montserrat',        weight:'900'},
+    {id:'russo',      label:'Russo',     family:'"Russo One", sans-serif',       cssfamily:'Russo One',         weight:'400'},
+    {id:'bangers',    label:'Bangers',   family:'Bangers, sans-serif',           cssfamily:'Bangers',           weight:'400'},
+    {id:'arial',      label:'Arial Bold',family:'Arial, sans-serif',             cssfamily:'Arial',             weight:'900'},
+    {id:'jakarta',    label:'Jakarta',   family:'"Plus Jakarta Sans", sans-serif',cssfamily:'Plus Jakarta Sans',weight:'800'},
 ];
 const THUMB_COLORS = [
-    {id:'white',  hex:'#FFFFFF'}, {id:'yellow', hex:'#FFE036'},
-    {id:'orange', hex:'#FF5C00'}, {id:'pink',   hex:'#FF2D7A'},
-    {id:'cyan',   hex:'#00F0FF'}, {id:'green',  hex:'#22c55e'},
-    {id:'red',    hex:'#ef4444'}, {id:'black',  hex:'#000000'},
+    {id:'white',    hex:'#FFFFFF'},
+    {id:'yellow',   hex:'#FFE036'},
+    {id:'orange',   hex:'#FF5C00'},
+    {id:'pink',     hex:'#FF2D7A'},
+    {id:'cyan',     hex:'#00F0FF'},
+    {id:'green',    hex:'#22c55e'},
+    {id:'red',      hex:'#ef4444'},
+    {id:'gradient', hex:'linear-gradient(90deg,#FFE036,#FF5C00)', gradient:['#FFE036','#FF5C00','#FF2D7A'], label:'🌈'},
 ];
 let activeFont = THUMB_FONTS[Math.floor(Math.random()*THUMB_FONTS.length)];
 let activeColor = THUMB_COLORS[0];
@@ -1248,7 +1252,9 @@ function renderColorChips(){
     activeColor=THUMB_COLORS[0];
     document.getElementById('imgColorChips').innerHTML=THUMB_COLORS.map(c=>{
         const active=c.id===activeColor.id?'active':'';
-        return `<div class="img-color-chip ${active}" style="background:${c.hex}" onclick="selectColor('${c.id}',this)" title="${c.id}"></div>`;
+        const bg=c.gradient?'linear-gradient(135deg,'+c.gradient.join(',')+')':c.hex;
+        const border=c.id==='white'?'border:1px solid rgba(255,255,255,0.2)':'';
+        return `<div class="img-color-chip ${active}" style="background:${bg};${border}" onclick="selectColor('${c.id}',this)" title="${c.label||c.id}"></div>`;
     }).join('');
 }
 
@@ -1290,7 +1296,7 @@ function clearImgTitle(){
     document.getElementById('imgFontColorWrap').style.display='none';
 }
 
-function downloadWithTitle(){
+async function downloadWithTitle(){
     const img=document.getElementById('thumbnailImg');
     const overlay=document.getElementById('imgTitleOverlay');
     const titleText=document.getElementById('imgOverlayText').textContent;
@@ -1298,32 +1304,16 @@ function downloadWithTitle(){
     canvas.width=img.naturalWidth||1280;
     canvas.height=img.naturalHeight||720;
     const ctx=canvas.getContext('2d');
+
+    // Load fonts into document before drawing
+    await document.fonts.ready;
+
     const imgEl=new Image();
     imgEl.crossOrigin='anonymous';
-    imgEl.onload=function(){
+    imgEl.onload=async function(){
         ctx.drawImage(imgEl,0,0,canvas.width,canvas.height);
         if(titleText&&overlay.style.display!=='none'){
-            const grad=ctx.createLinearGradient(0,canvas.height*0.5,0,canvas.height);
-            grad.addColorStop(0,'rgba(0,0,0,0)');grad.addColorStop(1,'rgba(0,0,0,0.88)');
-            ctx.fillStyle=grad;ctx.fillRect(0,0,canvas.width,canvas.height);
-            const fs=Math.max(32,Math.min(64,canvas.width/14));
-            ctx.font=activeFont.weight+' '+fs+'px '+activeFont.family;
-            ctx.fillStyle=activeColor.hex;
-            ctx.textAlign='left';
-            ctx.shadowColor=activeColor.id==='black'?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.9)';
-            ctx.shadowBlur=10;
-            const maxW=canvas.width-80;
-            const words=titleText.split(' ');
-            let lines=[],line='';
-            words.forEach(w=>{
-                const test=line+(line?' ':'')+w;
-                if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w;}
-                else line=test;
-            });
-            if(line)lines.push(line);
-            const lineH=fs*1.25;
-            let y=canvas.height-40-(lines.length-1)*lineH;
-            lines.forEach(l=>{ctx.fillText(l,40,y);y+=lineH;});
+            drawTitleOnCanvas(ctx,canvas.width,canvas.height,titleText);
         }
         const a=document.createElement('a');a.download='thumbgenius-thumbnail.png';
         a.href=canvas.toDataURL('image/png');a.click();
@@ -1332,7 +1322,67 @@ function downloadWithTitle(){
         const a=document.createElement('a');a.download='thumbgenius-thumbnail.png';
         a.href=img.src;a.click();
     };
-    imgEl.src=img.src;
+    imgEl.src=img.src+'?t='+Date.now();
+}
+
+function drawTitleOnCanvas(ctx, W, H, titleText){
+    // Gradient background at bottom
+    const grad=ctx.createLinearGradient(0,H*0.45,0,H);
+    grad.addColorStop(0,'rgba(0,0,0,0)');
+    grad.addColorStop(0.6,'rgba(0,0,0,0.75)');
+    grad.addColorStop(1,'rgba(0,0,0,0.95)');
+    ctx.fillStyle=grad;
+    ctx.fillRect(0,0,W,H);
+
+    const fs=Math.max(36,Math.min(72,W/12));
+    const fontFamily=activeFont.cssfamily||'Impact';
+    ctx.font='900 '+fs+'px "'+fontFamily+'"';
+    ctx.textAlign='left';
+    ctx.textBaseline='alphabetic';
+
+    // Word wrap
+    const maxW=W-80;
+    const words=titleText.split(' ');
+    let lines=[],line='';
+    words.forEach(w=>{
+        const test=line+(line?' ':'')+w;
+        if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w;}
+        else line=test;
+    });
+    if(line)lines.push(line);
+
+    const lineH=fs*1.3;
+    let startY=H-24-(lines.length-1)*lineH;
+
+    if(activeColor.id==='gradient'){
+        // Multi-color gradient text
+        const colors=activeColor.gradient;
+        lines.forEach((l,li)=>{
+            const y=startY+li*lineH;
+            const tw=ctx.measureText(l).width;
+            const tg=ctx.createLinearGradient(40,y-fs,40+tw,y);
+            colors.forEach((c,i)=>tg.addColorStop(i/(colors.length-1),c));
+            // Black stroke for readability
+            ctx.strokeStyle='rgba(0,0,0,0.9)';
+            ctx.lineWidth=fs/8;
+            ctx.lineJoin='round';
+            ctx.strokeText(l,40,y);
+            ctx.fillStyle=tg;
+            ctx.fillText(l,40,y);
+        });
+    } else {
+        lines.forEach((l,li)=>{
+            const y=startY+li*lineH;
+            // Bold black stroke outline
+            ctx.strokeStyle='rgba(0,0,0,0.95)';
+            ctx.lineWidth=Math.max(4,fs/7);
+            ctx.lineJoin='round';
+            ctx.strokeText(l,40,y);
+            // Fill with chosen color
+            ctx.fillStyle=activeColor.hex;
+            ctx.fillText(l,40,y);
+        });
+    }
 }
 
 function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
