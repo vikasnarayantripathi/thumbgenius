@@ -2001,6 +2001,9 @@ function renderImgTitleChips(){
     }).join('');
     renderFontChips();
     renderColorChips();
+    // Auto-select the first title chip so title is always on by default
+    const firstChip = wrap.querySelector('.img-title-chip');
+    if(firstChip) selectImgTitle(firstChip);
 }
 
 function renderFontChips(){
@@ -2074,61 +2077,89 @@ function copyAllTags(){
 }
 
 async function downloadWithTitle(){
-    const img=document.getElementById('thumbnailImg');
-    const overlay=document.getElementById('imgTitleOverlay');
-    const titleText=document.getElementById('imgOverlayText').textContent;
-    const canvas=document.createElement('canvas');
-    canvas.width=img.naturalWidth||1280;
-    canvas.height=img.naturalHeight||720;
-    const ctx=canvas.getContext('2d');
+    const btn = document.getElementById('downloadBtn');
+    if(btn){ btn.textContent='⏳ Preparing…'; btn.disabled=true; }
+
+    const img = document.getElementById('thumbnailImg');
+    if(!img || !img.src || img.src === window.location.href){
+        alert('No thumbnail to download yet.'); 
+        if(btn){ btn.textContent='⬇️ Download Thumbnail'; btn.disabled=false; }
+        return;
+    }
+
+    // Get title text — from overlay if visible, else from first selected title chip
+    const overlayEl  = document.getElementById('imgTitleOverlay');
+    const overlayTxt = document.getElementById('imgOverlayText');
+    let titleText = '';
+    if(overlayEl && overlayTxt){
+        // overlay may be block but text empty — get text regardless of visibility
+        titleText = overlayTxt.textContent.trim();
+    }
+    // Also check if any title row was selected/clicked
+    if(!titleText){
+        const sel = document.querySelector('.title-row.selected, .title-row:first-child');
+        if(sel){ const t = sel.querySelector('.t'); if(t) titleText = t.textContent.trim(); }
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width  = img.naturalWidth  || 1280;
+    canvas.height = img.naturalHeight || 720;
+    const ctx = canvas.getContext('2d');
     await document.fonts.ready;
 
-    // Use fetch+blob to avoid CORS redirect issue with OpenAI URLs
     async function drawAndSave(src){
-        return new Promise((resolve,reject)=>{
-            const imgEl=new Image();
-            imgEl.crossOrigin='anonymous';
-            imgEl.onload=function(){
-                ctx.drawImage(imgEl,0,0,canvas.width,canvas.height);
-                if(titleText&&overlay.style.display!=='none'){
-                    drawTitleOnCanvas(ctx,canvas.width,canvas.height,titleText);
+        return new Promise((resolve, reject)=>{
+            const tmp = new Image();
+            tmp.crossOrigin = 'anonymous';
+            tmp.onload = function(){
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
+                if(titleText){
+                    drawTitleOnCanvas(ctx, canvas.width, canvas.height, titleText);
                 }
                 canvas.toBlob(blob=>{
-                    const url=URL.createObjectURL(blob);
-                    const a=document.createElement('a');
-                    a.href=url; a.download='thumbgenius-thumbnail.png';
-                    document.body.appendChild(a); a.click();
-                    setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+                    if(!blob){ reject(new Error('Canvas toBlob failed')); return; }
+                    const url = URL.createObjectURL(blob);
+                    const a   = document.createElement('a');
+                    a.href     = url;
+                    a.download = 'thumbgenius-thumbnail.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(()=>{ URL.revokeObjectURL(url); document.body.removeChild(a); }, 2000);
                     resolve();
-                },'image/png');
+                }, 'image/png');
             };
-            imgEl.onerror=reject;
-            imgEl.src=src;
+            tmp.onerror = reject;
+            tmp.src = src;
         });
     }
 
-    // Try proxy fetch first to get a local blob URL (avoids CORS on OpenAI CDN)
-    try {
+    // Step 1: Try proxy (bypasses CORS on OpenAI/DALL-E CDN URLs)
+    try{
         const resp = await fetch('/proxy-image?url='+encodeURIComponent(img.src));
         if(resp.ok){
-            const blob = await resp.blob();
+            const blob     = await resp.blob();
             const localUrl = URL.createObjectURL(blob);
-            await drawAndSave(localUrl);
-            URL.revokeObjectURL(localUrl);
-            return;
+            try{
+                await drawAndSave(localUrl);
+                URL.revokeObjectURL(localUrl);
+                if(btn){ btn.textContent='✅ Downloaded!'; setTimeout(()=>{ btn.textContent='⬇️ Download Thumbnail'; btn.disabled=false; },2000); }
+                return;
+            } catch(e2){ URL.revokeObjectURL(localUrl); }
         }
-    } catch(e){ /* fall through */ }
+    } catch(e){ /* proxy failed, try direct */ }
 
-    // Fallback: direct draw (works if CORS allows)
-    try {
+    // Step 2: Direct canvas draw (works if image is still hot/cached)
+    try{
         await drawAndSave(img.src);
-    } catch(e){
-        // Last resort: direct download link
-        const a=document.createElement('a');
-        a.href=img.src; a.download='thumbgenius-thumbnail.png';
-        a.target='_blank'; document.body.appendChild(a); a.click();
-        document.body.removeChild(a);
-    }
+        if(btn){ btn.textContent='✅ Downloaded!'; setTimeout(()=>{ btn.textContent='⬇️ Download Thumbnail'; btn.disabled=false; },2000); }
+        return;
+    } catch(e){ /* canvas tainted or CORS fail */ }
+
+    // Step 3: Last resort — open image in new tab for manual save
+    window.open(img.src, '_blank');
+    alert('Could not auto-download (CORS). Image opened in new tab — right-click → Save image.');
+    if(btn){ btn.textContent='⬇️ Download Thumbnail'; btn.disabled=false; }
 }
 
 function drawTitleOnCanvas(ctx, W, H, titleText){
