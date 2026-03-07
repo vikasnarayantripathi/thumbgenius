@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThumbGenius — Make Every Thumbnail Click</title>
+    <title>ThumbGenius — YouTube Packaging Intelligence Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Oswald:wght@700&family=Bebas+Neue&family=Montserrat:wght@900&family=Russo+One&family=Bangers&family=Black+Han+Sans&family=Boogaloo&family=Righteous&family=Permanent+Marker&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
@@ -65,6 +65,15 @@
         .btn-checkout:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(255,224,54,0.3); }
         .btn-checkout:disabled { opacity:0.5; transform:none !important; cursor:not-allowed; }
         .modal-secure { text-align:center; font-size:11px; color:rgba(255,255,255,0.2); }
+        .modal-promo-section { padding:12px 40px 0; }
+        .modal-promo-toggle { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:rgba(255,224,54,0.6); cursor:pointer; padding:8px 0; font-weight:600; letter-spacing:0.3px; }
+        .modal-promo-toggle:hover { color:var(--yellow); }
+        .btn-promo-apply { width:100%; background:rgba(255,224,54,0.1); border:1px solid rgba(255,224,54,0.3); color:var(--yellow); border-radius:10px; padding:12px; font-size:14px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; margin-top:10px; transition:all 0.2s; }
+        .btn-promo-apply:hover { background:rgba(255,224,54,0.2); }
+        .promo-success { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:10px; padding:14px; text-align:center; margin-top:10px; display:none; }
+        .promo-success p:first-child { color:#22c55e; font-weight:700; font-size:14px; }
+        .promo-success p:last-child { color:rgba(255,255,255,0.4); font-size:12px; margin-top:4px; }
+        .promo-error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:12px; text-align:center; margin-top:10px; display:none; color:#ef4444; font-size:13px; font-weight:600; }
         .page { display:none; } .page.active { display:block; }
         .hero { position:relative; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:80px; padding:130px 80px 80px; z-index:10; max-width:1400px; margin:0 auto; }
         .hero-tag { display:inline-flex; align-items:center; gap:10px; background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); border-radius:100px; padding:8px 16px; font-size:12px; font-weight:600; color:var(--yellow); letter-spacing:0.5px; margin-bottom:32px; animation:fadeUp 0.8s 0.1s both; }
@@ -490,7 +499,37 @@
             <label>Your Email Address</label>
             <input type="text" class="modal-email-input" id="paymentEmail" placeholder="hello@example.com" />
         </div>
-        <div class="modal-footer">
+        <div class="modal-promo-section">
+            <div class="modal-promo-toggle" onclick="togglePromoField()">
+                <span>&#x1F511; Have an access code?</span>
+                <span id="promoArrow">&#x25BC;</span>
+            </div>
+            <div id="promoField" style="display:none;margin-top:10px">
+                <input type="text" class="modal-email-input" id="promoCode" placeholder="Enter access code" style="letter-spacing:2px;text-transform:uppercase" />
+                <button class="btn-promo-apply" onclick="applyPromoCode()">&#x2713; Apply Code</button>
+            </div>
+        </div>
+        <div id="promoSuccessBox" class="promo-success">
+            <p>&#x1F389; Access Code Activated!</p>
+            <p id="promoSuccessMsg">You now have Creator Plan access</p>
+        </div>
+        <div id="promoErrorBox" class="promo-error">&#x274C; Invalid code. Please try again.</div>
+        <div id="adminPlanPicker" style="display:none;padding:16px 40px">
+            <p style="font-size:12px;color:rgba(255,224,54,0.7);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">&#x1F451; Choose your plan</p>
+            <div style="display:flex;gap:12px">
+                <button onclick="activateAdminPlan('creator')" style="flex:1;background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(255,224,54,0.15)'" onmouseout="this.style.background='rgba(255,224,54,0.08)'">
+                    <div style="font-size:24px">&#x26A1;</div>
+                    <div style="color:#FFE036;font-weight:800;font-size:14px;margin-top:6px">Creator</div>
+                    <div style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:4px">100 gen · 20 images</div>
+                </button>
+                <button onclick="activateAdminPlan('pro')" style="flex:1;background:rgba(255,100,200,0.08);border:1px solid rgba(255,100,200,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(255,100,200,0.15)'" onmouseout="this.style.background='rgba(255,100,200,0.08)'">
+                    <div style="font-size:24px">&#x1F680;</div>
+                    <div style="color:#ff64c8;font-weight:800;font-size:14px;margin-top:6px">Pro</div>
+                    <div style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:4px">300 gen · 50 images</div>
+                </button>
+            </div>
+        </div>
+        <div class="modal-footer" id="modalPayFooter">
             <button class="btn-checkout" id="checkoutBtn" onclick="startCheckout()">&#x26A1; Pay &#x20B9;749/month with Razorpay</button>
             <div class="modal-secure">&#x1F512; Secured by Razorpay &middot; Cancel anytime &middot; Auto-renews monthly</div>
         </div>
@@ -501,7 +540,7 @@
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
         <div class="nav-right">
-            <span class="nav-badge" id="navBadge">3 Free Generations &middot; No Signup</span>
+            <span class="nav-badge" id="navBadge">YouTube Packaging Intelligence</span>
             <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
         </div>
     </div>
@@ -509,7 +548,7 @@
         <button class="nav-tab active" id="tab-home" onclick='showPage("home")'>&#x1F3E0; Home</button>
         <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C1; History</button>
         <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
-        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Analyzer</button>
+        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Run CTR Auditr</button>
         <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
     </div>
 </nav>
@@ -517,17 +556,17 @@
 <div class="page active" id="page-home">
 <section class="hero">
     <div class="hero-left">
-        <div class="hero-tag"><span class="pulse"></span>AI-Powered YouTube Growth Tool</div>
+        <div class="hero-tag"><span class="pulse"></span>YouTube Packaging Intelligence Platform</div>
         <h1 class="hero-h1">
-            <span>Make every</span><br>
-            <span class="word-thumb">thumbnail</span><br>
-            <span class="word-click">click.</span>
+            <span>Your thumbnail</span><br>
+            <span class="word-thumb">is your</span><br>
+            <span class="word-click">ad.</span>
         </h1>
-        <p class="hero-p">Paste your video topic. Get 5 viral titles, a thumbnail concept, a real AI-generated thumbnail image, and a hook script &mdash; in seconds.</p>
+        <p class="hero-p">Most creators lose views before their video even plays. ThumbGenius helps you engineer thumbnails that stop the scroll, signal the right emotion, and convert impressions into clicks — with data-backed titles, AI images, and CTR prediction built in.</p>
         <div class="hero-form">
             <div class="input-wrap">
                 <span class="input-icon">&#x1F3AC;</span>
-                <input type="text" id="topic" placeholder="e.g. I tested 5 budget phones under &#x20B9;10,000" />
+                <input type="text" id="topic" placeholder="e.g. I tested 5 budget phones under ₹10,000 for 30 days..." />
             </div>
             <div class="niche-row" id="nicheRow">
                 <div class="niche-chip active" data-niche="tech">&#x1F4F1; Tech</div>
@@ -554,9 +593,9 @@
                 <div class="niche-chip" data-niche="realestate">&#x1F3E0; Real Estate</div>
                 <div class="niche-chip" data-niche="spirituality">&#x1F33F; Spirituality</div>
             </div>
-            <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate My Content Package</button>
+            <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate Packaging Intelligence</button>
             <div class="form-footer">
-                <div class="free-badge"><span class="dot">&#x25CF;</span> <span id="freeBadgeText">3 free &middot; no signup</span></div>
+                <div class="free-badge"><span class="dot">&#x25CF;</span> <span id="freeBadgeText">3 free runs &middot; no signup needed</span></div>
                 <div id="usesLeft"><strong>3</strong> remaining</div>
             </div>
         </div>
@@ -568,17 +607,17 @@
                 <div class="preview-title-bar">thumbgenius.in</div>
             </div>
             <div class="preview-body">
-                <div class="preview-section-label">&#x26A1; 5 Viral Titles Generated</div>
-                <div class="preview-title-item"><span class="preview-num">01</span><span class="preview-text">I Used This &#x20B9;15,000 Phone For 30 Days &mdash; Honest Truth</span></div>
+                <div class="preview-section-label">&#x1F4CA; Packaging Intelligence Report</div>
+                <div class="preview-title-item"><span class="preview-num">01</span><span class="preview-text">I Used This ₹15,000 Phone For 30 Days — Honest Truth</span></div>
                 <div class="preview-title-item"><span class="preview-num">02</span><span class="preview-text">They Don't Want You To Know This About Budget Phones</span></div>
-                <div class="preview-title-item"><span class="preview-num">03</span><span class="preview-text">5 Budget Phones That Actually Beat Flagships in 2025</span></div>
+                <div class="preview-title-item"><span class="preview-num">03</span><span class="preview-text">5 Budget Phones That Beat Flagships in 2025</span></div>
                 <div class="preview-divider"></div>
-                <div class="preview-section-label">&#x1F3A8; Thumbnail Concept + AI Image</div>
+                <div class="preview-section-label">&#x1F3A8; Thumbnail Blueprint + AI Image</div>
                 <div class="thumb-mini">
-                    <div class="thumb-mini-item"><div class="thumb-mini-label">Text Overlay</div><div class="thumb-mini-val hl">BUDGET KING</div></div>
-                    <div class="thumb-mini-item"><div class="thumb-mini-label">Emotion</div><div class="thumb-mini-val">Curiosity + Shock</div></div>
-                    <div class="thumb-mini-item"><div class="thumb-mini-label">Expression</div><div class="thumb-mini-val">Surprised face</div></div>
-                    <div class="thumb-mini-item"><div class="thumb-mini-label">Background</div><div class="thumb-mini-val">Blue gradient, phone close-up</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Scroll-Stop Hook</div><div class="thumb-mini-val hl">BUDGET KING</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Emotion Signal</div><div class="thumb-mini-val">Curiosity + Shock</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Creator Expression</div><div class="thumb-mini-val">Surprised, direct eye contact</div></div>
+                    <div class="thumb-mini-item"><div class="thumb-mini-label">Visual Frame</div><div class="thumb-mini-val">High contrast, product close-up</div></div>
                 </div>
                 <div class="ctr-mini"><span class="ctr-mini-label">&#x1F3AF; Predicted CTR Score</span><span class="ctr-mini-score">8.7/10</span></div>
             </div>
@@ -588,17 +627,17 @@
 
 <div class="loading" id="loading">
     <div class="loading-spinner"></div>
-    <h3>Analyzing viral patterns&hellip;</h3>
-    <p>Studying 10M+ videos for your niche</p>
+    <h3>Running packaging intelligence&hellip;</h3>
+    <p>Analyzing title patterns, thumbnail signals &amp; CTR drivers</p>
 </div>
 
 <div class="results" id="results">
-    <div class="results-header"><h2>Your Content Package &#x2736;</h2><p>Click any title to copy. Generate your thumbnail image below.</p></div>
-    <div class="rblock"><div class="rblock-head">&#x1F525; 5 Viral Title Options</div><div id="titles"></div></div>
-    <div class="rblock"><div class="rblock-head">&#x1F3A8; Thumbnail Concept</div><div class="tgrid" id="thumbnail"></div></div>
+    <div class="results-header"><h2>Your Packaging Intelligence &#x2736;</h2><p>Click any title to copy. Generate and download your AI thumbnail below.</p></div>
+    <div class="rblock"><div class="rblock-head">&#x1F525; 5 High-CTR Title Options</div><div id="titles"></div></div>
+    <div class="rblock"><div class="rblock-head">&#x1F3A8; Thumbnail Blueprint</div><div class="tgrid" id="thumbnail"></div></div>
     <div class="image-rblock">
-        <div class="rblock-head">&#x1F5BC;&#xFE0F; AI Thumbnail Image</div>
-        <p class="img-desc" id="imgDesc">Generate an actual thumbnail image from the concept above. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
+        <div class="rblock-head">&#x1F5BC;&#xFE0F; AI Thumbnail Image — Ready to Publish</div>
+        <p class="img-desc" id="imgDesc">Turn your thumbnail blueprint into a publish-ready image. Add your selected title as a styled overlay, then download. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
         <button class="btn-img" id="imageBtn" onclick="generateImage()">&#x1F3A8; Generate Thumbnail Image</button>
         <p id="imgUsesLeft" style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px">1 free image generation remaining</p>
         <div class="img-loading" id="imgLoading"><div class="loading-spinner"></div><p>Creating your thumbnail image&hellip; (~15 seconds)</p></div>
@@ -635,52 +674,56 @@
         </div>
     </div>
     <div class="rblock">
-        <div class="rblock-head">&#x1F3AC; Hook Script &mdash; First 15 Seconds</div>
+        <div class="rblock-head">&#x1F3AC; Viewer Hook — First 15 Seconds</div>
         <p class="hook-p" id="hook"></p>
         <button class="copy-sm" onclick="copyText('hook')">&#x1F4CB; Copy Script</button>
     </div>
-    <div class="tip-rblock"><div class="tip-label">&#x1F4A1; Niche Intelligence</div><p class="tip-val" id="nicheTip"></p></div>
+    <div class="tip-rblock"><div class="tip-label">&#x1F4A1; Niche Packaging Insight</div><p class="tip-val" id="nicheTip"></p></div>
     <div style="text-align:center"><button class="btn-save" id="saveBtn" onclick="saveToHistory()">&#x1F4BE; Save to History</button></div>
 </div>
 
 <div class="upgrade" id="upgradeBanner">
     <div class="upgrade-box">
-        <h2>All 3 free<br>generations used.</h2>
-        <p>Upgrade to Creator plan for 100 generations, 20 AI images, A/B testing, and channel analysis &mdash; every month.</p>
-        <button class="btn-pay" onclick="openPaymentModal()">Get Creator Plan &mdash; &#x20B9;749/month &rarr;</button>
+        <h2>Free packaging<br>credits used up.</h2>
+        <p>Upgrade to Creator to get 100 packaging runs, 20 AI thumbnails, A/B title scoring, and channel CTR audit — every month.</p>
+        <button class="btn-pay" onclick="openPaymentModal()">Get Creator Plan — ₹749/month →</button>
     </div>
 </div>
 
 <section class="hiw">
-    <div class="section-kicker">How it works</div>
-    <div class="section-h">Three steps.<br><em>One viral video.</em></div>
+    <div class="section-kicker">How It Works</div>
+    <div class="section-h">From topic to<br><em>publish-ready.</em></div>
     <div class="steps">
-        <div class="step-card"><div class="step-n">01</div><div class="step-emoji">&#x270D;&#xFE0F;</div><h3>Paste Your Topic</h3><p>Type your video idea in plain English. Choose your niche. That's all the input we need.</p></div>
-        <div class="step-card"><div class="step-n">02</div><div class="step-emoji">&#x1F916;</div><h3>AI Generates</h3><p>Our AI analyzes millions of viral videos and generates your complete content package including a real thumbnail image.</p></div>
-        <div class="step-card"><div class="step-n">03</div><div class="step-emoji">&#x1F4C8;</div><h3>Publish &amp; Grow</h3><p>Use the title, download the thumbnail, read the hook &mdash; and watch your click-through rate climb.</p></div>
+        <div class="step-card"><div class="step-n">01</div><div class="step-emoji">&#x270D;&#xFE0F;</div><h3>Define Your Video</h3><p>Enter your video topic and choose your niche. ThumbGenius uses this to model what performs in your specific category.</p></div>
+        <div class="step-card"><div class="step-n">02</div><div class="step-emoji">&#x1F4CA;</div><h3>Get Your Packaging Report</h3><p>Receive 5 CTR-optimized titles, a thumbnail blueprint, an AI-generated image, predicted CTR score, and a 15-second viewer hook.</p></div>
+        <div class="step-card"><div class="step-n">03</div><div class="step-emoji">&#x1F3AF;</div><h3>Publish with Confidence</h3><p>Add your chosen title directly onto the thumbnail, download it, and go live knowing your packaging is engineered to convert impressions.</p></div>
     </div>
 </section>
 
 <section class="ba">
     <div style="max-width:1100px;margin:0 auto">
-        <div class="section-kicker">Before vs After</div>
-        <div class="section-h">See what<br><em>ThumbGenius</em> does.</div>
+        <div class="section-kicker">Packaging Audit</div>
+        <div class="section-h">The same video.<br><em>A very different CTR.</em></div>
         <div class="ba-wrap">
             <div class="ba-box">
-                <div class="ba-box-head b">&#x274C; Without ThumbGenius</div>
+                <div class="ba-box-head b">&#x274C; Unoptimized Packaging</div>
                 <div class="ba-box-body">
                     <div class="bad-t">My review of the Redmi Note 14</div>
                     <div class="bad-t">Budget phone video 2025</div>
                     <div class="bad-t">Is the Redmi Note 14 worth it?</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.25);margin:8px 0 4px;letter-spacing:0.5px">WHY IT UNDERPERFORMS</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6">Generic title · No emotion signal · Weak thumbnail hook · No reason to click over the next video</div>
                     <div class="ctr-show"><div class="ctr-show-row"><span class="ctr-show-label">Estimated CTR</span><span class="ctr-show-val lo">1.8%</span></div><div class="ctr-bar"><div class="ctr-bar-fill lo"></div></div></div>
                 </div>
             </div>
             <div class="ba-box">
-                <div class="ba-box-head a">&#x2705; With ThumbGenius</div>
+                <div class="ba-box-head a">&#x2705; ThumbGenius Packaging</div>
                 <div class="ba-box-body">
-                    <div class="good-t">I Used This &#x20B9;15,000 Phone For 30 Days &mdash; Honest Truth</div>
+                    <div class="good-t">I Used This ₹15,000 Phone For 30 Days — Honest Truth</div>
                     <div class="good-t">They Don't Want You To Know This About Budget Phones</div>
                     <div class="good-t">5 Budget Phones That Beat Flagships in 2025</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.25);margin:8px 0 4px;letter-spacing:0.5px">WHY IT CONVERTS</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6">Curiosity gap · Time-specific credibility · Contrarian hook · Emotion-matched thumbnail blueprint</div>
                     <div class="ctr-show"><div class="ctr-show-row"><span class="ctr-show-label">Estimated CTR</span><span class="ctr-show-val hi">8.5%</span></div><div class="ctr-bar"><div class="ctr-bar-fill hi"></div></div></div>
                 </div>
             </div>
@@ -690,17 +733,17 @@
 
 <section class="pricing">
     <div class="section-kicker">Pricing</div>
-    <div class="section-h">Simple,<br><em>honest</em> pricing.</div>
+    <div class="section-h">Invest in<br><em>better packaging.</em></div>
     <div class="plan-grid">
         <div class="plan-box">
             <div class="plan-name">Free Forever</div>
             <div class="plan-price">&#x20B9;0</div>
             <div class="plan-period">No credit card &middot; No signup</div>
             <ul class="plan-feats">
-                <li><span class="y">&#x2713;</span> 3 concept generations</li>
+                <li><span class="y">&#x2713;</span> 3 packaging runs</li>
                 <li><span class="y">&#x2713;</span> 1 AI thumbnail image</li>
                 <li><span class="y">&#x2713;</span> All 20 niches</li>
-                <li><span class="n2">&#x2717;</span> Unlimited generations</li>
+                <li><span class="n2">&#x2717;</span> Unlimited packaging runs</li>
                 <li><span class="n2">&#x2717;</span> History &amp; saved results</li>
                 <li><span class="n2">&#x2717;</span> A/B Title Tester</li>
             </ul>
@@ -712,12 +755,12 @@
             <div class="plan-price accent">&#x20B9;749</div>
             <div class="plan-period">per month &middot; cancel anytime</div>
             <ul class="plan-feats">
-                <li><span class="y">&#x2713;</span> 100 generations/month</li>
+                <li><span class="y">&#x2713;</span> 100 packaging runs/month</li>
                 <li><span class="y">&#x2713;</span> 20 AI thumbnail images</li>
                 <li><span class="y">&#x2713;</span> All 20 niches</li>
                 <li><span class="y">&#x2713;</span> Save &amp; access history</li>
                 <li><span class="y">&#x2713;</span> A/B Title Tester</li>
-                <li><span class="y">&#x2713;</span> Channel Analyzer</li>
+                <li><span class="y">&#x2713;</span> CTR Channel Audit</li>
             </ul>
             <button class="btn-plan" onclick="openPaymentModal('creator')">Get Creator &rarr;</button>
         </div>
@@ -726,11 +769,11 @@
             <div class="plan-price">&#x20B9;1,449</div>
             <div class="plan-period">per month &middot; cancel anytime</div>
             <ul class="plan-feats">
-                <li><span class="y">&#x2713;</span> 300 generations/month</li>
+                <li><span class="y">&#x2713;</span> 300 packaging runs/month</li>
                 <li><span class="y">&#x2713;</span> 50 AI thumbnail images</li>
-                <li><span class="y">&#x2713;</span> All Creator features</li>
+                <li><span class="y">&#x2713;</span> Full packaging suite</li>
                 <li><span class="y">&#x2713;</span> Priority support</li>
-                <li><span class="y">&#x2713;</span> Early access to new features</li>
+                <li><span class="y">&#x2713;</span> Early access to new intelligence features</li>
                 <li><span class="y">&#x2713;</span> Cancel anytime</li>
             </ul>
             <button class="btn-plan" onclick="openPaymentModal('pro')">Get Pro &rarr;</button>
@@ -740,31 +783,31 @@
 
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
-    <p>&copy; 2025 ThumbGenius &middot; Made for YouTubers</p>
+    <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
     <a href="/cdn-cgi/l/email-protection#a4ccc1c8c8cbe4d0ccd1c9c6c3c1cacdd1d78acdca"><span class="__cf_email__" data-cfemail="533b363f3f3c13273b263e3134363d3a26207d3a3d">[email&#160;protected]</span></a>
 </footer>
 </div>
 
 <div class="page" id="page-history">
     <div class="feature-page">
-        <div class="section-kicker">Your Saved Work</div>
-        <div class="feature-page-title">Generation History</div>
-        <p class="feature-page-sub">All your saved content packages. Click any result to reload it.</p>
+        <div class="section-kicker">Your Packaging History</div>
+        <div class="feature-page-title">Saved Packaging Runs</div>
+        <p class="feature-page-sub">All your saved packaging intelligence reports. Click any entry to reload and continue working.</p>
         <div id="historyContent"></div>
     </div>
 </div>
 
 <div class="page" id="page-ab">
     <div class="feature-page">
-        <div class="section-kicker">Title Optimization</div>
-        <div class="feature-page-title">A/B Title Tester</div>
-        <p class="feature-page-sub">Paste two title options. AI tells you which will get more clicks and why.</p>
-        <div class="ab-intro"><p>Got two title ideas and can't decide? Paste them below and our AI will score each one for CTR potential, emotional pull, and clarity &mdash; then tell you which one to use.</p></div>
+        <div class="section-kicker">Title Intelligence</div>
+        <div class="feature-page-title">A/B Title Scorer</div>
+        <p class="feature-page-sub">Enter two title candidates. Get a click-through score, emotional pull rating, and a clear recommendation — not guesswork.</p>
+        <div class="ab-intro"><p>Your title determines whether someone clicks or scrolls past. Paste two options — ThumbGenius scores each one on CTR potential, emotional pull, and clarity, then gives you a data-backed recommendation.</p></div>
         <div class="ab-input-row">
             <div class="ab-input-box"><div class="ab-input-label a-label">Title A</div><textarea id="titleA" placeholder="e.g. I Tested 5 Budget Phones Under &#x20B9;10,000"></textarea></div>
             <div class="ab-input-box"><div class="ab-input-label b-label">Title B</div><textarea id="titleB" placeholder="e.g. The TRUTH About Budget Phones Nobody Tells You"></textarea></div>
         </div>
-        <button class="btn-ab" id="abBtn" onclick="runABTest()">&#x26A1; Test These Titles</button>
+        <button class="btn-ab" id="abBtn" onclick="runABTest()">&#x26A1; Score These Titles</button>
         <div class="ab-result" id="abResult">
             <div class="ab-verdict"><div class="ab-verdict-label">Winner</div><div class="ab-winner" id="abWinner"></div></div>
             <div class="ab-scores">
@@ -778,14 +821,14 @@
 
 <div class="page" id="page-analyzer">
     <div class="feature-page">
-        <div class="section-kicker">Channel Intelligence</div>
-        <div class="feature-page-title">Channel Analyzer</div>
-        <p class="feature-page-sub">Paste your recent video titles. Get an instant CTR audit.</p>
+        <div class="section-kicker">Channel Packaging Audit</div>
+        <div class="feature-page-title">Channel CTR Audit</div>
+        <p class="feature-page-sub">Paste your recent video titles. Get a full packaging diagnosis — what's weak, what's working, and exactly how to fix it.</p>
         <div class="analyzer-input-wrap">
-            <p>Enter 3&ndash;5 of your recent video titles separated by commas. Our AI will identify patterns, weaknesses, and opportunities in your titling strategy.</p>
+            <p>Enter 3–5 of your recent video titles separated by commas. ThumbGenius identifies patterns, diagnoses weaknesses, and rewrites your titles with higher CTR potential — showing you exactly what your channel's packaging is missing.</p>
             <div class="channel-input-row">
                 <input type="text" id="channelInput" placeholder="e.g. My Review of Phone X, Top 5 Gadgets, Unboxing Video..." style="padding-left:20px" />
-                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">&#x1F50D; Analyze</button>
+                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">&#x1F50D; Run CTR Audit</button>
             </div>
         </div>
         <div class="analyzer-result" id="analyzerResult">
@@ -794,18 +837,18 @@
                 <div class="analyzer-score-box"><div class="analyzer-score-label">Emotion Score</div><div class="analyzer-score-num" id="scoreEmotion">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
                 <div class="analyzer-score-box"><div class="analyzer-score-label">Clarity Score</div><div class="analyzer-score-num" id="scoreClarity">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
             </div>
-            <div class="analyzer-section"><div class="analyzer-section-title">&#x26A0;&#xFE0F; Issues Found</div><div id="analyzerIssues"></div></div>
-            <div class="analyzer-section"><div class="analyzer-section-title">&#x2705; Improvements</div><div id="analyzerFixes"></div></div>
-            <div class="analyzer-section"><div class="analyzer-section-title">&#x1F4A1; Rewritten Titles</div><div id="analyzerRewrite"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x26A0;&#xFE0F; Packaging Weaknesses</div><div id="analyzerIssues"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x2705; Optimization Opportunities</div><div id="analyzerFixes"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x1F4A1; Re-Packaged Titles</div><div id="analyzerRewrite"></div></div>
         </div>
     </div>
 </div>
 
 <div class="page" id="page-trending">
     <div class="feature-page">
-        <div class="section-kicker">This Week's Hot Topics</div>
-        <div class="feature-page-title">Trending in India &#x1F1EE;&#x1F1F3;</div>
-        <p class="feature-page-sub">Pick categories you care about. Swipe through 3 hot topics per category.</p>
+        <div class="section-kicker">Trending Packaging Opportunities</div>
+        <div class="feature-page-title">What India Is Watching &#x1F1EE;&#x1F1F3;</div>
+        <p class="feature-page-sub">Real-time topic intelligence by niche. Spot high-momentum subjects before they peak — then package them with ThumbGenius instantly.</p>
 
         <div class="trending-cat-section">
             <div class="trending-cat-header">
@@ -855,8 +898,14 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     resize();createParticles();draw();
     window.addEventListener('resize',()=>{resize();createParticles();});
 })();
-
-function getHeaders(){const h={'Content-Type':'application/json'};if(currentUserEmail)h['X-User-Email']=currentUserEmail;return h;}
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+function getHeaders(){
+    const h={'Content-Type':'application/json'};
+    if(currentUserEmail)h['X-User-Email']=currentUserEmail;
+    const code=localStorage.getItem('tg_admin_code');
+    if(code)h['X-Admin-Code']=code;
+    return h;
+}
 
 async function loadUserStatus(){
     if(!currentUserEmail){updateUIForFree();return;}
@@ -898,7 +947,7 @@ function logout(){
 }
 
 function openPaymentModal(plan){
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+    if(plan)selectPlan(plan);
     document.getElementById('paymentModal').classList.add('open');
     if(currentUserEmail)document.getElementById('paymentEmail').value=currentUserEmail;
 }
@@ -909,6 +958,75 @@ function selectPlan(plan){
     document.getElementById('planTabPro').classList.toggle('selected',plan==='pro');
     document.getElementById('checkoutBtn').textContent='⚡ Pay '+(plan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';
 }
+
+// ═══ ADMIN / PROMO CODE SYSTEM ═══
+const ADMIN_CODES = {
+    'VIKAS2025': { plans: ['creator','pro'], label: 'Admin Access', emoji: '👑' },
+};
+
+function togglePromoField(){
+    const field = document.getElementById('promoField');
+    const arrow = document.getElementById('promoArrow');
+    const open = field.style.display === 'none';
+    field.style.display = open ? 'block' : 'none';
+    arrow.textContent = open ? '▲' : '▼';
+}
+
+function applyPromoCode(){
+    const raw = document.getElementById('promoCode').value.trim().toUpperCase();
+    const successBox = document.getElementById('promoSuccessBox');
+    const errorBox = document.getElementById('promoErrorBox');
+    const payFooter = document.getElementById('modalPayFooter');
+    successBox.style.display = 'none';
+    errorBox.style.display = 'none';
+    document.getElementById('adminPlanPicker').style.display = 'none';
+
+    if(!raw){ errorBox.style.display='block'; errorBox.textContent='❌ Please enter a code.'; return; }
+
+    const match = ADMIN_CODES[raw];
+    if(!match){ errorBox.style.display='block'; errorBox.textContent='❌ Invalid code. Please try again.'; return; }
+
+    const email = document.getElementById('paymentEmail').value.trim().toLowerCase();
+    if(!email || !email.includes('@')){
+        errorBox.style.display='block';
+        errorBox.textContent='❌ Please enter your email above first.';
+        return;
+    }
+
+    // Store email & code
+    currentUserEmail = email;
+    localStorage.setItem('tg_email', email);
+    localStorage.setItem('tg_admin_code', raw);
+
+    // Show plan picker
+    payFooter.style.display = 'none';
+    document.getElementById('adminPlanPicker').style.display = 'block';
+}
+
+function activateAdminPlan(plan){
+    const email = currentUserEmail || localStorage.getItem('tg_email');
+    const limits = { creator:{gen:100,img:20}, pro:{gen:300,img:50} };
+    const lim = limits[plan];
+    const label = plan==='pro' ? '🚀 Pro Plan' : '⚡ Creator Plan';
+
+    currentUserPlan = plan;
+    localStorage.setItem('tg_plan', plan);
+
+    document.getElementById('adminPlanPicker').style.display = 'none';
+    document.getElementById('promoSuccessMsg').textContent = label+' activated for '+email;
+    document.getElementById('promoSuccessBox').style.display = 'block';
+
+    updateUIForPlan({
+        plan, is_active:true,
+        generations_used:0, images_used:0,
+        generations_limit:lim.gen, images_limit:lim.img,
+    });
+
+    setTimeout(()=>{ closePaymentModal(); }, 1800);
+}
+
+// Check admin code on every API call - inject into getHeaders
+const _origGetHeaders = getHeaders;
 
 async function startCheckout(){
     const email=document.getElementById('paymentEmail').value.trim().toLowerCase();
