@@ -13,7 +13,7 @@
             --white: #FFFFFF; --dim: rgba(255,255,255,0.5); --faint: rgba(255,255,255,0.08); --border: rgba(255,255,255,0.07);
         }
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; scroll-padding-top: 110px; }
         body { background:var(--bg); color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; overflow-x:hidden; min-height:100vh; }
         #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
         #userStatusBar { display:none; position:fixed; top:102px; left:0; right:0; z-index:199; background:rgba(255,224,54,0.06); border-bottom:1px solid rgba(255,224,54,0.12); padding:8px 48px; align-items:center; justify-content:space-between; }
@@ -26,12 +26,12 @@
         .btn-logout { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.3); border-radius:6px; padding:4px 12px; font-size:11px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .btn-logout:hover { border-color:#FF2D7A; color:#FF2D7A; }
         nav { position:fixed; top:0; left:0; right:0; z-index:200; background:rgba(2,2,10,0.97); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
-        .nav-top { display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:56px; }
+        .nav-top { display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:56px; min-height:56px; overflow:visible; }
         .nav-bottom { display:flex; align-items:center; gap:8px; padding:0 48px 10px; }
         .logo { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:var(--yellow); }
         .logo span { color:var(--white); opacity:0.5; }
         .nav-right { display:flex; align-items:center; gap:12px; }
-        .nav-badge { font-size:12px; font-weight:600; color:var(--dim); letter-spacing:0.3px; }
+        .nav-badge { font-size:12px; font-weight:600; color:var(--dim); letter-spacing:0.3px; white-space:nowrap; }
         .nav-cta { background:var(--yellow); color:#000; border:none; border-radius:10px; padding:9px 18px; font-size:13px; font-weight:700; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .nav-cta:hover { background:#fff; transform:translateY(-1px); }
         .nav-tab { background:transparent; color:var(--dim); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
@@ -261,7 +261,7 @@
         footer .logo { font-size:18px; }
         footer p { font-size:13px; color:var(--dim); }
         footer a { color:var(--yellow); text-decoration:none; font-size:13px; }
-        .feature-page { padding:168px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:1; min-height:100vh; }
+        .feature-page { padding:120px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:1; min-height:100vh; }
         .feature-page-title { font-size:clamp(32px,4vw,52px); font-weight:800; letter-spacing:-2px; margin-bottom:8px; }
         .feature-page-sub { color:var(--dim); font-size:16px; margin-bottom:48px; }
         .history-empty { text-align:center; padding:80px 24px; color:var(--dim); }
@@ -554,7 +554,7 @@ function showPage(p){
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
         <div class="nav-right">
-            <span class="nav-badge" id="navBadge">YouTube Packaging Intelligence</span>
+            <span class="nav-badge" id="navBadge">Packaging Intelligence Platform</span>
             <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
         </div>
     </div>
@@ -798,13 +798,12 @@ function showPage(p){
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:support@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none">support@thumbgenius.in</a>
+    <a href="/cdn-cgi/l/email-protection#5d2e282d2d322f291d293528303f3a383334282e733433" style="color:rgba(255,255,255,0.3);text-decoration:none"><span class="__cf_email__" data-cfemail="b4c7c1c4c4dbc6c0f4c0dcc1d9d6d3d1daddc1c79addda">[email&#160;protected]</span></a>
 </footer>
 </div>
 
 <div class="page" id="page-history">
     <div class="feature-page">
-        <div class="section-kicker">Your Packaging History</div>
         <div class="feature-page-title">Saved Packaging Runs</div>
         <p class="feature-page-sub">All your saved packaging intelligence reports. Click any entry to reload and continue working.</p>
         <div id="historyContent"></div>
@@ -813,7 +812,6 @@ function showPage(p){
 
 <div class="page" id="page-ab">
     <div class="feature-page">
-        <div class="section-kicker">Title Intelligence</div>
         <div class="feature-page-title">A/B Title Scorer</div>
         <p class="feature-page-sub">Enter two title candidates. Get a click-through score, emotional pull rating, and a clear recommendation — not guesswork.</p>
         <div class="ab-intro"><p>Your title determines whether someone clicks or scrolls past. Paste two options — ThumbGenius scores each one on CTR potential, emotional pull, and clarity, then gives you a data-backed recommendation.</p></div>
@@ -835,7 +833,6 @@ function showPage(p){
 
 <div class="page" id="page-analyzer">
     <div class="feature-page">
-        <div class="section-kicker">Channel Intelligence</div>
         <div class="feature-page-title">Channel Analyzer</div>
         <p class="feature-page-sub">Paste your recent video titles. Get a full packaging diagnosis — what's weak, what's working, and exactly how to fix it.</p>
         <div class="analyzer-input-wrap">
@@ -860,7 +857,6 @@ function showPage(p){
 
 <div class="page" id="page-trending">
     <div class="feature-page">
-        <div class="section-kicker">Trending Packaging Opportunities</div>
         <div class="feature-page-title">What India Is Watching &#x1F1EE;&#x1F1F3;</div>
         <p class="feature-page-sub">Real-time topic intelligence by niche. Spot high-momentum subjects before they peak — then package them with ThumbGenius instantly.</p>
 
@@ -887,7 +883,7 @@ function showPage(p){
         <div id="trendingCategoryBlocks"></div>
     </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let selectedNiche='tech', selectedPlan='creator';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
 let currentUserEmail=localStorage.getItem('tg_email')||'';
@@ -898,11 +894,11 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     const ctx=canvas.getContext('2d');
     let W,H,particles=[];
     function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+    function createParticles(){particles=[];for(let i=0;i<60;i++)particles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,dx:(Math.random()-0.5)*0.3,dy:(Math.random()-0.5)*0.3,a:Math.random()*0.4+0.1,color:['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)]});}
     function draw(){
         ctx.clearRect(0,0,W,H);
         const g1=ctx.createRadialGradient(W*0.2,H*0.1,0,W*0.2,H*0.1,W*0.6);g1.addColorStop(0,'rgba(255,224,54,0.04)');g1.addColorStop(1,'transparent');ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
-        const g2=ctx.createRadialGradient(W*0.8,H*0.7,0,W*0.8,H*0.7,W*0.5);g2.addColorStop(0,'rgba(255,45,122,0.05)');g2.addColorStop(1,'transparent');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
         particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.globalAlpha=p.a;ctx.fill();ctx.globalAlpha=1;p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;});
         ctx.globalAlpha=0.025;ctx.strokeStyle='#ffffff';ctx.lineWidth=0.5;
         for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
@@ -1547,7 +1543,3 @@ function drawTitleOnCanvas(ctx, W, H, titleText){
             ctx.fillText(l,40,y);
         });
     }
-}
-
-function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function copyToClipboard(text,el){navigator.clipboard.writeText(text).th
