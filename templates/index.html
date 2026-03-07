@@ -784,7 +784,7 @@
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="/cdn-cgi/l/email-protection#a4ccc1c8c8cbe4d0ccd1c9c6c3c1cacdd1d78acdca"><span class="__cf_email__" data-cfemail="533b363f3f3c13273b263e3134363d3a26207d3a3d">[email&#160;protected]</span></a>
+    <a href="mailto:support@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none">support@thumbgenius.in</a>
 </footer>
 </div>
 
@@ -873,7 +873,7 @@
         <div id="trendingCategoryBlocks"></div>
     </div>
 </div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 let selectedNiche='tech', selectedPlan='creator';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
 let currentUserEmail=localStorage.getItem('tg_email')||'';
@@ -898,7 +898,7 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     resize();createParticles();draw();
     window.addEventListener('resize',()=>{resize();createParticles();});
 })();
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+
 function getHeaders(){
     const h={'Content-Type':'application/json'};
     if(currentUserEmail)h['X-User-Email']=currentUserEmail;
@@ -960,7 +960,7 @@ function selectPlan(plan){
 }
 
 // ═══ ADMIN / PROMO CODE SYSTEM ═══
-const ADMIN_CODES = {
+var ADMIN_CODES = {
     'VIKAS2025': { plans: ['creator','pro'], label: 'Admin Access', emoji: '👑' },
 };
 
