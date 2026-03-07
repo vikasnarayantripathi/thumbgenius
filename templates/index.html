@@ -2766,13 +2766,16 @@ function useTrendingTopicDirect(btn) {
     if (!topic) return;
     showPage('home');
     setTimeout(function() {
-        document.getElementById('topic').value = topic;
+        var topicEl = document.getElementById('topic');
+        if (topicEl) topicEl.value = topic;
         document.querySelectorAll('.niche-chip').forEach(function(c) { c.classList.remove('active'); });
         var chip = document.querySelector('[data-niche="' + niche + '"]');
         if (chip) chip.classList.add('active');
-        selectedNiche = niche;
-        document.getElementById('topic').scrollIntoView({behavior:'smooth', block:'center'});
-    }, 300);
+        selectedNiche = niche || 'tech';
+        var genBtn = document.getElementById('generateBtn');
+        if (genBtn) genBtn.disabled = false;
+        generate();
+    }, 450);
 }
 
 
