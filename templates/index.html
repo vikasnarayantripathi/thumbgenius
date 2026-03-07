@@ -1365,48 +1365,98 @@ async function runAnalysis(){
 }
 
 // ═══ TRENDING - CATEGORY SYSTEM ═══
-const ALL_CATEGORIES = [
-    {id:'tech',label:'Tech',icon:'📱'},{id:'finance',label:'Finance',icon:'💰'},
-    {id:'gaming',label:'Gaming',icon:'🎮'},{id:'fitness',label:'Fitness',icon:'💪'},
-    {id:'food',label:'Food',icon:'🍕'},{id:'travel',label:'Travel',icon:'✈️'},
-    {id:'education',label:'Education',icon:'📚'},{id:'motivation',label:'Motivation',icon:'🔥'},
-    {id:'beauty',label:'Beauty',icon:'💄'},{id:'entertainment',label:'Entertainment',icon:'🎬'},
-    {id:'business',label:'Business',icon:'📈'},{id:'productivity',label:'Productivity',icon:'🧠'},
-    {id:'cricket',label:'Cricket',icon:'🏏'},{id:'automobiles',label:'Automobiles',icon:'🚗'},
-    {id:'examprep',label:'Exam Prep',icon:'🎓'},{id:'health',label:'Health',icon:'💊'},
-    {id:'pets',label:'Pets',icon:'🐾'},{id:'music',label:'Music',icon:'🎵'},
-    {id:'realestate',label:'Real Estate',icon:'🏠'},{id:'spirituality',label:'Spirituality',icon:'🌿'},
-    {id:'stocks',label:'Stocks',icon:'📉'},{id:'cooking',label:'Cooking',icon:'👨‍🍳'},
-    {id:'fashion',label:'Fashion',icon:'👗'},{id:'parenting',label:'Parenting',icon:'👶'},
-];
+// ════════════════════════════════════════════════════
+//  TRENDING — state
+// ════════════════════════════════════════════════════
 let selectedCategories = JSON.parse(localStorage.getItem('tg_trending_cats') || '["tech","finance","gaming"]');
-let trendingDataCache = {};
-let trendingLoaded = false;
+let trendingDataCache  = {};
+let trendingLoaded     = false;
 
-function initTrending(){
+const ALL_CATEGORIES = [
+    {id:'tech',        label:'Tech',        icon:'📱'},
+    {id:'finance',     label:'Finance',     icon:'💰'},
+    {id:'gaming',      label:'Gaming',      icon:'🎮'},
+    {id:'fitness',     label:'Fitness',     icon:'💪'},
+    {id:'food',        label:'Food',        icon:'🍕'},
+    {id:'travel',      label:'Travel',      icon:'✈️'},
+    {id:'education',   label:'Education',   icon:'📚'},
+    {id:'motivation',  label:'Motivation',  icon:'🔥'},
+    {id:'beauty',      label:'Beauty',      icon:'💄'},
+    {id:'entertainment',label:'Entertainment',icon:'🎬'},
+    {id:'business',    label:'Business',    icon:'📈'},
+    {id:'productivity',label:'Productivity',icon:'🧠'},
+    {id:'cricket',     label:'Cricket',     icon:'🏏'},
+    {id:'automobiles', label:'Automobiles', icon:'🚗'},
+    {id:'examprep',    label:'Exam Prep',   icon:'🎓'},
+    {id:'health',      label:'Health',      icon:'💊'},
+    {id:'pets',        label:'Pets',        icon:'🐾'},
+    {id:'music',       label:'Music',       icon:'🎵'},
+    {id:'realestate',  label:'Real Estate', icon:'🏠'},
+    {id:'spirituality',label:'Spirituality',icon:'🌿'},
+    {id:'stocks',      label:'Stocks',      icon:'📊'},
+];
+
+// ════════════════════════════════════════════════════
+//  TRENDING — init & fetch
+// ════════════════════════════════════════════════════
+async function initTrending() {
     renderCatPicker();
     renderSelectedChips();
-    // Only fetch from API once per session
-    if(!trendingLoaded){
-        fetchTrendingData();
+    if (!trendingLoaded) {
+        await fetchTrendingData();
     } else {
         renderAllCategoryBlocks();
     }
 }
 
-function renderCatPicker(){
-    const grid = document.getElementById('catPickerGrid');
-    if(!grid) return;
-    grid.innerHTML = ALL_CATEGORIES.map(c => {
-        const sel = selectedCategories.includes(c.id);
-        const cls = 'cat-picker-item' + (sel ? ' selected' : '');
-        return `<div class="${cls}" onclick="toggleCat('${c.id}',this)"><span class="cat-icon">${c.icon}</span>${c.label}</div>`;
-    }).join('');
+async function fetchTrendingData() {
+    const loading = document.getElementById('trendingLoading');
+    const btn     = document.getElementById('btnFetchTrending');
+    if (loading) loading.style.display = 'block';
+    if (btn)     btn.disabled = true;
+    try {
+        const res  = await fetch('/trending');
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error('Invalid response');
+        trendingDataCache = {};
+        data.forEach(t => {
+            if (!trendingDataCache[t.niche]) trendingDataCache[t.niche] = [];
+            trendingDataCache[t.niche].push(t);
+        });
+        trendingLoaded = true;
+        renderAllCategoryBlocks();
+    } catch(e) {
+        if (loading) loading.innerHTML = '<p style="color:var(--dim)">Failed to load trending topics. Please try again.</p>';
+    } finally {
+        if (loading) loading.style.display = 'none';
+        if (btn)     btn.disabled = false;
+    }
 }
 
-function toggleCat(id, el){
-    if(selectedCategories.includes(id)){
-        if(selectedCategories.length <= 1) return; // keep at least 1
+async function forceFetchTrending() {
+    trendingLoaded    = false;
+    trendingDataCache = {};
+    await fetchTrendingData();
+}
+
+// ════════════════════════════════════════════════════
+//  TRENDING — category picker
+// ════════════════════════════════════════════════════
+function renderCatPicker() {
+    var grid = document.getElementById('catPickerGrid');
+    if (!grid) return;
+    grid.innerHTML = ALL_CATEGORIES.map(function(c) {
+        var sel = selectedCategories.includes(c.id);
+        var cls = 'cat-picker-item' + (sel ? ' selected' : '');
+        return '<div class="' + cls + '" data-catid="' + c.id + '" onclick="toggleCatEl(this)">' +
+               '<span class="cat-icon">' + c.icon + '</span>' + c.label + '</div>';
+    }).join('');
+}
+function toggleCatEl(el) { toggleCat(el.dataset.catid, el); }
+
+function toggleCat(id, el) {
+    if (selectedCategories.includes(id)) {
+        if (selectedCategories.length <= 1) return; // keep at least 1
         selectedCategories = selectedCategories.filter(c => c !== id);
         el.classList.remove('selected');
     } else {
@@ -1414,23 +1464,22 @@ function toggleCat(id, el){
         el.classList.add('selected');
     }
     localStorage.setItem('tg_trending_cats', JSON.stringify(selectedCategories));
-    // Immediately update chips and blocks
-    renderSelectedChips();
-    renderAllCategoryBlocks();
 }
 
-function renderSelectedChips(){
-    const wrap = document.getElementById('selectedCats');
-    if(!wrap) return;
-    wrap.innerHTML = selectedCategories.map(id => {
-        const cat = ALL_CATEGORIES.find(c => c.id === id);
-        if(!cat) return '';
-        return `<div class="selected-cat-chip">${cat.icon} ${cat.label}<button onclick="removeCat('${id}')">&#x2715;</button></div>`;
+function renderSelectedChips() {
+    var wrap = document.getElementById('selectedCats');
+    if (!wrap) return;
+    wrap.innerHTML = selectedCategories.map(function(id) {
+        var cat = ALL_CATEGORIES.find(function(c){ return c.id === id; });
+        if (!cat) return '';
+        return '<div class="selected-cat-chip">' + cat.icon + ' ' + cat.label +
+               '<button data-removeid="' + id + '" onclick="removeCatEl(this)">✕</button></div>';
     }).join('');
 }
+function removeCatEl(btn) { removeCat(btn.dataset.removeid); }
 
-function removeCat(id){
-    if(selectedCategories.length <= 1) return;
+function removeCat(id) {
+    if (selectedCategories.length <= 1) return;
     selectedCategories = selectedCategories.filter(c => c !== id);
     localStorage.setItem('tg_trending_cats', JSON.stringify(selectedCategories));
     renderSelectedChips();
@@ -1438,93 +1487,88 @@ function removeCat(id){
     renderAllCategoryBlocks();
 }
 
-function openCatPicker(){
-    renderCatPicker(); // always re-render so state is fresh
+function openCatPicker() {
+    renderCatPicker();
     document.getElementById('catPickerOverlay').classList.add('open');
 }
 
-function closeCatPicker(){
+function closeCatPicker() {
     document.getElementById('catPickerOverlay').classList.remove('open');
-    renderSelectedChips();
-    renderAllCategoryBlocks(); // just re-render, no API call
 }
 
-async function fetchTrendingData(){
-    const loading = document.getElementById('trendingLoading');
-    if(loading) loading.style.display = 'block';
-    try{
-        const res = await fetch('/trending');
-        const data = await res.json();
-        if(!Array.isArray(data)) return;
-        trendingDataCache = {};
-        data.forEach(t => {
-            if(!trendingDataCache[t.niche]) trendingDataCache[t.niche] = [];
-            trendingDataCache[t.niche].push(t);
-        });
-        trendingLoaded = true;
-        renderAllCategoryBlocks();
-    } catch(e){
-        if(loading) loading.innerHTML = '<p>Failed to load. Please refresh.</p>';
-    } finally {
-        if(loading) loading.style.display = 'none';
+// ════════════════════════════════════════════════════
+//  TRENDING — render topic blocks
+// ════════════════════════════════════════════════════
+function renderAllCategoryBlocks() {
+    const container = document.getElementById('trendingCategoryBlocks');
+    if (!container) return;
+
+    if (!trendingLoaded) {
+        container.innerHTML = '<p style="color:var(--dim);text-align:center;padding:32px">Click "Fetch Trending Topics" to load.</p>';
+        return;
     }
-}
 
-function forceFetchTrending(){
-    trendingLoaded = false;
-    trendingDataCache = {};
-    fetchTrendingData();
-}
+    container.innerHTML = selectedCategories.map(catId => {
+        const cat    = ALL_CATEGORIES.find(c => c.id === catId);
+        if (!cat) return '';
+        const topics = trendingDataCache[catId] || [];
 
-function renderAllCategoryBlocks(){
-    const container=document.getElementById('trendingCategoryBlocks');
-    container.innerHTML=selectedCategories.map(catId=>{
-        const cat=ALL_CATEGORIES.find(c=>c.id===catId);if(!cat)return '';
-        const topics=trendingDataCache[catId]||[];
-        if(topics.length===0)return '<div class="trending-category-block"><div class="trending-cat-block-header"><div class="trending-cat-block-title">'+cat.icon+' '+cat.label+'</div></div><p style="color:var(--dim);font-size:13px">No topics yet.</p></div>';
-        const slides=topics.map((t,i)=>'<div class="trending-slide"><div class="trending-slide-num">TOPIC '+(i+1)+' OF '+topics.length+'</div><div class="trending-slide-heat">'+escapeHtml(t.heat||'🔥 Trending')+'</div><div class="trending-slide-topic">'+escapeHtml(t.topic)+'</div><div class="trending-slide-why">'+escapeHtml(t.why||'')+'</div><button class="trending-use-btn" onclick="useTrendingTopicDirect(this)">⚡ Use This Topic</button></div>').join('');
-        const dots=topics.map((_,i)=>'<div class="slider-dot '+(i===0?'active':'')+'" ></div>').join('');
-        return '<div class="trending-category-block"><div class="trending-cat-block-header"><div class="trending-cat-block-title">'+cat.icon+' '+cat.label+' <span class="trending-cat-block-count">'+topics.length+' topics</span></div></div><div class="trending-slider-wrap"><div class="trending-slider" id="slider-'+catId+'" data-cat="'+catId+'" onscroll="updateDots(this)">'+slides+'</div><div class="slider-dots" id="dots-'+catId+'">'+dots+'</div></div></div>';
+        if (topics.length === 0) {
+            return '<div class="trending-category-block">' +
+                   '<div class="trending-cat-block-header">' +
+                   '<div class="trending-cat-block-title">' + cat.icon + ' ' + cat.label + '</div></div>' +
+                   '<p style="color:var(--dim);font-size:13px;padding:16px 0">No topics available for this niche.</p></div>';
+        }
+
+        const slides = topics.map((t, i) =>
+            '<div class="trending-slide" data-topic="' + escapeHtml(t.topic) + '" data-niche="' + catId + '">' +
+            '<div class="trending-slide-num">TOPIC ' + (i+1) + ' OF ' + topics.length + '</div>' +
+            '<div class="trending-slide-heat">' + escapeHtml(t.heat || '🔥 Trending') + '</div>' +
+            '<div class="trending-slide-topic">' + escapeHtml(t.topic) + '</div>' +
+            '<div class="trending-slide-why">'  + escapeHtml(t.why  || '') + '</div>' +
+            '<button class="trending-use-btn" onclick="useTrendingTopicDirect(this)">⚡ Use This Topic</button>' +
+            '</div>'
+        ).join('');
+
+        const dots = topics.map((_, i) =>
+            '<div class="slider-dot ' + (i === 0 ? 'active' : '') + '"></div>'
+        ).join('');
+
+        return '<div class="trending-category-block">' +
+               '<div class="trending-cat-block-header">' +
+               '<div class="trending-cat-block-title">' + cat.icon + ' ' + cat.label +
+               ' <span class="trending-cat-block-count">' + topics.length + ' topics</span></div></div>' +
+               '<div class="trending-slider-wrap">' +
+               '<div class="trending-slider" id="slider-' + catId + '" data-cat="' + catId + '" onscroll="updateDots(this)">' +
+               slides + '</div>' +
+               '<div class="slider-dots" id="dots-' + catId + '">' + dots + '</div>' +
+               '</div></div>';
     }).join('');
-    // Store topic data on slide elements
-    selectedCategories.forEach(catId=>{
-        const topics=trendingDataCache[catId]||[];
-        const slider=document.getElementById('slider-'+catId);
-        if(!slider)return;
-        const slides=slider.querySelectorAll('.trending-slide');
-        slides.forEach((slide,i)=>{
-            if(topics[i]){slide.dataset.topic=topics[i].topic;slide.dataset.niche=catId;}
-        });
-    });
 }
 
-function updateDots(sliderEl){
-    const catId=sliderEl.dataset.cat;
-    const dots=document.querySelectorAll('#dots-'+catId+' .slider-dot');
-    const idx=Math.round(sliderEl.scrollLeft/300);
-    dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+function updateDots(sliderEl) {
+    const catId = sliderEl.dataset.cat;
+    const dots  = document.querySelectorAll('#dots-' + catId + ' .slider-dot');
+    const idx   = Math.round(sliderEl.scrollLeft / sliderEl.offsetWidth);
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
 }
 
-function useTrendingTopicDirect(btn){
-    const slide=btn.closest('.trending-slide');
-    const topic=slide.dataset.topic;const niche=slide.dataset.niche;
-    if(!topic)return;
+function useTrendingTopicDirect(btn) {
+    const slide = btn.closest('.trending-slide');
+    const topic = slide.dataset.topic;
+    const niche = slide.dataset.niche;
+    if (!topic) return;
     showPage('home');
-    setTimeout(()=>{
-        document.getElementById('topic').value=topic;
-        document.querySelectorAll('.niche-chip').forEach(c=>c.classList.remove('active'));
-        const chip=document.querySelector('[data-niche="'+niche+'"]');
-        if(chip)chip.classList.add('active');
-        selectedNiche=niche;
-        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
-    },300);
+    setTimeout(() => {
+        document.getElementById('topic').value = topic;
+        document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('active'));
+        const chip = document.querySelector('[data-niche="' + niche + '"]');
+        if (chip) chip.classList.add('active');
+        selectedNiche = niche;
+        document.getElementById('topic').scrollIntoView({behavior:'smooth', block:'center'});
+    }, 300);
 }
 
-let allTrendingTopics=[];
-function loadTrending(){initTrending();}
-function filterTrending(){}
-function renderTrending(){}
-function useTrendingTopic(){}
 
 const THUMB_FONTS = [
     {id:'impact',     label:'Impact',    family:'Impact, sans-serif',            cssfamily:'Impact',            weight:'900'},
