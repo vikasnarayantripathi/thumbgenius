@@ -491,6 +491,15 @@
         .bp-var-use { flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--dim); border-radius:8px; padding:9px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; }
         .bp-var-use:hover { color:var(--yellow); border-color:rgba(255,224,54,0.3); }
 
+        /* Tags / Keywords */
+        .tags-row { display:flex; flex-wrap:wrap; gap:6px; }
+        .tag-chip { background:rgba(255,224,54,0.08); border:1px solid rgba(255,224,54,0.2); color:var(--yellow); border-radius:6px; padding:5px 12px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif; }
+        .tag-chip:hover { background:rgba(255,224,54,0.18); }
+        .tags-longtail .tag-chip { background:rgba(0,240,255,0.06); border-color:rgba(0,240,255,0.2); color:var(--cyan); }
+        .tags-longtail .tag-chip:hover { background:rgba(0,240,255,0.14); }
+        .tags-hindi .tag-chip { background:rgba(255,45,122,0.06); border-color:rgba(255,45,122,0.2); color:var(--pink); }
+        .tags-hindi .tag-chip:hover { background:rgba(255,45,122,0.14); }
+
         /* Upload zones */
         .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:14px; }
         .upload-zone:hover { border-color:var(--yellow); background:rgba(255,224,54,0.03); }
@@ -821,7 +830,7 @@ function showPage(p){
 <div class="results" id="results">
     <div class="results-header"><h2>Your Packaging Intelligence &#x2736;</h2><p>Click any title to copy. Generate and download your AI thumbnail below.</p></div>
     <div class="rblock"><div class="rblock-head">&#x1F525; 5 High-CTR Title Options</div><div id="titles"></div></div>
-    <div class="rblock"><div class="rblock-head">&#x1F3A8; Thumbnail Blueprint</div><div class="tgrid" id="thumbnail"></div></div>
+    <div class="rblock" id="imgBlock"><div class="rblock-head">&#x1F3A8; Thumbnail Blueprint</div><div class="tgrid" id="thumbnail"></div></div>
     <div class="image-rblock">
         <div class="rblock-head">&#x1F5BC;&#xFE0F; AI Thumbnail Image — Ready to Publish</div>
         <p class="img-desc" id="imgDesc">Turn your thumbnail blueprint into a publish-ready image. Add your selected title as a styled overlay, then download. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
@@ -866,6 +875,26 @@ function showPage(p){
         <button class="copy-sm" onclick="copyText('hook')">&#x1F4CB; Copy Script</button>
     </div>
     <div class="tip-rblock"><div class="tip-label">&#x1F4A1; Niche Packaging Insight</div><p class="tip-val" id="nicheTip"></p></div>
+    <div class="rblock" id="tagsBlock" style="display:none">
+        <div class="rblock-head">&#x1F3F7;&#xFE0F; SEO Tags &amp; Keywords</div>
+        <div style="margin-bottom:18px">
+            <div class="titem-label" style="margin-bottom:8px">PRIMARY TAGS</div>
+            <div id="tagsPrimary" class="tags-row"></div>
+        </div>
+        <div style="margin-bottom:18px">
+            <div class="titem-label" style="margin-bottom:8px">SECONDARY TAGS</div>
+            <div id="tagsSecondary" class="tags-row"></div>
+        </div>
+        <div style="margin-bottom:18px">
+            <div class="titem-label" style="margin-bottom:8px">LONG-TAIL KEYWORDS</div>
+            <div id="tagsLongtail" class="tags-row tags-longtail"></div>
+        </div>
+        <div style="margin-bottom:8px">
+            <div class="titem-label" style="margin-bottom:8px">HINDI MIX TAGS</div>
+            <div id="tagsHindi" class="tags-row tags-hindi"></div>
+        </div>
+        <button class="copy-sm" onclick="copyAllTags()">&#x1F4CB; Copy All Tags</button>
+    </div>
     <div style="text-align:center"><button class="btn-save" id="saveBtn" onclick="saveToHistory()">&#x1F4BE; Save to History</button></div>
 </div>
 
@@ -971,7 +1000,7 @@ function showPage(p){
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:hello@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none">hello@thumbgenius.in</a>
+    <a href="mailto:hello@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none"><span class="__cf_email__" data-cfemail="325a575e5e5d72465a475f5055575c5b47411c5b5c">[email&#160;protected]</span></a>
 </footer>
 </div>
 
@@ -1080,6 +1109,271 @@ function showPage(p){
         <div id="trendingCategoryBlocks" style="margin-top:32px"></div>
     </div>
 </div>
+
+
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  MODULE 2 — CTR PREDICTION ENGINE                   ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-ctr">
+<div class="feature-page">
+  <div class="feature-page-title">CTR Prediction Engine</div>
+  <p class="feature-page-sub">Upload a thumbnail + enter up to 5 title candidates. Get a predicted CTR range and synergy score for each pairing. <em style="color:var(--yellow)">Creator / Pro only.</em></p>
+
+  <div class="mod-upload-zone" id="ctrDropZone" onclick="document.getElementById('ctrFileIn').click()">
+    <input type="file" id="ctrFileIn" accept="image/*" style="display:none" onchange="ctr_loadFile(this)">
+    <div class="uz-icon">📊</div>
+    <div class="uz-label">Upload your thumbnail</div>
+    <div class="uz-sub">PNG or JPG · 1280×720 recommended</div>
+  </div>
+  <img id="ctrPreview" class="mod-preview-img" />
+
+  <div style="margin-bottom:14px">
+    <div class="res-label" style="margin-bottom:10px">TITLE CANDIDATES (up to 5)</div>
+    <div id="ctrTitlesWrap">
+      <input type="text" class="ctr-title-input" placeholder="Title 1 (required)">
+      <input type="text" class="ctr-title-input" placeholder="Title 2 (optional)">
+      <input type="text" class="ctr-title-input" placeholder="Title 3 (optional)">
+    </div>
+    <button onclick="ctr_addTitle()" style="background:transparent;border:1px dashed var(--border);color:var(--dim);padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif">+ Add Title</button>
+  </div>
+  <select id="ctrNiche" class="mod-select">
+    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+    <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
+    <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
+  </select>
+  <button class="btn-gen" id="ctrBtn" onclick="ctr_run()" disabled>📊 Predict CTR</button>
+
+  <div class="mod-loading" id="ctrLoading">
+    <div class="loading-spinner"></div>
+    <p>Running CTR prediction engine…</p>
+  </div>
+  <div class="mod-result" id="ctrResult"></div>
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  MODULE 3 — VIRAL REVERSE ENGINEERING               ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-reverse">
+<div class="feature-page">
+  <div class="feature-page-title">Viral Reverse Engineering</div>
+  <p class="feature-page-sub">Upload any high-performing thumbnail. Get a 9-layer psychological deconstruction and a step-by-step blueprint to replicate it in your niche.</p>
+
+  <div class="mod-upload-zone" id="revDropZone" onclick="document.getElementById('revFileIn').click()">
+    <input type="file" id="revFileIn" accept="image/*" style="display:none" onchange="rev_loadFile(this)">
+    <div class="uz-icon">🔬</div>
+    <div class="uz-label">Upload a viral thumbnail to decode</div>
+    <div class="uz-sub">Any high-performing YouTube thumbnail</div>
+  </div>
+  <img id="revPreview" class="mod-preview-img" />
+
+  <select id="revNiche" class="mod-select">
+    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+    <option value="food">🍕 Food</option><option value="education">📚 Education</option>
+    <option value="business">📈 Business</option><option value="motivation">🔥 Motivation</option>
+    <option value="cricket">🏏 Cricket</option><option value="entertainment">🎬 Entertainment</option>
+    <option value="travel">✈️ Travel</option><option value="health">💊 Health</option>
+  </select>
+  <button class="btn-gen" id="revBtn" onclick="rev_run()" disabled>🔬 Reverse Engineer</button>
+
+  <div class="mod-loading" id="revLoading">
+    <div class="loading-spinner"></div>
+    <p>Running 9-layer deconstruction with GPT-4o Vision…</p>
+  </div>
+  <div class="mod-result" id="revResult"></div>
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  MODULE 5 — INSPIRATION LIBRARY                     ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-library">
+<div class="feature-page" style="max-width:1100px">
+  <div class="feature-page-title">Viral Thumbnail Inspiration Library</div>
+  <p class="feature-page-sub">Browse high-performing thumbnail concepts tagged by technique. Save to your personal swipe file.</p>
+
+  <div class="mod-row" style="margin-bottom:16px;align-items:center">
+    <select id="libNiche" class="mod-select">
+      <option value="">All Niches</option>
+      <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+      <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+      <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
+      <option value="education">📚 Education</option><option value="business">📈 Business</option>
+      <option value="cricket">🏏 Cricket</option><option value="motivation">🔥 Motivation</option>
+    </select>
+    <select id="libTrigger" class="mod-select">
+      <option value="">All Techniques</option>
+      <option value="Curiosity Gap">Curiosity Gap</option>
+      <option value="Shock Factor">Shock Factor</option>
+      <option value="Social Proof">Social Proof</option>
+      <option value="FOMO">FOMO</option>
+      <option value="Before-After">Before-After</option>
+      <option value="Authority">Authority</option>
+    </select>
+    <button class="btn-gen" onclick="lib_load()" style="flex:0;min-width:140px;padding:14px 20px">🔄 Load Library</button>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:20px">
+    <button id="libTabBrowse" class="lib-tab active" onclick="lib_setTab('browse')">Browse</button>
+    <button id="libTabSaved"  class="lib-tab"        onclick="lib_setTab('saved')">⭐ Swipe File</button>
+  </div>
+
+  <div class="mod-loading" id="libLoading"><div class="loading-spinner"></div><p>Loading inspiration library…</p></div>
+  <div id="libGrid"      class="lib-grid"></div>
+  <div id="libSavedGrid" class="lib-grid" style="display:none"></div>
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  MODULE 6 — CREATOR BRANDING SYSTEM                 ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-branding">
+<div class="feature-page">
+  <div class="feature-page-title">Creator Branding System</div>
+  <p class="feature-page-sub">Upload 3–5 of your thumbnails. AI extracts your visual brand DNA and generates a full Brand Kit. <em style="color:var(--yellow)">Creator / Pro only.</em></p>
+
+  <div id="brandSavedKit" style="display:none;margin-bottom:28px"></div>
+
+  <div class="mod-upload-zone" id="brandDropZone" onclick="document.getElementById('brandFileIn').click()">
+    <input type="file" id="brandFileIn" accept="image/*" multiple style="display:none" onchange="brand_loadFiles(this)">
+    <div class="uz-icon">🎨</div>
+    <div class="uz-label">Drop 3–5 thumbnails from your channel</div>
+    <div class="uz-sub">PNG or JPG · These should be your actual thumbnails</div>
+  </div>
+  <div id="brandPreviews" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+
+  <select id="brandNiche" class="mod-select">
+    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+    <option value="business">📈 Business</option><option value="education">📚 Education</option>
+    <option value="motivation">🔥 Motivation</option><option value="cricket">🏏 Cricket</option>
+  </select>
+  <button class="btn-gen" id="brandBtn" onclick="brand_run()" disabled>🎨 Extract Brand DNA</button>
+
+  <div class="mod-loading" id="brandLoading"><div class="loading-spinner"></div><p>Extracting your visual brand DNA…</p></div>
+  <div class="mod-result" id="brandResult"></div>
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  MODULE 8 — VIRAL THUMBNAIL BLUEPRINT               ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-blueprint">
+<div class="feature-page" style="max-width:960px">
+
+  <div class="feature-page-title">🔥 Viral Thumbnail Blueprint</div>
+  <p class="feature-page-sub">Paste any YouTube video URL. AI extracts the thumbnail, scores it across 7 dimensions, maps viewer attention, and generates improved variations.</p>
+
+  <!-- URL INPUT -->
+  <div class="bp-url-section">
+    <div class="input-wrap" style="margin-bottom:12px">
+      <span class="input-icon">🔗</span>
+      <input type="text" id="bpUrl" placeholder="Paste YouTube URL — youtube.com/watch?v=... or youtu.be/..."
+             oninput="bp_onUrlInput(this.value)" style="padding-left:52px" />
+    </div>
+    <div class="mod-row" style="align-items:center;gap:12px">
+      <select id="bpNiche" class="mod-select" style="margin-bottom:0;max-width:220px">
+        <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+        <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+        <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
+        <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
+        <option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option>
+        <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
+        <option value="examprep">🎓 Exam Prep</option><option value="health">💊 Health</option>
+      </select>
+      <button class="btn-gen" id="bpAnalyzeBtn" onclick="bp_analyze()" disabled
+              style="flex:1;max-width:280px">🔍 Analyze Thumbnail</button>
+    </div>
+  </div>
+
+  <!-- THUMBNAIL PREVIEW (before analysis) -->
+  <div id="bpThumbPreview" style="display:none;margin:24px 0">
+    <div class="res-label" style="margin-bottom:10px">EXTRACTED THUMBNAIL</div>
+    <div style="position:relative;display:inline-block;max-width:100%">
+      <img id="bpThumbImg" src="" alt="Thumbnail"
+           style="width:100%;max-width:560px;border-radius:12px;border:1px solid var(--border);display:block" />
+      <canvas id="bpHeatmapCanvas"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;display:none;opacity:0.75"></canvas>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn-regen" id="bpHeatmapToggle" onclick="bp_toggleHeatmap()"
+              style="font-size:12px;padding:8px 16px">👁 Show Attention Heatmap</button>
+      <span style="font-size:11px;color:rgba(255,255,255,0.25)">Simulated viewer attention based on visual weight analysis</span>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="mod-loading" id="bpLoading">
+    <div class="loading-spinner"></div>
+    <p id="bpLoadingMsg">Fetching thumbnail…</p>
+  </div>
+
+  <!-- RESULT AREA -->
+  <div id="bpResult" style="display:none">
+
+    <!-- SCORE METER -->
+    <div class="bp-score-section">
+      <div class="bp-score-card">
+        <canvas id="bpScoreDial" width="180" height="180"></canvas>
+        <div class="bp-score-center">
+          <div class="bp-score-num" id="bpScoreNum">—</div>
+          <div class="bp-score-label" id="bpScoreGrade">—</div>
+        </div>
+      </div>
+      <div class="bp-verdict-box">
+        <div class="res-label" style="color:var(--yellow)">OVERALL VERDICT</div>
+        <p id="bpVerdict" style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;margin:8px 0"></p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px">
+          <div class="bp-pill bp-pill-green">
+            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(67,233,123,0.7)">STRONGEST</span>
+            <span id="bpStrongest" style="font-size:13px;color:#43E97B;font-weight:600"></span>
+          </div>
+          <div class="bp-pill bp-pill-red">
+            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,101,132,0.7)">WEAKEST</span>
+            <span id="bpWeakest" style="font-size:13px;color:#FF6584;font-weight:600"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 DIMENSION BARS -->
+    <div class="res-label" style="margin:28px 0 14px">7-DIMENSION BREAKDOWN</div>
+    <div id="bpDimBars" class="bp-dim-grid"></div>
+
+    <!-- FIX CARDS -->
+    <div class="res-label" style="margin:28px 0 12px">🔧 TOP 3 IMPROVEMENTS</div>
+    <div id="bpFixes"></div>
+
+    <!-- VARIATIONS -->
+    <div class="bp-variations-section" style="margin-top:36px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:-0.5px">🎨 Improved Variations</div>
+          <div style="font-size:13px;color:var(--dim);margin-top:4px">AI-generated alternatives targeting your weakest dimensions</div>
+        </div>
+        <button class="btn-img" id="bpGenVarBtn" onclick="bp_generateVariations()">
+          ✨ Generate Variations
+        </button>
+      </div>
+      <div id="bpVarUpgradeNote" style="display:none;background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
+        <p style="color:var(--yellow);font-weight:700;margin-bottom:6px">🚀 Creator / Pro Feature</p>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:12px">Upgrade to generate 3–5 AI-improved thumbnail variations</p>
+        <button class="btn-pay" style="padding:10px 24px;font-size:13px" onclick="openPaymentModal()">Upgrade Now →</button>
+      </div>
+      <div class="mod-loading" id="bpVarLoading" style="padding:32px">
+        <div class="loading-spinner"></div>
+        <p id="bpVarLoadingMsg">Generating variations with DALL-E 3…</p>
+      </div>
+      <div id="bpVarGrid" class="bp-var-grid"></div>
+    </div>
+
+  </div><!-- /#bpResult -->
+</div>
+</div>
+
 <script>
 let selectedNiche='tech', selectedPlan='creator';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
@@ -1115,6 +1409,24 @@ function getHeaders(){
 }
 
 // ── escapeHtml ──────────────────────────────────────
+function copyToClipboard(text, el) {
+    navigator.clipboard.writeText(text).then(() => {
+        if (el) {
+            const orig = el.innerHTML;
+            el.innerHTML = '✅ Copied!';
+            setTimeout(() => { el.innerHTML = orig; }, 1800);
+        }
+    }).catch(() => {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+    });
+}
+
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -1331,6 +1643,19 @@ async function generate(){
         document.getElementById('nicheTip').textContent=data.niche_tip;
         if(data.uses_remaining!==undefined)document.getElementById('usesLeft').innerHTML=`<strong>${data.uses_remaining}</strong> remaining`;
         const saveBtn=document.getElementById('saveBtn');saveBtn.textContent='💾 Save to History';saveBtn.classList.remove('saved');
+
+        // ── Render Tags ──
+        if(data.tags && (data.tags.primary||data.tags.longtail)){
+            const makeTags=(arr,cls)=>(arr||[]).map(t=>`<button class="tag-chip${cls?' '+cls:''}" onclick="copyToClipboard('${escapeHtml(t)}',this)">${escapeHtml(t)}</button>`).join('');
+            document.getElementById('tagsPrimary').innerHTML   = makeTags(data.tags.primary);
+            document.getElementById('tagsSecondary').innerHTML = makeTags(data.tags.secondary);
+            document.getElementById('tagsLongtail').innerHTML  = makeTags(data.tags.longtail,'');
+            document.getElementById('tagsHindi').innerHTML     = makeTags(data.tags.hindi_mix,'');
+            document.getElementById('tagsBlock').style.display = 'block';
+        } else {
+            document.getElementById('tagsBlock').style.display = 'none';
+        }
+
         document.getElementById('results').style.display='block';
         document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
     }catch(e){alert('Something went wrong. Please try again.');}
@@ -1736,6 +2061,18 @@ function clearImgTitle(){
     document.getElementById('imgFontColorWrap').style.display='none';
 }
 
+function copyAllTags(){
+    const all=[];
+    ['tagsPrimary','tagsSecondary','tagsLongtail','tagsHindi'].forEach(id=>{
+        document.querySelectorAll('#'+id+' .tag-chip').forEach(el=>all.push(el.textContent.trim()));
+    });
+    if(!all.length){alert('No tags to copy.');return;}
+    navigator.clipboard.writeText(all.join(', ')).then(()=>{
+        const btn=event.target;btn.textContent='✅ Copied!';
+        setTimeout(()=>btn.textContent='📋 Copy All Tags',2000);
+    }).catch(()=>alert(all.join(', ')));
+}
+
 async function downloadWithTitle(){
     const img=document.getElementById('thumbnailImg');
     const overlay=document.getElementById('imgTitleOverlay');
@@ -1745,21 +2082,53 @@ async function downloadWithTitle(){
     canvas.height=img.naturalHeight||720;
     const ctx=canvas.getContext('2d');
     await document.fonts.ready;
-    const imgEl=new Image();
-    imgEl.crossOrigin='anonymous';
-    imgEl.onload=async function(){
-        ctx.drawImage(imgEl,0,0,canvas.width,canvas.height);
-        if(titleText&&overlay.style.display!=='none'){
-            drawTitleOnCanvas(ctx,canvas.width,canvas.height,titleText);
+
+    // Use fetch+blob to avoid CORS redirect issue with OpenAI URLs
+    async function drawAndSave(src){
+        return new Promise((resolve,reject)=>{
+            const imgEl=new Image();
+            imgEl.crossOrigin='anonymous';
+            imgEl.onload=function(){
+                ctx.drawImage(imgEl,0,0,canvas.width,canvas.height);
+                if(titleText&&overlay.style.display!=='none'){
+                    drawTitleOnCanvas(ctx,canvas.width,canvas.height,titleText);
+                }
+                canvas.toBlob(blob=>{
+                    const url=URL.createObjectURL(blob);
+                    const a=document.createElement('a');
+                    a.href=url; a.download='thumbgenius-thumbnail.png';
+                    document.body.appendChild(a); a.click();
+                    setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a);},1000);
+                    resolve();
+                },'image/png');
+            };
+            imgEl.onerror=reject;
+            imgEl.src=src;
+        });
+    }
+
+    // Try proxy fetch first to get a local blob URL (avoids CORS on OpenAI CDN)
+    try {
+        const resp = await fetch('/proxy-image?url='+encodeURIComponent(img.src));
+        if(resp.ok){
+            const blob = await resp.blob();
+            const localUrl = URL.createObjectURL(blob);
+            await drawAndSave(localUrl);
+            URL.revokeObjectURL(localUrl);
+            return;
         }
-        const a=document.createElement('a');a.download='thumbgenius-thumbnail.png';
-        a.href=canvas.toDataURL('image/png');a.click();
-    };
-    imgEl.onerror=function(){
-        const a=document.createElement('a');a.download='thumbgenius-thumbnail.png';
-        a.href=img.src;a.click();
-    };
-    imgEl.src=img.src+'?t='+Date.now();
+    } catch(e){ /* fall through */ }
+
+    // Fallback: direct draw (works if CORS allows)
+    try {
+        await drawAndSave(img.src);
+    } catch(e){
+        // Last resort: direct download link
+        const a=document.createElement('a');
+        a.href=img.src; a.download='thumbgenius-thumbnail.png';
+        a.target='_blank'; document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+    }
 }
 
 function drawTitleOnCanvas(ctx, W, H, titleText){
@@ -2214,274 +2583,182 @@ function brand_render(d) {
 
 // Library init handled in main showPage
 
+// ════════════════════════════════════════════════════════
+//  NAV / AUTH HELPERS
+// ════════════════════════════════════════════════════════
 
-</script>
+function switchTab(tab) { showPage(tab); }
 
+function setEmail(e) {
+    currentUserEmail = e.trim().toLowerCase();
+    localStorage.setItem('tg_email', currentUserEmail);
+}
+function setAdminCode(c) {
+    localStorage.setItem('tg_admin_code', c.trim().toUpperCase());
+}
 
+// ════════════════════════════════════════════════════════
+//  MODULE 4 — A/B TITLE SCORER
+// ════════════════════════════════════════════════════════
 
-<!-- ╔══════════════════════════════════════════════════════╗ -->
-<!-- ║  MODULE 2 — CTR PREDICTION ENGINE                   ║ -->
-<!-- ╚══════════════════════════════════════════════════════╝ -->
-<div class="page" id="page-ctr">
-<div class="feature-page">
-  <div class="feature-page-title">CTR Prediction Engine</div>
-  <p class="feature-page-sub">Upload a thumbnail + enter up to 5 title candidates. Get a predicted CTR range and synergy score for each pairing. <em style="color:var(--yellow)">Creator / Pro only.</em></p>
+async function ab_run() {
+    const ta = document.getElementById('abTitleA');
+    const tb = document.getElementById('abTitleB');
+    if (!ta || !tb) return;
+    const titleA = ta.value.trim();
+    const titleB = tb.value.trim();
+    if (!titleA || !titleB) { alert('Please enter both titles.'); return; }
+    _showLoading('abLoading','abBtn');
+    try {
+        const res  = await fetch('/ab-test', { method:'POST', headers:_hdrs(), body:JSON.stringify({titleA,titleB}) });
+        const data = await res.json();
+        _hideLoading('abLoading','abBtn');
+        if (data.error) { alert(data.error); return; }
+        ab_render(data, titleA, titleB);
+    } catch(e) {
+        _hideLoading('abLoading','abBtn');
+        alert('A/B test failed. Please try again.');
+    }
+}
 
-  <div class="mod-upload-zone" id="ctrDropZone" onclick="document.getElementById('ctrFileIn').click()">
-    <input type="file" id="ctrFileIn" accept="image/*" style="display:none" onchange="ctr_loadFile(this)">
-    <div class="uz-icon">📊</div>
-    <div class="uz-label">Upload your thumbnail</div>
-    <div class="uz-sub">PNG or JPG · 1280×720 recommended</div>
-  </div>
-  <img id="ctrPreview" class="mod-preview-img" />
+function ab_render(data, titleA, titleB) {
+    const winner  = data.winner === 'A' ? titleA : titleB;
+    const loser   = data.winner === 'A' ? titleB : titleA;
+    const col     = _scoreColor(data.winner === 'A' ? data.score_a/10 : data.score_b/10);
+    _showResult('abResult',
+        '<div class="res-card" style="margin-bottom:14px">' +
+        '<div class="res-label" style="color:' + col + '">🏆 WINNER</div>' +
+        '<div class="res-big" style="color:' + col + '">' + escapeHtml(winner) + '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">' +
+        '<div class="res-card"><div class="res-label">Title A Score</div><div class="res-big">' + data.score_a + '/10</div>' +
+        '<div class="res-text" style="color:var(--dim);margin-top:4px">' + escapeHtml(data.emotional_angle_a||'') + '</div>' +
+        '<div class="res-text" style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.4)">💡 ' + escapeHtml(data.improvement_a||'') + '</div></div>' +
+        '<div class="res-card"><div class="res-label">Title B Score</div><div class="res-big">' + data.score_b + '/10</div>' +
+        '<div class="res-text" style="color:var(--dim);margin-top:4px">' + escapeHtml(data.emotional_angle_b||'') + '</div>' +
+        '<div class="res-text" style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.4)">💡 ' + escapeHtml(data.improvement_b||'') + '</div></div>' +
+        '</div>' +
+        '<div class="res-card"><div class="res-label">REASONING</div>' +
+        '<div class="res-text">' + escapeHtml(data.reasoning||'') + '</div></div>'
+    );
+}
 
-  <div style="margin-bottom:14px">
-    <div class="res-label" style="margin-bottom:10px">TITLE CANDIDATES (up to 5)</div>
-    <div id="ctrTitlesWrap">
-      <input type="text" class="ctr-title-input" placeholder="Title 1 (required)">
-      <input type="text" class="ctr-title-input" placeholder="Title 2 (optional)">
-      <input type="text" class="ctr-title-input" placeholder="Title 3 (optional)">
-    </div>
-    <button onclick="ctr_addTitle()" style="background:transparent;border:1px dashed var(--border);color:var(--dim);padding:7px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;margin-top:4px;font-family:'Plus Jakarta Sans',sans-serif">+ Add Title</button>
-  </div>
-  <select id="ctrNiche" class="mod-select">
-    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
-    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
-    <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
-    <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
-  </select>
-  <button class="btn-gen" id="ctrBtn" onclick="ctr_run()" disabled>📊 Predict CTR</button>
+async function ab_runThumbs() {
+    const inp = document.getElementById('abThumbInputs');
+    if (!inp) return;
+    const imgs = inp.querySelectorAll('img');
+    const b64s = [];
+    imgs.forEach(img => {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        c.getContext('2d').drawImage(img, 0, 0);
+        b64s.push(c.toDataURL('image/jpeg', 0.8).split(',')[1]);
+    });
+    if (b64s.length < 2) { alert('Please upload 2 thumbnails.'); return; }
+    _showLoading('abThumbLoading','abThumbBtn');
+    try {
+        const res  = await fetch('/ab-test-thumbnails', { method:'POST', headers:_hdrs(), body:JSON.stringify({images_b64:b64s}) });
+        const data = await res.json();
+        _hideLoading('abThumbLoading','abThumbBtn');
+        if (data.error) { alert(data.error); return; }
+        _showResult('abThumbResult',
+            '<div class="res-card"><div class="res-label" style="color:var(--yellow)">🖼️ THUMBNAIL VERDICT</div>' +
+            '<div class="res-big" style="margin-bottom:10px">Winner: Thumbnail ' + escapeHtml(data.winner||'A') + '</div>' +
+            '<div class="res-text">' + escapeHtml(data.reasoning||'') + '</div></div>'
+        );
+    } catch(e) {
+        _hideLoading('abThumbLoading','abThumbBtn');
+        alert('Thumbnail test failed. Please try again.');
+    }
+}
 
-  <div class="mod-loading" id="ctrLoading">
-    <div class="loading-spinner"></div>
-    <p>Running CTR prediction engine…</p>
-  </div>
-  <div class="mod-result" id="ctrResult"></div>
-</div>
-</div>
+// ════════════════════════════════════════════════════════
+//  HISTORY MODULE
+// ════════════════════════════════════════════════════════
 
-<!-- ╔══════════════════════════════════════════════════════╗ -->
-<!-- ║  MODULE 3 — VIRAL REVERSE ENGINEERING               ║ -->
-<!-- ╚══════════════════════════════════════════════════════╝ -->
-<div class="page" id="page-reverse">
-<div class="feature-page">
-  <div class="feature-page-title">Viral Reverse Engineering</div>
-  <p class="feature-page-sub">Upload any high-performing thumbnail. Get a 9-layer psychological deconstruction and a step-by-step blueprint to replicate it in your niche.</p>
+function loadHistory() {
+    renderHistory();
+}
 
-  <div class="mod-upload-zone" id="revDropZone" onclick="document.getElementById('revFileIn').click()">
-    <input type="file" id="revFileIn" accept="image/*" style="display:none" onchange="rev_loadFile(this)">
-    <div class="uz-icon">🔬</div>
-    <div class="uz-label">Upload a viral thumbnail to decode</div>
-    <div class="uz-sub">Any high-performing YouTube thumbnail</div>
-  </div>
-  <img id="revPreview" class="mod-preview-img" />
-
-  <select id="revNiche" class="mod-select">
-    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
-    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
-    <option value="food">🍕 Food</option><option value="education">📚 Education</option>
-    <option value="business">📈 Business</option><option value="motivation">🔥 Motivation</option>
-    <option value="cricket">🏏 Cricket</option><option value="entertainment">🎬 Entertainment</option>
-    <option value="travel">✈️ Travel</option><option value="health">💊 Health</option>
-  </select>
-  <button class="btn-gen" id="revBtn" onclick="rev_run()" disabled>🔬 Reverse Engineer</button>
-
-  <div class="mod-loading" id="revLoading">
-    <div class="loading-spinner"></div>
-    <p>Running 9-layer deconstruction with GPT-4o Vision…</p>
-  </div>
-  <div class="mod-result" id="revResult"></div>
-</div>
-</div>
-
-<!-- ╔══════════════════════════════════════════════════════╗ -->
-<!-- ║  MODULE 5 — INSPIRATION LIBRARY                     ║ -->
-<!-- ╚══════════════════════════════════════════════════════╝ -->
-<div class="page" id="page-library">
-<div class="feature-page" style="max-width:1100px">
-  <div class="feature-page-title">Viral Thumbnail Inspiration Library</div>
-  <p class="feature-page-sub">Browse high-performing thumbnail concepts tagged by technique. Save to your personal swipe file.</p>
-
-  <div class="mod-row" style="margin-bottom:16px;align-items:center">
-    <select id="libNiche" class="mod-select">
-      <option value="">All Niches</option>
-      <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
-      <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
-      <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
-      <option value="education">📚 Education</option><option value="business">📈 Business</option>
-      <option value="cricket">🏏 Cricket</option><option value="motivation">🔥 Motivation</option>
-    </select>
-    <select id="libTrigger" class="mod-select">
-      <option value="">All Techniques</option>
-      <option value="Curiosity Gap">Curiosity Gap</option>
-      <option value="Shock Factor">Shock Factor</option>
-      <option value="Social Proof">Social Proof</option>
-      <option value="FOMO">FOMO</option>
-      <option value="Before-After">Before-After</option>
-      <option value="Authority">Authority</option>
-    </select>
-    <button class="btn-gen" onclick="lib_load()" style="flex:0;min-width:140px;padding:14px 20px">🔄 Load Library</button>
-  </div>
-
-  <div style="display:flex;gap:8px;margin-bottom:20px">
-    <button id="libTabBrowse" class="lib-tab active" onclick="lib_setTab('browse')">Browse</button>
-    <button id="libTabSaved"  class="lib-tab"        onclick="lib_setTab('saved')">⭐ Swipe File</button>
-  </div>
-
-  <div class="mod-loading" id="libLoading"><div class="loading-spinner"></div><p>Loading inspiration library…</p></div>
-  <div id="libGrid"      class="lib-grid"></div>
-  <div id="libSavedGrid" class="lib-grid" style="display:none"></div>
-</div>
-</div>
-
-<!-- ╔══════════════════════════════════════════════════════╗ -->
-<!-- ║  MODULE 6 — CREATOR BRANDING SYSTEM                 ║ -->
-<!-- ╚══════════════════════════════════════════════════════╝ -->
-<div class="page" id="page-branding">
-<div class="feature-page">
-  <div class="feature-page-title">Creator Branding System</div>
-  <p class="feature-page-sub">Upload 3–5 of your thumbnails. AI extracts your visual brand DNA and generates a full Brand Kit. <em style="color:var(--yellow)">Creator / Pro only.</em></p>
-
-  <div id="brandSavedKit" style="display:none;margin-bottom:28px"></div>
-
-  <div class="mod-upload-zone" id="brandDropZone" onclick="document.getElementById('brandFileIn').click()">
-    <input type="file" id="brandFileIn" accept="image/*" multiple style="display:none" onchange="brand_loadFiles(this)">
-    <div class="uz-icon">🎨</div>
-    <div class="uz-label">Drop 3–5 thumbnails from your channel</div>
-    <div class="uz-sub">PNG or JPG · These should be your actual thumbnails</div>
-  </div>
-  <div id="brandPreviews" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
-
-  <select id="brandNiche" class="mod-select">
-    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
-    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
-    <option value="business">📈 Business</option><option value="education">📚 Education</option>
-    <option value="motivation">🔥 Motivation</option><option value="cricket">🏏 Cricket</option>
-  </select>
-  <button class="btn-gen" id="brandBtn" onclick="brand_run()" disabled>🎨 Extract Brand DNA</button>
-
-  <div class="mod-loading" id="brandLoading"><div class="loading-spinner"></div><p>Extracting your visual brand DNA…</p></div>
-  <div class="mod-result" id="brandResult"></div>
-</div>
-</div>
-
-<!-- ╔══════════════════════════════════════════════════════╗ -->
-<!-- ║  MODULE 8 — VIRAL THUMBNAIL BLUEPRINT               ║ -->
-<!-- ╚══════════════════════════════════════════════════════╝ -->
-<div class="page" id="page-blueprint">
-<div class="feature-page" style="max-width:960px">
-
-  <div class="feature-page-title">🔥 Viral Thumbnail Blueprint</div>
-  <p class="feature-page-sub">Paste any YouTube video URL. AI extracts the thumbnail, scores it across 7 dimensions, maps viewer attention, and generates improved variations.</p>
-
-  <!-- URL INPUT -->
-  <div class="bp-url-section">
-    <div class="input-wrap" style="margin-bottom:12px">
-      <span class="input-icon">🔗</span>
-      <input type="text" id="bpUrl" placeholder="Paste YouTube URL — youtube.com/watch?v=... or youtu.be/..."
-             oninput="bp_onUrlInput(this.value)" style="padding-left:52px" />
-    </div>
-    <div class="mod-row" style="align-items:center;gap:12px">
-      <select id="bpNiche" class="mod-select" style="margin-bottom:0;max-width:220px">
-        <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
-        <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
-        <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
-        <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
-        <option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option>
-        <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
-        <option value="examprep">🎓 Exam Prep</option><option value="health">💊 Health</option>
-      </select>
-      <button class="btn-gen" id="bpAnalyzeBtn" onclick="bp_analyze()" disabled
-              style="flex:1;max-width:280px">🔍 Analyze Thumbnail</button>
-    </div>
-  </div>
-
-  <!-- THUMBNAIL PREVIEW (before analysis) -->
-  <div id="bpThumbPreview" style="display:none;margin:24px 0">
-    <div class="res-label" style="margin-bottom:10px">EXTRACTED THUMBNAIL</div>
-    <div style="position:relative;display:inline-block;max-width:100%">
-      <img id="bpThumbImg" src="" alt="Thumbnail"
-           style="width:100%;max-width:560px;border-radius:12px;border:1px solid var(--border);display:block" />
-      <canvas id="bpHeatmapCanvas"
-              style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;display:none;opacity:0.75"></canvas>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button class="btn-regen" id="bpHeatmapToggle" onclick="bp_toggleHeatmap()"
-              style="font-size:12px;padding:8px 16px">👁 Show Attention Heatmap</button>
-      <span style="font-size:11px;color:rgba(255,255,255,0.25)">Simulated viewer attention based on visual weight analysis</span>
-    </div>
-  </div>
-
-  <!-- LOADING -->
-  <div class="mod-loading" id="bpLoading">
-    <div class="loading-spinner"></div>
-    <p id="bpLoadingMsg">Fetching thumbnail…</p>
-  </div>
-
-  <!-- RESULT AREA -->
-  <div id="bpResult" style="display:none">
-
-    <!-- SCORE METER -->
-    <div class="bp-score-section">
-      <div class="bp-score-card">
-        <canvas id="bpScoreDial" width="180" height="180"></canvas>
-        <div class="bp-score-center">
-          <div class="bp-score-num" id="bpScoreNum">—</div>
-          <div class="bp-score-label" id="bpScoreGrade">—</div>
-        </div>
-      </div>
-      <div class="bp-verdict-box">
-        <div class="res-label" style="color:var(--yellow)">OVERALL VERDICT</div>
-        <p id="bpVerdict" style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;margin:8px 0"></p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px">
-          <div class="bp-pill bp-pill-green">
-            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(67,233,123,0.7)">STRONGEST</span>
-            <span id="bpStrongest" style="font-size:13px;color:#43E97B;font-weight:600"></span>
+function renderHistory() {
+    const container = document.getElementById('historyContent');
+    if (!container) return;
+    const raw = localStorage.getItem('tg_history');
+    let items = [];
+    try { items = JSON.parse(raw) || []; } catch(e) { items = []; }
+    if (!items.length) {
+        container.innerHTML = '<p style="color:var(--dim);text-align:center;padding:40px 0;">No saved generations yet. Generate something and click 💾 Save to History!</p>';
+        return;
+    }
+    container.innerHTML = items.slice().reverse().map((item, i) => {
+        const idx = items.length - 1 - i;
+        const title = (item.titles && item.titles[0]) ? item.titles[0] : (item.topic || 'Untitled');
+        const date  = item.saved_at ? new Date(item.saved_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+        return `<div class="history-card" onclick="showHistoryItem(${idx})">
+          <div class="history-card-top">
+            <span class="history-niche">${escapeHtml(item.niche||'tech')}</span>
+            <span class="history-date">${date}</span>
           </div>
-          <div class="bp-pill bp-pill-red">
-            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,101,132,0.7)">WEAKEST</span>
-            <span id="bpWeakest" style="font-size:13px;color:#FF6584;font-weight:600"></span>
-          </div>
-        </div>
-      </div>
-    </div>
+          <div class="history-title">${escapeHtml(title)}</div>
+          ${item.image_url ? `<img class="history-thumb" src="${escapeHtml(item.image_url)}" alt="thumbnail" loading="lazy" />` : ''}
+        </div>`;
+    }).join('');
+}
 
-    <!-- 7 DIMENSION BARS -->
-    <div class="res-label" style="margin:28px 0 14px">7-DIMENSION BREAKDOWN</div>
-    <div id="bpDimBars" class="bp-dim-grid"></div>
+function showHistoryItem(idx) {
+    const raw = localStorage.getItem('tg_history');
+    let items = [];
+    try { items = JSON.parse(raw) || []; } catch(e) { return; }
+    const item = items[idx];
+    if (!item) return;
+    // Load into main generate results
+    lastGeneratedData = item;
+    showPage('home');
+    setTimeout(() => {
+        if (item.titles) {
+            document.getElementById('titles').innerHTML = item.titles.map((t,i) =>
+                `<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}',this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span></div>`
+            ).join('');
+        }
+        if (item.thumbnail) {
+            const th = item.thumbnail;
+            document.getElementById('thumbnail').innerHTML =
+                `<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background||'')}</div></div>` +
+                `<div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay||'')}</div></div>` +
+                `<div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger||'')}</div></div>`;
+        }
+        if (item.hook_script) {
+            document.getElementById('hook').innerHTML = `<div class="hook-text">${escapeHtml(item.hook_script)}</div>`;
+        }
+        if (item.image_url) {
+            document.getElementById('imgBlock').style.display = 'block';
+            document.getElementById('thumbnailImg').src = item.image_url;
+            document.getElementById('imgTitleOverlay').style.display = 'none';
+        }
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+    }, 200);
+}
 
-    <!-- FIX CARDS -->
-    <div class="res-label" style="margin:28px 0 12px">🔧 TOP 3 IMPROVEMENTS</div>
-    <div id="bpFixes"></div>
+function saveToHistory() {
+    if (!lastGeneratedData) return;
+    const raw = localStorage.getItem('tg_history');
+    let items = [];
+    try { items = JSON.parse(raw) || []; } catch(e) { items = []; }
+    const entry = Object.assign({}, lastGeneratedData, {
+        saved_at: new Date().toISOString(),
+        niche: document.getElementById('niche') ? document.getElementById('niche').value : 'tech',
+        topic: document.getElementById('topic') ? document.getElementById('topic').value : '',
+    });
+    // Avoid duplicates — remove existing same topic+niche
+    items = items.filter(x => !(x.topic === entry.topic && x.niche === entry.niche));
+    items.push(entry);
+    if (items.length > 50) items = items.slice(-50);
+    localStorage.setItem('tg_history', JSON.stringify(items));
+    const btn = document.getElementById('saveBtn');
+    if (btn) { btn.textContent = '✅ Saved!'; btn.classList.add('saved'); }
+}
 
-    <!-- VARIATIONS -->
-    <div class="bp-variations-section" style="margin-top:36px">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
-        <div>
-          <div style="font-size:18px;font-weight:800;letter-spacing:-0.5px">🎨 Improved Variations</div>
-          <div style="font-size:13px;color:var(--dim);margin-top:4px">AI-generated alternatives targeting your weakest dimensions</div>
-        </div>
-        <button class="btn-img" id="bpGenVarBtn" onclick="bp_generateVariations()">
-          ✨ Generate Variations
-        </button>
-      </div>
-      <div id="bpVarUpgradeNote" style="display:none;background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
-        <p style="color:var(--yellow);font-weight:700;margin-bottom:6px">🚀 Creator / Pro Feature</p>
-        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:12px">Upgrade to generate 3–5 AI-improved thumbnail variations</p>
-        <button class="btn-pay" style="padding:10px 24px;font-size:13px" onclick="openPaymentModal()">Upgrade Now →</button>
-      </div>
-      <div class="mod-loading" id="bpVarLoading" style="padding:32px">
-        <div class="loading-spinner"></div>
-        <p id="bpVarLoadingMsg">Generating variations with DALL-E 3…</p>
-      </div>
-      <div id="bpVarGrid" class="bp-var-grid"></div>
-    </div>
-
-  </div><!-- /#bpResult -->
-</div>
-</div>
-
-<script>
 // ════════════════════════════════════════════════════════
 //  MODULE 8 — VIRAL THUMBNAIL BLUEPRINT
 // ════════════════════════════════════════════════════════
@@ -2505,7 +2782,6 @@ const BP_DIM_META = {
 };
 
 function initBlueprint() {
-    // Reset state only if no analysis is showing
     if (!_bp_image_b64) {
         document.getElementById('bpResult').style.display = 'none';
         document.getElementById('bpThumbPreview').style.display = 'none';
@@ -2515,34 +2791,26 @@ function initBlueprint() {
     }
 }
 
-// ── URL Input Debounce ───────────────────────────────────
 function bp_onUrlInput(val) {
     clearTimeout(_bp_url_timer);
-    const btn = document.getElementById('bpAnalyzeBtn');
-    btn.disabled = true;
+    document.getElementById('bpAnalyzeBtn').disabled = true;
     if (!val.trim()) return;
     _bp_url_timer = setTimeout(() => bp_previewThumb(val.trim()), 600);
 }
 
 async function bp_previewThumb(url) {
-    const btn = document.getElementById('bpAnalyzeBtn');
+    const btn    = document.getElementById('bpAnalyzeBtn');
     const loadEl = document.getElementById('bpLoading');
     const msgEl  = document.getElementById('bpLoadingMsg');
     loadEl.style.display = 'block';
     msgEl.textContent = 'Fetching thumbnail…';
     document.getElementById('bpThumbPreview').style.display = 'none';
     document.getElementById('bpResult').style.display = 'none';
-
     try {
         const res  = await fetch('/blueprint/extract-thumb?url=' + encodeURIComponent(url), { headers: _hdrs() });
         const data = await res.json();
         loadEl.style.display = 'none';
-        if (data.error) {
-            btn.disabled = true;
-            document.getElementById('bpThumbPreview').style.display = 'none';
-            alert(data.error);
-            return;
-        }
+        if (data.error) { btn.disabled = true; alert(data.error); return; }
         _bp_image_b64 = data.image_b64;
         _bp_thumb_url  = data.thumbnail_url;
         document.getElementById('bpThumbImg').src = 'data:image/jpeg;base64,' + data.image_b64;
@@ -2557,54 +2825,39 @@ async function bp_previewThumb(url) {
     }
 }
 
-// ── Main Analysis ────────────────────────────────────────
 async function bp_analyze() {
     if (!_bp_image_b64) return;
     const loadEl = document.getElementById('bpLoading');
     const msgEl  = document.getElementById('bpLoadingMsg');
     const btn    = document.getElementById('bpAnalyzeBtn');
     const niche  = document.getElementById('bpNiche').value;
-
-    loadEl.style.display  = 'block';
-    msgEl.textContent     = 'Analyzing with GPT-4o Vision…';
-    btn.disabled          = true;
+    loadEl.style.display = 'block';
+    msgEl.textContent    = 'Analyzing with GPT-4o Vision…';
+    btn.disabled         = true;
     document.getElementById('bpResult').style.display = 'none';
-
     try {
         const res  = await fetch('/blueprint/analyze', {
-            method:  'POST',
-            headers: _hdrs(),
-            body:    JSON.stringify({ image_b64: _bp_image_b64, niche: niche })
+            method:'POST', headers:_hdrs(),
+            body: JSON.stringify({ image_b64: _bp_image_b64, niche: niche })
         });
         const data = await res.json();
         loadEl.style.display = 'none';
         btn.disabled = false;
-
-        if (data.error === 'free_limit_reached' || data.error === 'upgrade_required') {
-            openPaymentModal(); return;
-        }
+        if (data.error === 'free_limit_reached' || data.error === 'upgrade_required') { openPaymentModal(); return; }
         if (data.error) { alert(data.error); return; }
-
         _bp_last_scores   = data.scores || {};
         _bp_last_weakness = data.biggest_weakness || '';
         _bp_attn_zones    = data.attention_zones || null;
-
         bp_renderScore(data.overall_score || 0, data.grade || '—');
         bp_renderVerdict(data);
         bp_renderDimBars(data.scores || {});
         bp_renderFixes(data.fixes || []);
-
-        // Draw heatmap canvas
         bp_buildHeatmap();
-
-        // Reset variations
         document.getElementById('bpVarGrid').innerHTML = '';
         document.getElementById('bpVarLoading').style.display = 'none';
         document.getElementById('bpVarUpgradeNote').style.display = 'none';
-
         document.getElementById('bpResult').style.display = 'block';
         document.getElementById('bpResult').scrollIntoView({ behavior:'smooth', block:'start' });
-
     } catch(e) {
         loadEl.style.display = 'none';
         btn.disabled = false;
@@ -2612,7 +2865,6 @@ async function bp_analyze() {
     }
 }
 
-// ── Score Dial ───────────────────────────────────────────
 function bp_renderScore(score, grade) {
     const numEl   = document.getElementById('bpScoreNum');
     const gradeEl = document.getElementById('bpScoreGrade');
@@ -2620,145 +2872,101 @@ function bp_renderScore(score, grade) {
     const ctx     = canvas.getContext('2d');
     const cx = 90, cy = 90, r = 72, lw = 12;
     const col = score >= 70 ? '#43E97B' : score >= 50 ? '#FDE036' : '#FF6584';
-
     numEl.textContent  = score;
     numEl.style.color  = col;
     gradeEl.textContent = grade;
-
     let current = 0;
     const target = score;
-    function draw(val) {
+    function bpDraw(val) {
         ctx.clearRect(0,0,180,180);
-        // BG arc
-        ctx.beginPath(); ctx.arc(cx,cy,r, -Math.PI*0.75, Math.PI*0.75);
-        ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
-        // Score arc
+        ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI*0.75,Math.PI*0.75);
+        ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=lw; ctx.lineCap='round'; ctx.stroke();
         const end = -Math.PI*0.75 + (Math.PI*1.5 * val/100);
-        ctx.beginPath(); ctx.arc(cx,cy,r, -Math.PI*0.75, end);
-        ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
-        // Glow
-        ctx.shadowBlur = 12; ctx.shadowColor = col;
-        ctx.beginPath(); ctx.arc(cx,cy,r, end-0.01, end);
-        ctx.strokeStyle = col; ctx.lineWidth = lw+4; ctx.stroke();
-        ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(cx,cy,r,-Math.PI*0.75,end);
+        ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.lineCap='round'; ctx.stroke();
+        ctx.shadowBlur=12; ctx.shadowColor=col;
+        ctx.beginPath(); ctx.arc(cx,cy,r,end-0.01,end);
+        ctx.strokeStyle=col; ctx.lineWidth=lw+4; ctx.stroke();
+        ctx.shadowBlur=0;
     }
-    const step = () => {
-        current = Math.min(current + 2, target);
-        draw(current);
-        if (current < target) requestAnimationFrame(step);
-    };
+    const step = () => { current=Math.min(current+2,target); bpDraw(current); if(current<target) requestAnimationFrame(step); };
     requestAnimationFrame(step);
 }
 
-// ── Verdict ──────────────────────────────────────────────
 function bp_renderVerdict(data) {
-    document.getElementById('bpVerdict').textContent    = data.verdict || '';
-    document.getElementById('bpStrongest').textContent  = data.strongest_element || '—';
-    document.getElementById('bpWeakest').textContent    = data.biggest_weakness  || '—';
+    document.getElementById('bpVerdict').textContent   = data.verdict || '';
+    document.getElementById('bpStrongest').textContent = data.strongest_element || '—';
+    document.getElementById('bpWeakest').textContent   = data.biggest_weakness  || '—';
 }
 
-// ── Dimension Bars ───────────────────────────────────────
 function bp_renderDimBars(scores) {
     const container = document.getElementById('bpDimBars');
-    const entries   = Object.entries(BP_DIM_META);
-
-    // Find worst 2
-    const sorted = Object.entries(scores).sort((a,b) => (a[1].score||0)-(b[1].score||0));
-    const worst2 = sorted.slice(0,2).map(x=>x[0]);
-
-    container.innerHTML = entries.map(([key, meta]) => {
-        const dim   = scores[key] || { score:0, label:'—', note:'' };
-        const s     = dim.score || 0;
-        const col   = s >= 70 ? '#43E97B' : s >= 50 ? '#FDE036' : '#FF6584';
-        const isWrst = worst2.includes(key);
-        return `<div class="bp-dim-bar${isWrst?' worst':''}">
+    const sorted    = Object.entries(scores).sort((a,b)=>(a[1].score||0)-(b[1].score||0));
+    const worst2    = sorted.slice(0,2).map(x=>x[0]);
+    container.innerHTML = Object.entries(BP_DIM_META).map(([key,meta]) => {
+        const dim = scores[key] || { score:0, note:'' };
+        const s   = dim.score || 0;
+        const col = s>=70?'#43E97B':s>=50?'#FDE036':'#FF6584';
+        const isW = worst2.includes(key);
+        return `<div class="bp-dim-bar${isW?' worst':''}">
           <div class="bp-dim-bar-head">
-            <span><span class="bp-dim-bar-icon">${meta.icon}</span><span class="bp-dim-bar-name">${meta.label}</span>${isWrst?'<span style="margin-left:6px;font-size:10px;background:rgba(255,101,132,0.15);color:#FF6584;border-radius:4px;padding:2px 6px">⚠️ Weak</span>':''}</span>
+            <span><span class="bp-dim-bar-icon">${meta.icon}</span><span class="bp-dim-bar-name">${meta.label}</span>${isW?'<span style="margin-left:6px;font-size:10px;background:rgba(255,101,132,0.15);color:#FF6584;border-radius:4px;padding:2px 6px">⚠️ Weak</span>':''}</span>
             <span class="bp-dim-bar-score" style="color:${col}">${s}</span>
           </div>
           <div class="bp-dim-bar-note">${escapeHtml(dim.note||'')}</div>
-          <div class="bp-dim-bar-track">
-            <div class="bp-dim-bar-fill" style="width:0%;background:${col}" data-target="${s}"></div>
-          </div>
+          <div class="bp-dim-bar-track"><div class="bp-dim-bar-fill" style="width:0%;background:${col}" data-target="${s}"></div></div>
         </div>`;
     }).join('');
-
-    // Animate bars
     setTimeout(() => {
-        container.querySelectorAll('.bp-dim-bar-fill').forEach(el => {
-            el.style.width = (el.dataset.target || 0) + '%';
-        });
+        container.querySelectorAll('.bp-dim-bar-fill').forEach(el => { el.style.width=(el.dataset.target||0)+'%'; });
     }, 80);
 }
 
-// ── Fix Cards ────────────────────────────────────────────
 function bp_renderFixes(fixes) {
-    const container = document.getElementById('bpFixes');
-    container.innerHTML = fixes.slice(0,3).map((f,i) => {
+    document.getElementById('bpFixes').innerHTML = fixes.slice(0,3).map((f,i) => {
         const meta = BP_DIM_META[f.dimension] || { icon:'🔧', label: f.dimension };
         return `<div class="bp-fix-card">
           <div class="bp-fix-num">${i+1}</div>
           <div class="bp-fix-body">
             <div class="bp-fix-dim">${meta.icon} ${meta.label}</div>
-            <div class="bp-fix-action">${escapeHtml(f.action||'')}</div>
+            <div class="bp-fix-action">${escapeHtml(f.action||f.fix||'')}</div>
           </div>
         </div>`;
     }).join('');
 }
 
-// ── Heatmap Canvas ───────────────────────────────────────
 function bp_buildHeatmap() {
     const img    = document.getElementById('bpThumbImg');
     const canvas = document.getElementById('bpHeatmapCanvas');
     const ctx    = canvas.getContext('2d');
-
-    function draw() {
+    function bpHeatDraw() {
         const W = img.offsetWidth || img.naturalWidth || 560;
         const H = img.offsetHeight || img.naturalHeight || 315;
-        canvas.width  = W;
-        canvas.height = H;
+        canvas.width=W; canvas.height=H;
         ctx.clearRect(0,0,W,H);
-
-        // Zone weights from API or defaults
         const zones = _bp_attn_zones || [
             {region:'top-left',weight:10},{region:'top-center',weight:20},{region:'top-right',weight:15},
             {region:'mid-left',weight:10},{region:'mid-center',weight:35},{region:'mid-right',weight:20},
             {region:'bot-left',weight:5}, {region:'bot-center',weight:15},{region:'bot-right',weight:10},
         ];
-
-        const regionMap = {
-            'top-left':   [0,    0,    W/3,  H/3],
-            'top-center': [W/3,  0,    W*2/3,H/3],
-            'top-right':  [W*2/3,0,    W,    H/3],
-            'mid-left':   [0,    H/3,  W/3,  H*2/3],
-            'mid-center': [W/3,  H/3,  W*2/3,H*2/3],
-            'mid-right':  [W*2/3,H/3,  W,    H*2/3],
-            'bot-left':   [0,    H*2/3,W/3,  H],
-            'bot-center': [W/3,  H*2/3,W*2/3,H],
-            'bot-right':  [W*2/3,H*2/3,W,    H],
+        const rmap = {
+            'top-left':[0,0,W/3,H/3],'top-center':[W/3,0,W*2/3,H/3],'top-right':[W*2/3,0,W,H/3],
+            'mid-left':[0,H/3,W/3,H*2/3],'mid-center':[W/3,H/3,W*2/3,H*2/3],'mid-right':[W*2/3,H/3,W,H*2/3],
+            'bot-left':[0,H*2/3,W/3,H],'bot-center':[W/3,H*2/3,W*2/3,H],'bot-right':[W*2/3,H*2/3,W,H],
         };
-
         zones.forEach(z => {
-            const box = regionMap[z.region];
-            if (!box) return;
-            const [x1,y1,x2,y2] = box;
-            const cx = (x1+x2)/2, cy = (y1+y2)/2;
-            const r  = Math.max(x2-x1, y2-y1) * 0.65;
-            const alpha = Math.min(0.75, (z.weight / 100) * 2.5);
-            const col   = z.weight >= 25 ? `255,60,60` : z.weight >= 15 ? `255,200,0` : `0,100,255`;
-            const grad  = ctx.createRadialGradient(cx,cy,0, cx,cy,r);
-            grad.addColorStop(0, `rgba(${col},${alpha})`);
-            grad.addColorStop(1, `rgba(${col},0)`);
-            ctx.fillStyle = grad;
-            ctx.fillRect(x1,y1,x2-x1,y2-y1);
+            const box=rmap[z.region]; if(!box) return;
+            const [x1,y1,x2,y2]=box;
+            const cx=(x1+x2)/2, cy=(y1+y2)/2, r=Math.max(x2-x1,y2-y1)*0.65;
+            const alpha=Math.min(0.75,(z.weight/100)*2.5);
+            const col=z.weight>=25?'255,60,60':z.weight>=15?'255,200,0':'0,100,255';
+            const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+            grad.addColorStop(0,`rgba(${col},${alpha})`);
+            grad.addColorStop(1,`rgba(${col},0)`);
+            ctx.fillStyle=grad; ctx.fillRect(x1,y1,x2-x1,y2-y1);
         });
     }
-
-    if (img.complete && img.naturalWidth > 0) {
-        draw();
-    } else {
-        img.onload = draw;
-    }
+    if (img.complete && img.naturalWidth>0) bpHeatDraw(); else img.onload=bpHeatDraw;
 }
 
 function bp_toggleHeatmap() {
@@ -2769,97 +2977,71 @@ function bp_toggleHeatmap() {
     btn.textContent = _bp_heatmap_on ? '🙈 Hide Attention Heatmap' : '👁 Show Attention Heatmap';
 }
 
-// ── Variations ───────────────────────────────────────────
 async function bp_generateVariations() {
-    // Check plan
     const plan = localStorage.getItem('tg_plan') || 'free';
     const code = localStorage.getItem('tg_admin_code') || '';
-    if (plan === 'free' && !code) {
-        document.getElementById('bpVarUpgradeNote').style.display = 'block';
-        return;
-    }
-
+    if (plan === 'free' && !code) { document.getElementById('bpVarUpgradeNote').style.display='block'; return; }
     const loadEl = document.getElementById('bpVarLoading');
     const msgEl  = document.getElementById('bpVarLoadingMsg');
     const btn    = document.getElementById('bpGenVarBtn');
     const niche  = document.getElementById('bpNiche').value;
-    const count  = plan === 'pro' ? 5 : 3;
-
-    loadEl.style.display = 'block';
-    msgEl.textContent    = `Generating ${count} variations with DALL-E 3 HD… (~30 seconds)`;
-    btn.disabled         = true;
-    document.getElementById('bpVarGrid').innerHTML = '';
-    document.getElementById('bpVarUpgradeNote').style.display = 'none';
-
+    const count  = plan==='pro' ? 5 : 3;
+    loadEl.style.display='block';
+    msgEl.textContent=`Generating ${count} variations with DALL-E 3 HD… (~30 seconds)`;
+    btn.disabled=true;
+    document.getElementById('bpVarGrid').innerHTML='';
+    document.getElementById('bpVarUpgradeNote').style.display='none';
     try {
         const res  = await fetch('/blueprint/variations', {
-            method:  'POST',
-            headers: _hdrs(),
-            body:    JSON.stringify({
-                scores:           _bp_last_scores,
-                biggest_weakness: _bp_last_weakness,
-                niche:            niche,
-                topic_context:    document.getElementById('bpUrl').value.trim(),
-            })
+            method:'POST', headers:_hdrs(),
+            body: JSON.stringify({ scores:_bp_last_scores, biggest_weakness:_bp_last_weakness, niche:niche, topic_context:document.getElementById('bpUrl').value.trim() })
         });
         const data = await res.json();
-        loadEl.style.display = 'none';
-        btn.disabled = false;
-
-        if (data.error === 'upgrade_required') {
-            document.getElementById('bpVarUpgradeNote').style.display = 'block'; return;
-        }
+        loadEl.style.display='none'; btn.disabled=false;
+        if (data.error==='upgrade_required') { document.getElementById('bpVarUpgradeNote').style.display='block'; return; }
         if (data.error) { alert(data.error); return; }
-
         bp_renderVariations(data.variations || []);
-
     } catch(e) {
-        loadEl.style.display = 'none';
-        btn.disabled = false;
+        loadEl.style.display='none'; btn.disabled=false;
         alert('Variation generation failed. Please try again.');
     }
 }
 
 function bp_renderVariations(variations) {
     const grid = document.getElementById('bpVarGrid');
-    if (!variations.length) {
-        grid.innerHTML = '<p style="color:var(--dim)">No variations returned. Please try again.</p>';
-        return;
-    }
+    if (!variations.length) { grid.innerHTML='<p style="color:var(--dim)">No variations returned. Please try again.</p>'; return; }
     grid.innerHTML = variations.map((v,i) => {
-        const meta = BP_DIM_META[v.targets] || { icon:'🎨', label: v.targets };
+        const meta = BP_DIM_META[v.targets] || { icon:'🎨', label: v.targets||'General' };
         return `<div class="bp-var-card">
           <img class="bp-var-img" src="${escapeHtml(v.image_url)}" alt="Variation ${i+1}" loading="lazy" />
           <div class="bp-var-body">
-            <div class="bp-var-label">Variation ${v.variation_number} · Targets ${meta.icon} ${meta.label}</div>
-            <div class="bp-var-focus">${escapeHtml(v.improvement_focus)}</div>
+            <div class="bp-var-label">Variation ${v.variation_number||i+1} · Targets ${meta.icon} ${meta.label}</div>
+            <div class="bp-var-focus">${escapeHtml(v.improvement_focus||'')}</div>
             <div class="bp-var-actions">
-              <button class="bp-var-dl" onclick="bp_dlVariation('${escapeHtml(v.image_url)}',${v.variation_number})">⬇ Download</button>
+              <button class="bp-var-dl" onclick="bp_dlVariation('${escapeHtml(v.image_url)}',${v.variation_number||i+1})">⬇ Download</button>
               <button class="bp-var-use" onclick="bp_useVariation('${escapeHtml(v.image_url)}')">Use as Base →</button>
             </div>
           </div>
         </div>`;
     }).join('');
-    grid.scrollIntoView({ behavior:'smooth', block:'start' });
+    grid.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function bp_dlVariation(url, num) {
-    const a = document.createElement('a');
-    a.href     = url;
-    a.download = `thumbgenius-blueprint-v${num}.png`;
-    a.target   = '_blank';
-    a.click();
+    const a=document.createElement('a'); a.href=url; a.download=`thumbgenius-blueprint-v${num}.png`; a.target='_blank'; a.click();
 }
 
+function loadTrending() { if(typeof initTrending==='function') initTrending(); }
+
 function bp_useVariation(url) {
-    // Pre-fill home page generator with variation as concept reference
     showPage('home');
     setTimeout(() => {
-        document.getElementById('topic').value = 'Based on improved variation from Blueprint tool';
-        document.getElementById('topic').focus();
-        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
+        const t=document.getElementById('topic');
+        if(t){ t.value='Based on improved variation from Blueprint tool'; t.focus(); t.scrollIntoView({behavior:'smooth',block:'center'}); }
     }, 300);
 }
+
+
 </script>
 
 </body>
