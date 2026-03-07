@@ -1076,16 +1076,30 @@ async def analyze_channel(request: Request):
         logger.error(f"/analyze-channel error: {e}"); return JSONResponse({"error":"Analysis failed."},status_code=500)
 
 @app.get("/trending")
-async def trending():
-    cached = await redis_get("trending:data")
+async def trending(request: Request, niches: str = ""):
+    # Parse requested niches
+    VALID_NICHES = {"tech","finance","gaming","fitness","food","travel","education","motivation",
+                    "beauty","entertainment","business","productivity","cricket","automobiles",
+                    "examprep","health","music","realestate","spirituality","stocks"}
+    if niches:
+        requested = [n.strip().lower() for n in niches.split(",") if n.strip().lower() in VALID_NICHES]
+    else:
+        requested = ["tech","finance","gaming","fitness","cricket","automobiles","examprep","motivation"]
+    if not requested:
+        requested = ["tech","finance"]
+
+    # Cache key per niche combo
+    cache_key = "trending:" + "_".join(sorted(requested))
+    cached = await redis_get(cache_key)
     if cached:
         try:
             parsed = json.loads(cached)
             if isinstance(parsed, list) and len(parsed) > 0:
                 return JSONResponse(parsed)
         except: pass
+
     async with _trending_lock:
-        cached = await redis_get("trending:data")
+        cached = await redis_get(cache_key)
         if cached:
             try:
                 parsed = json.loads(cached)
@@ -1093,35 +1107,57 @@ async def trending():
                     return JSONResponse(parsed)
             except: pass
         try:
+            per_niche = max(3, min(5, 20 // len(requested)))
+            niche_list = ", ".join(requested)
+            total = per_niche * len(requested)
+            prompt = f"""Generate {total} trending YouTube video topics for Indian creators right now in 2025.
+Niches requested: {niche_list}
+Generate exactly {per_niche} topics per niche.
+
+Return a JSON object with a "topics" key containing an array:
+{{"topics": [
+  {{"niche":"tech","topic":"Specific compelling video title","why":"One sentence why this is trending in India right now","heat":"🔥🔥 High Momentum"}},
+  ...
+]}}
+
+Rules:
+- Topics must be specific, actionable video title ideas (not generic)
+- Highly relevant to Indian YouTube audience in 2025
+- Each topic must have all 4 fields: niche, topic, why, heat
+- niche must exactly match one of: {niche_list}"""
+
             response = await client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role":"system","content":"You are a YouTube trends expert for Indian creators. You MUST return ONLY a valid JSON array with no markdown, no explanation, no code blocks."},
-                    {"role":"user","content":"""Generate 24 trending YouTube video topics for Indian creators in 2025.
-Return ONLY a raw JSON array — no markdown, no ```json, no explanation.
-Format exactly:
-[{"niche":"tech","topic":"specific video title idea","why":"one sentence why trending in India now","heat":"🔥🔥 Hot"}]
-Cover exactly 3 topics for each: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation
-Total: 24 items. Make topics specific, timely, India-focused."""}
+                    {"role":"system","content":"YouTube trends expert for Indian creators. Return only valid JSON."},
+                    {"role":"user","content":prompt}
                 ],
-                temperature=0.8, max_tokens=2000, response_format={"type": "json_object"})
+                temperature=0.85, max_tokens=2000,
+                response_format={"type": "json_object"})
+
             raw = response.choices[0].message.content.strip()
-            logger.info(f"/trending raw response: {raw[:200]}")
-            # Try to extract array from possible {"topics": [...]} wrapper
+            logger.info(f"/trending raw: {raw[:300]}")
             parsed = json.loads(raw)
+
+            # Extract array from wrapper
             if isinstance(parsed, dict):
-                # Find the first list value
                 result = next((v for v in parsed.values() if isinstance(v, list)), None)
-                if result is None:
-                    raise ValueError(f"No array found in response: {list(parsed.keys())}")
+                if not result:
+                    raise ValueError(f"No array in response keys: {list(parsed.keys())}")
             elif isinstance(parsed, list):
                 result = parsed
             else:
-                raise ValueError(f"Unexpected response type: {type(parsed)}")
+                raise ValueError(f"Unexpected type: {type(parsed)}")
+
             if len(result) == 0:
-                raise ValueError("Empty topics array returned")
-            await redis_set("trending:data", json.dumps(result), ex=TRENDING_TTL)
+                raise ValueError("Empty topics returned")
+
+            # Filter to only requested niches
+            result = [t for t in result if isinstance(t, dict) and t.get("niche","") in requested]
+
+            await redis_set(cache_key, json.dumps(result), ex=TRENDING_TTL)
             return JSONResponse(result)
+
         except Exception as e:
             logger.error(f"/trending error: {e}")
-            return JSONResponse({"error": f"Failed to load trending: {str(e)}"}, status_code=500)
+            return JSONResponse({"error": f"Failed to load trending topics: {str(e)}"}, status_code=500)

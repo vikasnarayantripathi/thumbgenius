@@ -566,6 +566,16 @@
         /* Title input rows for CTR */
         .ctr-title-input { width:100%; margin-bottom:8px; }
 
+        
+        /* ── Trending inline category grid ── */
+        .trending-inline-grid { display:flex; flex-wrap:wrap; gap:10px; }
+        .trending-cat-chip { display:flex; align-items:center; gap:7px; padding:10px 16px; border-radius:12px; border:1.5px solid var(--border); background:rgba(255,255,255,0.03); cursor:pointer; transition:all 0.18s; font-size:13px; font-weight:600; color:var(--dim); user-select:none; }
+        .trending-cat-chip:hover { border-color:rgba(255,224,54,0.3); color:var(--white); background:rgba(255,224,54,0.04); }
+        .trending-cat-chip.selected { border-color:var(--yellow); background:rgba(255,224,54,0.1); color:var(--yellow); }
+        .trending-cat-chip .tc-icon { font-size:18px; }
+        .trending-cat-chip .tc-check { width:16px; height:16px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:9px; flex-shrink:0; }
+        .trending-cat-chip.selected .tc-check { background:var(--yellow); border-color:var(--yellow); color:#000; }
+
         </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
@@ -919,7 +929,7 @@ function showPage(p){
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="/cdn-cgi/l/email-protection#5d2e282d2d322f291d293528303f3a383334282e733433" style="color:rgba(255,255,255,0.3);text-decoration:none"><span class="__cf_email__" data-cfemail="b4c7c1c4c4dbc6c0f4c0dcc1d9d6d3d1daddc1c79addda">[email&#160;protected]</span></a>
+    <a href="mailto:hello@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none">hello@thumbgenius.in</a>
 </footer>
 </div>
 
@@ -1017,30 +1027,15 @@ function showPage(p){
 <div class="page" id="page-trending">
     <div class="feature-page">
         <div class="feature-page-title">What India Is Watching &#x1F1EE;&#x1F1F3;</div>
-        <p class="feature-page-sub">Real-time topic intelligence by niche. Spot high-momentum subjects before they peak — then package them with ThumbGenius instantly.</p>
+        <p class="feature-page-sub">Select categories below and click <strong>Get Trending Topics</strong> to fetch live topic intelligence for your niche.</p>
 
         <div class="trending-cat-section">
-            <div class="trending-cat-header">
-                <span class="trending-cat-label">Your Categories</span>
-                <button class="btn-add-cat" onclick="openCatPicker()">&#x2795; Add Category</button>
-            </div>
-            <div class="trending-selected-cats" id="selectedCats"></div>
-            <button class="btn-gen" id="btnFetchTrending" onclick="forceFetchTrending()" style="margin-top:20px;max-width:260px">&#x1F525; Fetch Trending Topics</button>
+            <div class="res-label" style="margin-bottom:14px">SELECT YOUR NICHES (pick one or more)</div>
+            <div class="trending-inline-grid" id="trendingCatGrid"></div>
+            <button class="btn-gen" id="btnFetchTrending" onclick="forceFetchTrending()" style="margin-top:24px;max-width:280px">&#x1F525; Get Trending Topics</button>
         </div>
 
-        <div class="cat-picker-overlay" id="catPickerOverlay" onclick="closeCatPicker()">
-            <div class="cat-picker" onclick="event.stopPropagation()">
-                <div class="cat-picker-header">
-                    <span>Choose Categories</span>
-                    <button onclick="closeCatPicker()">&#x2715;</button>
-                </div>
-                <div class="cat-picker-grid" id="catPickerGrid"></div>
-                <button class="btn-cat-done" onclick="closeCatPicker()">Done</button>
-            </div>
-        </div>
-
-        <div id="trendingLoading" class="trending-loading" style="display:none"><div class="loading-spinner" style="margin:0 auto 16px"></div><p>Fetching trending topics&hellip;</p></div>
-        <div id="trendingCategoryBlocks"></div>
+        <div id="trendingCategoryBlocks" style="margin-top:32px"></div>
     </div>
 </div>
 <script>
@@ -1385,69 +1380,134 @@ async function runAnalysis(){
 // ════════════════════════════════════════════════════
 //  TRENDING — state
 // ════════════════════════════════════════════════════
-let selectedCategories = JSON.parse(localStorage.getItem('tg_trending_cats') || '["tech","finance","gaming"]');
-let trendingDataCache  = {};
-let trendingLoaded     = false;
+var selectedCategories = JSON.parse(localStorage.getItem('tg_trending_cats') || '["tech","finance"]');
+var trendingDataCache  = {};
+var trendingLoaded     = false;
 
-const ALL_CATEGORIES = [
-    {id:'tech',        label:'Tech',        icon:'📱'},
-    {id:'finance',     label:'Finance',     icon:'💰'},
-    {id:'gaming',      label:'Gaming',      icon:'🎮'},
-    {id:'fitness',     label:'Fitness',     icon:'💪'},
-    {id:'food',        label:'Food',        icon:'🍕'},
-    {id:'travel',      label:'Travel',      icon:'✈️'},
-    {id:'education',   label:'Education',   icon:'📚'},
-    {id:'motivation',  label:'Motivation',  icon:'🔥'},
-    {id:'beauty',      label:'Beauty',      icon:'💄'},
-    {id:'entertainment',label:'Entertainment',icon:'🎬'},
-    {id:'business',    label:'Business',    icon:'📈'},
-    {id:'productivity',label:'Productivity',icon:'🧠'},
-    {id:'cricket',     label:'Cricket',     icon:'🏏'},
-    {id:'automobiles', label:'Automobiles', icon:'🚗'},
-    {id:'examprep',    label:'Exam Prep',   icon:'🎓'},
-    {id:'health',      label:'Health',      icon:'💊'},
-    {id:'pets',        label:'Pets',        icon:'🐾'},
-    {id:'music',       label:'Music',       icon:'🎵'},
-    {id:'realestate',  label:'Real Estate', icon:'🏠'},
-    {id:'spirituality',label:'Spirituality',icon:'🌿'},
-    {id:'stocks',      label:'Stocks',      icon:'📊'},
+var ALL_CATEGORIES = [
+    {id:'tech',         label:'Tech',          icon:'📱'},
+    {id:'finance',      label:'Finance',       icon:'💰'},
+    {id:'gaming',       label:'Gaming',        icon:'🎮'},
+    {id:'fitness',      label:'Fitness',       icon:'💪'},
+    {id:'food',         label:'Food',          icon:'🍕'},
+    {id:'travel',       label:'Travel',        icon:'✈️'},
+    {id:'education',    label:'Education',     icon:'📚'},
+    {id:'motivation',   label:'Motivation',    icon:'🔥'},
+    {id:'beauty',       label:'Beauty',        icon:'💄'},
+    {id:'entertainment',label:'Entertainment', icon:'🎬'},
+    {id:'business',     label:'Business',      icon:'📈'},
+    {id:'productivity', label:'Productivity',  icon:'🧠'},
+    {id:'cricket',      label:'Cricket',       icon:'🏏'},
+    {id:'automobiles',  label:'Automobiles',   icon:'🚗'},
+    {id:'examprep',     label:'Exam Prep',     icon:'🎓'},
+    {id:'health',       label:'Health',        icon:'💊'},
+    {id:'music',        label:'Music',         icon:'🎵'},
+    {id:'realestate',   label:'Real Estate',   icon:'🏠'},
+    {id:'spirituality', label:'Spirituality',  icon:'🌿'},
+    {id:'stocks',       label:'Stocks',        icon:'📊'},
 ];
 
 // ════════════════════════════════════════════════════
-//  TRENDING — init & fetch
+//  TRENDING — init (called when tab opened)
 // ════════════════════════════════════════════════════
 function initTrending() {
-    renderCatPicker();
-    renderSelectedChips();
-    if (!trendingLoaded) {
-        fetchTrendingData();   // fire-and-forget; fetchTrendingData handles its own UI
-    } else {
+    renderInlineCatGrid();
+    // Don't auto-fetch — wait for user to click button
+    if (trendingLoaded && Object.keys(trendingDataCache).length > 0) {
         renderAllCategoryBlocks();
+    } else {
+        var container = document.getElementById('trendingCategoryBlocks');
+        if (container && container.innerHTML.trim() === '') {
+            container.innerHTML =
+                '<div style="text-align:center;padding:48px 20px;color:var(--dim);font-size:14px">' +
+                '👆 Select your niches above and click <strong style="color:var(--white)">Get Trending Topics</strong>' +
+                '</div>';
+        }
     }
+}
+
+// ════════════════════════════════════════════════════
+//  TRENDING — inline category grid
+// ════════════════════════════════════════════════════
+function renderInlineCatGrid() {
+    var grid = document.getElementById('trendingCatGrid');
+    if (!grid) return;
+    grid.innerHTML = ALL_CATEGORIES.map(function(c) {
+        var sel = selectedCategories.includes(c.id);
+        return '<div class="trending-cat-chip' + (sel ? ' selected' : '') + '" ' +
+               'data-catid="' + c.id + '" onclick="toggleTrendingCat(this)">' +
+               '<span class="tc-icon">' + c.icon + '</span>' +
+               '<span>' + c.label + '</span>' +
+               '<span class="tc-check">' + (sel ? '✓' : '') + '</span>' +
+               '</div>';
+    }).join('');
+}
+
+function toggleTrendingCat(el) {
+    var id = el.dataset.catid;
+    if (selectedCategories.includes(id)) {
+        if (selectedCategories.length <= 1) return; // keep at least 1
+        selectedCategories = selectedCategories.filter(function(c) { return c !== id; });
+        el.classList.remove('selected');
+        el.querySelector('.tc-check').textContent = '';
+    } else {
+        selectedCategories.push(id);
+        el.classList.add('selected');
+        el.querySelector('.tc-check').textContent = '✓';
+    }
+    localStorage.setItem('tg_trending_cats', JSON.stringify(selectedCategories));
+    // Clear old results when selection changes
+    trendingLoaded = false;
+    trendingDataCache = {};
+    var container = document.getElementById('trendingCategoryBlocks');
+    if (container) container.innerHTML =
+        '<div style="text-align:center;padding:32px;color:var(--dim);font-size:14px">' +
+        'Click <strong style="color:var(--white)">Get Trending Topics</strong> to fetch results for your selection.' +
+        '</div>';
+}
+
+// ════════════════════════════════════════════════════
+//  TRENDING — fetch
+// ════════════════════════════════════════════════════
+function forceFetchTrending() {
+    trendingLoaded    = false;
+    trendingDataCache = {};
+    fetchTrendingData();
 }
 
 async function fetchTrendingData() {
     var container = document.getElementById('trendingCategoryBlocks');
     var btn       = document.getElementById('btnFetchTrending');
 
-    // Show inline spinner inside the main container
+    if (!selectedCategories.length) {
+        alert('Please select at least one category.');
+        return;
+    }
+
     if (container) container.innerHTML =
         '<div style="text-align:center;padding:60px 20px">' +
         '<div class="loading-spinner" style="margin:0 auto 16px"></div>' +
-        '<p style="color:var(--dim);font-size:14px">Fetching trending topics for India…</p></div>';
+        '<p style="color:var(--dim);font-size:14px">Fetching trending topics for: <strong style="color:var(--white)">' +
+        selectedCategories.map(function(id) {
+            var c = ALL_CATEGORIES.find(function(x) { return x.id === id; });
+            return c ? c.icon + ' ' + c.label : id;
+        }).join(', ') + '</strong>…</p></div>';
+
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Fetching…'; }
 
     try {
-        var res  = await fetch('/trending');
-        if (!res.ok) throw new Error('Server error: ' + res.status);
+        var niches = selectedCategories.join(',');
+        var res    = await fetch('/trending?niches=' + encodeURIComponent(niches));
+        if (!res.ok) throw new Error('Server error ' + res.status);
         var data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) throw new Error('No topics returned');
+        if (data.error) throw new Error(data.error);
+        if (!Array.isArray(data) || data.length === 0) throw new Error('No topics returned — try again');
 
         trendingDataCache = {};
         data.forEach(function(t) {
-            var niche = t.niche || 'other';
-            if (!trendingDataCache[niche]) trendingDataCache[niche] = [];
-            trendingDataCache[niche].push(t);
+            var n = t.niche || 'other';
+            if (!trendingDataCache[n]) trendingDataCache[n] = [];
+            trendingDataCache[n].push(t);
         });
         trendingLoaded = true;
         renderAllCategoryBlocks();
@@ -1461,109 +1521,42 @@ async function fetchTrendingData() {
             '<button class="btn-gen" onclick="forceFetchTrending()" style="max-width:200px;margin:0 auto">🔄 Retry</button>' +
             '</div>';
     } finally {
-        if (btn) { btn.disabled = false; btn.textContent = '🔥 Fetch Trending Topics'; }
+        if (btn) { btn.disabled = false; btn.textContent = '🔥 Get Trending Topics'; }
     }
 }
 
-function forceFetchTrending() {
-    trendingLoaded    = false;
-    trendingDataCache = {};
-    fetchTrendingData();
-}
-
 // ════════════════════════════════════════════════════
-//  TRENDING — category picker
-// ════════════════════════════════════════════════════
-function renderCatPicker() {
-    var grid = document.getElementById('catPickerGrid');
-    if (!grid) return;
-    grid.innerHTML = ALL_CATEGORIES.map(function(c) {
-        var sel = selectedCategories.includes(c.id);
-        var cls = 'cat-picker-item' + (sel ? ' selected' : '');
-        return '<div class="' + cls + '" data-catid="' + c.id + '" onclick="toggleCatEl(this)">' +
-               '<span class="cat-icon">' + c.icon + '</span>' + c.label + '</div>';
-    }).join('');
-}
-function toggleCatEl(el) { toggleCat(el.dataset.catid, el); }
-
-function toggleCat(id, el) {
-    if (selectedCategories.includes(id)) {
-        if (selectedCategories.length <= 1) return; // keep at least 1
-        selectedCategories = selectedCategories.filter(c => c !== id);
-        el.classList.remove('selected');
-    } else {
-        selectedCategories.push(id);
-        el.classList.add('selected');
-    }
-    localStorage.setItem('tg_trending_cats', JSON.stringify(selectedCategories));
-    renderSelectedChips();
-    renderAllCategoryBlocks();
-}
-
-function renderSelectedChips() {
-    var wrap = document.getElementById('selectedCats');
-    if (!wrap) return;
-    wrap.innerHTML = selectedCategories.map(function(id) {
-        var cat = ALL_CATEGORIES.find(function(c){ return c.id === id; });
-        if (!cat) return '';
-        return '<div class="selected-cat-chip">' + cat.icon + ' ' + cat.label +
-               '<button data-removeid="' + id + '" onclick="removeCatEl(this)">✕</button></div>';
-    }).join('');
-}
-function removeCatEl(btn) { removeCat(btn.dataset.removeid); }
-
-function removeCat(id) {
-    if (selectedCategories.length <= 1) return;
-    selectedCategories = selectedCategories.filter(c => c !== id);
-    localStorage.setItem('tg_trending_cats', JSON.stringify(selectedCategories));
-    renderSelectedChips();
-    renderCatPicker();
-    renderAllCategoryBlocks();
-}
-
-function openCatPicker() {
-    renderCatPicker();
-    document.getElementById('catPickerOverlay').classList.add('open');
-}
-
-function closeCatPicker() {
-    document.getElementById('catPickerOverlay').classList.remove('open');
-}
-
-// ════════════════════════════════════════════════════
-//  TRENDING — render topic blocks
+//  TRENDING — render results
 // ════════════════════════════════════════════════════
 function renderAllCategoryBlocks() {
-    const container = document.getElementById('trendingCategoryBlocks');
-    if (!container) return;
+    var container = document.getElementById('trendingCategoryBlocks');
+    if (!container || !trendingLoaded) return;
 
-    if (!trendingLoaded) return; // fetchTrendingData manages loading state
-
-    container.innerHTML = selectedCategories.map(catId => {
-        const cat    = ALL_CATEGORIES.find(c => c.id === catId);
+    var html = selectedCategories.map(function(catId) {
+        var cat    = ALL_CATEGORIES.find(function(c) { return c.id === catId; });
         if (!cat) return '';
-        const topics = trendingDataCache[catId] || [];
+        var topics = trendingDataCache[catId] || [];
 
         if (topics.length === 0) {
             return '<div class="trending-category-block">' +
                    '<div class="trending-cat-block-header">' +
                    '<div class="trending-cat-block-title">' + cat.icon + ' ' + cat.label + '</div></div>' +
-                   '<p style="color:var(--dim);font-size:13px;padding:16px 0">No topics available for this niche.</p></div>';
+                   '<p style="color:var(--dim);font-size:13px;padding:12px 0">No topics found for this niche.</p></div>';
         }
 
-        const slides = topics.map((t, i) =>
-            '<div class="trending-slide" data-topic="' + escapeHtml(t.topic) + '" data-niche="' + catId + '">' +
-            '<div class="trending-slide-num">TOPIC ' + (i+1) + ' OF ' + topics.length + '</div>' +
-            '<div class="trending-slide-heat">' + escapeHtml(t.heat || '🔥 Trending') + '</div>' +
-            '<div class="trending-slide-topic">' + escapeHtml(t.topic) + '</div>' +
-            '<div class="trending-slide-why">'  + escapeHtml(t.why  || '') + '</div>' +
-            '<button class="trending-use-btn" onclick="useTrendingTopicDirect(this)">⚡ Use This Topic</button>' +
-            '</div>'
-        ).join('');
+        var slides = topics.map(function(t, i) {
+            return '<div class="trending-slide" data-topic="' + escapeHtml(t.topic) + '" data-niche="' + catId + '">' +
+                '<div class="trending-slide-num">TOPIC ' + (i+1) + ' OF ' + topics.length + '</div>' +
+                '<div class="trending-slide-heat">' + escapeHtml(t.heat || '🔥 Trending') + '</div>' +
+                '<div class="trending-slide-topic">' + escapeHtml(t.topic) + '</div>' +
+                '<div class="trending-slide-why">'   + escapeHtml(t.why   || '') + '</div>' +
+                '<button class="trending-use-btn" onclick="useTrendingTopicDirect(this)">⚡ Use This Topic</button>' +
+                '</div>';
+        }).join('');
 
-        const dots = topics.map((_, i) =>
-            '<div class="slider-dot ' + (i === 0 ? 'active' : '') + '"></div>'
-        ).join('');
+        var dots = topics.map(function(_, i) {
+            return '<div class="slider-dot ' + (i === 0 ? 'active' : '') + '"></div>';
+        }).join('');
 
         return '<div class="trending-category-block">' +
                '<div class="trending-cat-block-header">' +
@@ -1575,30 +1568,34 @@ function renderAllCategoryBlocks() {
                '<div class="slider-dots" id="dots-' + catId + '">' + dots + '</div>' +
                '</div></div>';
     }).join('');
+
+    container.innerHTML = html ||
+        '<p style="color:var(--dim);text-align:center;padding:32px">No results. Try different categories.</p>';
 }
 
 function updateDots(sliderEl) {
-    const catId = sliderEl.dataset.cat;
-    const dots  = document.querySelectorAll('#dots-' + catId + ' .slider-dot');
-    const idx   = Math.round(sliderEl.scrollLeft / sliderEl.offsetWidth);
-    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    var catId = sliderEl.dataset.cat;
+    var dots  = document.querySelectorAll('#dots-' + catId + ' .slider-dot');
+    var idx   = Math.round(sliderEl.scrollLeft / (sliderEl.offsetWidth || 300));
+    dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
 }
 
 function useTrendingTopicDirect(btn) {
-    const slide = btn.closest('.trending-slide');
-    const topic = slide.dataset.topic;
-    const niche = slide.dataset.niche;
+    var slide = btn.closest('.trending-slide');
+    var topic = slide.dataset.topic;
+    var niche = slide.dataset.niche;
     if (!topic) return;
     showPage('home');
-    setTimeout(() => {
+    setTimeout(function() {
         document.getElementById('topic').value = topic;
-        document.querySelectorAll('.niche-chip').forEach(c => c.classList.remove('active'));
-        const chip = document.querySelector('[data-niche="' + niche + '"]');
+        document.querySelectorAll('.niche-chip').forEach(function(c) { c.classList.remove('active'); });
+        var chip = document.querySelector('[data-niche="' + niche + '"]');
         if (chip) chip.classList.add('active');
         selectedNiche = niche;
         document.getElementById('topic').scrollIntoView({behavior:'smooth', block:'center'});
     }, 300);
 }
+
 
 
 const THUMB_FONTS = [
@@ -1640,7 +1637,6 @@ function renderImgTitleChips(){
 }
 
 function renderFontChips(){
-    // Pick a random font as default each time
     activeFont=THUMB_FONTS[Math.floor(Math.random()*THUMB_FONTS.length)];
     document.getElementById('imgFontChips').innerHTML=THUMB_FONTS.map(f=>{
         const active=f.id===activeFont.id?'active':'';
@@ -1675,6 +1671,7 @@ function selectColor(id,el){
 
 function applyOverlayStyle(){
     const span=document.getElementById('imgOverlayText');
+    if(!span) return;
     span.style.fontFamily=activeFont.family;
     span.style.fontWeight=activeFont.weight;
     span.style.color=activeColor.hex;
@@ -1705,10 +1702,7 @@ async function downloadWithTitle(){
     canvas.width=img.naturalWidth||1280;
     canvas.height=img.naturalHeight||720;
     const ctx=canvas.getContext('2d');
-
-    // Load fonts into document before drawing
     await document.fonts.ready;
-
     const imgEl=new Image();
     imgEl.crossOrigin='anonymous';
     imgEl.onload=async function(){
@@ -1727,21 +1721,17 @@ async function downloadWithTitle(){
 }
 
 function drawTitleOnCanvas(ctx, W, H, titleText){
-    // Gradient background at bottom
     const grad=ctx.createLinearGradient(0,H*0.45,0,H);
     grad.addColorStop(0,'rgba(0,0,0,0)');
     grad.addColorStop(0.6,'rgba(0,0,0,0.75)');
     grad.addColorStop(1,'rgba(0,0,0,0.95)');
     ctx.fillStyle=grad;
     ctx.fillRect(0,0,W,H);
-
     const fs=Math.max(36,Math.min(72,W/12));
     const fontFamily=activeFont.cssfamily||'Impact';
     ctx.font='900 '+fs+'px "'+fontFamily+'"';
     ctx.textAlign='left';
     ctx.textBaseline='alphabetic';
-
-    // Word wrap
     const maxW=W-80;
     const words=titleText.split(' ');
     let lines=[],line='';
@@ -1751,19 +1741,15 @@ function drawTitleOnCanvas(ctx, W, H, titleText){
         else line=test;
     });
     if(line)lines.push(line);
-
     const lineH=fs*1.3;
     let startY=H-24-(lines.length-1)*lineH;
-
     if(activeColor.id==='gradient'){
-        // Multi-color gradient text
         const colors=activeColor.gradient;
         lines.forEach((l,li)=>{
             const y=startY+li*lineH;
             const tw=ctx.measureText(l).width;
             const tg=ctx.createLinearGradient(40,y-fs,40+tw,y);
             colors.forEach((c,i)=>tg.addColorStop(i/(colors.length-1),c));
-            // Black stroke for readability
             ctx.strokeStyle='rgba(0,0,0,0.9)';
             ctx.lineWidth=fs/8;
             ctx.lineJoin='round';
@@ -1774,20 +1760,15 @@ function drawTitleOnCanvas(ctx, W, H, titleText){
     } else {
         lines.forEach((l,li)=>{
             const y=startY+li*lineH;
-            // Bold black stroke outline
             ctx.strokeStyle='rgba(0,0,0,0.95)';
             ctx.lineWidth=Math.max(4,fs/7);
             ctx.lineJoin='round';
             ctx.strokeText(l,40,y);
-            // Fill with chosen color
             ctx.fillStyle=activeColor.hex;
             ctx.fillText(l,40,y);
         });
     }
-    }
-
-
-
+}
 
 // ════════════════════════════════════════════════════════
 //  NEW MODULE HELPERS
@@ -1826,9 +1807,8 @@ function _dimLabel(k) {
 
 function _loadPreview(input, previewId, btnId) {
     if(!input.files || !input.files[0]) return;
-    var key = previewId;
     _toB64(input.files[0], function(b64) {
-        _modImgB64[key] = b64;
+        _modImgB64[previewId] = b64;
         var img = document.getElementById(previewId);
         if(img) { img.src = b64; img.style.display = 'block'; }
         var btn = document.getElementById(btnId);
@@ -1882,18 +1862,15 @@ function ta_render(d) {
     var scores = d.scores || {};
     var ctr    = d.ctr_score || 0;
     var col    = _scoreColor(ctr);
-
     var dimHtml = Object.entries(scores).map(function(e) {
         var k=e[0], v=e[1], c=_scoreColor(v);
         return '<div class="dim-bar"><div class="dim-bar-head"><span class="dim-bar-name">'+_dimLabel(k)+'</span><span class="dim-bar-score" style="color:'+c+'">'+v+'/10</span></div><div class="dim-bar-track"><div class="dim-bar-fill" style="width:'+(v*10)+'%;background:'+c+'"></div></div></div>';
     }).join('');
-
     var str = (d.strengths||[]).map(function(s){return '<li><span class="ic">✅</span>'+escapeHtml(s)+'</li>';}).join('');
     var wk  = (d.weaknesses||[]).map(function(w){return '<li><span class="ic">⚠️</span>'+escapeHtml(w)+'</li>';}).join('');
     var fx  = (d.fixes||[]).map(function(f){
         return '<div class="res-card warn"><div class="res-label">'+_dimLabel(f.dimension)+'</div><div class="res-text">'+escapeHtml(f.fix)+'</div></div>';
     }).join('');
-
     _showResult('taResult',
         '<div class="res-card" style="display:flex;align-items:center;gap:28px;flex-wrap:wrap">' +
         '<div><div class="res-label">CTR READINESS SCORE</div><div class="res-big" style="color:'+col+'">'+ctr+'<span style="font-size:28px;color:var(--dim)">/10</span></div></div>' +
@@ -1963,7 +1940,6 @@ function ctr_render(d) {
             '</div>' +
             '<div class="res-text">'+escapeHtml(p.reasoning||'')+'</div></div>';
     }).join('');
-
     _showResult('ctrResult',
         '<div class="res-card winner"><div class="res-label">🎯 WINNER REASONING</div>' +
         '<div class="res-text" style="color:var(--white)">'+escapeHtml(d.winner_reasoning||'')+'</div></div>' +
@@ -2010,13 +1986,11 @@ function rev_render(d) {
     var layerHtml = Object.entries(layers).map(function(e) {
         return '<div class="rev-layer"><div class="rev-layer-lbl">'+(_REV_LAYER_LABELS[e[0]]||e[0])+'</div><div class="rev-layer-val">'+escapeHtml(e[1])+'</div></div>';
     }).join('');
-
     var tagsHtml = (d.technique_tags||[]).map(function(t){return '<span class="tech-tag">'+escapeHtml(t)+'</span>';}).join('');
     var top3     = (d.top_3_elements||[]).map(function(t,i){return '<li><span class="step-num">'+(i+1)+'</span>'+escapeHtml(t)+'</li>';}).join('');
     var steps    = (d.replication_blueprint||[]).map(function(s){return '<li><span class="step-num">'+s.step+'</span>'+escapeHtml(s.action)+'</li>';}).join('');
     var dosHtml  = (d.dos||[]).map(function(x){return '<li><span class="ic">✅</span>'+escapeHtml(x)+'</li>';}).join('');
     var dntsHtml = (d.donts||[]).map(function(x){return '<li><span class="ic">🚫</span>'+escapeHtml(x)+'</li>';}).join('');
-
     _showResult('revResult',
         '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">' +
         '<div>'+tagsHtml+'</div>' +
@@ -2171,35 +2145,27 @@ function brand_render(d) {
     var swatches = Object.entries(palette).map(function(e){
         return '<div style="text-align:center;margin-right:14px"><div class="swatch" style="background:'+escapeHtml(e[1])+'"></div><div style="font-size:10px;color:var(--dim);text-transform:uppercase;margin-top:4px">'+e[0]+'</div><div style="font-size:10px;color:var(--white)">'+escapeHtml(e[1])+'</div></div>';
     }).join('');
-
     var recur = (d.recurring_elements||[]).map(function(r){return '<span class="tech-tag">'+escapeHtml(r)+'</span>';}).join('');
     var recos = (d.improvement_recommendations||[]).map(function(r){return '<li><span class="ic">→</span>'+escapeHtml(r)+'</li>';}).join('');
     var incon = (d.inconsistencies||[]).map(function(r){return '<li><span class="ic" style="color:#FDE036">⚠</span>'+escapeHtml(r)+'</li>';}).join('');
     var cons  = d.consistency_score || 0;
     var col   = _scoreColor(cons/10);
-
     _showResult('brandResult',
         '<div class="res-card" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:14px">' +
         '<div><div class="res-label">BRAND CONSISTENCY</div><div class="res-big" style="color:'+col+'">'+cons+'<span style="font-size:22px;color:var(--dim)">/100</span></div></div>' +
         '<div style="flex:1;min-width:180px"><div class="res-text" style="color:var(--white);font-size:14px">'+escapeHtml(d.brand_audit||'')+'</div>' +
         '<div class="res-label" style="margin-top:10px">BRAND MOOD</div><div class="res-text" style="color:var(--white)">'+escapeHtml(d.brand_mood||'')+'</div></div></div>' +
-
         '<div class="res-label" style="margin-bottom:10px">COLOR PALETTE</div>' +
         '<div style="display:flex;flex-wrap:wrap;margin-bottom:20px">'+swatches+'</div>' +
-
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">' +
         '<div class="res-card"><div class="res-label">TYPOGRAPHY</div>' +
         '<div style="font-size:13px;color:var(--white);margin-bottom:4px">Recommended: <strong style="color:var(--yellow)">'+escapeHtml(d.font_recommendation||'')+'</strong></div>' +
         '<div class="res-text">'+escapeHtml(d.typography_style||'')+'</div></div>' +
         '<div class="res-card"><div class="res-label">EXPRESSION STYLE</div>' +
         '<div class="res-text" style="color:var(--white)">'+escapeHtml(d.expression_style||'')+'</div></div></div>' +
-
         '<div class="res-card" style="margin-bottom:14px"><div class="res-label">COMPOSITION PATTERN</div><div class="res-text" style="color:var(--white)">'+escapeHtml(d.composition_pattern||'')+'</div></div>' +
-
         '<div class="res-label" style="margin-bottom:8px">RECURRING ELEMENTS</div><div style="margin-bottom:16px">'+recur+'</div>' +
-
         (incon ? '<div class="res-card warn"><div class="res-label" style="color:#FDE036">⚠️ INCONSISTENCIES</div><ul class="check-list">'+incon+'</ul></div>' : '') +
-
         '<div class="res-card success" style="margin-top:14px"><div class="res-label" style="color:#43E97B">📈 IMPROVEMENT RECOMMENDATIONS</div><ul class="check-list">'+recos+'</ul></div>'
     );
 }
