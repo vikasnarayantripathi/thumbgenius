@@ -548,7 +548,7 @@
         <button class="nav-tab active" id="tab-home" onclick='showPage("home")'>&#x1F3E0; Home</button>
         <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C1; History</button>
         <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
-        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Run CTR Auditr</button>
+        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Analyzer</button>
         <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
     </div>
 </nav>
@@ -784,7 +784,7 @@
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:support@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none">support@thumbgenius.in</a>
+    <a href="/cdn-cgi/l/email-protection#384b4d4848574a4c784c504d555a5f5d56514d4b165156" style="color:rgba(255,255,255,0.3);text-decoration:none"><span class="__cf_email__" data-cfemail="d9aaaca9a9b6abad99adb1acb4bbbebcb7b0acaaf7b0b7">[email&#160;protected]</span></a>
 </footer>
 </div>
 
@@ -821,14 +821,14 @@
 
 <div class="page" id="page-analyzer">
     <div class="feature-page">
-        <div class="section-kicker">Channel Packaging Audit</div>
-        <div class="feature-page-title">Channel CTR Audit</div>
+        <div class="section-kicker">Channel Intelligence</div>
+        <div class="feature-page-title">Channel Analyzer</div>
         <p class="feature-page-sub">Paste your recent video titles. Get a full packaging diagnosis — what's weak, what's working, and exactly how to fix it.</p>
         <div class="analyzer-input-wrap">
             <p>Enter 3–5 of your recent video titles separated by commas. ThumbGenius identifies patterns, diagnoses weaknesses, and rewrites your titles with higher CTR potential — showing you exactly what your channel's packaging is missing.</p>
             <div class="channel-input-row">
                 <input type="text" id="channelInput" placeholder="e.g. My Review of Phone X, Top 5 Gadgets, Unboxing Video..." style="padding-left:20px" />
-                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">&#x1F50D; Run CTR Audit</button>
+                <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">&#x1F50D; Analyze</button>
             </div>
         </div>
         <div class="analyzer-result" id="analyzerResult">
@@ -837,9 +837,9 @@
                 <div class="analyzer-score-box"><div class="analyzer-score-label">Emotion Score</div><div class="analyzer-score-num" id="scoreEmotion">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
                 <div class="analyzer-score-box"><div class="analyzer-score-label">Clarity Score</div><div class="analyzer-score-num" id="scoreClarity">&mdash;</div><div class="analyzer-score-sub">out of 10</div></div>
             </div>
-            <div class="analyzer-section"><div class="analyzer-section-title">&#x26A0;&#xFE0F; Packaging Weaknesses</div><div id="analyzerIssues"></div></div>
-            <div class="analyzer-section"><div class="analyzer-section-title">&#x2705; Optimization Opportunities</div><div id="analyzerFixes"></div></div>
-            <div class="analyzer-section"><div class="analyzer-section-title">&#x1F4A1; Re-Packaged Titles</div><div id="analyzerRewrite"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x26A0;&#xFE0F; Issues Found</div><div id="analyzerIssues"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x2705; Improvements</div><div id="analyzerFixes"></div></div>
+            <div class="analyzer-section"><div class="analyzer-section-title">&#x1F4A1; Rewritten Titles</div><div id="analyzerRewrite"></div></div>
         </div>
     </div>
 </div>
@@ -873,7 +873,7 @@
         <div id="trendingCategoryBlocks"></div>
     </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let selectedNiche='tech', selectedPlan='creator';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
 let currentUserEmail=localStorage.getItem('tg_email')||'';
@@ -898,7 +898,7 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     resize();createParticles();draw();
     window.addEventListener('resize',()=>{resize();createParticles();});
 })();
-
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
 function getHeaders(){
     const h={'Content-Type':'application/json'};
     if(currentUserEmail)h['X-User-Email']=currentUserEmail;
@@ -1507,10 +1507,4 @@ function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp
 function copyToClipboard(text,el){navigator.clipboard.writeText(text).then(()=>{const cp=el.querySelector('.cp');cp.textContent='✅';setTimeout(()=>cp.textContent='📋',1500);});}
 function copyText(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert('Copied!'));}
 
-document.getElementById('topic').addEventListener('keydown',e=>{if(e.key==='Enter')generate();});
-document.getElementById('paymentModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePaymentModal();});
-
-loadUserStatus();
-</script>
-</body>
-</html>
+document.getElem
