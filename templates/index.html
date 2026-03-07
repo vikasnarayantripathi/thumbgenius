@@ -1077,6 +1077,23 @@ function getHeaders(){
     return h;
 }
 
+// ── escapeHtml ──────────────────────────────────────
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g,  '&amp;')
+        .replace(/</g,  '&lt;')
+        .replace(/>/g,  '&gt;')
+        .replace(/"/g,  '&quot;')
+        .replace(/'/g,  '&#39;');
+}
+
+// ── showUpgradeModal (alias for openPaymentModal) ──
+function showUpgradeModal() {
+    if (typeof openPaymentModal === 'function') openPaymentModal();
+}
+
+
 async function loadUserStatus(){
     if(!currentUserEmail){updateUIForFree();return;}
     try{
