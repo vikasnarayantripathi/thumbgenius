@@ -501,6 +501,7 @@ function showPage(p){
     if(page) page.classList.add('active');
     if(tab)  tab.classList.add('active');
     if(p==='trending' && typeof initTrending==='function') initTrending();
+    if(p==='library'  && typeof loadInspLib==='function')  loadInspLib();
     if(p==='history'  && typeof renderHistory==='function') renderHistory();
     window.scrollTo(0,0);
 }
@@ -898,7 +899,7 @@ function showPage(p){
         </div>
     </div>
 </div>
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+
 <div class="page" id="page-trending">
     <div class="feature-page">
         <div class="feature-page-title">What India Is Watching &#x1F1EE;&#x1F1F3;</div>
@@ -2053,13 +2054,6 @@ function renderBrandKit(d) {
 
 // ═══ INIT NEW PAGES ═══
 function initLibrary() { loadInspLib(); }
-
-// Extend showPage for new modules
-var _origShowPage = showPage;
-function showPage(p) {
-    _origShowPage(p);
-    if(p === 'library' && typeof loadInspLib === 'function') { loadInspLib(); }
-}
 
 
 </script>
