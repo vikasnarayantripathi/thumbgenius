@@ -450,7 +450,47 @@
             .trending-card { padding:18px; }
             .ab-score-num { font-size:28px; }
         }
-    </style>
+    
+        /* Upload zones */
+        .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:14px; }
+        .upload-zone:hover { border-color:var(--yellow); background:rgba(255,224,54,0.03); }
+        /* Lib tabs */
+        .lib-tab { background:transparent; border:1px solid var(--border); color:var(--dim); padding:7px 16px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600; transition:all 0.2s; }
+        .lib-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); background:rgba(255,224,54,0.05); }
+        /* Library cards */
+        .lib-card { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; transition:all 0.2s; }
+        .lib-card:hover { border-color:rgba(255,224,54,0.3); transform:translateY(-2px); }
+        .lib-card-body { padding:14px; }
+        .lib-card-title { font-size:13px; font-weight:700; color:var(--white); margin-bottom:6px; line-height:1.4; }
+        .lib-card-why { font-size:12px; color:var(--dim); line-height:1.5; margin-bottom:10px; }
+        .lib-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+        .lib-tag { font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; background:rgba(108,99,255,0.15); color:#6C63FF; border:1px solid rgba(108,99,255,0.3); }
+        .lib-tag.high { background:rgba(67,233,123,0.1); color:#43E97B; border-color:rgba(67,233,123,0.3); }
+        .lib-card-actions { display:flex; gap:6px; }
+        .lib-btn { flex:1; padding:7px 10px; border-radius:7px; font-size:11px; font-weight:600; cursor:pointer; border:none; transition:all 0.2s; }
+        .lib-btn-save { background:rgba(255,224,54,0.1); color:var(--yellow); border:1px solid rgba(255,224,54,0.2); }
+        .lib-btn-re { background:rgba(108,99,255,0.1); color:#6C63FF; border:1px solid rgba(108,99,255,0.2); }
+        /* Dimension bars */
+        .dim-bar-wrap { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 16px; }
+        .dim-bar-label { display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:6px; }
+        .dim-bar-track { height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+        .dim-bar-fill { height:100%; border-radius:3px; transition:width 1s ease; }
+        /* Branding kit */
+        .brand-kit { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; }
+        .brand-swatch { width:40px; height:40px; border-radius:8px; border:1px solid var(--border); display:inline-block; }
+        /* CTR prediction cards */
+        .ctr-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:10px; transition:all 0.2s; }
+        .ctr-card.winner { border-color:var(--yellow); background:rgba(255,224,54,0.04); }
+        .ctr-range { font-size:22px; font-weight:800; color:var(--yellow); }
+        /* Reverse layers */
+        .rev-layer { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:8px; }
+        .rev-layer-title { font-size:11px; font-weight:700; color:var(--yellow); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+        .rev-layer-content { font-size:13px; color:var(--dim); line-height:1.6; }
+        /* Blueprint steps */
+        .blueprint-step { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--border); }
+        .blueprint-num { width:28px; height:28px; border-radius:50%; background:rgba(108,99,255,0.2); color:#6C63FF; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+        </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
 function showPage(p){
@@ -559,11 +599,15 @@ function showPage(p){
         </div>
     </div>
     <div class="nav-bottom">
-        <button class="nav-tab active" id="tab-home" onclick='showPage("home")'>&#x1F3E0; Home</button>
-        <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C1; History</button>
+        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">&#x1F3E0; Home</button>
+        <button class="nav-tab" id="tab-thumb-analyzer" onclick="showPage('thumb-analyzer')">&#x1F3AF; Analyzer</button>
+        <button class="nav-tab" id="tab-ctr" onclick="showPage('ctr')">&#x1F4CA; CTR</button>
+        <button class="nav-tab" id="tab-reverse" onclick="showPage('reverse')">&#x1F52C; Reverse</button>
         <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
-        <button class="nav-tab" id="tab-analyzer" onclick="showPage('analyzer')">&#x1F50D; Analyzer</button>
+        <button class="nav-tab" id="tab-library" onclick="showPage('library')">&#x1F4A1; Library</button>
+        <button class="nav-tab" id="tab-branding" onclick="showPage('branding')">&#x1F3A8; Branding</button>
         <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
+        <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C2; History</button>
     </div>
 </nav>
 
@@ -854,7 +898,7 @@ function showPage(p){
         </div>
     </div>
 </div>
-
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
 <div class="page" id="page-trending">
     <div class="feature-page">
         <div class="feature-page-title">What India Is Watching &#x1F1EE;&#x1F1F3;</div>
@@ -898,7 +942,7 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     function draw(){
         ctx.clearRect(0,0,W,H);
         const g1=ctx.createRadialGradient(W*0.2,H*0.1,0,W*0.2,H*0.1,W*0.6);g1.addColorStop(0,'rgba(255,224,54,0.04)');g1.addColorStop(1,'transparent');ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+        const g2=ctx.createRadialGradient(W*0.8,H*0.7,0,W*0.8,H*0.7,W*0.5);g2.addColorStop(0,'rgba(255,45,122,0.05)');g2.addColorStop(1,'transparent');ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
         particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.globalAlpha=p.a;ctx.fill();ctx.globalAlpha=1;p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>W)p.dx*=-1;if(p.y<0||p.y>H)p.dy*=-1;});
         ctx.globalAlpha=0.025;ctx.strokeStyle='#ffffff';ctx.lineWidth=0.5;
         for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
@@ -1543,3 +1587,589 @@ function drawTitleOnCanvas(ctx, W, H, titleText){
             ctx.fillText(l,40,y);
         });
     }
+    }
+
+// ═══ NEW MODULES JS ═══
+// ═══ MODULE HELPERS ═══
+var moduleImgData = {};
+
+function toBase64(file, cb) {
+    var reader = new FileReader();
+    reader.onload = function(e) { cb(e.target.result); };
+    reader.readAsDataURL(file);
+}
+
+function getHeaders() {
+    var h = {'Content-Type':'application/json'};
+    var em = localStorage.getItem('tg_email');
+    var ac = localStorage.getItem('tg_admin_code');
+    if(em) h['X-User-Email'] = em;
+    if(ac) h['X-Admin-Code'] = ac;
+    return h;
+}
+
+function scoreColor(s) {
+    if(s >= 8) return '#43E97B';
+    if(s >= 6) return '#FDE036';
+    return '#FF6584';
+}
+
+function dimLabel(k) {
+    var m = {emotional_impact:'Emotional Impact',text_clarity:'Text Clarity',face_power:'Face Power',
+             color_contrast:'Color Contrast',curiosity_gap:'Curiosity Gap',niche_fit:'Niche Fit'};
+    return m[k] || k;
+}
+
+// ═══ MODULE 1: THUMBNAIL ANALYZER ═══
+function loadThumbPreview(input) {
+    if(!input.files[0]) return;
+    toBase64(input.files[0], function(b64) {
+        moduleImgData.thumbAnalyzer = b64;
+        var img = document.getElementById('thumbPreviewImg');
+        img.src = b64; img.style.display = 'block';
+        document.getElementById('taBtn').disabled = false;
+    });
+}
+
+async function runThumbAnalysis() {
+    var b64 = moduleImgData.thumbAnalyzer;
+    if(!b64) return;
+    document.getElementById('taResult').style.display = 'none';
+    document.getElementById('taLoading').style.display = 'block';
+    document.getElementById('taBtn').disabled = true;
+    var niche = document.getElementById('taSelectNiche').value;
+    var title = document.getElementById('taTitleInput').value;
+    try {
+        var res = await fetch('/analyze-thumbnail', {
+            method:'POST', headers: getHeaders(),
+            body: JSON.stringify({image_b64: b64.split(',')[1] || b64, niche, title})
+        });
+        var data = await res.json();
+        document.getElementById('taLoading').style.display = 'none';
+        if(data.error) { alert(data.error); document.getElementById('taBtn').disabled = false; return; }
+        renderThumbAnalysis(data);
+    } catch(e) {
+        document.getElementById('taLoading').style.display = 'none';
+        document.getElementById('taBtn').disabled = false;
+        alert('Analysis failed. Please try again.');
+    }
+}
+
+function renderThumbAnalysis(d) {
+    var scores = d.scores || {};
+    var scoreHtml = Object.entries(scores).map(function(entry) {
+        var k = entry[0], v = entry[1];
+        var color = scoreColor(v);
+        return '<div class="dim-bar-wrap"><div class="dim-bar-label"><span style="color:var(--white)">' + dimLabel(k) + '</span><span style="color:' + color + ';font-size:15px;font-weight:800">' + v + '/10</span></div><div class="dim-bar-track"><div class="dim-bar-fill" style="width:' + (v*10) + '%;background:' + color + '"></div></div></div>';
+    }).join('');
+
+    var strengthsHtml = (d.strengths||[]).map(function(s) {
+        return '<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px"><span style="color:#43E97B;flex-shrink:0">✓</span><span style="font-size:13px;color:var(--dim)">' + escapeHtml(s) + '</span></div>';
+    }).join('');
+
+    var weaknessHtml = (d.weaknesses||[]).map(function(w) {
+        return '<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px"><span style="color:#FF6584;flex-shrink:0">✗</span><span style="font-size:13px;color:var(--dim)">' + escapeHtml(w) + '</span></div>';
+    }).join('');
+
+    var fixesHtml = (d.fixes||[]).map(function(f) {
+        return '<div style="background:rgba(255,101,132,0.06);border:1px solid rgba(255,101,132,0.2);border-radius:10px;padding:12px 16px;margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:#FF6584;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">' + dimLabel(f.dimension) + '</div><div style="font-size:13px;color:var(--dim)">' + escapeHtml(f.fix) + '</div></div>';
+    }).join('');
+
+    var ctrScore = d.ctr_score || 0;
+    var ctrColor = scoreColor(ctrScore);
+
+    document.getElementById('taResult').innerHTML =
+        '<div class="result-section">' +
+        '<div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-bottom:24px">' +
+        '<div><div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">CTR READINESS</div>' +
+        '<div style="font-size:72px;font-weight:900;color:' + ctrColor + ';line-height:1">' + ctrScore + '</div>' +
+        '<div style="font-size:20px;color:var(--dim);font-weight:600">/10</div></div>' +
+        '<div style="flex:1;min-width:200px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">VERDICT</div>' +
+        '<div style="font-size:13px;color:var(--white);line-height:1.6">' + escapeHtml(d.verdict||'') + '</div>' +
+        '<div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5">' + escapeHtml(d.competitor_benchmark||'') + '</div>' +
+        '</div></div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--white);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">6 DIMENSION SCORES</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-bottom:20px">' + scoreHtml + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">' +
+        '<div><div style="font-size:11px;font-weight:700;color:#43E97B;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">✅ STRENGTHS</div>' + strengthsHtml + '</div>' +
+        '<div><div style="font-size:11px;font-weight:700;color:#FF6584;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">⚠️ WEAKNESSES</div>' + weaknessHtml + '</div>' +
+        '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--white);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">🔧 FIX INSTRUCTIONS</div>' +
+        fixesHtml + '</div>';
+    document.getElementById('taResult').style.display = 'block';
+    document.getElementById('taBtn').disabled = false;
+}
+
+// ═══ MODULE 2: CTR PREDICTION ═══
+function loadCtrPreview(input) {
+    if(!input.files[0]) return;
+    toBase64(input.files[0], function(b64) {
+        moduleImgData.ctr = b64;
+        var img = document.getElementById('ctrPreviewImg');
+        img.src = b64; img.style.display = 'block';
+        document.getElementById('ctrBtn').disabled = false;
+    });
+}
+
+function addCtrTitleField() {
+    var inputs = document.querySelectorAll('.ctr-title');
+    if(inputs.length >= 5) return;
+    var n = inputs.length + 1;
+    var input = document.createElement('input');
+    input.className = 'gen-input ctr-title';
+    input.type = 'text';
+    input.placeholder = 'Title ' + n + ' (optional)';
+    input.style.marginBottom = '7px';
+    document.getElementById('ctrTitlesWrap').appendChild(input);
+}
+
+async function runCtrPredict() {
+    var b64 = moduleImgData.ctr;
+    if(!b64) return;
+    var titles = Array.from(document.querySelectorAll('.ctr-title')).map(function(i){ return i.value.trim(); }).filter(Boolean);
+    if(!titles.length) { alert('Enter at least one title'); return; }
+    document.getElementById('ctrResult').style.display = 'none';
+    document.getElementById('ctrLoading').style.display = 'block';
+    document.getElementById('ctrBtn').disabled = true;
+    try {
+        var res = await fetch('/predict-ctr', {
+            method:'POST', headers: getHeaders(),
+            body: JSON.stringify({image_b64: b64.split(',')[1]||b64, titles, niche: document.getElementById('ctrNicheSelect').value})
+        });
+        var data = await res.json();
+        document.getElementById('ctrLoading').style.display = 'none';
+        if(data.error === 'upgrade_required') { showUpgradeModal(); document.getElementById('ctrBtn').disabled=false; return; }
+        if(data.error) { alert(data.error); document.getElementById('ctrBtn').disabled=false; return; }
+        renderCtrResult(data);
+    } catch(e) {
+        document.getElementById('ctrLoading').style.display='none';
+        document.getElementById('ctrBtn').disabled=false;
+        alert('Prediction failed. Try again.');
+    }
+}
+
+function renderCtrResult(d) {
+    var preds = d.predictions || [];
+    var cardsHtml = preds.map(function(p, i) {
+        var isWinner = p.rank === 1;
+        return '<div class="ctr-card ' + (isWinner?'winner':'') + '">' +
+            (isWinner ? '<div style="font-size:11px;font-weight:700;color:var(--yellow);letter-spacing:1.5px;margin-bottom:8px">🏆 BEST PAIRING</div>' : '') +
+            '<div style="font-size:14px;font-weight:700;color:var(--white);margin-bottom:10px">' + escapeHtml(p.title) + '</div>' +
+            '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:10px">' +
+            '<div><div style="font-size:11px;color:var(--dim);margin-bottom:2px">PREDICTED CTR</div><div class="ctr-range">' + escapeHtml(p.ctr_range) + '</div></div>' +
+            '<div><div style="font-size:11px;color:var(--dim);margin-bottom:2px">SYNERGY</div><div style="font-size:20px;font-weight:800;color:#6C63FF">' + p.synergy_score + '/100</div></div>' +
+            '<div><div style="font-size:11px;color:var(--dim);margin-bottom:2px">SCROLL-STOP</div><div style="font-size:20px;font-weight:800;color:#43E97B">' + p.scroll_stop_probability + '%</div></div>' +
+            '<div><div style="font-size:11px;color:var(--dim);margin-bottom:2px">ANGLE</div><div style="font-size:12px;font-weight:600;color:var(--white)">' + escapeHtml(p.emotional_angle||'') + '</div></div>' +
+            '</div>' +
+            '<div style="font-size:12px;color:var(--dim);line-height:1.5">' + escapeHtml(p.reasoning||'') + '</div></div>';
+    }).join('');
+
+    document.getElementById('ctrResult').innerHTML =
+        '<div class="result-section">' +
+        '<div style="background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.2);border-radius:10px;padding:14px;margin-bottom:16px">' +
+        '<div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:6px">🎯 WINNER REASONING</div>' +
+        '<div style="font-size:13px;color:var(--dim);line-height:1.6">' + escapeHtml(d.winner_reasoning||'') + '</div></div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--white);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">ALL PREDICTIONS (ranked)</div>' +
+        cardsHtml +
+        '<div style="background:rgba(67,233,123,0.06);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:14px;margin-top:14px">' +
+        '<div style="font-size:12px;font-weight:700;color:#43E97B;margin-bottom:6px">💡 IMPROVEMENT TIP</div>' +
+        '<div style="font-size:13px;color:var(--dim)">' + escapeHtml(d.improvement_tip||'') + '</div></div></div>';
+    document.getElementById('ctrResult').style.display = 'block';
+    document.getElementById('ctrBtn').disabled = false;
+}
+
+// ═══ MODULE 3: REVERSE ENGINEERING ═══
+function loadRevPreview(input) {
+    if(!input.files[0]) return;
+    toBase64(input.files[0], function(b64) {
+        moduleImgData.reverse = b64;
+        var img = document.getElementById('revPreviewImg');
+        img.src = b64; img.style.display = 'block';
+        document.getElementById('revBtn').disabled = false;
+    });
+}
+
+async function runReverseEngineer() {
+    var b64 = moduleImgData.reverse;
+    if(!b64) return;
+    document.getElementById('revResult').style.display='none';
+    document.getElementById('revLoading').style.display='block';
+    document.getElementById('revBtn').disabled=true;
+    try {
+        var res = await fetch('/reverse-engineer', {
+            method:'POST', headers: getHeaders(),
+            body: JSON.stringify({image_b64: b64.split(',')[1]||b64, niche: document.getElementById('revNicheSelect').value})
+        });
+        var data = await res.json();
+        document.getElementById('revLoading').style.display='none';
+        if(data.error) { alert(data.error); document.getElementById('revBtn').disabled=false; return; }
+        renderReverseResult(data);
+    } catch(e) {
+        document.getElementById('revLoading').style.display='none';
+        document.getElementById('revBtn').disabled=false;
+        alert('Reverse engineering failed. Try again.');
+    }
+}
+
+var LAYER_LABELS = {
+    composition:'🖼️ Composition', color_psychology:'🎨 Color Psychology',
+    typography:'✍️ Typography', face_expression:'😮 Face Expression',
+    emotion_trigger:'❤️ Emotion Trigger', curiosity_mechanism:'🧠 Curiosity Mechanism',
+    text_visual_synergy:'🔗 Text-Visual Synergy', scroll_stop_factor:'⏸️ Scroll-Stop Factor',
+    social_proof_signals:'⭐ Social Proof Signals'
+};
+
+function renderReverseResult(d) {
+    var layers = d.layers || {};
+    var layersHtml = Object.entries(layers).map(function(e) {
+        return '<div class="rev-layer"><div class="rev-layer-title">' + (LAYER_LABELS[e[0]]||e[0]) + '</div><div class="rev-layer-content">' + escapeHtml(e[1]) + '</div></div>';
+    }).join('');
+
+    var tagsHtml = (d.technique_tags||[]).map(function(t) {
+        return '<span class="lib-tag">' + escapeHtml(t) + '</span>';
+    }).join('');
+
+    var top3Html = (d.top_3_elements||[]).map(function(t, i) {
+        return '<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px"><span style="width:22px;height:22px;border-radius:50%;background:rgba(255,224,54,0.15);color:var(--yellow);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (i+1) + '</span><span style="font-size:13px;color:var(--dim)">' + escapeHtml(t) + '</span></div>';
+    }).join('');
+
+    var blueprintHtml = (d.replication_blueprint||[]).map(function(s) {
+        return '<div class="blueprint-step"><div class="blueprint-num">' + s.step + '</div><div style="font-size:13px;color:var(--dim);line-height:1.6;padding-top:4px">' + escapeHtml(s.action) + '</div></div>';
+    }).join('');
+
+    var dosHtml = (d.dos||[]).map(function(x) { return '<div style="display:flex;gap:8px;margin-bottom:7px"><span style="color:#43E97B">✓</span><span style="font-size:13px;color:var(--dim)">' + escapeHtml(x) + '</span></div>'; }).join('');
+    var dontsHtml = (d.donts||[]).map(function(x) { return '<div style="display:flex;gap:8px;margin-bottom:7px"><span style="color:#FF6584">✗</span><span style="font-size:13px;color:var(--dim)">' + escapeHtml(x) + '</span></div>'; }).join('');
+
+    document.getElementById('revResult').innerHTML =
+        '<div class="result-section">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">' + tagsHtml + '</div>' +
+        '<div style="font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;background:rgba(67,233,123,0.1);color:#43E97B;border:1px solid rgba(67,233,123,0.2)">' + escapeHtml(d.ctr_tier||'') + '</div>' +
+        '</div>' +
+        '<div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">' +
+        '<div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">SUMMARY</div>' +
+        '<div style="font-size:13px;color:var(--white);line-height:1.7">' + escapeHtml(d.summary||'') + '</div></div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--white);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">TOP 3 IMPACT ELEMENTS</div>' +
+        '<div style="margin-bottom:16px">' + top3Html + '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--white);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">9-LAYER DECONSTRUCTION</div>' +
+        layersHtml +
+        '<div style="font-size:11px;font-weight:700;color:#6C63FF;letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 10px">📋 REPLICATION BLUEPRINT</div>' +
+        '<div style="background:rgba(108,99,255,0.05);border:1px solid rgba(108,99,255,0.2);border-radius:10px;padding:16px;margin-bottom:16px">' + blueprintHtml + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">' +
+        '<div><div style="font-size:11px;font-weight:700;color:#43E97B;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">✅ DO\'S</div>' + dosHtml + '</div>' +
+        '<div><div style="font-size:11px;font-weight:700;color:#FF6584;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">🚫 DON\'TS</div>' + dontsHtml + '</div>' +
+        '</div></div>';
+    document.getElementById('revResult').style.display = 'block';
+    document.getElementById('revBtn').disabled = false;
+}
+
+// ═══ MODULE 5: INSPIRATION LIBRARY ═══
+var libSavedIds = {};
+
+function setLibTab(tab) {
+    document.getElementById('libTabBrowse').classList.toggle('active', tab==='browse');
+    document.getElementById('libTabSaved').classList.toggle('active', tab==='saved');
+    document.getElementById('libGrid').style.display       = tab==='browse' ? 'grid' : 'none';
+    document.getElementById('libSavedGrid').style.display  = tab==='saved'  ? 'grid' : 'none';
+    if(tab==='saved') loadSavedInspirations();
+}
+
+async function loadInspLib() {
+    var niche   = document.getElementById('libNiche').value;
+    var trigger = document.getElementById('libTrigger').value;
+    document.getElementById('libLoading').style.display = 'block';
+    document.getElementById('libGrid').innerHTML = '';
+    try {
+        var url = '/inspiration/library?' + new URLSearchParams({niche, trigger});
+        var res = await fetch(url, {headers: getHeaders()});
+        var data = await res.json();
+        document.getElementById('libLoading').style.display = 'none';
+        if(!Array.isArray(data)) return;
+        renderLibGrid(data);
+    } catch(e) {
+        document.getElementById('libLoading').style.display = 'none';
+    }
+}
+
+function renderLibGrid(items) {
+    var html = items.map(function(item) {
+        var tierClass = (item.ctr_tier||'').includes('High') ? 'lib-tag high' : 'lib-tag';
+        var tags = (item.technique_tags||[]).slice(0,3).map(function(t){ return '<span class="lib-tag">' + escapeHtml(t) + '</span>'; }).join('');
+        var colors = (item.color_palette||[]).slice(0,4).map(function(c){ return '<span class="brand-swatch" style="background:' + escapeHtml(c) + ';width:20px;height:20px"></span>'; }).join('');
+        return '<div class="lib-card">' +
+            '<div style="background:linear-gradient(135deg,' + (item.color_palette&&item.color_palette[0]||'#1a1a2e') + ',' + (item.color_palette&&item.color_palette[1]||'#2d2d44') + ');padding:40px 16px;text-align:center;">' +
+            '<div style="font-size:28px;font-weight:900;color:#fff;font-family:Impact,sans-serif;text-shadow:2px 2px 4px rgba(0,0,0,0.8)">' + escapeHtml(item.text_overlay||'THUMBNAIL') + '</div>' +
+            '<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:8px">' + escapeHtml(item.face_expression!='none'?item.face_expression:'No face') + '</div>' +
+            '</div>' +
+            '<div class="lib-card-body">' +
+            '<div class="lib-card-title">' + escapeHtml(item.title||'') + '</div>' +
+            '<div class="lib-tags">' + tags + '<span class="' + tierClass + '">' + escapeHtml(item.ctr_tier||'') + '</span></div>' +
+            '<div style="display:flex;gap:4px;margin-bottom:8px">' + colors + '</div>' +
+            '<div class="lib-card-why">' + escapeHtml(item.why_it_works||'') + '</div>' +
+            '<div class="lib-card-actions">' +
+            '<button class="lib-btn lib-btn-save" onclick="saveInspiration(' + JSON.stringify(item).replace(/"/g,'&quot;') + ')">⭐ Save</button>' +
+            '<button class="lib-btn lib-btn-re" onclick="reverseFromLib(' + JSON.stringify(item).replace(/"/g,'&quot;') + ')">🔬 Reverse</button>' +
+            '</div></div></div>';
+    }).join('');
+    document.getElementById('libGrid').innerHTML = html;
+}
+
+async function saveInspiration(item) {
+    var email = localStorage.getItem('tg_email');
+    if(!email) { showUpgradeModal(); return; }
+    await fetch('/inspiration/save', {method:'POST', headers:getHeaders(), body:JSON.stringify(item)});
+    libSavedIds[item.id] = true;
+    alert('Saved to your Swipe File! ⭐');
+}
+
+function reverseFromLib(item) {
+    showPage('reverse');
+    setTimeout(function() {
+        alert('Upload a thumbnail similar to this concept:\n\n"' + item.title + '"\n\nDescription: ' + item.background_description);
+    }, 300);
+}
+
+async function loadSavedInspirations() {
+    var email = localStorage.getItem('tg_email');
+    if(!email) { document.getElementById('libSavedGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">Login required to view your Swipe File.</div>'; return; }
+    var res = await fetch('/inspiration/saved', {headers:getHeaders()});
+    var data = await res.json();
+    if(!data.length) { document.getElementById('libSavedGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--dim)">No saved items yet. Browse the library and save thumbnails you like!</div>'; return; }
+    var html = data.map(function(item) {
+        var tags = JSON.parse(item.technique_tags||'[]').slice(0,3).map(function(t){ return '<span class="lib-tag">' + escapeHtml(t) + '</span>'; }).join('');
+        return '<div class="lib-card"><div class="lib-card-body">' +
+            '<div class="lib-card-title">' + escapeHtml(item.title||'') + '</div>' +
+            '<div class="lib-tags">' + tags + '</div>' +
+            '<div class="lib-card-why">' + escapeHtml(item.why_it_works||'') + '</div>' +
+            (item.notes ? '<div style="font-size:12px;color:var(--yellow);margin-top:8px">📝 ' + escapeHtml(item.notes) + '</div>' : '') +
+            '</div></div>';
+    }).join('');
+    document.getElementById('libSavedGrid').innerHTML = html;
+}
+
+function initLibrary() {
+    loadInspLib();
+}
+
+// ═══ MODULE 6: CREATOR BRANDING ═══
+var brandFiles = [];
+
+function loadBrandPreviews(input) {
+    brandFiles = Array.from(input.files).slice(0,5);
+    var previews = document.getElementById('brandPreviews');
+    previews.innerHTML = '';
+    brandFiles.forEach(function(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width:80px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border)';
+            previews.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+    document.getElementById('brandBtn').disabled = brandFiles.length < 1;
+}
+
+async function runBrandExtract() {
+    if(!brandFiles.length) return;
+    var email = localStorage.getItem('tg_email');
+    if(!email) { showUpgradeModal(); return; }
+    document.getElementById('brandResult').style.display='none';
+    document.getElementById('brandLoading').style.display='block';
+    document.getElementById('brandBtn').disabled=true;
+    try {
+        var b64s = await Promise.all(brandFiles.map(function(f) {
+            return new Promise(function(resolve) {
+                toBase64(f, function(b) { resolve(b); });
+            });
+        }));
+        var res = await fetch('/branding/extract', {
+            method:'POST', headers:getHeaders(),
+            body: JSON.stringify({images_b64: b64s, niche: document.getElementById('brandNiche').value})
+        });
+        var data = await res.json();
+        document.getElementById('brandLoading').style.display='none';
+        if(data.error==='upgrade_required') { showUpgradeModal(); document.getElementById('brandBtn').disabled=false; return; }
+        if(data.error) { alert(data.error); document.getElementById('brandBtn').disabled=false; return; }
+        renderBrandKit(data);
+        // Auto-save to account
+        await fetch('/branding/save', {method:'POST', headers:getHeaders(), body:JSON.stringify(data)});
+    } catch(e) {
+        document.getElementById('brandLoading').style.display='none';
+        document.getElementById('brandBtn').disabled=false;
+        alert('Brand extraction failed. Try again.');
+    }
+}
+
+function renderBrandKit(d) {
+    var palette = d.color_palette || {};
+    var swatchHtml = Object.entries(palette).map(function(e) {
+        return '<div style="text-align:center"><div class="brand-swatch" style="background:' + escapeHtml(e[1]) + ';width:44px;height:44px;border-radius:8px;margin:0 auto 4px"></div><div style="font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase">' + e[0] + '</div><div style="font-size:10px;color:var(--white)">' + escapeHtml(e[1]) + '</div></div>';
+    }).join('');
+
+    var recosHtml = (d.improvement_recommendations||[]).map(function(r) {
+        return '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start"><span style="color:#6C63FF;flex-shrink:0">→</span><span style="font-size:13px;color:var(--dim)">' + escapeHtml(r) + '</span></div>';
+    }).join('');
+
+    var inconsistHtml = (d.inconsistencies||[]).map(function(r) {
+        return '<div style="display:flex;gap:8px;margin-bottom:6px"><span style="color:#FDE036">⚠</span><span style="font-size:12px;color:var(--dim)">' + escapeHtml(r) + '</span></div>';
+    }).join('');
+
+    var recurHtml = (d.recurring_elements||[]).map(function(r) { return '<span class="lib-tag">' + escapeHtml(r) + '</span>'; }).join('');
+
+    var consScore = d.consistency_score || 0;
+    var consColor = scoreColor(consScore/10);
+
+    document.getElementById('brandResult').innerHTML =
+        '<div class="result-section brand-kit">' +
+        '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">' +
+        '<div><div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">BRAND CONSISTENCY SCORE</div>' +
+        '<div style="font-size:52px;font-weight:900;color:' + consColor + ';line-height:1">' + consScore + '</div><div style="font-size:14px;color:var(--dim)">/100</div></div>' +
+        '<div style="flex:1;min-width:180px"><div style="font-size:13px;color:var(--white);line-height:1.6;margin-bottom:8px">' + escapeHtml(d.brand_audit||'') + '</div>' +
+        '<div style="font-size:12px;font-weight:700;color:var(--dim);margin-bottom:4px">BRAND MOOD</div>' +
+        '<div style="font-size:13px;color:var(--white)">' + escapeHtml(d.brand_mood||'') + '</div></div>' +
+        '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--white);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px">COLOR PALETTE</div>' +
+        '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px">' + swatchHtml + '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">' +
+        '<div><div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">TYPOGRAPHY</div>' +
+        '<div style="font-size:13px;color:var(--white);margin-bottom:4px">Recommended Font: <strong style="color:var(--yellow)">' + escapeHtml(d.font_recommendation||'') + '</strong></div>' +
+        '<div style="font-size:12px;color:var(--dim)">' + escapeHtml(d.typography_style||'') + '</div></div>' +
+        '<div><div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">EXPRESSION STYLE</div>' +
+        '<div style="font-size:13px;color:var(--white)">' + escapeHtml(d.expression_style||'') + '</div></div>' +
+        '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">COMPOSITION PATTERN</div>' +
+        '<div style="font-size:13px;color:var(--white);margin-bottom:14px">' + escapeHtml(d.composition_pattern||'') + '</div>' +
+        '<div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">RECURRING ELEMENTS</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px">' + recurHtml + '</div>' +
+        (inconsistHtml ? '<div style="font-size:11px;font-weight:700;color:#FDE036;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">⚠️ INCONSISTENCIES</div><div style="margin-bottom:16px">' + inconsistHtml + '</div>' : '') +
+        '<div style="font-size:11px;font-weight:700;color:#6C63FF;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">📈 RECOMMENDATIONS</div>' +
+        recosHtml + '</div>';
+    document.getElementById('brandResult').style.display = 'block';
+    document.getElementById('brandBtn').disabled = false;
+}
+
+// ═══ INIT NEW PAGES ═══
+function initLibrary() { loadInspLib(); }
+
+// Extend showPage for new modules
+var _origShowPage = showPage;
+function showPage(p) {
+    _origShowPage(p);
+    if(p === 'library' && typeof loadInspLib === 'function') { loadInspLib(); }
+}
+
+
+</script>
+
+<!-- MODULE 1: THUMBNAIL ANALYZER -->
+<div class="page" id="page-thumb-analyzer">
+<div class="feature-page">
+  <div class="feature-page-title">Thumbnail Intelligence Analyzer</div>
+  <p class="feature-page-sub">Upload any thumbnail. Get a 6-dimension CTR Readiness Score with exact fix instructions powered by GPT-4o Vision.</p>
+  <div class="upload-zone" id="thumbDropZone" onclick="document.getElementById('thumbFileIn').click()">
+    <input type="file" id="thumbFileIn" accept="image/*" style="display:none" onchange="loadThumbPreview(this)">
+    <div style="font-size:36px;margin-bottom:8px">🖼️</div>
+    <div style="font-weight:600;color:var(--white)">Drop thumbnail here or click to upload</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:4px">PNG or JPG · 1280×720 recommended</div>
+  </div>
+  <img id="thumbPreviewImg" style="display:none;max-width:100%;border-radius:10px;border:1px solid var(--border);margin:14px 0"/>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+    <select id="taSelectNiche" class="gen-select" style="flex:1;min-width:150px"><option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="food">🍕 Food</option><option value="education">📚 Education</option><option value="business">📈 Business</option><option value="motivation">🔥 Motivation</option><option value="cricket">🏏 Cricket</option><option value="health">💊 Health</option><option value="entertainment">🎬 Entertainment</option></select>
+    <input id="taTitleInput" class="gen-input" type="text" placeholder="Video title (optional)" style="flex:2;min-width:200px">
+  </div>
+  <button class="btn-gen" id="taBtn" onclick="runThumbAnalysis()" disabled>🎯 Analyze Thumbnail</button>
+  <div id="taLoading" style="display:none;text-align:center;padding:32px"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--dim);margin-top:10px">Running 6-dimension analysis with GPT-4o Vision…</p></div>
+  <div id="taResult" style="display:none;margin-top:24px"></div>
+</div>
+</div>
+
+<!-- MODULE 2: CTR PREDICTION -->
+<div class="page" id="page-ctr">
+<div class="feature-page">
+  <div class="feature-page-title">CTR Prediction Engine</div>
+  <p class="feature-page-sub">Upload thumbnail + enter up to 5 title candidates. Get predicted CTR range and synergy score for each pairing. Creator/Pro only.</p>
+  <div class="upload-zone" id="ctrDropZone" onclick="document.getElementById('ctrFileIn').click()">
+    <input type="file" id="ctrFileIn" accept="image/*" style="display:none" onchange="loadCtrPreview(this)">
+    <div style="font-size:36px;margin-bottom:8px">📊</div>
+    <div style="font-weight:600;color:var(--white)">Upload your thumbnail</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:4px">PNG or JPG · 1280×720 recommended</div>
+  </div>
+  <img id="ctrPreviewImg" style="display:none;max-width:100%;border-radius:10px;border:1px solid var(--border);margin:14px 0"/>
+  <div id="ctrTitlesWrap" style="margin-bottom:14px">
+    <div style="font-size:12px;font-weight:700;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">TITLE CANDIDATES</div>
+    <input class="gen-input ctr-title" type="text" placeholder="Title 1 (required)" style="margin-bottom:7px">
+    <input class="gen-input ctr-title" type="text" placeholder="Title 2 (optional)" style="margin-bottom:7px">
+    <input class="gen-input ctr-title" type="text" placeholder="Title 3 (optional)" style="margin-bottom:7px">
+    <button onclick="addCtrTitleField()" style="background:transparent;border:1px dashed var(--border);color:var(--dim);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;margin-top:4px">+ Add Title</button>
+  </div>
+  <select id="ctrNicheSelect" class="gen-select" style="margin-bottom:14px"><option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option><option value="education">📚 Education</option></select>
+  <button class="btn-gen" id="ctrBtn" onclick="runCtrPredict()" disabled>📊 Predict CTR</button>
+  <div id="ctrLoading" style="display:none;text-align:center;padding:32px"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--dim);margin-top:10px">Running CTR prediction engine…</p></div>
+  <div id="ctrResult" style="display:none;margin-top:24px"></div>
+</div>
+</div>
+
+<!-- MODULE 3: REVERSE ENGINEERING -->
+<div class="page" id="page-reverse">
+<div class="feature-page">
+  <div class="feature-page-title">Viral Reverse Engineering</div>
+  <p class="feature-page-sub">Upload any viral thumbnail. Get a 9-layer psychological deconstruction + a step-by-step replication blueprint for your niche.</p>
+  <div class="upload-zone" id="revDropZone" onclick="document.getElementById('revFileIn').click()">
+    <input type="file" id="revFileIn" accept="image/*" style="display:none" onchange="loadRevPreview(this)">
+    <div style="font-size:36px;margin-bottom:8px">🔬</div>
+    <div style="font-weight:600;color:var(--white)">Upload a viral thumbnail to decode</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:4px">Any high-performing YouTube thumbnail</div>
+  </div>
+  <img id="revPreviewImg" style="display:none;max-width:100%;border-radius:10px;border:1px solid var(--border);margin:14px 0"/>
+  <select id="revNicheSelect" class="gen-select" style="margin-bottom:14px"><option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="food">🍕 Food</option><option value="business">📈 Business</option><option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option><option value="cricket">🏏 Cricket</option><option value="entertainment">🎬 Entertainment</option></select>
+  <button class="btn-gen" id="revBtn" onclick="runReverseEngineer()" disabled>🔬 Reverse Engineer</button>
+  <div id="revLoading" style="display:none;text-align:center;padding:32px"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--dim);margin-top:10px">Running 9-layer deconstruction with GPT-4o Vision…</p></div>
+  <div id="revResult" style="display:none;margin-top:24px"></div>
+</div>
+</div>
+
+<!-- MODULE 5: INSPIRATION LIBRARY -->
+<div class="page" id="page-library">
+<div class="feature-page" style="max-width:1100px">
+  <div class="feature-page-title">Viral Thumbnail Inspiration Library</div>
+  <p class="feature-page-sub">Browse 100s of high-performing thumbnail concepts tagged by technique. Save to your personal swipe file.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+    <select id="libNiche" class="gen-select" style="flex:1;min-width:140px"><option value="">All Niches</option><option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="food">🍕 Food</option><option value="education">📚 Education</option><option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option></select>
+    <select id="libTrigger" class="gen-select" style="flex:1;min-width:160px"><option value="">All Techniques</option><option value="Curiosity Gap">Curiosity Gap</option><option value="Shock Factor">Shock Factor</option><option value="Social Proof">Social Proof</option><option value="FOMO">FOMO</option><option value="Before-After">Before-After</option><option value="Authority">Authority</option></select>
+    <button class="btn-gen" onclick="loadInspLib()" style="flex:0;padding:10px 18px;min-width:auto">🔄 Refresh</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:16px">
+    <button id="libTabBrowse" class="lib-tab active" onclick="setLibTab('browse')">Browse</button>
+    <button id="libTabSaved" class="lib-tab" onclick="setLibTab('saved')">⭐ Swipe File</button>
+  </div>
+  <div id="libLoading" style="display:none;text-align:center;padding:32px"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--dim);margin-top:10px">Loading inspiration library…</p></div>
+  <div id="libGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px"></div>
+  <div id="libSavedGrid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px"></div>
+</div>
+</div>
+
+<!-- MODULE 6: CREATOR BRANDING SYSTEM -->
+<div class="page" id="page-branding">
+<div class="feature-page">
+  <div class="feature-page-title">Creator Branding System</div>
+  <p class="feature-page-sub">Upload 3–5 of your thumbnails. AI extracts your visual brand DNA and generates a Brand Kit you can apply to every generation. Creator/Pro only.</p>
+  <div id="brandKitDisplay" style="display:none;margin-bottom:28px"></div>
+  <div class="upload-zone" id="brandDropZone" onclick="document.getElementById('brandFileIn').click()" style="margin-bottom:14px">
+    <input type="file" id="brandFileIn" accept="image/*" multiple style="display:none" onchange="loadBrandPreviews(this)">
+    <div style="font-size:36px;margin-bottom:8px">🎨</div>
+    <div style="font-weight:600;color:var(--white)">Drop 3–5 of your thumbnails</div>
+    <div style="font-size:12px;color:var(--dim);margin-top:4px">These should be from your YouTube channel</div>
+  </div>
+  <div id="brandPreviews" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px"></div>
+  <select id="brandNiche" class="gen-select" style="margin-bottom:14px"><option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="business">📈 Business</option><option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option></select>
+  <button class="btn-gen" id="brandBtn" onclick="runBrandExtract()" disabled>🎨 Extract Brand DNA</button>
+  <div id="brandLoading" style="display:none;text-align:center;padding:32px"><div class="loading-dots"><span></span><span></span><span></span></div><p style="color:var(--dim);margin-top:10px">Extracting your visual brand DNA…</p></div>
+  <div id="brandResult" style="display:none;margin-top:24px"></div>
+</div>
+</div>
+
+</body>
+</html>
