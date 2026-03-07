@@ -451,6 +451,46 @@
             .ab-score-num { font-size:28px; }
         }
     
+        /* ── Blueprint Module ── */
+        .bp-url-section { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:28px; }
+        .bp-score-section { display:grid; grid-template-columns:200px 1fr; gap:24px; align-items:center; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:20px; padding:28px; margin-bottom:20px; }
+        @media(max-width:640px){ .bp-score-section { grid-template-columns:1fr; } }
+        .bp-score-card { position:relative; width:180px; height:180px; flex-shrink:0; margin:0 auto; }
+        .bp-score-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+        .bp-score-num { font-size:48px; font-weight:900; letter-spacing:-3px; line-height:1; }
+        .bp-score-label { font-size:13px; font-weight:700; color:var(--dim); margin-top:4px; }
+        .bp-verdict-box { flex:1; }
+        .bp-pill { display:flex; flex-direction:column; gap:4px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:10px; padding:10px 14px; flex:1; min-width:140px; }
+        .bp-pill-green { border-color:rgba(67,233,123,0.2); background:rgba(67,233,123,0.04); }
+        .bp-pill-red   { border-color:rgba(255,101,132,0.2); background:rgba(255,101,132,0.04); }
+        .bp-dim-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; margin-bottom:8px; }
+        .bp-dim-bar { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:14px 18px; }
+        .bp-dim-bar.worst { border-color:rgba(255,101,132,0.3); background:rgba(255,101,132,0.04); }
+        .bp-dim-bar-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+        .bp-dim-bar-icon { font-size:16px; margin-right:6px; }
+        .bp-dim-bar-name { font-size:13px; font-weight:700; color:var(--white); }
+        .bp-dim-bar-score { font-size:18px; font-weight:800; }
+        .bp-dim-bar-note { font-size:11px; color:var(--dim); margin-bottom:8px; line-height:1.4; }
+        .bp-dim-bar-track { height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+        .bp-dim-bar-fill { height:100%; border-radius:3px; transition:width 1s ease; }
+        .bp-fix-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,101,132,0.2); border-radius:12px; padding:16px 20px; margin-bottom:10px; display:flex; gap:14px; align-items:flex-start; }
+        .bp-fix-num { width:28px; height:28px; border-radius:50%; background:rgba(255,101,132,0.15); color:#FF6584; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .bp-fix-body { flex:1; }
+        .bp-fix-dim { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,101,132,0.7); margin-bottom:4px; }
+        .bp-fix-action { font-size:13px; color:rgba(255,255,255,0.75); line-height:1.6; }
+        .bp-var-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px; }
+        .bp-var-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:all 0.2s; }
+        .bp-var-card:hover { border-color:rgba(255,224,54,0.2); transform:translateY(-2px); }
+        .bp-var-img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block; }
+        .bp-var-body { padding:14px 16px; }
+        .bp-var-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:rgba(255,224,54,0.6); margin-bottom:6px; }
+        .bp-var-focus { font-size:13px; color:rgba(255,255,255,0.7); line-height:1.5; margin-bottom:10px; }
+        .bp-var-actions { display:flex; gap:8px; }
+        .bp-var-dl { flex:1; background:var(--yellow); color:#000; border:none; border-radius:8px; padding:9px; font-size:12px; font-weight:700; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; }
+        .bp-var-dl:hover { background:#fff; }
+        .bp-var-use { flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--dim); border-radius:8px; padding:9px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s; }
+        .bp-var-use:hover { color:var(--yellow); border-color:rgba(255,224,54,0.3); }
+
         /* Upload zones */
         .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:14px; }
         .upload-zone:hover { border-color:var(--yellow); background:rgba(255,224,54,0.03); }
@@ -586,9 +626,10 @@ function showPage(p){
     var tab  = document.getElementById('tab-'+p);
     if(page) page.classList.add('active');
     if(tab)  tab.classList.add('active');
-    if(p==='trending' && typeof initTrending==='function') initTrending();
-    if(p==='history'  && typeof renderHistory==='function') renderHistory();
-    if(p==='library'  && typeof lib_load==='function') lib_load();
+    if(p==='trending'  && typeof initTrending==='function')  initTrending();
+    if(p==='history'   && typeof renderHistory==='function') renderHistory();
+    if(p==='library'   && typeof lib_load==='function')      lib_load();
+    if(p==='blueprint' && typeof initBlueprint==='function') initBlueprint();
     window.scrollTo(0,0);
 }
 </script>
@@ -695,6 +736,7 @@ function showPage(p){
         <button class="nav-tab"        id="tab-branding" onclick="showPage('branding')">&#x1F3A8; Branding</button>
         <button class="nav-tab"        id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
         <button class="nav-tab"        id="tab-history"  onclick="showPage('history')">&#x1F4C2; History</button>
+        <button class="nav-tab"        id="tab-blueprint" onclick="showPage('blueprint')">&#x1F525; Blueprint</button>
     </div>
 </nav>
 
@@ -2322,6 +2364,503 @@ function brand_render(d) {
   <div class="mod-result" id="brandResult"></div>
 </div>
 </div>
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  MODULE 8 — VIRAL THUMBNAIL BLUEPRINT               ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-blueprint">
+<div class="feature-page" style="max-width:960px">
+
+  <div class="feature-page-title">🔥 Viral Thumbnail Blueprint</div>
+  <p class="feature-page-sub">Paste any YouTube video URL. AI extracts the thumbnail, scores it across 7 dimensions, maps viewer attention, and generates improved variations.</p>
+
+  <!-- URL INPUT -->
+  <div class="bp-url-section">
+    <div class="input-wrap" style="margin-bottom:12px">
+      <span class="input-icon">🔗</span>
+      <input type="text" id="bpUrl" placeholder="Paste YouTube URL — youtube.com/watch?v=... or youtu.be/..."
+             oninput="bp_onUrlInput(this.value)" style="padding-left:52px" />
+    </div>
+    <div class="mod-row" style="align-items:center;gap:12px">
+      <select id="bpNiche" class="mod-select" style="margin-bottom:0;max-width:220px">
+        <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+        <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+        <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
+        <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
+        <option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option>
+        <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
+        <option value="examprep">🎓 Exam Prep</option><option value="health">💊 Health</option>
+      </select>
+      <button class="btn-gen" id="bpAnalyzeBtn" onclick="bp_analyze()" disabled
+              style="flex:1;max-width:280px">🔍 Analyze Thumbnail</button>
+    </div>
+  </div>
+
+  <!-- THUMBNAIL PREVIEW (before analysis) -->
+  <div id="bpThumbPreview" style="display:none;margin:24px 0">
+    <div class="res-label" style="margin-bottom:10px">EXTRACTED THUMBNAIL</div>
+    <div style="position:relative;display:inline-block;max-width:100%">
+      <img id="bpThumbImg" src="" alt="Thumbnail"
+           style="width:100%;max-width:560px;border-radius:12px;border:1px solid var(--border);display:block" />
+      <canvas id="bpHeatmapCanvas"
+              style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;display:none;opacity:0.75"></canvas>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn-regen" id="bpHeatmapToggle" onclick="bp_toggleHeatmap()"
+              style="font-size:12px;padding:8px 16px">👁 Show Attention Heatmap</button>
+      <span style="font-size:11px;color:rgba(255,255,255,0.25)">Simulated viewer attention based on visual weight analysis</span>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="mod-loading" id="bpLoading">
+    <div class="loading-spinner"></div>
+    <p id="bpLoadingMsg">Fetching thumbnail…</p>
+  </div>
+
+  <!-- RESULT AREA -->
+  <div id="bpResult" style="display:none">
+
+    <!-- SCORE METER -->
+    <div class="bp-score-section">
+      <div class="bp-score-card">
+        <canvas id="bpScoreDial" width="180" height="180"></canvas>
+        <div class="bp-score-center">
+          <div class="bp-score-num" id="bpScoreNum">—</div>
+          <div class="bp-score-label" id="bpScoreGrade">—</div>
+        </div>
+      </div>
+      <div class="bp-verdict-box">
+        <div class="res-label" style="color:var(--yellow)">OVERALL VERDICT</div>
+        <p id="bpVerdict" style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;margin:8px 0"></p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px">
+          <div class="bp-pill bp-pill-green">
+            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(67,233,123,0.7)">STRONGEST</span>
+            <span id="bpStrongest" style="font-size:13px;color:#43E97B;font-weight:600"></span>
+          </div>
+          <div class="bp-pill bp-pill-red">
+            <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,101,132,0.7)">WEAKEST</span>
+            <span id="bpWeakest" style="font-size:13px;color:#FF6584;font-weight:600"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 DIMENSION BARS -->
+    <div class="res-label" style="margin:28px 0 14px">7-DIMENSION BREAKDOWN</div>
+    <div id="bpDimBars" class="bp-dim-grid"></div>
+
+    <!-- FIX CARDS -->
+    <div class="res-label" style="margin:28px 0 12px">🔧 TOP 3 IMPROVEMENTS</div>
+    <div id="bpFixes"></div>
+
+    <!-- VARIATIONS -->
+    <div class="bp-variations-section" style="margin-top:36px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:-0.5px">🎨 Improved Variations</div>
+          <div style="font-size:13px;color:var(--dim);margin-top:4px">AI-generated alternatives targeting your weakest dimensions</div>
+        </div>
+        <button class="btn-img" id="bpGenVarBtn" onclick="bp_generateVariations()">
+          ✨ Generate Variations
+        </button>
+      </div>
+      <div id="bpVarUpgradeNote" style="display:none;background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:16px;margin-bottom:16px;text-align:center">
+        <p style="color:var(--yellow);font-weight:700;margin-bottom:6px">🚀 Creator / Pro Feature</p>
+        <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:12px">Upgrade to generate 3–5 AI-improved thumbnail variations</p>
+        <button class="btn-pay" style="padding:10px 24px;font-size:13px" onclick="openPaymentModal()">Upgrade Now →</button>
+      </div>
+      <div class="mod-loading" id="bpVarLoading" style="padding:32px">
+        <div class="loading-spinner"></div>
+        <p id="bpVarLoadingMsg">Generating variations with DALL-E 3…</p>
+      </div>
+      <div id="bpVarGrid" class="bp-var-grid"></div>
+    </div>
+
+  </div><!-- /#bpResult -->
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  MODULE 8 — VIRAL THUMBNAIL BLUEPRINT
+// ════════════════════════════════════════════════════════
+
+var _bp_image_b64   = null;
+var _bp_thumb_url   = null;
+var _bp_last_scores = null;
+var _bp_last_weakness = '';
+var _bp_heatmap_on  = false;
+var _bp_url_timer   = null;
+var _bp_attn_zones  = null;
+
+const BP_DIM_META = {
+    emotion_strength:    { icon:'😮', label:'Emotion Strength',    weight:20 },
+    subject_size:        { icon:'👤', label:'Subject Size',        weight:10 },
+    color_contrast:      { icon:'🎨', label:'Color Contrast',      weight:15 },
+    text_readability:    { icon:'🔤', label:'Text Readability',    weight:15 },
+    curiosity_trigger:   { icon:'🧠', label:'Curiosity Trigger',   weight:20 },
+    composition_balance: { icon:'⚖️', label:'Composition Balance', weight:5  },
+    mobile_visibility:   { icon:'📱', label:'Mobile Visibility',   weight:15 },
+};
+
+function initBlueprint() {
+    // Reset state only if no analysis is showing
+    if (!_bp_image_b64) {
+        document.getElementById('bpResult').style.display = 'none';
+        document.getElementById('bpThumbPreview').style.display = 'none';
+        document.getElementById('bpLoading').style.display = 'none';
+        document.getElementById('bpUrl').value = '';
+        document.getElementById('bpAnalyzeBtn').disabled = true;
+    }
+}
+
+// ── URL Input Debounce ───────────────────────────────────
+function bp_onUrlInput(val) {
+    clearTimeout(_bp_url_timer);
+    const btn = document.getElementById('bpAnalyzeBtn');
+    btn.disabled = true;
+    if (!val.trim()) return;
+    _bp_url_timer = setTimeout(() => bp_previewThumb(val.trim()), 600);
+}
+
+async function bp_previewThumb(url) {
+    const btn = document.getElementById('bpAnalyzeBtn');
+    const loadEl = document.getElementById('bpLoading');
+    const msgEl  = document.getElementById('bpLoadingMsg');
+    loadEl.style.display = 'block';
+    msgEl.textContent = 'Fetching thumbnail…';
+    document.getElementById('bpThumbPreview').style.display = 'none';
+    document.getElementById('bpResult').style.display = 'none';
+
+    try {
+        const res  = await fetch('/blueprint/extract-thumb?url=' + encodeURIComponent(url), { headers: _hdrs() });
+        const data = await res.json();
+        loadEl.style.display = 'none';
+        if (data.error) {
+            btn.disabled = true;
+            document.getElementById('bpThumbPreview').style.display = 'none';
+            alert(data.error);
+            return;
+        }
+        _bp_image_b64 = data.image_b64;
+        _bp_thumb_url  = data.thumbnail_url;
+        document.getElementById('bpThumbImg').src = 'data:image/jpeg;base64,' + data.image_b64;
+        document.getElementById('bpThumbPreview').style.display = 'block';
+        document.getElementById('bpHeatmapCanvas').style.display = 'none';
+        _bp_heatmap_on = false;
+        document.getElementById('bpHeatmapToggle').textContent = '👁 Show Attention Heatmap';
+        btn.disabled = false;
+    } catch(e) {
+        loadEl.style.display = 'none';
+        alert('Could not fetch thumbnail. Check the URL and try again.');
+    }
+}
+
+// ── Main Analysis ────────────────────────────────────────
+async function bp_analyze() {
+    if (!_bp_image_b64) return;
+    const loadEl = document.getElementById('bpLoading');
+    const msgEl  = document.getElementById('bpLoadingMsg');
+    const btn    = document.getElementById('bpAnalyzeBtn');
+    const niche  = document.getElementById('bpNiche').value;
+
+    loadEl.style.display  = 'block';
+    msgEl.textContent     = 'Analyzing with GPT-4o Vision…';
+    btn.disabled          = true;
+    document.getElementById('bpResult').style.display = 'none';
+
+    try {
+        const res  = await fetch('/blueprint/analyze', {
+            method:  'POST',
+            headers: _hdrs(),
+            body:    JSON.stringify({ image_b64: _bp_image_b64, niche: niche })
+        });
+        const data = await res.json();
+        loadEl.style.display = 'none';
+        btn.disabled = false;
+
+        if (data.error === 'free_limit_reached' || data.error === 'upgrade_required') {
+            openPaymentModal(); return;
+        }
+        if (data.error) { alert(data.error); return; }
+
+        _bp_last_scores   = data.scores || {};
+        _bp_last_weakness = data.biggest_weakness || '';
+        _bp_attn_zones    = data.attention_zones || null;
+
+        bp_renderScore(data.overall_score || 0, data.grade || '—');
+        bp_renderVerdict(data);
+        bp_renderDimBars(data.scores || {});
+        bp_renderFixes(data.fixes || []);
+
+        // Draw heatmap canvas
+        bp_buildHeatmap();
+
+        // Reset variations
+        document.getElementById('bpVarGrid').innerHTML = '';
+        document.getElementById('bpVarLoading').style.display = 'none';
+        document.getElementById('bpVarUpgradeNote').style.display = 'none';
+
+        document.getElementById('bpResult').style.display = 'block';
+        document.getElementById('bpResult').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    } catch(e) {
+        loadEl.style.display = 'none';
+        btn.disabled = false;
+        alert('Analysis failed. Please try again.');
+    }
+}
+
+// ── Score Dial ───────────────────────────────────────────
+function bp_renderScore(score, grade) {
+    const numEl   = document.getElementById('bpScoreNum');
+    const gradeEl = document.getElementById('bpScoreGrade');
+    const canvas  = document.getElementById('bpScoreDial');
+    const ctx     = canvas.getContext('2d');
+    const cx = 90, cy = 90, r = 72, lw = 12;
+    const col = score >= 70 ? '#43E97B' : score >= 50 ? '#FDE036' : '#FF6584';
+
+    numEl.textContent  = score;
+    numEl.style.color  = col;
+    gradeEl.textContent = grade;
+
+    let current = 0;
+    const target = score;
+    function draw(val) {
+        ctx.clearRect(0,0,180,180);
+        // BG arc
+        ctx.beginPath(); ctx.arc(cx,cy,r, -Math.PI*0.75, Math.PI*0.75);
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+        // Score arc
+        const end = -Math.PI*0.75 + (Math.PI*1.5 * val/100);
+        ctx.beginPath(); ctx.arc(cx,cy,r, -Math.PI*0.75, end);
+        ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.lineCap = 'round'; ctx.stroke();
+        // Glow
+        ctx.shadowBlur = 12; ctx.shadowColor = col;
+        ctx.beginPath(); ctx.arc(cx,cy,r, end-0.01, end);
+        ctx.strokeStyle = col; ctx.lineWidth = lw+4; ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+    const step = () => {
+        current = Math.min(current + 2, target);
+        draw(current);
+        if (current < target) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
+// ── Verdict ──────────────────────────────────────────────
+function bp_renderVerdict(data) {
+    document.getElementById('bpVerdict').textContent    = data.verdict || '';
+    document.getElementById('bpStrongest').textContent  = data.strongest_element || '—';
+    document.getElementById('bpWeakest').textContent    = data.biggest_weakness  || '—';
+}
+
+// ── Dimension Bars ───────────────────────────────────────
+function bp_renderDimBars(scores) {
+    const container = document.getElementById('bpDimBars');
+    const entries   = Object.entries(BP_DIM_META);
+
+    // Find worst 2
+    const sorted = Object.entries(scores).sort((a,b) => (a[1].score||0)-(b[1].score||0));
+    const worst2 = sorted.slice(0,2).map(x=>x[0]);
+
+    container.innerHTML = entries.map(([key, meta]) => {
+        const dim   = scores[key] || { score:0, label:'—', note:'' };
+        const s     = dim.score || 0;
+        const col   = s >= 70 ? '#43E97B' : s >= 50 ? '#FDE036' : '#FF6584';
+        const isWrst = worst2.includes(key);
+        return `<div class="bp-dim-bar${isWrst?' worst':''}">
+          <div class="bp-dim-bar-head">
+            <span><span class="bp-dim-bar-icon">${meta.icon}</span><span class="bp-dim-bar-name">${meta.label}</span>${isWrst?'<span style="margin-left:6px;font-size:10px;background:rgba(255,101,132,0.15);color:#FF6584;border-radius:4px;padding:2px 6px">⚠️ Weak</span>':''}</span>
+            <span class="bp-dim-bar-score" style="color:${col}">${s}</span>
+          </div>
+          <div class="bp-dim-bar-note">${escapeHtml(dim.note||'')}</div>
+          <div class="bp-dim-bar-track">
+            <div class="bp-dim-bar-fill" style="width:0%;background:${col}" data-target="${s}"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Animate bars
+    setTimeout(() => {
+        container.querySelectorAll('.bp-dim-bar-fill').forEach(el => {
+            el.style.width = (el.dataset.target || 0) + '%';
+        });
+    }, 80);
+}
+
+// ── Fix Cards ────────────────────────────────────────────
+function bp_renderFixes(fixes) {
+    const container = document.getElementById('bpFixes');
+    container.innerHTML = fixes.slice(0,3).map((f,i) => {
+        const meta = BP_DIM_META[f.dimension] || { icon:'🔧', label: f.dimension };
+        return `<div class="bp-fix-card">
+          <div class="bp-fix-num">${i+1}</div>
+          <div class="bp-fix-body">
+            <div class="bp-fix-dim">${meta.icon} ${meta.label}</div>
+            <div class="bp-fix-action">${escapeHtml(f.action||'')}</div>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ── Heatmap Canvas ───────────────────────────────────────
+function bp_buildHeatmap() {
+    const img    = document.getElementById('bpThumbImg');
+    const canvas = document.getElementById('bpHeatmapCanvas');
+    const ctx    = canvas.getContext('2d');
+
+    function draw() {
+        const W = img.offsetWidth || img.naturalWidth || 560;
+        const H = img.offsetHeight || img.naturalHeight || 315;
+        canvas.width  = W;
+        canvas.height = H;
+        ctx.clearRect(0,0,W,H);
+
+        // Zone weights from API or defaults
+        const zones = _bp_attn_zones || [
+            {region:'top-left',weight:10},{region:'top-center',weight:20},{region:'top-right',weight:15},
+            {region:'mid-left',weight:10},{region:'mid-center',weight:35},{region:'mid-right',weight:20},
+            {region:'bot-left',weight:5}, {region:'bot-center',weight:15},{region:'bot-right',weight:10},
+        ];
+
+        const regionMap = {
+            'top-left':   [0,    0,    W/3,  H/3],
+            'top-center': [W/3,  0,    W*2/3,H/3],
+            'top-right':  [W*2/3,0,    W,    H/3],
+            'mid-left':   [0,    H/3,  W/3,  H*2/3],
+            'mid-center': [W/3,  H/3,  W*2/3,H*2/3],
+            'mid-right':  [W*2/3,H/3,  W,    H*2/3],
+            'bot-left':   [0,    H*2/3,W/3,  H],
+            'bot-center': [W/3,  H*2/3,W*2/3,H],
+            'bot-right':  [W*2/3,H*2/3,W,    H],
+        };
+
+        zones.forEach(z => {
+            const box = regionMap[z.region];
+            if (!box) return;
+            const [x1,y1,x2,y2] = box;
+            const cx = (x1+x2)/2, cy = (y1+y2)/2;
+            const r  = Math.max(x2-x1, y2-y1) * 0.65;
+            const alpha = Math.min(0.75, (z.weight / 100) * 2.5);
+            const col   = z.weight >= 25 ? `255,60,60` : z.weight >= 15 ? `255,200,0` : `0,100,255`;
+            const grad  = ctx.createRadialGradient(cx,cy,0, cx,cy,r);
+            grad.addColorStop(0, `rgba(${col},${alpha})`);
+            grad.addColorStop(1, `rgba(${col},0)`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(x1,y1,x2-x1,y2-y1);
+        });
+    }
+
+    if (img.complete && img.naturalWidth > 0) {
+        draw();
+    } else {
+        img.onload = draw;
+    }
+}
+
+function bp_toggleHeatmap() {
+    const canvas = document.getElementById('bpHeatmapCanvas');
+    const btn    = document.getElementById('bpHeatmapToggle');
+    _bp_heatmap_on = !_bp_heatmap_on;
+    canvas.style.display = _bp_heatmap_on ? 'block' : 'none';
+    btn.textContent = _bp_heatmap_on ? '🙈 Hide Attention Heatmap' : '👁 Show Attention Heatmap';
+}
+
+// ── Variations ───────────────────────────────────────────
+async function bp_generateVariations() {
+    // Check plan
+    const plan = localStorage.getItem('tg_plan') || 'free';
+    const code = localStorage.getItem('tg_admin_code') || '';
+    if (plan === 'free' && !code) {
+        document.getElementById('bpVarUpgradeNote').style.display = 'block';
+        return;
+    }
+
+    const loadEl = document.getElementById('bpVarLoading');
+    const msgEl  = document.getElementById('bpVarLoadingMsg');
+    const btn    = document.getElementById('bpGenVarBtn');
+    const niche  = document.getElementById('bpNiche').value;
+    const count  = plan === 'pro' ? 5 : 3;
+
+    loadEl.style.display = 'block';
+    msgEl.textContent    = `Generating ${count} variations with DALL-E 3 HD… (~30 seconds)`;
+    btn.disabled         = true;
+    document.getElementById('bpVarGrid').innerHTML = '';
+    document.getElementById('bpVarUpgradeNote').style.display = 'none';
+
+    try {
+        const res  = await fetch('/blueprint/variations', {
+            method:  'POST',
+            headers: _hdrs(),
+            body:    JSON.stringify({
+                scores:           _bp_last_scores,
+                biggest_weakness: _bp_last_weakness,
+                niche:            niche,
+                topic_context:    document.getElementById('bpUrl').value.trim(),
+            })
+        });
+        const data = await res.json();
+        loadEl.style.display = 'none';
+        btn.disabled = false;
+
+        if (data.error === 'upgrade_required') {
+            document.getElementById('bpVarUpgradeNote').style.display = 'block'; return;
+        }
+        if (data.error) { alert(data.error); return; }
+
+        bp_renderVariations(data.variations || []);
+
+    } catch(e) {
+        loadEl.style.display = 'none';
+        btn.disabled = false;
+        alert('Variation generation failed. Please try again.');
+    }
+}
+
+function bp_renderVariations(variations) {
+    const grid = document.getElementById('bpVarGrid');
+    if (!variations.length) {
+        grid.innerHTML = '<p style="color:var(--dim)">No variations returned. Please try again.</p>';
+        return;
+    }
+    grid.innerHTML = variations.map((v,i) => {
+        const meta = BP_DIM_META[v.targets] || { icon:'🎨', label: v.targets };
+        return `<div class="bp-var-card">
+          <img class="bp-var-img" src="${escapeHtml(v.image_url)}" alt="Variation ${i+1}" loading="lazy" />
+          <div class="bp-var-body">
+            <div class="bp-var-label">Variation ${v.variation_number} · Targets ${meta.icon} ${meta.label}</div>
+            <div class="bp-var-focus">${escapeHtml(v.improvement_focus)}</div>
+            <div class="bp-var-actions">
+              <button class="bp-var-dl" onclick="bp_dlVariation('${escapeHtml(v.image_url)}',${v.variation_number})">⬇ Download</button>
+              <button class="bp-var-use" onclick="bp_useVariation('${escapeHtml(v.image_url)}')">Use as Base →</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    grid.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function bp_dlVariation(url, num) {
+    const a = document.createElement('a');
+    a.href     = url;
+    a.download = `thumbgenius-blueprint-v${num}.png`;
+    a.target   = '_blank';
+    a.click();
+}
+
+function bp_useVariation(url) {
+    // Pre-fill home page generator with variation as concept reference
+    showPage('home');
+    setTimeout(() => {
+        document.getElementById('topic').value = 'Based on improved variation from Blueprint tool';
+        document.getElementById('topic').focus();
+        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'});
+    }, 300);
+}
+</script>
 
 </body>
 </html>

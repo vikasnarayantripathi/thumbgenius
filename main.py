@@ -1161,3 +1161,300 @@ Rules:
         except Exception as e:
             logger.error(f"/trending error: {e}")
             return JSONResponse({"error": f"Failed to load trending topics: {str(e)}"}, status_code=500)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MODULE 8 — VIRAL THUMBNAIL BLUEPRINT
+# ══════════════════════════════════════════════════════════════════════════════
+
+import re as _re
+
+PLAN_LIMITS["free"]["blueprint"]    = 1
+PLAN_LIMITS["creator"]["blueprint"] = 10
+PLAN_LIMITS["pro"]["blueprint"]     = 999
+
+def extract_video_id(url: str) -> str | None:
+    """Extract YouTube video ID from any YouTube URL format."""
+    patterns = [
+        r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/shorts/)([a-zA-Z0-9_-]{11})",
+        r"youtube\.com/embed/([a-zA-Z0-9_-]{11})",
+        r"youtube\.com/v/([a-zA-Z0-9_-]{11})",
+    ]
+    for p in patterns:
+        m = _re.search(p, url)
+        if m:
+            return m.group(1)
+    return None
+
+async def fetch_youtube_thumbnail_b64(video_id: str) -> tuple[str, str]:
+    """
+    Try maxresdefault → hqdefault → mqdefault.
+    Returns (base64_string, thumbnail_url).
+    """
+    qualities = ["maxresdefault", "hqdefault", "mqdefault"]
+    async with httpx.AsyncClient(timeout=10.0) as h:
+        for q in qualities:
+            url = f"https://img.youtube.com/vi/{video_id}/{q}.jpg"
+            try:
+                r = await h.get(url)
+                if r.status_code == 200 and len(r.content) > 5000:
+                    b64 = base64.b64encode(r.content).decode()
+                    return b64, url
+            except Exception:
+                continue
+    raise ValueError("Could not fetch thumbnail for this video.")
+
+BLUEPRINT_SCORE_PROMPT = """You are an expert YouTube CTR analyst with deep knowledge of viewer psychology.
+Analyze this YouTube thumbnail image and score it across 7 dimensions.
+
+Return ONLY valid JSON — no markdown, no explanation outside JSON:
+{{
+  "overall_score": 74,
+  "grade": "B+",
+  "scores": {{
+    "emotion_strength":     {{ "score": 80, "label": "Strong", "note": "One sentence specific to this thumbnail" }},
+    "subject_size":         {{ "score": 65, "label": "Medium", "note": "..." }},
+    "color_contrast":       {{ "score": 90, "label": "Excellent", "note": "..." }},
+    "text_readability":     {{ "score": 55, "label": "Weak", "note": "..." }},
+    "curiosity_trigger":    {{ "score": 78, "label": "Strong", "note": "..." }},
+    "composition_balance":  {{ "score": 70, "label": "Good", "note": "..." }},
+    "mobile_visibility":    {{ "score": 60, "label": "Needs Work", "note": "..." }}
+  }},
+  "verdict": "2-3 sentence summary of why this thumbnail works or fails overall.",
+  "strongest_element": "One specific thing done best",
+  "biggest_weakness": "The single most damaging issue",
+  "attention_zones": [
+    {{ "region": "top-left",    "weight": 10 }},
+    {{ "region": "top-center",  "weight": 25 }},
+    {{ "region": "top-right",   "weight": 15 }},
+    {{ "region": "mid-left",    "weight": 5  }},
+    {{ "region": "mid-center",  "weight": 30 }},
+    {{ "region": "mid-right",   "weight": 20 }},
+    {{ "region": "bot-left",    "weight": 5  }},
+    {{ "region": "bot-center",  "weight": 15 }},
+    {{ "region": "bot-right",   "weight": 10 }}
+  ],
+  "fixes": [
+    {{ "dimension": "text_readability", "priority": 1, "action": "Specific actionable fix for the worst dimension" }},
+    {{ "dimension": "subject_size",     "priority": 2, "action": "..." }},
+    {{ "dimension": "mobile_visibility","priority": 3, "action": "..." }}
+  ]
+}}
+
+Scoring guide:
+- emotion_strength (weight 20%): Face expression intensity, emotional clarity, human connection
+- subject_size (weight 10%): Is the main subject large enough to read at small size
+- color_contrast (weight 15%): Background vs foreground contrast, eye-catching palette
+- text_readability (weight 15%): Font size, color, stroke, legibility at 120px width
+- curiosity_trigger (weight 20%): Information gap, tension, intrigue, FOMO signals
+- composition_balance (weight 5%): Visual weight distribution, rule of thirds
+- mobile_visibility (weight 15%): Overall clarity at 120x68px (mobile feed size)
+
+overall_score = weighted average using above percentages.
+grade: 90-100=A+, 80-89=A, 70-79=B+, 60-69=B, 50-59=C, below 50=F
+Niche context: {niche}"""
+
+BLUEPRINT_VARIATIONS_PROMPT = """You are a top YouTube thumbnail designer.
+Based on this thumbnail analysis, generate {count} DALL-E 3 prompts for improved thumbnail variations.
+
+Original thumbnail scores:
+{scores_summary}
+
+Biggest weakness: {biggest_weakness}
+Niche: {niche}
+Video topic context: {topic_context}
+
+Generate exactly {count} variation prompts. Each should target a specific improvement.
+Return ONLY valid JSON:
+{{
+  "variations": [
+    {{
+      "variation_number": 1,
+      "targets": "emotion_strength",
+      "improvement_focus": "What this variation improves",
+      "dalle_prompt": "Detailed DALL-E 3 prompt for a YouTube thumbnail (16:9, 1280x720). Professional YouTube thumbnail, ultra high quality. [specific visual description]..."
+    }}
+  ]
+}}"""
+
+
+@app.get("/blueprint/extract-thumb")
+async def blueprint_extract_thumb(url: str = ""):
+    """Extract thumbnail from YouTube URL and return base64 + URL."""
+    if not url:
+        return JSONResponse({"error": "YouTube URL required"}, status_code=400)
+    video_id = extract_video_id(url)
+    if not video_id:
+        return JSONResponse({"error": "Could not parse YouTube video ID. Please check the URL."}, status_code=400)
+    try:
+        b64, thumb_url = await fetch_youtube_thumbnail_b64(video_id)
+        return JSONResponse({
+            "video_id":     video_id,
+            "thumbnail_url": thumb_url,
+            "image_b64":    b64,
+        })
+    except ValueError as e:
+        return JSONResponse({"error": str(e)}, status_code=404)
+    except Exception as e:
+        logger.error(f"/blueprint/extract-thumb error: {e}")
+        return JSONResponse({"error": "Failed to fetch thumbnail."}, status_code=500)
+
+
+@app.post("/blueprint/analyze")
+async def blueprint_analyze(request: Request):
+    """Analyze a YouTube thumbnail with GPT-4o Vision. 7-dimension scoring."""
+    email      = request.headers.get("X-User-Email", "").strip().lower()
+    admin_code = request.headers.get("X-Admin-Code", "").strip().upper()
+    is_adm     = is_admin(admin_code)
+
+    # Plan gating — free: 1/day via Redis fingerprint
+    if not is_adm:
+        if email:
+            pd    = await get_user_plan(email)
+            plan  = pd.get("plan", "free")
+            used  = pd.get("blueprint_used", 0)
+            limit = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"]).get("blueprint", 1)
+            if used >= limit:
+                return JSONResponse({"error": "upgrade_required", "plan": plan}, status_code=403)
+        else:
+            fp  = get_fingerprint(request)
+            cnt = await redis_get(f"bp_free:{fp}")
+            if cnt and int(cnt) >= 1:
+                return JSONResponse({"error": "free_limit_reached"}, status_code=403)
+
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    image_b64     = data.get("image_b64", "")
+    niche         = str(data.get("niche", "tech")).strip()
+    topic_context = str(data.get("topic_context", "")).strip()
+
+    if not image_b64:
+        return JSONResponse({"error": "image_b64 required"}, status_code=400)
+    if "," in image_b64:
+        image_b64 = image_b64.split(",", 1)[1]
+
+    try:
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "text",      "text": BLUEPRINT_SCORE_PROMPT.format(niche=niche)},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}", "detail": "high"}},
+                ]
+            }],
+            max_tokens=1200,
+            response_format={"type": "json_object"},
+        )
+        result = parse_json_safe(response.choices[0].message.content)
+
+        # Increment usage counters
+        if not is_adm:
+            if email:
+                await sb_update_user(email, {"blueprint_used": (await get_user_plan(email)).get("blueprint_used", 0) + 1})
+                await invalidate_plan_cache(email)
+            else:
+                fp  = get_fingerprint(request)
+                cnt = await redis_incr(f"bp_free:{fp}")
+                if cnt == 1:
+                    await redis_expire(f"bp_free:{fp}", 86400)  # 24h reset
+
+        return JSONResponse(result)
+
+    except Exception as e:
+        logger.error(f"/blueprint/analyze error: {e}")
+        return JSONResponse({"error": "Analysis failed. Please try again."}, status_code=500)
+
+
+@app.post("/blueprint/variations")
+async def blueprint_variations(request: Request):
+    """Generate 3–5 DALL-E 3 improved thumbnail variations."""
+    email      = request.headers.get("X-User-Email", "").strip().lower()
+    admin_code = request.headers.get("X-Admin-Code", "").strip().upper()
+    is_adm     = is_admin(admin_code)
+
+    # Variations require at least Creator plan
+    if not is_adm:
+        if not email:
+            return JSONResponse({"error": "upgrade_required"}, status_code=403)
+        pd   = await get_user_plan(email)
+        plan = pd.get("plan", "free")
+        if plan == "free":
+            return JSONResponse({"error": "upgrade_required", "plan": "free"}, status_code=403)
+
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    scores          = data.get("scores", {})
+    biggest_weakness = data.get("biggest_weakness", "text readability")
+    niche           = str(data.get("niche", "tech")).strip()
+    topic_context   = str(data.get("topic_context", "")).strip()
+
+    # Number of variations by plan
+    plan_data = await get_user_plan(email) if email else {"plan": "free"}
+    plan      = plan_data.get("plan", "free") if not is_adm else "pro"
+    count     = 5 if plan == "pro" else 3
+
+    # Build scores summary string
+    scores_summary = "\n".join(
+        f"- {k.replace('_',' ').title()}: {v.get('score',0)}/100 ({v.get('label','')})"
+        for k, v in scores.items()
+    ) if scores else "Scores not available"
+
+    try:
+        # Step 1: Generate prompts via GPT-4o
+        prompt_response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{
+                "role": "user",
+                "content": BLUEPRINT_VARIATIONS_PROMPT.format(
+                    count=count,
+                    scores_summary=scores_summary,
+                    biggest_weakness=biggest_weakness,
+                    niche=niche,
+                    topic_context=topic_context or "general content",
+                )
+            }],
+            max_tokens=1500,
+            response_format={"type": "json_object"},
+        )
+        prompts_data = parse_json_safe(prompt_response.choices[0].message.content)
+        variations   = prompts_data.get("variations", [])[:count]
+
+        if not variations:
+            return JSONResponse({"error": "Could not generate variation prompts."}, status_code=500)
+
+        # Step 2: Generate DALL-E images in parallel
+        async def gen_image(v):
+            try:
+                dalle_prompt = v.get("dalle_prompt", "")
+                # Enforce correct spelling via letter-by-letter technique for text overlays
+                img_resp = await client.images.generate(
+                    model="dall-e-3",
+                    prompt=dalle_prompt + " Style: professional YouTube thumbnail, photorealistic, 16:9 aspect ratio, high contrast, vibrant colors.",
+                    size="1792x1024",
+                    quality="hd",
+                    n=1,
+                )
+                return {
+                    "variation_number":   v.get("variation_number", 1),
+                    "targets":            v.get("targets", ""),
+                    "improvement_focus":  v.get("improvement_focus", ""),
+                    "image_url":          img_resp.data[0].url,
+                }
+            except Exception as e:
+                logger.error(f"DALL-E variation error: {e}")
+                return None
+
+        results = await asyncio.gather(*[gen_image(v) for v in variations])
+        results = [r for r in results if r is not None]
+
+        return JSONResponse({"variations": results, "count": len(results)})
+
+    except Exception as e:
+        logger.error(f"/blueprint/variations error: {e}")
+        return JSONResponse({"error": "Variation generation failed."}, status_code=500)
