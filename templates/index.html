@@ -1553,6 +1553,7 @@ id="results">
 </div>
 
 <script>
+
 let selectedNiche='tech', selectedPlan='creator';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
 let currentUserEmail=localStorage.getItem('tg_email')||'';
@@ -3302,12 +3303,12 @@ function updateNavBar(data) {
 }
 
 async function loadDashboard() {
-    const email = localStorage.getItem('tg_email') || '';
-    const admin = localStorage.getItem('tg_admin_code') || '';
+    var email = localStorage.getItem('tg_email') || '';
+    var admin = localStorage.getItem('tg_admin_code') || '';
 
-    const noEmail = document.getElementById('dashNoEmail');
-    const content = document.getElementById('dashContent');
-    const loading = document.getElementById('dashLoading');
+    var noEmail = document.getElementById('dashNoEmail');
+    var content = document.getElementById('dashContent');
+    var loading = document.getElementById('dashLoading');
 
     if (!email && !admin) {
         if (loading) loading.style.display = 'none';
@@ -3320,31 +3321,31 @@ async function loadDashboard() {
     if (noEmail) noEmail.style.display = 'none';
 
     try {
-        const resp = await fetch('/user/usage', {
+        var resp = await fetch('/user/usage', {
             headers: { 'X-User-Email': email, 'X-Admin-Code': admin }
         });
         if (!resp.ok) throw new Error('fetch failed');
-        const data = await resp.json();
+        var data = await resp.json();
         _usageCache = data;
 
         if (loading) loading.style.display = 'none';
         if (content) content.style.display = 'block';
 
-        const plan   = data.plan   || 'free';
-        const used   = data.used   || {};
-        const limits = data.limits || {};
+        var plan   = data.plan   || 'free';
+        var used   = data.used   || {};
+        var limits = data.limits || {};
 
-        const planTitles = { free:'Free Plan', creator:'Creator Plan', pro:'Pro Plan' };
-        const planSubs   = {
-            free:    '3 generations \u00b7 1 image \u00b7 Core features',
-            creator: '100 generations \u00b7 20 images \u00b7 All features',
-            pro:     '300 generations \u00b7 50 images \u00b7 Unlimited analysis'
+        var planTitles = { free:'Free Plan', creator:'Creator Plan', pro:'Pro Plan' };
+        var planSubs   = {
+            free:    '3 generations · 1 image · Core features',
+            creator: '100 generations · 20 images · All features',
+            pro:     '300 generations · 50 images · Unlimited analysis'
         };
-        const el = function(id){ return document.getElementById(id); };
+        var el = function(id){ return document.getElementById(id); };
 
         if (el('dashPlanTitle'))  el('dashPlanTitle').textContent  = planTitles[plan] || plan;
         if (el('dashPlanSub'))    el('dashPlanSub').textContent    = planSubs[plan]   || '';
-        if (el('dashEmail'))      el('dashEmail').textContent      = data.email === 'admin' ? 'Admin' : (data.email || '\u2014');
+        if (el('dashEmail'))      el('dashEmail').textContent      = data.email === 'admin' ? 'Admin' : (data.email || '—');
         if (el('dashPlanLabel'))  el('dashPlanLabel').textContent  = plan.toUpperCase();
         if (el('dashStatGen'))    el('dashStatGen').textContent    = used.generations    || 0;
         if (el('dashStatImg'))    el('dashStatImg').textContent    = used.images         || 0;
@@ -3352,32 +3353,34 @@ async function loadDashboard() {
         if (el('dashStatBp'))     el('dashStatBp').textContent     = used.blueprint      || 0;
 
         if (plan === 'pro'     && el('dashUpgradeBtn')) el('dashUpgradeBtn').style.display = 'none';
-        if (plan === 'creator' && el('dashUpgradeBtn')) el('dashUpgradeBtn').textContent = 'Upgrade to Pro \u2192';
+        if (plan === 'creator' && el('dashUpgradeBtn')) el('dashUpgradeBtn').textContent   = 'Upgrade to Pro →';
 
         var usageItems = [
-            { icon:'\ud83c\udfa8', label:'Generations',         key:'generations',    color:'#FDE036' },
-            { icon:'\ud83d\uddbc\ufe0f', label:'AI Images',     key:'images',         color:'#818cf8' },
-            { icon:'\ud83d\udd0d', label:'Thumbnail Analysis',  key:'thumb_analysis', color:'#34d399' },
-            { icon:'\ud83d\udcca', label:'CTR Predictions',     key:'ctr_predict',    color:'#f472b6' },
-            { icon:'\ud83d\udd2c', label:'Reverse Engineering', key:'reverse',        color:'#fb923c' },
-            { icon:'\u26a1', label:'A/B Tests',                 key:'ab_tests',       color:'#60a5fa' },
-            { icon:'\ud83d\udcd0', label:'Blueprints',          key:'blueprint',      color:'#a78bfa' },
+            { icon:'🎨', label:'Generations',         key:'generations',    color:'#FDE036' },
+            { icon:'🖼️',  label:'AI Images',           key:'images',         color:'#818cf8' },
+            { icon:'🔍', label:'Thumbnail Analysis',  key:'thumb_analysis', color:'#34d399' },
+            { icon:'📊', label:'CTR Predictions',     key:'ctr_predict',    color:'#f472b6' },
+            { icon:'🔬', label:'Reverse Engineering', key:'reverse',        color:'#fb923c' },
+            { icon:'⚡', label:'A/B Tests',           key:'ab_tests',       color:'#60a5fa' },
+            { icon:'📐', label:'Blueprints',          key:'blueprint',      color:'#a78bfa' },
         ];
 
         var rowsEl = el('dashUsageRows');
         if (rowsEl) {
             rowsEl.innerHTML = usageItems.map(function(item) {
-                var u  = used[item.key]   || 0;
-                var l  = limits[item.key] || 0;
-                var pct = l >= 999 ? (u > 0 ? 5 : 0) : Math.min(100, l > 0 ? Math.round(u/l*100) : 0);
-                var barCls  = pct >= 90 ? 'full' : pct >= 70 ? 'warn' : '';
-                var countTxt = l >= 999 ? u + ' / \u221e' : u + ' / ' + l;
+                var u        = used[item.key]   || 0;
+                var l        = limits[item.key] || 0;
+                var pct      = l >= 999 ? (u > 0 ? 5 : 0) : Math.min(100, l > 0 ? Math.round(u/l*100) : 0);
+                var barCls   = pct >= 90 ? 'full' : pct >= 70 ? 'warn' : '';
+                var countTxt = l >= 999 ? (u + ' / ∞') : (u + ' / ' + l);
                 return '<div class="usage-row">'
-                    + '<span class="usage-icon">' + item.icon + '</span>'
-                    + '<span class="usage-label">' + item.label + '</span>'
-                    + '<div class="usage-bar-wrap"><div class="usage-bar-fill ' + barCls + '" style="width:' + pct + '%;background:' + item.color + '"></div></div>'
-                    + '<span class="usage-count">' + countTxt + '</span>'
-                    + '</div>';
+                     + '<span class="usage-icon">' + item.icon + '</span>'
+                     + '<span class="usage-label">' + item.label + '</span>'
+                     + '<div class="usage-bar-wrap">'
+                     +   '<div class="usage-bar-fill ' + barCls + '" style="width:' + pct + '%;background:' + item.color + '"></div>'
+                     + '</div>'
+                     + '<span class="usage-count">' + countTxt + '</span>'
+                     + '</div>';
             }).join('');
         }
 
@@ -3388,13 +3391,10 @@ async function loadDashboard() {
         if (noEmail) {
             noEmail.style.display = 'block';
             var h3 = noEmail.querySelector('h3');
-            if (h3) h3.textContent = '\u26a0\ufe0f Could not load dashboard. Check your email/connection.';
+            if (h3) h3.textContent = '⚠️ Could not load dashboard. Check your email/connection.';
         }
     }
 }
-
-
-
 
 </script>
 
