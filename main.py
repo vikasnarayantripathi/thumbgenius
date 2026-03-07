@@ -319,7 +319,7 @@ LANGUAGE_PROMPTS = {
         "tag_note": "Hindi SEO tags — both Devanagari and Roman transliteration for maximum reach.",
     },
     "hinglish": {
-        "instruction": "Generate content in Hinglish — the natural Hindi+English mix used by Indian YouTubers. Mix both naturally.",
+        "instruction": "Generate content in Hinglish — the natural Hindi+English mix used by YouTubers. Mix both naturally.",
         "title_style": "Hinglish style mixing both. Example: Yaar isko dekh ke shock ho gaya! or Maine 10L Kamaye Here is How",
         "overlay_style": "Hinglish 3-5 words. Example: Sach Finally Out! or Bhai Ye Dekh",
         "tag_note": "Mix Hindi + English tags and transliterated keywords for maximum India reach.",
@@ -327,7 +327,7 @@ LANGUAGE_PROMPTS = {
 }
 
 NICHE_CONTEXT = {
-    "tech":          "Curiosity gaps, tech specs as hooks, comparison angles. Indian audience loves value-for-money framing.",
+    "tech":          "Curiosity gaps, tech specs as hooks, comparison angles. Value-for-money and comparison formats perform well globally.",
     "finance":       "Money amounts, percentage gains/losses, urgency. SIP, mutual funds, stock market, salary references.",
     "gaming":        "Challenge framing, game names, rank/level references. Free Fire, BGMI, GTA.",
     "fitness":       "Transformation angles, time-based promises. Desi diet, home workout, no gym.",
@@ -356,7 +356,7 @@ NICHE_CONTEXT = {
 def get_generate_prompt(topic, niche, language="english"):
     tip  = NICHE_CONTEXT.get(niche, NICHE_CONTEXT["tech"])
     lang = LANGUAGE_PROMPTS.get(language, LANGUAGE_PROMPTS["english"])
-    return f"""You are a world-class YouTube growth strategist.
+    return f"""You are a world-class YouTube growth strategist with expertise across global markets.
 
 Video Topic: "{topic}"
 Niche: {niche}
@@ -381,7 +381,7 @@ Generate a complete viral content package. Respond ONLY in valid JSON.
     "why_it_works": "psychological hook explanation"
   }},
   "hook_script": "First 15 seconds script starting with pattern interrupt.",
-  "niche_tip": "One tactical tip for this niche in YouTube India 2025.",
+  "niche_tip": "One tactical tip for this niche on YouTube right now.",
   "tags": {{
     "primary": ["t1","t2","t3","t4","t5"],
     "secondary": ["t6","t7","t8","t9","t10"],
@@ -812,7 +812,7 @@ async def predict_ctr(request: Request):
         return JSONResponse({"error":"Image and at least one title required"},status_code=400)
     if "," in image_b64: image_b64 = image_b64.split(",",1)[1]
     titles_str = "\n".join([f"{i+1}. {t}" for i,t in enumerate(titles[:5])])
-    prompt = f"""You are a YouTube CTR prediction expert specializing in the Indian market.
+    prompt = f"""You are a YouTube CTR prediction expert with deep knowledge of global YouTube trends.
 Analyze this thumbnail paired with each title candidate for a {niche} channel.
 
 Title candidates:
@@ -944,7 +944,7 @@ async def ab_test(request: Request):
             model="gpt-3.5-turbo",
             messages=[
                 {"role":"system","content":"YouTube CTR expert. JSON only."},
-                {"role":"user","content":f'Compare these YouTube titles for Indian audience. JSON only.\nTitle A: "{title_a}"\nTitle B: "{title_b}"\nReturn: {{"winner":"A or B","score_a":8,"score_b":7,"reasoning":"2-3 sentences","emotional_angle_a":"Curiosity Gap","emotional_angle_b":"Shock Factor","improvement_a":"one specific fix for title A","improvement_b":"one specific fix for title B"}}'}
+                {"role":"user","content":f'Compare these YouTube titles for the target audience. JSON only.\nTitle A: "{title_a}"\nTitle B: "{title_b}"\nReturn: {{"winner":"A or B","score_a":8,"score_b":7,"reasoning":"2-3 sentences","emotional_angle_a":"Curiosity Gap","emotional_angle_b":"Shock Factor","improvement_a":"one specific fix for title A","improvement_b":"one specific fix for title B"}}'}
             ],
             temperature=0.7, max_tokens=400)
         return JSONResponse(parse_json_safe(response.choices[0].message.content))
@@ -976,12 +976,12 @@ async def ab_test_thumbnails(request: Request):
         return JSONResponse({"error":"Both thumbnail images required"},status_code=400)
     if "," in img_a: img_a = img_a.split(",",1)[1]
     if "," in img_b: img_b = img_b.split(",",1)[1]
-    prompt = f"""You are a YouTube A/B testing expert for the Indian market.
+    prompt = f"""You are a YouTube A/B testing expert for global YouTube audiences.
 Compare these two thumbnails for a {niche} channel.
 {f'Thumbnail A title: "{title_a}"' if title_a else ''}
 {f'Thumbnail B title: "{title_b}"' if title_b else ''}
 
-Simulate how Indian YouTube viewers would respond to each thumbnail.
+Simulate how YouTube viewers would respond to each thumbnail.
 Return ONLY this JSON:
 {{
   "winner": "A",
@@ -1000,7 +1000,7 @@ Return ONLY this JSON:
     {{"element":"Color Scheme","a_assessment":"description","b_assessment":"description","winner":"A"}}
   ],
   "v3_suggestion": "One paragraph describing how to combine the best elements of both into a superior Version 3.",
-  "audience_segment_notes": "How different Indian audience segments (mobile-first, age 18-24 vs 25-35) might respond differently."
+  "audience_segment_notes": "How different audience segments (mobile-first, age 18-24 vs 25-35) might respond differently."
 }}"""
     try:
         response = await client.chat.completions.create(
@@ -1037,7 +1037,7 @@ async def inspiration_library(request: Request, niche: str = "", trigger: str = 
     niche_filter   = f"Focus on {niche} niche thumbnails." if niche else "Mix across all niches."
     trigger_filter = f"Show thumbnails that use the {trigger} psychological technique." if trigger else "Mix all psychological techniques."
     prompt = f"""Generate 12 high-performing YouTube thumbnail concepts for the Inspiration Library.
-{niche_filter} {trigger_filter} Focus on Indian YouTube market (2024-2025).
+{niche_filter} {trigger_filter} Focus on global YouTube trends (2024-2025).
 
 Return ONLY a JSON array:
 [{{
@@ -1194,7 +1194,7 @@ async def analyze_channel(request: Request):
             model="gpt-4o-mini",
             messages=[
                 {"role":"system","content":"YouTube growth expert. JSON only."},
-                {"role":"user","content":f'Analyze these Indian YouTube video titles. JSON only.\nTitles: "{titles}"\nReturn: {{"ctr_score":7,"emotion_score":6,"clarity_score":8,"issues":[{{"title":"issue","detail":"explanation"}}],"fixes":[{{"title":"fix","detail":"how to apply"}}],"rewrites":[{{"original":"old","improved":"better"}}]}}'}
+                {"role":"user","content":f'Analyze these YouTube video titles. JSON only.\nTitles: "{titles}"\nReturn: {{"ctr_score":7,"emotion_score":6,"clarity_score":8,"issues":[{{"title":"issue","detail":"explanation"}}],"fixes":[{{"title":"fix","detail":"how to apply"}}],"rewrites":[{{"original":"old","improved":"better"}}]}}'}
             ],
             temperature=0.7, max_tokens=800)
         return JSONResponse(parse_json_safe(response.choices[0].message.content))
@@ -1236,7 +1236,7 @@ async def trending(request: Request, niches: str = ""):
             per_niche = max(3, min(5, 20 // len(requested)))
             niche_list = ", ".join(requested)
             total = per_niche * len(requested)
-            prompt = f"""Generate {total} trending YouTube video topics for Indian creators right now in 2025.
+            prompt = f"""Generate {total} trending YouTube video topics for creators right now in 2025.
 Niches requested: {niche_list}
 Generate exactly {per_niche} topics per niche.
 
@@ -1248,14 +1248,14 @@ Return a JSON object with a "topics" key containing an array:
 
 Rules:
 - Topics must be specific, actionable video title ideas (not generic)
-- Highly relevant to Indian YouTube audience in 2025
+- Highly relevant to the {niche} YouTube audience in 2025
 - Each topic must have all 4 fields: niche, topic, why, heat
 - niche must exactly match one of: {niche_list}"""
 
             response = await client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role":"system","content":"YouTube trends expert for Indian creators. Return only valid JSON."},
+                    {"role":"system","content":"YouTube trends expert for global creators. Return only valid JSON."},
                     {"role":"user","content":prompt}
                 ],
                 temperature=0.85, max_tokens=2000,
