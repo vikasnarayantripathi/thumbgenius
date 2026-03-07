@@ -16,7 +16,7 @@
         html { scroll-behavior: smooth; }
         body { background:var(--bg); color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; overflow-x:hidden; min-height:100vh; }
         #bg-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
-        #userStatusBar { display:none; position:fixed; top:94px; left:0; right:0; z-index:199; background:rgba(255,224,54,0.06); border-bottom:1px solid rgba(255,224,54,0.12); padding:8px 48px; align-items:center; justify-content:space-between; }
+        #userStatusBar { display:none; position:fixed; top:102px; left:0; right:0; z-index:199; background:rgba(255,224,54,0.06); border-bottom:1px solid rgba(255,224,54,0.12); padding:8px 48px; align-items:center; justify-content:space-between; }
         #userStatusBar.visible { display:flex; }
         .status-left { display:flex; align-items:center; gap:12px; }
         .status-plan { background:rgba(255,224,54,0.15); border:1px solid rgba(255,224,54,0.3); color:var(--yellow); font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; letter-spacing:0.5px; text-transform:uppercase; }
@@ -25,7 +25,7 @@
         .status-right { display:flex; align-items:center; gap:8px; }
         .btn-logout { background:none; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.3); border-radius:6px; padding:4px 12px; font-size:11px; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; }
         .btn-logout:hover { border-color:#FF2D7A; color:#FF2D7A; }
-        nav { position:fixed; top:0; left:0; right:0; z-index:200; background:rgba(2,2,10,0.6); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
+        nav { position:fixed; top:0; left:0; right:0; z-index:200; background:rgba(2,2,10,0.97); backdrop-filter:blur(40px); border-bottom:1px solid var(--border); }
         .nav-top { display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:56px; }
         .nav-bottom { display:flex; align-items:center; gap:8px; padding:0 48px 10px; }
         .logo { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:var(--yellow); }
@@ -261,7 +261,7 @@
         footer .logo { font-size:18px; }
         footer p { font-size:13px; color:var(--dim); }
         footer a { color:var(--yellow); text-decoration:none; font-size:13px; }
-        .feature-page { padding:148px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:10; min-height:100vh; }
+        .feature-page { padding:168px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:1; min-height:100vh; }
         .feature-page-title { font-size:clamp(32px,4vw,52px); font-weight:800; letter-spacing:-2px; margin-bottom:8px; }
         .feature-page-sub { color:var(--dim); font-size:16px; margin-bottom:48px; }
         .history-empty { text-align:center; padding:80px 24px; color:var(--dim); }
@@ -798,7 +798,7 @@ function showPage(p){
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:support@thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none">support@thumbgenius.in</a>
+    <a href="/cdn-cgi/l/email-protection#5b282e2b2b34292f1b2f332e36393c3e35322e28753235" style="color:rgba(255,255,255,0.3);text-decoration:none"><span class="__cf_email__" data-cfemail="9deee8ededf2efe9dde9f5e8f0fffaf8f3f4e8eeb3f4f3">[email&#160;protected]</span></a>
 </footer>
 </div>
 
@@ -887,7 +887,7 @@ function showPage(p){
         <div id="trendingCategoryBlocks"></div>
     </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let selectedNiche='tech', selectedPlan='creator';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
 let currentUserEmail=localStorage.getItem('tg_email')||'';
@@ -1518,7 +1518,4 @@ function drawTitleOnCanvas(ctx, W, H, titleText){
 }
 
 function escapeHtml(str){if(!str)return '';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function copyToClipboard(text,el){navigator.clipboard.writeText(text).then(()=>{const cp=el.querySelector('.cp');cp.textContent='✅';setTimeout(()=>cp.textContent='📋',1500);});}
-function copyText(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>alert('Copied!'));}
-
-document.getElem
+function copyToClipboard(text,el){navigator.clipboard.writeText(text).th
