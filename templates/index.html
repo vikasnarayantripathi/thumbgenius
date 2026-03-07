@@ -451,6 +451,20 @@
             .ab-score-num { font-size:28px; }
         }
     </style>
+<script>
+// Early stub — lets nav onclick work before main script loads
+function showPage(p){
+    document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+    document.querySelectorAll('.nav-tab').forEach(function(el){el.classList.remove('active');});
+    var page = document.getElementById('page-'+p);
+    var tab  = document.getElementById('tab-'+p);
+    if(page) page.classList.add('active');
+    if(tab)  tab.classList.add('active');
+    if(p==='trending' && typeof initTrending==='function') initTrending();
+    if(p==='history'  && typeof renderHistory==='function') renderHistory();
+    window.scrollTo(0,0);
+}
+</script>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
@@ -884,7 +898,7 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     const ctx=canvas.getContext('2d');
     let W,H,particles=[];
     function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-    function createParticles(){particles=[];for(let i=0;i<60;i++)particles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,dx:(Math.random()-0.5)*0.3,dy:(Math.random()-0.5)*0.3,a:Math.random()*0.4+0.1,color:['#FFE036','#FF5C00','#FF2D7A','#00F0FF'][Math.floor(Math.random()*4)]});}
+        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
     function draw(){
         ctx.clearRect(0,0,W,H);
         const g1=ctx.createRadialGradient(W*0.2,H*0.1,0,W*0.2,H*0.1,W*0.6);g1.addColorStop(0,'rgba(255,224,54,0.04)');g1.addColorStop(1,'transparent');ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
@@ -898,7 +912,7 @@ let currentUserPlan=localStorage.getItem('tg_plan')||'free';
     resize();createParticles();draw();
     window.addEventListener('resize',()=>{resize();createParticles();});
 })();
-        el.innerHTML=`<div class="history-empty"><div class="big-emoji">📂</div><h3>No saved generations yet</h3><p>Generate content on the home page and click Save to History</p><br><button class="btn-gen" style="max-width:240px;margin:0 auto" onclick="showPage('home')">Go Generate</button></div>`;
+
 function getHeaders(){
     const h={'Content-Type':'application/json'};
     if(currentUserEmail)h['X-User-Email']=currentUserEmail;
