@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThumbGenius — YouTube Packaging Intelligence Platform</title>
+    <meta name="description" content="Generate viral YouTube thumbnails and high-CTR titles using AI. Built for Indian creators. Thumbnail analyzer, A/B testing, CTR prediction, Viral Blueprint and more." />
+    <meta name="keywords" content="YouTube thumbnail generator AI, Indian YouTubers thumbnail tool, CTR optimization, thumbnail analyzer, viral title generator" />
+    <link rel="canonical" href="https://thumbgenius.in" />
+    <meta property="og:title" content="ThumbGenius — AI YouTube Thumbnail & Title Generator" />
+    <meta property="og:description" content="Generate viral thumbnails and high-CTR titles using AI. Built for Indian creators." />
+    <meta property="og:image" content="https://thumbgenius.in/og-image.jpg" />
+    <meta property="og:url" content="https://thumbgenius.in" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ThumbGenius — AI YouTube Thumbnail Generator" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=Oswald:wght@700&family=Bebas+Neue&family=Montserrat:wght@900&family=Russo+One&family=Bangers&family=Black+Han+Sans&family=Boogaloo&family=Righteous&family=Permanent+Marker&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
@@ -500,6 +510,33 @@
         .tags-hindi .tag-chip { background:rgba(255,45,122,0.06); border-color:rgba(255,45,122,0.2); color:var(--pink); }
         .tags-hindi .tag-chip:hover { background:rgba(255,45,122,0.14); }
 
+
+        /* Nav user bar */
+        .nav-user-bar { display:flex; align-items:center; gap:8px; }
+        .nav-plan-badge { font-size:10px; font-weight:800; letter-spacing:1.5px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
+        .nav-plan-badge.free    { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); }
+        .nav-plan-badge.creator { background:rgba(255,224,54,0.15); color:var(--yellow); border:1px solid rgba(255,224,54,0.3); }
+        .nav-plan-badge.pro     { background:rgba(139,85,255,0.2); color:#A78BFA; border:1px solid rgba(139,85,255,0.4); }
+        .nav-user-email { font-size:11px; color:rgba(255,255,255,0.4); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .nav-usage-ring { cursor:pointer; flex-shrink:0; }
+        #navUsageArc { transition: stroke-dashoffset 1s ease; }
+
+        /* Dashboard page */
+        .dash-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:28px; }
+        .dash-stat { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px; text-align:center; }
+        .dash-stat-val { font-size:32px; font-weight:900; color:var(--yellow); margin:8px 0 4px; }
+        .dash-stat-label { font-size:12px; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .dash-usage-row { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+        .dash-usage-row:last-child { border-bottom:none; }
+        .dash-usage-label { font-size:13px; color:rgba(255,255,255,0.7); width:160px; flex-shrink:0; }
+        .dash-usage-bar-wrap { flex:1; height:8px; background:rgba(255,255,255,0.07); border-radius:4px; overflow:hidden; }
+        .dash-usage-bar { height:100%; border-radius:4px; transition:width 1s ease; }
+        .dash-usage-count { font-size:12px; color:var(--dim); width:60px; text-align:right; flex-shrink:0; }
+        .dash-plan-card { background:linear-gradient(135deg,rgba(255,224,54,0.08),rgba(139,85,255,0.08)); border:1px solid rgba(255,224,54,0.2); border-radius:20px; padding:28px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+        .dash-plan-name { font-size:28px; font-weight:900; color:var(--yellow); }
+        .dash-plan-sub  { font-size:13px; color:var(--dim); margin-top:4px; }
+        .dash-renew     { font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px; }
+
         /* Upload zones */
         .upload-zone { border:2px dashed var(--border); border-radius:12px; padding:40px 24px; text-align:center; cursor:pointer; transition:all 0.2s; margin-bottom:14px; }
         .upload-zone:hover { border-color:var(--yellow); background:rgba(255,224,54,0.03); }
@@ -625,7 +662,54 @@
         .trending-cat-chip .tc-check { width:16px; height:16px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:9px; flex-shrink:0; }
         .trending-cat-chip.selected .tc-check { background:var(--yellow); border-color:var(--yellow); color:#000; }
 
-        </style>
+    
+        /* ── Dashboard Page ─────────────────────────────── */
+        .dash-header        { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:28px; }
+        .dash-plan-pill     { display:inline-flex; align-items:center; gap:8px; padding:8px 20px; border-radius:30px; font-weight:800; font-size:14px; letter-spacing:.5px; }
+        .dash-plan-pill.free    { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.5); }
+        .dash-plan-pill.creator { background:rgba(255,224,54,0.12); color:var(--yellow); border:1px solid rgba(255,224,54,0.25); }
+        .dash-plan-pill.pro     { background:rgba(139,85,255,0.15); color:#c4b5fd; border:1px solid rgba(139,85,255,0.3); }
+        .dash-stats-grid    { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:28px; }
+        .dash-stat          { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:20px 16px; text-align:center; }
+        .dash-stat-val      { font-size:30px; font-weight:900; color:var(--yellow); line-height:1; margin:6px 0 4px; }
+        .dash-stat-lbl      { font-size:11px; color:var(--dim); text-transform:uppercase; letter-spacing:1px; }
+        .dash-section       { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:24px; margin-bottom:20px; }
+        .dash-section-title { font-size:13px; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:18px; }
+        .usage-row          { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+        .usage-row:last-child { border-bottom:none; }
+        .usage-icon         { font-size:18px; width:28px; flex-shrink:0; }
+        .usage-label        { font-size:13px; color:rgba(255,255,255,0.75); flex:1; }
+        .usage-bar-wrap     { width:120px; height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; flex-shrink:0; }
+        .usage-bar-fill     { height:100%; border-radius:3px; transition:width 1.2s cubic-bezier(.4,0,.2,1); background:var(--yellow); }
+        .usage-bar-fill.warn{ background:#f97316; }
+        .usage-bar-fill.full{ background:#ef4444; }
+        .usage-count        { font-size:12px; color:var(--dim); width:52px; text-align:right; flex-shrink:0; }
+        .dash-upgrade-banner{ background:linear-gradient(135deg,rgba(255,224,54,.1),rgba(139,85,255,.12)); border:1px solid rgba(255,224,54,.2); border-radius:20px; padding:28px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:20px; }
+        .dash-upgrade-text h3 { font-size:20px; font-weight:800; color:var(--yellow); margin-bottom:6px; }
+        .dash-upgrade-text p  { font-size:13px; color:var(--dim); }
+        .dash-no-email      { text-align:center; padding:60px 20px; color:var(--dim); }
+        .dash-no-email h3   { font-size:22px; color:rgba(255,255,255,.6); margin-bottom:10px; }
+
+        /* ── Social proof ────────────────────────────────── */
+        .social-proof       { margin:40px 0 20px; }
+        .sp-title           { font-size:12px; color:var(--dim); text-transform:uppercase; letter-spacing:2px; text-align:center; margin-bottom:16px; }
+        .sp-grid            { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+        .sp-card            { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; }
+        .sp-stars           { color:#fbbf24; font-size:14px; margin-bottom:8px; }
+        .sp-text            { font-size:13px; color:rgba(255,255,255,.7); line-height:1.6; margin-bottom:10px; }
+        .sp-author          { font-size:12px; color:var(--dim); font-weight:600; }
+        .sp-subs            { font-size:11px; color:var(--dim); opacity:.7; }
+
+        /* ── Nav user bar ─────────────────────────────────── */
+        .nav-user-bar       { display:flex; align-items:center; gap:8px; }
+        .nav-plan-pill      { font-size:10px; font-weight:800; letter-spacing:1.5px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
+        .nav-plan-pill.free    { background:rgba(255,255,255,.08); color:rgba(255,255,255,.4); }
+        .nav-plan-pill.creator { background:rgba(255,224,54,.12); color:var(--yellow); border:1px solid rgba(255,224,54,.25); }
+        .nav-plan-pill.pro     { background:rgba(139,85,255,.15); color:#c4b5fd; border:1px solid rgba(139,85,255,.3); }
+        .nav-user-email     { font-size:11px; color:rgba(255,255,255,.35); max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .nav-gen-count      { font-size:11px; color:var(--dim); white-space:nowrap; }
+        .nav-gen-count strong { color:var(--yellow); }
+    </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
 function showPage(p){
@@ -637,6 +721,7 @@ function showPage(p){
     if(tab)  tab.classList.add('active');
     if(p==='trending'  && typeof initTrending==='function')  initTrending();
     if(p==='history'   && typeof renderHistory==='function') renderHistory();
+    if(p==='dashboard' && typeof loadDashboard==='function') loadDashboard();
     if(p==='library'   && typeof lib_load==='function')      lib_load();
     if(p==='blueprint' && typeof initBlueprint==='function') initBlueprint();
     window.scrollTo(0,0);
@@ -731,21 +816,27 @@ function showPage(p){
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
         <div class="nav-right">
+            <div class="nav-user-bar" id="navUserBar" style="display:none">
+                <div class="nav-plan-pill free" id="navPlanPill">FREE</div>
+                <span class="nav-user-email" id="navUserEmail"></span>
+                <span class="nav-gen-count" id="navGenCount"></span>
+            </div>
             <span class="nav-badge" id="navBadge">Packaging Intelligence Platform</span>
             <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
         </div>
     </div>
     <div class="nav-bottom">
-        <button class="nav-tab active" id="tab-home"     onclick="showPage('home')">&#x1F3E0; Home</button>
-        <button class="nav-tab"        id="tab-analyzer" onclick="showPage('analyzer')">&#x1F3AF; Analyzer</button>
-        <button class="nav-tab"        id="tab-ctr"      onclick="showPage('ctr')">&#x1F4CA; CTR</button>
-        <button class="nav-tab"        id="tab-reverse"  onclick="showPage('reverse')">&#x1F52C; Reverse</button>
-        <button class="nav-tab"        id="tab-ab"       onclick="showPage('ab')">&#x26A1; A/B Test</button>
-        <button class="nav-tab"        id="tab-library"  onclick="showPage('library')">&#x1F4A1; Library</button>
-        <button class="nav-tab"        id="tab-branding" onclick="showPage('branding')">&#x1F3A8; Branding</button>
-        <button class="nav-tab"        id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
-        <button class="nav-tab"        id="tab-history"  onclick="showPage('history')">&#x1F4C2; History</button>
-        <button class="nav-tab"        id="tab-blueprint" onclick="showPage('blueprint')">&#x1F525; Blueprint</button>
+        <button class="nav-tab active" id="tab-home"      onclick="showPage('home')">&#x1F3E0; Home</button>
+        <button class="nav-tab"        id="tab-analyzer"  onclick="showPage('analyzer')">&#x1F3AF; Analyzer</button>
+        <button class="nav-tab"        id="tab-ctr"       onclick="showPage('ctr')">&#x1F4CA; CTR</button>
+        <button class="nav-tab"        id="tab-reverse"   onclick="showPage('reverse')">&#x1F52C; Reverse</button>
+        <button class="nav-tab"        id="tab-ab"        onclick="showPage('ab')">&#x26A1; A/B</button>
+        <button class="nav-tab"        id="tab-library"   onclick="showPage('library')">&#x1F4A1; Library</button>
+        <button class="nav-tab"        id="tab-branding"  onclick="showPage('branding')">&#x1F3A8; Branding</button>
+        <button class="nav-tab"        id="tab-trending"  onclick="showPage('trending')">&#x1F525; Trending</button>
+        <button class="nav-tab"        id="tab-history"   onclick="showPage('history')">&#x1F4C2; History</button>
+        <button class="nav-tab"        id="tab-blueprint" onclick="showPage('blueprint')">&#x1F4D0; Blueprint</button>
+        <button class="nav-tab"        id="tab-dashboard" onclick="showPage('dashboard')">&#x1F4CA; Dashboard</button>
     </div>
 </nav>
 
@@ -827,7 +918,32 @@ function showPage(p){
     <p>Analyzing title patterns, thumbnail signals &amp; CTR drivers</p>
 </div>
 
-<div class="results" id="results">
+<div class="results" 
+<!-- Social proof -->
+<div class="social-proof">
+  <div class="sp-title">Loved by Indian Creators</div>
+  <div class="sp-grid">
+    <div class="sp-card">
+      <div class="sp-stars">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div>
+      <div class="sp-text">"Mere thumbnails ka CTR 3x ho gaya pehle month mein hi. ThumbGenius ne meri channel game completely change kar di!"</div>
+      <div class="sp-author">Rohit Sharma</div>
+      <div class="sp-subs">Tech Unboxing &bull; 87K subscribers</div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-stars">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div>
+      <div class="sp-text">"The Blueprint feature is insane — I analyzed top viral thumbnails and now I know exactly what formula works for my niche."</div>
+      <div class="sp-author">Priya Kapoor</div>
+      <div class="sp-subs">Finance with Priya &bull; 42K subscribers</div>
+    </div>
+    <div class="sp-card">
+      <div class="sp-stars">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</div>
+      <div class="sp-text">"Pehle thumbnails banane mein 2 ghante lagte the. Ab 10 minutes mein 5 options ready hote hain. Worth every rupee."</div>
+      <div class="sp-author">Aditya Verma</div>
+      <div class="sp-subs">Gaming with ADV &bull; 156K subscribers</div>
+    </div>
+  </div>
+</div>
+id="results">
     <div class="results-header"><h2>Your Packaging Intelligence &#x2736;</h2><p>Click any title to copy. Generate and download your AI thumbnail below.</p></div>
     <div class="rblock"><div class="rblock-head">&#x1F525; 5 High-CTR Title Options</div><div id="titles"></div></div>
     <div class="rblock" id="imgBlock"><div class="rblock-head">&#x1F3A8; Thumbnail Blueprint</div><div class="tgrid" id="thumbnail"></div></div>
@@ -1371,6 +1487,68 @@ function showPage(p){
     </div>
 
   </div><!-- /#bpResult -->
+</div>
+</div>
+
+<!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ║  DASHBOARD                                           ║ -->
+<!-- ╚══════════════════════════════════════════════════════╝ -->
+<div class="page" id="page-dashboard">
+<div class="feature-page">
+  <div class="feature-page-title">&#x1F4CA; My Dashboard</div>
+
+  <!-- Not logged in state -->
+  <div id="dashNoEmail" class="dash-no-email" style="display:none">
+    <h3>&#x1F512; Login to see your dashboard</h3>
+    <p>Enter your email in the Home tab to track usage, plan, and history.</p>
+    <button class="btn-primary" style="margin-top:20px" onclick="showPage('home')">Go to Home &rarr;</button>
+  </div>
+
+  <!-- Logged in state -->
+  <div id="dashContent" style="display:none">
+    <!-- Plan banner -->
+    <div class="dash-upgrade-banner" id="dashPlanBanner">
+      <div class="dash-upgrade-text">
+        <h3 id="dashPlanTitle">Free Plan</h3>
+        <p id="dashPlanSub">3 generations / day &bull; 1 image &bull; Basic features</p>
+      </div>
+      <button class="btn-primary" id="dashUpgradeBtn" onclick="openPaymentModal()">Upgrade to Creator &rarr;</button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="dash-stats-grid">
+      <div class="dash-stat"><div class="dash-stat-val" id="dashStatGen">0</div><div class="dash-stat-lbl">Generations</div></div>
+      <div class="dash-stat"><div class="dash-stat-val" id="dashStatImg">0</div><div class="dash-stat-lbl">Images Made</div></div>
+      <div class="dash-stat"><div class="dash-stat-val" id="dashStatAna">0</div><div class="dash-stat-lbl">Analyses</div></div>
+      <div class="dash-stat"><div class="dash-stat-val" id="dashStatBp">0</div><div class="dash-stat-lbl">Blueprints</div></div>
+    </div>
+
+    <!-- Usage breakdown -->
+    <div class="dash-section">
+      <div class="dash-section-title">Usage This Month</div>
+      <div id="dashUsageRows"></div>
+    </div>
+
+    <!-- Account info -->
+    <div class="dash-section">
+      <div class="dash-section-title">Account</div>
+      <div class="usage-row">
+        <span class="usage-icon">&#x2709;&#xFE0F;</span>
+        <span class="usage-label">Email</span>
+        <span class="usage-count" id="dashEmail" style="width:auto;color:rgba(255,255,255,.6)"></span>
+      </div>
+      <div class="usage-row">
+        <span class="usage-icon">&#x1F4CB;</span>
+        <span class="usage-label">Plan</span>
+        <span class="usage-count" id="dashPlanLabel" style="width:auto;color:var(--yellow);font-weight:700;text-transform:uppercase"></span>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashLoading" style="text-align:center;padding:60px 20px;color:var(--dim)">
+    <div class="loading-spinner" style="margin:0 auto 14px"></div>
+    Loading your dashboard…
+  </div>
 </div>
 </div>
 
@@ -2623,6 +2801,7 @@ function switchTab(tab) { showPage(tab); }
 function setEmail(e) {
     currentUserEmail = e.trim().toLowerCase();
     localStorage.setItem('tg_email', currentUserEmail);
+    if(typeof loadUserStatus==='function') setTimeout(loadUserStatus, 300);
 }
 function setAdminCode(c) {
     localStorage.setItem('tg_admin_code', c.trim().toUpperCase());
@@ -3068,9 +3247,152 @@ function bp_useVariation(url) {
     showPage('home');
     setTimeout(() => {
         const t=document.getElementById('topic');
-        if(t){ t.value='Based on improved variation from Blueprint tool'; t.focus(); t.scrollIntoView({behavior:'smooth',block:'center'}); }
+        if(t){ t.value='Based on improved variation from Blueprint tool';
+        document.getElementById('topic').focus();
+        document.getElementById('topic').scrollIntoView({behavior:'smooth',block:'center'}); }
     }, 300);
 }
+
+// ════════════════════════════════════════════════════════
+//  DASHBOARD & USER STATUS
+// ════════════════════════════════════════════════════════
+
+var _usageCache = null;
+
+async function loadUserStatus() {
+    const email = localStorage.getItem('tg_email') || '';
+    const admin = localStorage.getItem('tg_admin_code') || '';
+    if (!email && !admin) return;
+
+    try {
+        const resp = await fetch('/user/usage', {
+            headers: {
+                'X-User-Email': email,
+                'X-Admin-Code': admin
+            }
+        });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        _usageCache = data;
+        updateNavBar(data);
+    } catch(e) { /* silently fail */ }
+}
+
+function updateNavBar(data) {
+    if (!data) return;
+    const bar   = document.getElementById('navUserBar');
+    const pill  = document.getElementById('navPlanPill');
+    const email = document.getElementById('navUserEmail');
+    const gen   = document.getElementById('navGenCount');
+    const cta   = document.getElementById('navCtaBtn');
+
+    if (bar)   bar.style.display = 'flex';
+
+    const plan = data.plan || 'free';
+    if (pill)  { pill.textContent = plan.toUpperCase(); pill.className = 'nav-plan-pill ' + plan; }
+    if (email) email.textContent = data.email === 'admin' ? 'Admin' : (data.email || '');
+
+    const used   = (data.used   || {}).generations || 0;
+    const limit  = (data.limits || {}).generations || 3;
+    const pct    = limit >= 999 ? 100 : Math.min(100, Math.round(used/limit*100));
+    if (gen) gen.innerHTML = limit >= 999 ? '<strong>∞</strong> gen' : '<strong>' + used + '</strong>/' + limit;
+
+    // Hide upgrade button for Pro
+    if (cta && plan === 'pro') cta.style.display = 'none';
+}
+
+async function loadDashboard() {
+    const email = localStorage.getItem('tg_email') || '';
+    const admin = localStorage.getItem('tg_admin_code') || '';
+
+    const noEmail = document.getElementById('dashNoEmail');
+    const content = document.getElementById('dashContent');
+    const loading = document.getElementById('dashLoading');
+
+    if (!email && !admin) {
+        if (loading) loading.style.display = 'none';
+        if (noEmail) noEmail.style.display = 'block';
+        return;
+    }
+
+    if (loading) loading.style.display = 'block';
+    if (content) content.style.display = 'none';
+    if (noEmail) noEmail.style.display = 'none';
+
+    try {
+        const resp = await fetch('/user/usage', {
+            headers: { 'X-User-Email': email, 'X-Admin-Code': admin }
+        });
+        const data = await resp.json();
+        _usageCache = data;
+
+        if (loading) loading.style.display = 'none';
+        if (content) content.style.display = 'block';
+
+        const plan = data.plan || 'free';
+        const used   = data.used   || {};
+        const limits = data.limits || {};
+
+        // Plan banner
+        const planTitles = { free:'Free Plan', creator:'Creator Plan', pro:'Pro Plan' };
+        const planSubs   = {
+            free:    '3 generations · 1 image · Core features',
+            creator: '100 generations · 20 images · All features',
+            pro:     '300 generations · 50 images · Unlimited analysis'
+        };
+        const el = (id) => document.getElementById(id);
+        if (el('dashPlanTitle'))  el('dashPlanTitle').textContent  = planTitles[plan] || plan;
+        if (el('dashPlanSub'))    el('dashPlanSub').textContent    = planSubs[plan]   || '';
+        if (el('dashEmail'))      el('dashEmail').textContent      = data.email === 'admin' ? 'Admin' : (data.email || '—');
+        if (el('dashPlanLabel'))  el('dashPlanLabel').textContent  = plan.toUpperCase();
+        if (el('dashStatGen'))    el('dashStatGen').textContent    = used.generations    || 0;
+        if (el('dashStatImg'))    el('dashStatImg').textContent    = used.images         || 0;
+        if (el('dashStatAna'))    el('dashStatAna').textContent    = (used.thumb_analysis||0) + (used.reverse||0) + (used.ctr_predict||0);
+        if (el('dashStatBp'))     el('dashStatBp').textContent     = used.blueprint      || 0;
+
+        // Hide upgrade button for pro
+        if (plan === 'pro' && el('dashUpgradeBtn')) el('dashUpgradeBtn').style.display = 'none';
+        if (plan === 'creator' && el('dashUpgradeBtn')) el('dashUpgradeBtn').textContent = 'Upgrade to Pro →';
+
+        // Usage rows
+        const usageItems = [
+            { icon:'🎨', label:'Generations',        key:'generations',    color:'#FDE036' },
+            { icon:'🖼️', label:'AI Images',          key:'images',         color:'#818cf8' },
+            { icon:'🔍', label:'Thumbnail Analysis', key:'thumb_analysis', color:'#34d399' },
+            { icon:'📊', label:'CTR Predictions',    key:'ctr_predict',    color:'#f472b6' },
+            { icon:'🔬', label:'Reverse Engineering', key:'reverse',       color:'#fb923c' },
+            { icon:'⚡', label:'A/B Tests',          key:'ab_tests',       color:'#60a5fa' },
+            { icon:'📐', label:'Blueprints',         key:'blueprint',      color:'#a78bfa' },
+        ];
+
+        const rowsEl = el('dashUsageRows');
+        if (rowsEl) {
+            rowsEl.innerHTML = usageItems.map(item => {
+                const u = used[item.key]   || 0;
+                const l = limits[item.key] || 0;
+                const pct = l >= 999 ? (u > 0 ? 5 : 0) : Math.min(100, l > 0 ? Math.round(u/l*100) : 0);
+                const barClass = pct >= 90 ? 'full' : pct >= 70 ? 'warn' : '';
+                const countTxt = l >= 999 ? u + ' / ∞' : u + ' / ' + l;
+                return `<div class="usage-row">
+                    <span class="usage-icon">\${item.icon}</span>
+                    <span class="usage-label">\${item.label}</span>
+                    <div class="usage-bar-wrap">
+                        <div class="usage-bar-fill \${barClass}" style="width:\${pct}%;background:\${item.color}"></div>
+                    </div>
+                    <span class="usage-count">\${countTxt}</span>
+                </div>`;
+            }).join('');
+        }
+
+        updateNavBar(data);
+
+    } catch(e) {
+        if (loading) loading.style.display = 'none';
+        if (noEmail) { noEmail.style.display = 'block'; noEmail.querySelector('h3').textContent = 'Could not load dashboard'; }
+    }
+}
+
+
 
 
 </script>

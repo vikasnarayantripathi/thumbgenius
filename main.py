@@ -1,3 +1,4 @@
+import asyncio
 """
 ThumbGenius — main.py v4.0
 YouTube Packaging Intelligence Platform
@@ -38,9 +39,9 @@ APP_URL                  = os.getenv("APP_URL", "https://thumbgenius.in")
 FROM_EMAIL               = os.getenv("FROM_EMAIL", "hello@thumbgenius.in")
 
 PLAN_LIMITS = {
-    "free":    {"generations": 3,  "images": 1,  "thumb_analysis": 1,  "reverse": 2,  "ctr_predict": 0,  "ab_tests": 3},
-    "creator": {"generations": 100,"images": 20, "thumb_analysis": 50, "reverse": 25, "ctr_predict": 30, "ab_tests": 20},
-    "pro":     {"generations": 300,"images": 50, "thumb_analysis": 999,"reverse": 999,"ctr_predict": 999,"ab_tests": 999},
+    "free":    {"generations": 3,  "images": 1,  "thumb_analysis": 1,  "reverse": 2,  "ctr_predict": 0,  "ab_tests": 3,  "blueprint": 1},
+    "creator": {"generations": 100,"images": 20, "thumb_analysis": 50, "reverse": 25, "ctr_predict": 30, "ab_tests": 20, "blueprint": 10},
+    "pro":     {"generations": 300,"images": 50, "thumb_analysis": 999,"reverse": 999,"ctr_predict": 999,"ab_tests": 999,"blueprint": 999},
 }
 ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro"]}}
 
@@ -477,6 +478,33 @@ async def razorpay_webhook(request: Request):
 # MODULE 7 — PACKAGING ASSISTANT (generate + generate-image)
 # ══════════════════════════════════════════════════════════════════════════════
 
+
+# ── User Usage Stats ─────────────────────────────────────────────────────────
+@app.get("/user/usage")
+async def user_usage(request: Request):
+    email      = request.headers.get("X-User-Email","").strip().lower()
+    admin_code = request.headers.get("X-Admin-Code","").strip().upper()
+    is_adm     = is_admin(admin_code)
+    if not email and not is_adm:
+        return JSONResponse({"error":"not_logged_in"}, status_code=401)
+    if is_adm:
+        return JSONResponse({"plan":"pro","email":"admin","limits":PLAN_LIMITS["pro"],
+                             "used":{"generations":0,"images":0,"thumb_analysis":0,
+                                     "reverse":0,"ctr_predict":0,"ab_tests":0,"blueprint":0}})
+    pd = await get_user_plan(email)
+    plan = pd.get("plan","free")
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    used = {
+        "generations":    pd.get("generations_used",0),
+        "images":         pd.get("images_used",0),
+        "thumb_analysis": pd.get("thumb_analysis_used",0),
+        "reverse":        pd.get("reverse_used",0),
+        "ctr_predict":    pd.get("ctr_predict_used",0),
+        "ab_tests":       pd.get("ab_tests_used",0),
+        "blueprint":      pd.get("blueprint_used",0),
+    }
+    return JSONResponse({"plan":plan,"email":email,"limits":limits,"used":used})
+
 @app.post("/generate")
 async def generate(request: Request):
     email      = request.headers.get("X-User-Email", "").strip().lower()
@@ -567,7 +595,7 @@ async def generate_image(request: Request):
             prompt=img_prompt,
             size="1792x1024", quality="hd", n=1)
         if not is_adm:
-            if email: asyncio.create_task(sb_update_user(email,{"images_used":used+1})); asyncio.create_task(invalidate_plan_cache(email))
+            if email: asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":response.data[0].url})); asyncio.create_task(invalidate_plan_cache(email))
             else:
                 img_key = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
                 cnt = await redis_incr(img_key)
@@ -1458,3 +1486,24 @@ async def blueprint_variations(request: Request):
     except Exception as e:
         logger.error(f"/blueprint/variations error: {e}")
         return JSONResponse({"error": "Variation generation failed."}, status_code=500)
+
+# ── Image Proxy (fixes CORS on DALL-E download) ───────────────────────────────
+@app.get("/proxy-image")
+async def proxy_image(url: str = ""):
+    """Proxy OpenAI/DALL-E image URLs to allow canvas download without CORS issues."""
+    ALLOWED = ["oaidalleapiprodscus.blob.core.windows.net", "openai.com", "blob.core.windows.net"]
+    if not url or not any(d in url for d in ALLOWED):
+        return JSONResponse({"error": "Invalid image URL"}, status_code=400)
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as h:
+            r = await h.get(url, follow_redirects=True)
+            from fastapi.responses import Response
+            return Response(
+                content=r.content,
+                media_type=r.headers.get("content-type", "image/png"),
+                headers={"Cache-Control": "public, max-age=3600",
+                         "Access-Control-Allow-Origin": "*"}
+            )
+    except Exception as e:
+        logger.error(f"/proxy-image error: {e}")
+        return JSONResponse({"error": "Failed to fetch image"}, status_code=500)
