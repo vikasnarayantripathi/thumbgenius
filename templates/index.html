@@ -261,7 +261,7 @@
         footer .logo { font-size:18px; }
         footer p { font-size:13px; color:var(--dim); }
         footer a { color:var(--yellow); text-decoration:none; font-size:13px; }
-        .feature-page { padding:120px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:1; min-height:100vh; }
+        .feature-page { padding:140px 80px 80px; max-width:900px; margin:0 auto; position:relative; z-index:1; min-height:100vh; }
         .feature-page-title { font-size:clamp(32px,4vw,52px); font-weight:800; letter-spacing:-2px; margin-bottom:8px; }
         .feature-page-sub { color:var(--dim); font-size:16px; margin-bottom:48px; }
         .history-empty { text-align:center; padding:80px 24px; color:var(--dim); }
@@ -387,7 +387,7 @@
             .analyzer-score-row { grid-template-columns:1fr 1fr; }
             .trending-grid { grid-template-columns:1fr; }
             .plan-tabs { grid-template-columns:1fr; }
-            .feature-page { padding:90px 16px 60px; }
+            .feature-page { padding:130px 16px 60px; }
         }
         @media (max-width:768px) {
             .nav-top { padding:0 16px; height:48px; }
@@ -578,6 +578,7 @@ function showPage(p){
     if(tab)  tab.classList.add('active');
     if(p==='trending' && typeof initTrending==='function') initTrending();
     if(p==='history'  && typeof renderHistory==='function') renderHistory();
+    if(p==='library'  && typeof lib_load==='function') lib_load();
     window.scrollTo(0,0);
 }
 </script>
@@ -675,15 +676,15 @@ function showPage(p){
         </div>
     </div>
     <div class="nav-bottom">
-        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">&#x1F3E0; Home</button>
-        
-        <button class="nav-tab" id="tab-ctr" onclick="showPage('ctr')">&#x1F4CA; CTR</button>
-        <button class="nav-tab" id="tab-reverse" onclick="showPage('reverse')">&#x1F52C; Reverse</button>
-        <button class="nav-tab" id="tab-ab" onclick="showPage('ab')">&#x26A1; A/B Test</button>
-        <button class="nav-tab" id="tab-library" onclick="showPage('library')">&#x1F4A1; Library</button>
-        <button class="nav-tab" id="tab-branding" onclick="showPage('branding')">&#x1F3A8; Branding</button>
-        <button class="nav-tab" id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
-        <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C2; History</button>
+        <button class="nav-tab active" id="tab-home"     onclick="showPage('home')">&#x1F3E0; Home</button>
+        <button class="nav-tab"        id="tab-analyzer" onclick="showPage('analyzer')">&#x1F3AF; Analyzer</button>
+        <button class="nav-tab"        id="tab-ctr"      onclick="showPage('ctr')">&#x1F4CA; CTR</button>
+        <button class="nav-tab"        id="tab-reverse"  onclick="showPage('reverse')">&#x1F52C; Reverse</button>
+        <button class="nav-tab"        id="tab-ab"       onclick="showPage('ab')">&#x26A1; A/B Test</button>
+        <button class="nav-tab"        id="tab-library"  onclick="showPage('library')">&#x1F4A1; Library</button>
+        <button class="nav-tab"        id="tab-branding" onclick="showPage('branding')">&#x1F3A8; Branding</button>
+        <button class="nav-tab"        id="tab-trending" onclick="showPage('trending')">&#x1F525; Trending</button>
+        <button class="nav-tab"        id="tab-history"  onclick="showPage('history')">&#x1F4C2; History</button>
     </div>
 </nav>
 
@@ -2128,16 +2129,7 @@ function brand_render(d) {
     );
 }
 
-// ════════════════════════════════════════════════════════
-//  EXTEND showPage for library init
-// ════════════════════════════════════════════════════════
-(function(){
-    var _orig = showPage;
-    showPage = function(p) {
-        _orig(p);
-        if(p === 'library') lib_load();
-    };
-})();
+// Library init handled in main showPage
 
 
 </script>
