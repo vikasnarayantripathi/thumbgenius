@@ -1416,44 +1416,59 @@ const ALL_CATEGORIES = [
 // ════════════════════════════════════════════════════
 //  TRENDING — init & fetch
 // ════════════════════════════════════════════════════
-async function initTrending() {
+function initTrending() {
     renderCatPicker();
     renderSelectedChips();
     if (!trendingLoaded) {
-        await fetchTrendingData();
+        fetchTrendingData();   // fire-and-forget; fetchTrendingData handles its own UI
     } else {
         renderAllCategoryBlocks();
     }
 }
 
 async function fetchTrendingData() {
-    const loading = document.getElementById('trendingLoading');
-    const btn     = document.getElementById('btnFetchTrending');
-    if (loading) loading.style.display = 'block';
-    if (btn)     btn.disabled = true;
+    var container = document.getElementById('trendingCategoryBlocks');
+    var btn       = document.getElementById('btnFetchTrending');
+
+    // Show inline spinner inside the main container
+    if (container) container.innerHTML =
+        '<div style="text-align:center;padding:60px 20px">' +
+        '<div class="loading-spinner" style="margin:0 auto 16px"></div>' +
+        '<p style="color:var(--dim);font-size:14px">Fetching trending topics for India…</p></div>';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Fetching…'; }
+
     try {
-        const res  = await fetch('/trending');
-        const data = await res.json();
-        if (!Array.isArray(data)) throw new Error('Invalid response');
+        var res  = await fetch('/trending');
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+        var data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) throw new Error('No topics returned');
+
         trendingDataCache = {};
-        data.forEach(t => {
-            if (!trendingDataCache[t.niche]) trendingDataCache[t.niche] = [];
-            trendingDataCache[t.niche].push(t);
+        data.forEach(function(t) {
+            var niche = t.niche || 'other';
+            if (!trendingDataCache[niche]) trendingDataCache[niche] = [];
+            trendingDataCache[niche].push(t);
         });
         trendingLoaded = true;
         renderAllCategoryBlocks();
+
     } catch(e) {
-        if (loading) loading.innerHTML = '<p style="color:var(--dim)">Failed to load trending topics. Please try again.</p>';
+        if (container) container.innerHTML =
+            '<div style="text-align:center;padding:48px 20px">' +
+            '<div style="font-size:36px;margin-bottom:12px">⚠️</div>' +
+            '<p style="color:#FF6584;font-size:15px;font-weight:700;margin-bottom:8px">Could not load trending topics</p>' +
+            '<p style="color:var(--dim);font-size:13px;margin-bottom:20px">' + escapeHtml(e.message) + '</p>' +
+            '<button class="btn-gen" onclick="forceFetchTrending()" style="max-width:200px;margin:0 auto">🔄 Retry</button>' +
+            '</div>';
     } finally {
-        if (loading) loading.style.display = 'none';
-        if (btn)     btn.disabled = false;
+        if (btn) { btn.disabled = false; btn.textContent = '🔥 Fetch Trending Topics'; }
     }
 }
 
-async function forceFetchTrending() {
+function forceFetchTrending() {
     trendingLoaded    = false;
     trendingDataCache = {};
-    await fetchTrendingData();
+    fetchTrendingData();
 }
 
 // ════════════════════════════════════════════════════
@@ -1481,6 +1496,8 @@ function toggleCat(id, el) {
         el.classList.add('selected');
     }
     localStorage.setItem('tg_trending_cats', JSON.stringify(selectedCategories));
+    renderSelectedChips();
+    renderAllCategoryBlocks();
 }
 
 function renderSelectedChips() {
@@ -1520,10 +1537,7 @@ function renderAllCategoryBlocks() {
     const container = document.getElementById('trendingCategoryBlocks');
     if (!container) return;
 
-    if (!trendingLoaded) {
-        container.innerHTML = '<p style="color:var(--dim);text-align:center;padding:32px">Click "Fetch Trending Topics" to load.</p>';
-        return;
-    }
+    if (!trendingLoaded) return; // fetchTrendingData manages loading state
 
     container.innerHTML = selectedCategories.map(catId => {
         const cat    = ALL_CATEGORIES.find(c => c.id === catId);

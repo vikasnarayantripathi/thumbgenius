@@ -547,10 +547,25 @@ async def generate_image(request: Request):
     overlay = str(data.get("text_overlay","")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
     try:
+        # Spell out text character by character for DALL-E accuracy
+        overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
+        img_prompt = (
+            f"Professional YouTube thumbnail image, 16:9 widescreen format. "
+            f"Scene: {concept}. "
+            f"Ultra high contrast vibrant colors, cinematic lighting, photorealistic. "
+            f"No watermarks, no borders. "
+        )
+        if overlay:
+            img_prompt += (
+                f"Overlay the following text EXACTLY as written in large bold white Impact font "
+                f"with black stroke outline, centered prominently: '{overlay}'. "
+                f"The text must be spelled correctly letter by letter: {overlay_spelled}. "
+                f"Double-check spelling before rendering."
+            )
         response = await client.images.generate(
             model="dall-e-3",
-            prompt=f"Professional YouTube thumbnail. Background: {concept}. Large bold text: {overlay}. Ultra high contrast, vibrant colors, 16:9, no watermarks.",
-            size="1792x1024", quality="standard", n=1)
+            prompt=img_prompt,
+            size="1792x1024", quality="hd", n=1)
         if not is_adm:
             if email: asyncio.create_task(sb_update_user(email,{"images_used":used+1})); asyncio.create_task(invalidate_plan_cache(email))
             else:
@@ -1064,23 +1079,49 @@ async def analyze_channel(request: Request):
 async def trending():
     cached = await redis_get("trending:data")
     if cached:
-        try: return JSONResponse(json.loads(cached))
+        try:
+            parsed = json.loads(cached)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                return JSONResponse(parsed)
         except: pass
     async with _trending_lock:
         cached = await redis_get("trending:data")
         if cached:
-            try: return JSONResponse(json.loads(cached))
+            try:
+                parsed = json.loads(cached)
+                if isinstance(parsed, list) and len(parsed) > 0:
+                    return JSONResponse(parsed)
             except: pass
         try:
             response = await client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role":"system","content":"YouTube trends expert. JSON only."},
-                    {"role":"user","content":'Generate 16 trending YouTube video topics for Indian creators in 2025. Return ONLY a JSON array:\n[{"niche":"tech","topic":"video idea","why":"why trending now","heat":"🔥"}]\nCover 2 topics each: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation'}
+                    {"role":"system","content":"You are a YouTube trends expert for Indian creators. You MUST return ONLY a valid JSON array with no markdown, no explanation, no code blocks."},
+                    {"role":"user","content":"""Generate 24 trending YouTube video topics for Indian creators in 2025.
+Return ONLY a raw JSON array — no markdown, no ```json, no explanation.
+Format exactly:
+[{"niche":"tech","topic":"specific video title idea","why":"one sentence why trending in India now","heat":"🔥🔥 Hot"}]
+Cover exactly 3 topics for each: tech, finance, gaming, fitness, cricket, automobiles, examprep, motivation
+Total: 24 items. Make topics specific, timely, India-focused."""}
                 ],
-                temperature=0.9, max_tokens=1000)
-            result = parse_json_safe(response.choices[0].message.content)
+                temperature=0.8, max_tokens=2000, response_format={"type": "json_object"})
+            raw = response.choices[0].message.content.strip()
+            logger.info(f"/trending raw response: {raw[:200]}")
+            # Try to extract array from possible {"topics": [...]} wrapper
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict):
+                # Find the first list value
+                result = next((v for v in parsed.values() if isinstance(v, list)), None)
+                if result is None:
+                    raise ValueError(f"No array found in response: {list(parsed.keys())}")
+            elif isinstance(parsed, list):
+                result = parsed
+            else:
+                raise ValueError(f"Unexpected response type: {type(parsed)}")
+            if len(result) == 0:
+                raise ValueError("Empty topics array returned")
             await redis_set("trending:data", json.dumps(result), ex=TRENDING_TTL)
             return JSONResponse(result)
         except Exception as e:
-            logger.error(f"/trending error: {e}"); return JSONResponse({"error":"Failed to load trending."},status_code=500)
+            logger.error(f"/trending error: {e}")
+            return JSONResponse({"error": f"Failed to load trending: {str(e)}"}, status_code=500)
