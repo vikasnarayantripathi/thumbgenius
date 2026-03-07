@@ -709,7 +709,334 @@
         .nav-user-email     { font-size:11px; color:rgba(255,255,255,.35); max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .nav-gen-count      { font-size:11px; color:var(--dim); white-space:nowrap; }
         .nav-gen-count strong { color:var(--yellow); }
-    </style>
+    
+/* ═══════════════════════════════════════════════════════════════
+   HIGH-CONVERSION DASHBOARD — NEW LAYOUT
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Credits bar */
+.dash-credits-bar{display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(90deg,rgba(255,224,54,0.07),rgba(255,92,0,0.05));
+  border:1px solid rgba(255,224,54,0.15);border-radius:14px;
+  padding:14px 22px;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+.dash-credits-left{display:flex;align-items:center;gap:14px;}
+.dash-credits-icon{font-size:24px;}
+.dash-credits-info{}
+.dash-credits-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.dash-credits-count{font-size:22px;font-weight:900;color:var(--yellow);}
+.dash-credits-sub{font-size:11px;color:var(--dim);margin-top:1px;}
+.dash-credits-bar-track{flex:1;min-width:120px;max-width:220px;height:8px;
+  background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden;}
+.dash-credits-bar-fill{height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#FFE036,#FF5C00);
+  transition:width 1s cubic-bezier(.16,1,.3,1);}
+.dash-credits-low .dash-credits-count{color:#FF6584;}
+.dash-credits-low .dash-credits-bar-fill{background:linear-gradient(90deg,#FF6584,#FF2D7A);}
+
+/* Quick actions */
+.dash-quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+@media(max-width:640px){.dash-quick-grid{grid-template-columns:1fr;}}
+.dash-quick-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:20px;display:flex;flex-direction:column;gap:10px;
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.dash-quick-card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--qa-c1,rgba(255,224,54,.04)),var(--qa-c2,transparent));
+  opacity:0;transition:opacity .2s;}
+.dash-quick-card:hover{border-color:var(--qa-border,rgba(255,224,54,.3));transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3);}
+.dash-quick-card:hover::before{opacity:1;}
+.dash-quick-card-icon{font-size:28px;line-height:1;}
+.dash-quick-card-title{font-size:14px;font-weight:700;color:var(--white);}
+.dash-quick-card-sub{font-size:12px;color:var(--dim);line-height:1.5;}
+.dash-quick-card-input{width:100%;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:8px;
+  padding:9px 12px;font-size:13px;color:var(--white);font-family:inherit;
+  outline:none;transition:border .15s;}
+.dash-quick-card-input:focus{border-color:rgba(255,224,54,.4);}
+.dash-quick-card-btn{width:100%;padding:10px;border-radius:9px;border:none;cursor:pointer;
+  font-size:13px;font-weight:700;font-family:inherit;transition:all .15s;}
+.dash-quick-generate .dash-quick-card-btn{background:var(--yellow);color:#000;}
+.dash-quick-analyze  .dash-quick-card-btn{background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+.dash-quick-blueprint .dash-quick-card-btn{background:rgba(139,133,255,.15);color:#8B85FF;border:1px solid rgba(139,133,255,.25);}
+.dash-quick-generate{--qa-border:rgba(255,224,54,.3);--qa-c1:rgba(255,224,54,.06);--qa-c2:rgba(255,92,0,.04);}
+.dash-quick-analyze {--qa-border:rgba(52,211,153,.3); --qa-c1:rgba(52,211,153,.05);}
+.dash-quick-blueprint{--qa-border:rgba(139,133,255,.3);--qa-c1:rgba(139,133,255,.05);}
+
+/* Score section */
+.dash-score-section{background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:20px;margin-bottom:22px;}
+.dash-section-hd{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.dash-section-title2{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);
+  text-transform:uppercase;letter-spacing:.08em;}
+.dash-score-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.dash-score-big{display:flex;flex-direction:column;align-items:center;
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:14px;padding:20px 28px;min-width:100px;}
+.dash-score-num{font-size:52px;font-weight:900;line-height:1;color:var(--yellow);}
+.dash-score-den{font-size:14px;color:var(--dim);margin-top:2px;}
+.dash-score-dims{flex:1;display:flex;flex-direction:column;gap:8px;min-width:200px;}
+.dash-mini-bar{display:flex;align-items:center;gap:10px;}
+.dash-mini-bar-label{font-size:12px;color:rgba(255,255,255,.6);width:130px;flex-shrink:0;}
+.dash-mini-bar-track{flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.dash-mini-bar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.16,1,.3,1);}
+.dash-mini-bar-val{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);width:28px;text-align:right;}
+.dash-score-suggestions{margin-top:16px;}
+.dash-sugg-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.dash-sugg-list{display:flex;flex-direction:column;gap:6px;}
+.dash-sugg-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;}
+.dash-sugg-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);margin-top:5px;flex-shrink:0;}
+.dash-score-empty{text-align:center;padding:32px 0;color:var(--dim);font-size:13px;}
+.dash-score-empty button{margin-top:12px;}
+
+/* Progress meter */
+.dash-progress-section{background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:20px;margin-bottom:22px;}
+.dash-progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.dash-progress-scores{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.dash-prog-current{text-align:center;}
+.dash-prog-val{font-size:36px;font-weight:900;color:var(--yellow);line-height:1;}
+.dash-prog-lbl{font-size:11px;color:var(--dim);margin-top:2px;}
+.dash-prog-arrow{font-size:20px;color:rgba(255,255,255,.2);}
+.dash-prog-target{text-align:center;}
+.dash-prog-target .dash-prog-val{color:#43E97B;}
+.dash-prog-bar-wrap{width:100%;height:10px;background:rgba(255,255,255,.06);
+  border-radius:99px;overflow:hidden;margin:12px 0 6px;}
+.dash-prog-bar-fill{height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#FFE036,#43E97B);
+  transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+.dash-prog-hint{font-size:12px;color:var(--dim);}
+
+/* Recent activity */
+.dash-recent-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+@media(max-width:640px){.dash-recent-grid{grid-template-columns:1fr;}}
+.dash-recent-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;}
+.dash-recent-scroll{max-height:240px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+.dash-recent-scroll::-webkit-scrollbar{width:4px;}
+.dash-recent-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+.dash-recent-item{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+  border-radius:10px;cursor:pointer;transition:background .15s;}
+.dash-recent-item:hover{background:rgba(255,255,255,.07);}
+.dash-recent-item-icon{font-size:16px;flex-shrink:0;}
+.dash-recent-item-text{flex:1;min-width:0;}
+.dash-recent-item-title{font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dash-recent-item-meta{font-size:11px;color:var(--dim);margin-top:2px;}
+.dash-recent-item-score{font-size:13px;font-weight:700;flex-shrink:0;}
+.dash-recent-empty{color:var(--dim);font-size:13px;text-align:center;padding:24px 0;}
+
+/* Creator intelligence */
+.dash-intel-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:22px;}
+.dash-intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+@media(max-width:600px){.dash-intel-grid{grid-template-columns:1fr;}}
+.dash-intel-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;}
+.dash-intel-card-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.dash-intel-card-val{font-size:20px;font-weight:800;color:var(--white);}
+.dash-intel-card-sub{font-size:12px;color:var(--dim);margin-top:4px;line-height:1.5;}
+.dash-intel-avg-score{font-size:44px;font-weight:900;color:var(--yellow);line-height:1;}
+
+/* Trending styles */
+.dash-trending-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:22px;}
+.dash-trending-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.dash-trend-pill{display:flex;align-items:center;gap:6px;padding:7px 14px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:99px;font-size:12px;color:rgba(255,255,255,.7);}
+.dash-trend-pill-val{font-weight:700;color:var(--white);}
+
+/* Upgrade banner */
+.dash-low-credits-banner{display:none;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(90deg,rgba(255,101,132,.08),rgba(255,45,122,.05));
+  border:1px solid rgba(255,101,132,.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;}
+.dash-low-credits-banner.show{display:flex;}
+.dash-low-text{flex:1;}
+.dash-low-title{font-size:14px;font-weight:700;color:#FF6584;margin-bottom:3px;}
+.dash-low-sub{font-size:12px;color:rgba(255,255,255,.5);}
+.dash-low-btn{background:linear-gradient(90deg,#FF6584,#FF2D7A);color:#fff;
+  border:none;border-radius:9px;padding:10px 20px;font-size:13px;
+  font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+
+/* Plan badge in dashboard */
+.dash-plan-badge-free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);}
+.dash-plan-badge-creator{background:rgba(255,224,54,.12);color:#FFE036;}
+.dash-plan-badge-pro{background:rgba(139,133,255,.15);color:#8B85FF;}
+
+
+/* ── High-Conversion Dashboard styles ── */
+/* Score panel */
+.ds-score-wrap{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px;}
+.ds-score-circle{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  width:130px;height:130px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(var(--score-c,#FFE036) 0% var(--score-pct,0%),rgba(255,255,255,.06) 0%);
+  box-shadow:0 0 32px rgba(255,224,54,.12);position:relative;}
+.ds-score-num{font-size:38px;font-weight:900;line-height:1;}
+.ds-score-den{font-size:12px;color:var(--dim);}
+.ds-score-grade{font-size:10px;font-weight:700;letter-spacing:.08em;margin-top:2px;}
+.ds-dims{flex:1;min-width:200px;display:flex;flex-direction:column;gap:9px;}
+.ds-dim-row{display:flex;align-items:center;gap:10px;}
+.ds-dim-label{font-size:12px;color:rgba(255,255,255,.6);width:130px;flex-shrink:0;}
+.ds-dim-track{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;}
+.ds-dim-fill{height:100%;border-radius:99px;width:0%;transition:width .9s cubic-bezier(.16,1,.3,1);}
+.ds-dim-val{font-size:11px;font-weight:700;width:32px;text-align:right;}
+.ds-sugg-wrap{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:14px 16px;}
+.ds-sugg-title{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:.09em;margin-bottom:8px;}
+.ds-sugg{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;padding:2px 0;}
+
+/* Credits bar */
+.dash-credits-bar{display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(90deg,rgba(255,224,54,.07),rgba(255,92,0,.04));
+  border:1px solid rgba(255,224,54,.15);border-radius:14px;
+  padding:14px 22px;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.dash-credits-left{display:flex;align-items:center;gap:14px;}
+.dash-credits-icon{font-size:26px;}
+.dash-credits-label{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+.dash-credits-count{font-size:26px;font-weight:900;color:var(--yellow);line-height:1;}
+.dash-credits-sub{font-size:11px;color:var(--dim);margin-top:2px;}
+.dash-credits-bar-track{flex:1;min-width:100px;max-width:200px;height:7px;
+  background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;}
+.dash-credits-bar-fill{height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#FFE036,#FF5C00);transition:width 1s cubic-bezier(.16,1,.3,1);}
+.dash-credits-low .dash-credits-count{color:#FF6584;}
+.dash-credits-low .dash-credits-bar-fill{background:linear-gradient(90deg,#FF6584,#FF2D7A);}
+.dash-plan-badge-free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);}
+.dash-plan-badge-creator{background:rgba(255,224,54,.15);color:#FFE036;}
+.dash-plan-badge-pro{background:rgba(139,133,255,.18);color:#a78bfa;}
+
+/* Quick actions */
+.dash-quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+@media(max-width:680px){.dash-quick-grid{grid-template-columns:1fr;}}
+.dash-quick-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:20px;display:flex;flex-direction:column;gap:10px;
+  transition:transform .2s,border-color .2s,box-shadow .2s;}
+.dash-quick-card:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(0,0,0,.3);}
+.dash-quick-generate:hover{border-color:rgba(255,224,54,.35);}
+.dash-quick-analyze:hover {border-color:rgba(52,211,153,.35);}
+.dash-quick-blueprint:hover{border-color:rgba(167,139,250,.35);}
+.dash-quick-icon{font-size:28px;line-height:1;}
+.dash-quick-title{font-size:14px;font-weight:700;color:var(--white);}
+.dash-quick-sub{font-size:12px;color:var(--dim);line-height:1.5;}
+.dash-quick-input{width:100%;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:9px;
+  padding:9px 12px;font-size:13px;color:var(--white);font-family:inherit;
+  outline:none;box-sizing:border-box;transition:border-color .15s;}
+.dash-quick-input:focus{border-color:rgba(255,224,54,.4);}
+.dash-quick-btn{width:100%;padding:10px 14px;border-radius:9px;border:none;
+  cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all .15s;}
+.dash-quick-generate .dash-quick-btn{background:var(--yellow);color:#000;}
+.dash-quick-generate .dash-quick-btn:hover{background:#fff0a0;}
+.dash-quick-analyze  .dash-quick-btn{background:rgba(52,211,153,.14);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+.dash-quick-blueprint .dash-quick-btn{background:rgba(167,139,250,.14);color:#a78bfa;border:1px solid rgba(167,139,250,.25);}
+
+/* Score & progress sections */
+.dash-score-section,.dash-progress-section,.dash-recent-card,.dash-intel-card-outer,
+.dash-trending-section,.dash-usage-section{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:18px;}
+.dash-section-hd{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.dash-section-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);
+  text-transform:uppercase;letter-spacing:.09em;}
+.dash-section-link{font-size:12px;color:var(--dim);background:none;border:none;
+  cursor:pointer;text-decoration:underline;font-family:inherit;}
+
+/* Progress meter */
+.dash-progress-scores{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+.dash-prog-block{text-align:center;}
+.dash-prog-num{font-size:42px;font-weight:900;color:var(--yellow);line-height:1;}
+.dash-prog-target-num{font-size:42px;font-weight:900;color:#43E97B;line-height:1;}
+.dash-prog-lbl{font-size:11px;color:var(--dim);margin-top:3px;}
+.dash-prog-arrow{font-size:22px;color:rgba(255,255,255,.15);}
+.dash-prog-track{height:10px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden;margin-bottom:8px;}
+.dash-prog-fill{height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#FFE036,#43E97B);
+  transition:width 1.2s cubic-bezier(.16,1,.3,1);}
+.dash-prog-msg{font-size:12px;color:var(--dim);line-height:1.5;}
+
+/* Recent grids */
+.dash-recent-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+@media(max-width:640px){.dash-recent-grid{grid-template-columns:1fr;}}
+.dash-recent-scroll{max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+.dash-recent-scroll::-webkit-scrollbar{width:3px;}
+.dash-recent-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+.dash-recent-item{display:flex;align-items:center;gap:10px;padding:9px 11px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+  border-radius:10px;cursor:pointer;transition:background .15s;}
+.dash-recent-item:hover{background:rgba(255,255,255,.07);}
+.dash-recent-item-icon{font-size:16px;flex-shrink:0;}
+.dash-recent-item-text{flex:1;min-width:0;}
+.dash-recent-item-title{font-size:13px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dash-recent-item-meta{font-size:11px;color:var(--dim);margin-top:1px;}
+.dash-recent-item-score{font-size:14px;font-weight:700;flex-shrink:0;}
+.dash-recent-empty{font-size:13px;color:var(--dim);text-align:center;padding:20px 0;}
+
+/* Intelligence panel */
+.dash-intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;}
+@media(max-width:600px){.dash-intel-grid{grid-template-columns:1fr;}}
+.dash-intel-cell{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:16px;}
+.dash-intel-cell-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px;}
+.dash-intel-cell-val{font-size:32px;font-weight:900;line-height:1;color:var(--yellow);}
+.dash-intel-cell-sub{font-size:12px;color:var(--dim);margin-top:5px;line-height:1.5;}
+
+/* Trending pills */
+.dash-trend-pill{display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);border-radius:99px;
+  font-size:12px;color:rgba(255,255,255,.65);margin:0 6px 8px 0;}
+.dash-trend-val{font-weight:700;color:var(--white);}
+
+/* Low credits banner */
+.dash-low-credits-banner{display:none;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(90deg,rgba(255,101,132,.09),rgba(255,45,122,.06));
+  border:1px solid rgba(255,101,132,.2);border-radius:14px;
+  padding:14px 20px;margin-bottom:18px;}
+.dash-low-credits-banner.show{display:flex;}
+.dash-low-text{flex:1;}
+.dash-low-title{font-size:14px;font-weight:700;color:#FF6584;margin-bottom:3px;}
+.dash-low-sub{font-size:12px;color:rgba(255,255,255,.45);}
+.dash-low-btn{background:linear-gradient(90deg,#FF6584,#FF2D7A);color:#fff;border:none;
+  border-radius:9px;padding:10px 20px;font-size:13px;font-weight:700;
+  font-family:inherit;cursor:pointer;white-space:nowrap;}
+
+
+/* ── Language selector ── */
+.lang-selector-wrap{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.lang-selector-label{font-size:12px;color:var(--dim);white-space:nowrap;}
+.lang-chip{display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border);
+  border-radius:99px;background:rgba(255,255,255,.04);font-size:12px;font-weight:600;
+  color:var(--dim);cursor:pointer;transition:all .15s;user-select:none;}
+.lang-chip:hover{border-color:rgba(255,224,54,.3);color:var(--white);}
+.lang-chip.active{background:rgba(255,224,54,.1);border-color:rgba(255,224,54,.4);color:var(--yellow);}
+.lang-chip-flag{font-size:14px;}
+
+/* ── Modal region tabs ── */
+.region-tabs{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:18px;}
+.region-tab{flex:1;padding:10px 8px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;
+  background:rgba(255,255,255,.03);color:var(--dim);transition:all .15s;border:none;font-family:inherit;}
+.region-tab.active{background:rgba(255,224,54,.1);color:var(--yellow);}
+.region-tab:first-child{border-right:1px solid var(--border);}
+
+/* ── Plan tab global pricing ── */
+.plan-tab-price-usd{display:none;}
+.plan-tab-price-inr{display:block;}
+.global-mode .plan-tab-price-usd{display:block;}
+.global-mode .plan-tab-price-inr{display:none;}
+
+/* ── Stripe checkout btn ── */
+.btn-stripe{width:100%;padding:16px;border-radius:14px;border:none;cursor:pointer;
+  font-size:15px;font-weight:700;font-family:inherit;letter-spacing:.02em;
+  background:linear-gradient(90deg,#635BFF,#4F46E5);color:#fff;
+  transition:all .15s;display:none;}
+.btn-stripe:hover{opacity:.9;transform:translateY(-1px);}
+.btn-stripe.show{display:block;}
+.btn-razorpay{display:block;}
+.btn-razorpay.hide{display:none;}
+
+/* ── Stripe info note ── */
+.stripe-note{font-size:11px;color:var(--dim);text-align:center;margin-top:8px;
+  display:none;line-height:1.5;}
+.stripe-note.show{display:block;}
+
+</style>
 <script>
 // Early stub — lets nav onclick work before main script loads
 function showPage(p){
@@ -747,22 +1074,32 @@ function showPage(p){
         <button class="modal-close" onclick="closePaymentModal()">&#x2715;</button>
         <div class="modal-header">
             <h2>Upgrade ThumbGenius</h2>
-            <p>Unlock unlimited YouTube growth tools for Indian creators</p>
+            <p>Unlock unlimited YouTube growth tools for creators worldwide</p>
         </div>
-        <div class="plan-tabs">
+
+        <!-- Region selector -->
+        <div class="region-tabs" id="regionTabs">
+            <button class="region-tab active" id="regionIndia" onclick="setRegion('india')">&#x1F1EE;&#x1F1F3; India (₹ INR)</button>
+            <button class="region-tab" id="regionGlobal" onclick="setRegion('global')">&#x1F310; Global ($ USD)</button>
+        </div>
+
+        <!-- Plans -->
+        <div class="plan-tabs" id="planTabsWrap">
             <div class="plan-tab selected" id="planTabCreator" onclick="selectPlan('creator')">
                 <div class="plan-tab-name">CREATOR</div>
-                <div class="plan-tab-price">&#x20B9;749<span>/mo</span></div>
+                <div class="plan-tab-price plan-tab-price-inr">&#x20B9;749<span>/mo</span></div>
+                <div class="plan-tab-price plan-tab-price-usd">$19<span>/mo</span></div>
                 <ul class="plan-tab-feats">
                     <li>100 generations/month</li>
                     <li>20 AI thumbnail images</li>
                     <li>A/B Tester + Analyzer</li>
-                    <li>Save history</li>
+                    <li>All languages supported</li>
                 </ul>
             </div>
             <div class="plan-tab" id="planTabPro" onclick="selectPlan('pro')">
                 <div class="plan-tab-name">PRO</div>
-                <div class="plan-tab-price">&#x20B9;1,449<span>/mo</span></div>
+                <div class="plan-tab-price plan-tab-price-inr">&#x20B9;1,449<span>/mo</span></div>
+                <div class="plan-tab-price plan-tab-price-usd">$39<span>/mo</span></div>
                 <ul class="plan-tab-feats">
                     <li>300 generations/month</li>
                     <li>50 AI thumbnail images</li>
@@ -771,10 +1108,13 @@ function showPage(p){
                 </ul>
             </div>
         </div>
+
         <div class="modal-email-section">
             <label>Your Email Address</label>
             <input type="text" class="modal-email-input" id="paymentEmail" placeholder="hello&#64;example.com" />
         </div>
+
+        <!-- Promo code -->
         <div class="modal-promo-section">
             <div class="modal-promo-toggle" onclick="togglePromoField()">
                 <span>&#x1F511; Have an access code?</span>
@@ -785,29 +1125,28 @@ function showPage(p){
                 <button class="btn-promo-apply" onclick="applyPromoCode()">&#x2713; Apply Code</button>
             </div>
         </div>
+
         <div id="promoSuccessBox" class="promo-success">
             <p>&#x1F389; Access Code Activated!</p>
             <p id="promoSuccessMsg">You now have Creator Plan access</p>
         </div>
         <div id="promoErrorBox" class="promo-error">&#x274C; Invalid code. Please try again.</div>
+
         <div id="adminPlanPicker" style="display:none;padding:16px 40px">
             <p style="font-size:12px;color:rgba(255,224,54,0.7);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">&#x1F451; Choose your plan</p>
             <div style="display:flex;gap:12px">
-                <button onclick="activateAdminPlan('creator')" style="flex:1;background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(255,224,54,0.15)'" onmouseout="this.style.background='rgba(255,224,54,0.08)'">
-                    <div style="font-size:24px">&#x26A1;</div>
-                    <div style="color:#FFE036;font-weight:800;font-size:14px;margin-top:6px">Creator</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:4px">100 gen · 20 images</div>
-                </button>
-                <button onclick="activateAdminPlan('pro')" style="flex:1;background:rgba(255,100,200,0.08);border:1px solid rgba(255,100,200,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s" onmouseover="this.style.background='rgba(255,100,200,0.15)'" onmouseout="this.style.background='rgba(255,100,200,0.08)'">
-                    <div style="font-size:24px">&#x1F680;</div>
-                    <div style="color:#ff64c8;font-weight:800;font-size:14px;margin-top:6px">Pro</div>
-                    <div style="color:rgba(255,255,255,0.35);font-size:11px;margin-top:4px">300 gen · 50 images</div>
-                </button>
+                <button onclick="activateAdminPlan('creator')" style="flex:1;background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:var(--yellow);font-weight:700">&#x26A1; Creator</button>
+                <button onclick="activateAdminPlan('pro')" style="flex:1;background:rgba(139,133,255,0.08);border:1px solid rgba(139,133,255,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:#8B85FF;font-weight:700">&#x1F680; Pro</button>
             </div>
         </div>
-        <div class="modal-footer" id="modalPayFooter">
-            <button class="btn-checkout" id="checkoutBtn" onclick="startCheckout()">&#x26A1; Pay &#x20B9;749/month with Razorpay</button>
-            <div class="modal-secure">&#x1F512; Secured by Razorpay &middot; Cancel anytime &middot; Auto-renews monthly</div>
+
+        <div id="modalPayFooter">
+            <!-- Razorpay (India) -->
+            <button class="btn-primary btn-razorpay" id="checkoutBtn" onclick="startCheckout()">&#x26A1; Pay &#x20B9;749/month with Razorpay</button>
+            <!-- Stripe (Global) -->
+            <button class="btn-stripe" id="stripeBtn" onclick="startStripeCheckout()">&#x26A1; Pay $19/month with Stripe</button>
+            <div class="stripe-note" id="stripeNote">Secure payment via Stripe &middot; Cards, Apple Pay, Google Pay &middot; Cancel anytime</div>
+            <div class="modal-footer-note" id="rzpNote">Razorpay &middot; UPI / Cards / NetBanking &middot; Cancel anytime</div>
         </div>
     </div>
 </div>
@@ -879,6 +1218,14 @@ function showPage(p){
                 <div class="niche-chip" data-niche="music">&#x1F3B5; Music</div>
                 <div class="niche-chip" data-niche="realestate">&#x1F3E0; Real Estate</div>
                 <div class="niche-chip" data-niche="spirituality">&#x1F33F; Spirituality</div>
+            </div>
+
+            <!-- ── Creator Language selector ── -->
+            <div class="lang-selector-wrap" style="margin-top:14px;margin-bottom:4px">
+                <span class="lang-selector-label">🌐 Content Language:</span>
+                <div class="lang-chip active" id="langEn" onclick="setLanguage('english',this)"><span class="lang-chip-flag">🇬🇧</span> English</div>
+                <div class="lang-chip" id="langHi" onclick="setLanguage('hindi',this)"><span class="lang-chip-flag">🇮🇳</span> हिंदी</div>
+                <div class="lang-chip" id="langHn" onclick="setLanguage('hinglish',this)"><span class="lang-chip-flag">🎭</span> Hinglish</div>
             </div>
             <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate Packaging Intelligence</button>
             <div class="form-footer">
@@ -1116,7 +1463,7 @@ id="results">
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:hello&#64;thumbgenius.in" style="color:rgba(255,255,255,0.3);text-decoration:none"><span class="__cf_email__" data-cfemail="325a575e5e5d72465a475f5055575c5b47411c5b5c">[email&#160;protected]</span></a>
+    <a href="mailto:hello@thumbgenius.in">hello@thumbgenius.in</a>
 </footer>
 </div>
 
@@ -1493,68 +1840,216 @@ id="results">
 <!-- ╔══════════════════════════════════════════════════════╗ -->
 <!-- ║  DASHBOARD                                           ║ -->
 <!-- ╚══════════════════════════════════════════════════════╝ -->
+
 <div class="page" id="page-dashboard">
 <div class="feature-page">
-  <div class="feature-page-title">&#x1F4CA; My Dashboard</div>
 
-  <!-- Not logged in state -->
+  <!-- Not logged in -->
   <div id="dashNoEmail" class="dash-no-email" style="display:none">
-    <h3>&#x1F512; Login to see your dashboard</h3>
-    <p>Enter your email in the Home tab to track usage, plan, and history.</p>
+    <h3>🔑 Login to see your dashboard</h3>
+    <p>Enter your email on the Home tab to unlock your full creator intelligence panel.</p>
     <button class="btn-primary" style="margin-top:20px" onclick="showPage('home')">Go to Home &rarr;</button>
   </div>
 
-  <!-- Logged in state -->
-  <div id="dashContent" style="display:none">
-    <!-- Plan banner -->
-    <div class="dash-upgrade-banner" id="dashPlanBanner">
-      <div class="dash-upgrade-text">
-        <h3 id="dashPlanTitle">Free Plan</h3>
-        <p id="dashPlanSub">3 generations / day &bull; 1 image &bull; Basic features</p>
-      </div>
-      <button class="btn-primary" id="dashUpgradeBtn" onclick="openPaymentModal()">Upgrade to Creator &rarr;</button>
-    </div>
-
-    <!-- Stats row -->
-    <div class="dash-stats-grid">
-      <div class="dash-stat"><div class="dash-stat-val" id="dashStatGen">0</div><div class="dash-stat-lbl">Generations</div></div>
-      <div class="dash-stat"><div class="dash-stat-val" id="dashStatImg">0</div><div class="dash-stat-lbl">Images Made</div></div>
-      <div class="dash-stat"><div class="dash-stat-val" id="dashStatAna">0</div><div class="dash-stat-lbl">Analyses</div></div>
-      <div class="dash-stat"><div class="dash-stat-val" id="dashStatBp">0</div><div class="dash-stat-lbl">Blueprints</div></div>
-    </div>
-
-    <!-- Usage breakdown -->
-    <div class="dash-section">
-      <div class="dash-section-title">Usage This Month</div>
-      <div id="dashUsageRows"></div>
-    </div>
-
-    <!-- Account info -->
-    <div class="dash-section">
-      <div class="dash-section-title">Account</div>
-      <div class="usage-row">
-        <span class="usage-icon">&#x2709;&#xFE0F;</span>
-        <span class="usage-label">Email</span>
-        <span class="usage-count" id="dashEmail" style="width:auto;color:rgba(255,255,255,.6)"></span>
-      </div>
-      <div class="usage-row">
-        <span class="usage-icon">&#x1F4CB;</span>
-        <span class="usage-label">Plan</span>
-        <span class="usage-count" id="dashPlanLabel" style="width:auto;color:var(--yellow);font-weight:700;text-transform:uppercase"></span>
-      </div>
-    </div>
-  </div>
-
+  <!-- Loading -->
   <div id="dashLoading" style="text-align:center;padding:60px 20px;color:var(--dim)">
     <div class="loading-spinner" style="margin:0 auto 14px"></div>
-    Loading your dashboard…
+    Loading your dashboard&hellip;
   </div>
+
+  <!-- Main content -->
+  <div id="dashContent" style="display:none">
+
+    <!-- ① Low credits alert -->
+    <div class="dash-low-credits-banner" id="dashLowBanner">
+      <div class="dash-low-text">
+        <div class="dash-low-title">⚠️ You're running low on credits</div>
+        <div class="dash-low-sub">Upgrade to Pro — 300 generations/month, unlimited analysis.</div>
+      </div>
+      <button class="dash-low-btn" onclick="openPaymentModal()">Upgrade to Pro &rarr;</button>
+    </div>
+
+    <!-- ② Credits bar -->
+    <div class="dash-credits-bar" id="dashCreditsBar">
+      <div class="dash-credits-left">
+        <div class="dash-credits-icon">⚡</div>
+        <div>
+          <div class="dash-credits-label">Credits Remaining</div>
+          <div class="dash-credits-count">
+            <span id="dashCreditsUsed">—</span>
+            <span style="font-size:14px;font-weight:400;color:var(--dim)"> / <span id="dashCreditsLimit">—</span></span>
+          </div>
+          <div class="dash-credits-sub" id="dashCreditsSubtext">generations this month</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <div class="dash-credits-bar-track">
+          <div class="dash-credits-bar-fill" id="dashCreditsFill" style="width:0%"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--dim);margin-bottom:3px">PLAN</div>
+          <div id="dashPlanBadge" class="dash-plan-badge-free" style="font-size:12px;font-weight:700;padding:3px 12px;border-radius:99px;display:inline-block">FREE</div>
+        </div>
+        <button id="dashUpgradeBtn" class="btn-primary" style="padding:9px 20px;font-size:13px" onclick="openPaymentModal()">Upgrade &rarr;</button>
+      </div>
+    </div>
+
+    <!-- ③ Quick Actions -->
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">⚡ Quick Actions</div>
+    <div class="dash-quick-grid">
+
+      <div class="dash-quick-card dash-quick-generate">
+        <div class="dash-quick-icon">🎨</div>
+        <div class="dash-quick-title">Generate Thumbnail</div>
+        <div class="dash-quick-sub">AI titles + thumbnail concept for any topic</div>
+        <input id="dashQuickTopic" class="dash-quick-input" placeholder="Enter video topic or prompt…"
+               onkeydown="if(event.key==='Enter')dashQuickGenerate()"/>
+        <button class="dash-quick-btn" onclick="dashQuickGenerate()">⚡ Generate Now</button>
+      </div>
+
+      <div class="dash-quick-card dash-quick-analyze">
+        <div class="dash-quick-icon">🔍</div>
+        <div class="dash-quick-title">Analyze Thumbnail</div>
+        <div class="dash-quick-sub">Upload any thumbnail for an instant CTR score</div>
+        <label style="width:100%;cursor:pointer;display:block">
+          <div class="dash-quick-btn" style="text-align:center">📁 Upload &amp; Analyze</div>
+          <input type="file" accept="image/*" style="display:none" onchange="dashQuickAnalyze(this)"/>
+        </label>
+      </div>
+
+      <div class="dash-quick-card dash-quick-blueprint">
+        <div class="dash-quick-icon">📐</div>
+        <div class="dash-quick-title">Viral Blueprint</div>
+        <div class="dash-quick-sub">Decode any YouTube thumbnail in seconds</div>
+        <input id="dashQuickUrl" class="dash-quick-input" placeholder="https://youtube.com/watch?v=…"
+               onkeydown="if(event.key==='Enter')dashQuickBlueprint()"/>
+        <button class="dash-quick-btn" onclick="dashQuickBlueprint()">📐 Analyze</button>
+      </div>
+
+    </div>
+
+    <!-- ④ Thumbnail Performance Score -->
+    <div class="dash-score-section">
+      <div class="dash-section-hd">
+        <div class="dash-section-label">📊 Last Thumbnail Score</div>
+        <button class="dash-section-link" onclick="showPage('analyzer')">Run new analysis &rarr;</button>
+      </div>
+      <div id="dashScoreContent">
+        <div style="text-align:center;padding:30px 0;color:var(--dim)">
+          <div style="font-size:36px;margin-bottom:8px">🖼️</div>
+          <div style="font-size:13px">No analysis yet — upload a thumbnail to get your first score</div>
+          <button class="btn-primary" style="margin-top:14px;padding:10px 22px;font-size:13px" onclick="showPage('analyzer')">Analyze Thumbnail &rarr;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ Score Progress Meter -->
+    <div class="dash-progress-section">
+      <div class="dash-section-hd">
+        <div class="dash-section-label">🎯 Your Thumbnail Score Progress</div>
+        <span id="dashProgHintLabel" style="font-size:12px;color:var(--dim)">Target: 90+</span>
+      </div>
+      <div class="dash-progress-scores">
+        <div class="dash-prog-block">
+          <div class="dash-prog-num" id="dashProgCurrent">—</div>
+          <div class="dash-prog-lbl">Current Score</div>
+        </div>
+        <div class="dash-prog-arrow">→</div>
+        <div class="dash-prog-block">
+          <div class="dash-prog-target-num">90</div>
+          <div class="dash-prog-lbl">Target Score</div>
+        </div>
+      </div>
+      <div class="dash-prog-track">
+        <div class="dash-prog-fill" id="dashProgBar" style="width:0%"></div>
+      </div>
+      <div class="dash-prog-msg" id="dashProgMsg">Run your first thumbnail analysis to start tracking progress.</div>
+    </div>
+
+    <!-- ⑥ Recent Activity -->
+    <div class="dash-recent-grid">
+      <div class="dash-recent-card">
+        <div class="dash-section-hd">
+          <div class="dash-section-label">📝 Recent Thumbnails</div>
+          <button class="dash-section-link" onclick="showPage('history')">View all &rarr;</button>
+        </div>
+        <div class="dash-recent-scroll" id="dashRecentGen">
+          <div class="dash-recent-empty">No generations yet</div>
+        </div>
+      </div>
+      <div class="dash-recent-card">
+        <div class="dash-section-hd">
+          <div class="dash-section-label">🔍 Recent Analysis</div>
+        </div>
+        <div class="dash-recent-scroll" id="dashRecentAna">
+          <div class="dash-recent-empty">No analyses yet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑦ Creator Intelligence -->
+    <div class="dash-intel-card-outer">
+      <div class="dash-section-hd">
+        <div class="dash-section-label">🧠 Creator Intelligence</div>
+      </div>
+      <div class="dash-intel-grid">
+        <div class="dash-intel-cell">
+          <div class="dash-intel-cell-label">Avg Thumbnail Score</div>
+          <div class="dash-intel-cell-val" id="dashAvgScore" style="color:var(--yellow)">—</div>
+          <div class="dash-intel-cell-sub" id="dashAvgSub">Analyse thumbnails to build history</div>
+        </div>
+        <div class="dash-intel-cell">
+          <div class="dash-intel-cell-label">Best Score</div>
+          <div class="dash-intel-cell-val" id="dashTopEmotion" style="font-size:22px;color:#43E97B">—</div>
+          <div class="dash-intel-cell-sub" id="dashTopStyle">Run more analyses to unlock insights</div>
+        </div>
+        <div class="dash-intel-cell">
+          <div class="dash-intel-cell-label">Total Analyses</div>
+          <div class="dash-intel-cell-val" id="dashTotalAna" style="font-size:28px">0</div>
+          <div class="dash-intel-cell-sub">This month across all modules</div>
+        </div>
+        <div class="dash-intel-cell">
+          <div class="dash-intel-cell-label">Account</div>
+          <div class="dash-intel-cell-val" id="dashEmail" style="font-size:13px;word-break:break-all;color:rgba(255,255,255,.8)">—</div>
+          <div class="dash-intel-cell-sub" id="dashPlanLabel" style="color:var(--yellow);font-weight:700;text-transform:uppercase;margin-top:6px">FREE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑧ Trending Styles -->
+    <div class="dash-trending-section">
+      <div class="dash-section-hd">
+        <div class="dash-section-label">🔥 Trending Thumbnail Styles in India</div>
+        <button class="dash-section-link" onclick="showPage('trending')">See all trends &rarr;</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;margin-top:4px">
+        <div class="dash-trend-pill">🎮 Gaming &mdash; <span class="dash-trend-val">Red + Yellow · Shock</span></div>
+        <div class="dash-trend-pill">💰 Finance &mdash; <span class="dash-trend-val">Green + Black · FOMO</span></div>
+        <div class="dash-trend-pill">📱 Tech &mdash; <span class="dash-trend-val">Blue + White · Curiosity</span></div>
+        <div class="dash-trend-pill">🔥 Motivation &mdash; <span class="dash-trend-val">Orange · Urgency</span></div>
+        <div class="dash-trend-pill">💪 Fitness &mdash; <span class="dash-trend-val">Yellow · Before/After</span></div>
+        <div class="dash-trend-pill">🏏 Cricket &mdash; <span class="dash-trend-val">Blue + Green · Pride</span></div>
+      </div>
+      <div style="font-size:12px;color:var(--dim);margin-top:12px">Inspired by top Indian YouTube creators. Use these as starting points for your next thumbnail style.</div>
+    </div>
+
+    <!-- ⑨ Usage breakdown (collapsible) -->
+    <div class="dash-usage-section">
+      <div class="dash-section-hd" style="cursor:pointer;user-select:none"
+           onclick="var d=document.getElementById('dashUsageRows');d.style.display=d.style.display==='none'?'block':'none'">
+        <div class="dash-section-label">📈 Full Usage Breakdown</div>
+        <span style="font-size:12px;color:var(--dim)">tap to expand ↕</span>
+      </div>
+      <div id="dashUsageRows" style="display:none;padding-top:8px"></div>
+    </div>
+
+  </div><!-- /dashContent -->
 </div>
 </div>
 
 <script>
 
-let selectedNiche='tech', selectedPlan='creator';
+let selectedNiche='tech', selectedPlan='creator', selectedRegion='india', selectedLanguage='english';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
 let currentUserEmail=localStorage.getItem('tg_email')||'';
 let currentUserPlan=localStorage.getItem('tg_plan')||'free';
@@ -1665,13 +2160,82 @@ function openPaymentModal(plan){
     if(plan)selectPlan(plan);
     document.getElementById('paymentModal').classList.add('open');
     if(currentUserEmail)document.getElementById('paymentEmail').value=currentUserEmail;
+    detectUserRegion();
 }
 function closePaymentModal(){document.getElementById('paymentModal').classList.remove('open');}
 function selectPlan(plan){
     selectedPlan=plan;
     document.getElementById('planTabCreator').classList.toggle('selected',plan==='creator');
     document.getElementById('planTabPro').classList.toggle('selected',plan==='pro');
-    document.getElementById('checkoutBtn').textContent='⚡ Pay '+(plan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';
+    const isGlobal = selectedRegion==='global';
+    const inrPrice = plan==='creator'?'₹749':'₹1,449';
+    const usdPrice = plan==='creator'?'$19':'$39';
+    const rzpBtn   = document.getElementById('checkoutBtn');
+    const strpBtn  = document.getElementById('stripeBtn');
+    if(rzpBtn) rzpBtn.textContent='⚡ Pay '+inrPrice+'/month with Razorpay';
+    if(strpBtn) strpBtn.textContent='⚡ Pay '+usdPrice+'/month with Stripe';
+}
+
+function setRegion(region){
+    selectedRegion = region;
+    const tabs  = document.getElementById('planTabsWrap');
+    const rzpBtn  = document.getElementById('checkoutBtn');
+    const strpBtn = document.getElementById('stripeBtn');
+    const rzpNote = document.getElementById('rzpNote');
+    const strpNote= document.getElementById('stripeNote');
+    const tabIndia  = document.getElementById('regionIndia');
+    const tabGlobal = document.getElementById('regionGlobal');
+    const isGlobal = region==='global';
+
+    if(tabs)   { tabs.classList.toggle('global-mode', isGlobal); }
+    if(rzpBtn)  { rzpBtn.classList.toggle('hide', isGlobal); }
+    if(strpBtn) { strpBtn.classList.toggle('show', isGlobal); }
+    if(rzpNote) { rzpNote.style.display = isGlobal ? 'none' : 'block'; }
+    if(strpNote){ strpNote.classList.toggle('show', isGlobal); }
+    if(tabIndia)  tabIndia.classList.toggle('active', !isGlobal);
+    if(tabGlobal) tabGlobal.classList.toggle('active', isGlobal);
+
+    selectPlan(selectedPlan);
+}
+
+async function startStripeCheckout(){
+    const email = document.getElementById('paymentEmail').value.trim().toLowerCase();
+    if(!email||!email.includes('@')){
+        const el=document.getElementById('paymentEmail');
+        el.style.borderColor='rgba(255,92,0,.6)';setTimeout(()=>el.style.borderColor='',2000);el.focus();return;
+    }
+    const btn = document.getElementById('stripeBtn');
+    btn.disabled=true; btn.textContent='⏳ Setting up payment…';
+    try{
+        const res  = await fetch('/subscribe',{method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({email, plan:selectedPlan, payment_method:'stripe'})});
+        const data = await res.json();
+        if(data.error){ alert(data.error); btn.disabled=false; btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'$19':'$39')+'/month with Stripe'; return; }
+        if(data.checkout_url){
+            window.location.href = data.checkout_url;
+        } else {
+            alert('Payment setup failed. Please try again.');
+            btn.disabled=false; btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'$19':'$39')+'/month with Stripe';
+        }
+    }catch(e){
+        alert('Payment setup failed. Please try again.');
+        btn.disabled=false; btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'$19':'$39')+'/month with Stripe';
+    }
+}
+
+function detectUserRegion(){
+    // Use stored preference first
+    const stored = localStorage.getItem('tg_region');
+    if(stored) { setRegion(stored); return; }
+    // IP-based geo: use a lightweight service
+    fetch('https://ipapi.co/json/', {signal: AbortSignal.timeout(3000)})
+        .then(r=>r.json())
+        .then(d=>{
+            const region = d.country_code==='IN' ? 'india' : 'global';
+            setRegion(region);
+        })
+        .catch(()=>{ /* default india */ });
 }
 
 // ═══ ADMIN / PROMO CODE SYSTEM ═══
@@ -1752,7 +2316,7 @@ async function startCheckout(){
     const btn=document.getElementById('checkoutBtn');
     btn.disabled=true;btn.textContent='⏳ Setting up payment…';
     try{
-        const res=await fetch('/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,plan:selectedPlan})});
+        const res=await fetch('/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,plan:selectedPlan,payment_method:'razorpay'})});
         const data=await res.json();
         if(data.error){alert(data.error);btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';return;}
         const rzp=new Razorpay({
@@ -1776,6 +2340,21 @@ async function startCheckout(){
 }
 
 // showPage defined in <head> early script
+
+function setLanguage(lang, el) {
+    selectedLanguage = lang;
+    document.querySelectorAll('.lang-chip').forEach(c=>c.classList.remove('active'));
+    if(el) el.classList.add('active');
+    localStorage.setItem('tg_language', lang);
+}
+
+// Restore saved language on load
+(function(){
+    const saved = localStorage.getItem('tg_language') || 'english';
+    selectedLanguage = saved;
+    const chip = document.getElementById(saved==='hindi'?'langHi':saved==='hinglish'?'langHn':'langEn');
+    if(chip){ document.querySelectorAll('.lang-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); }
+})();
 
 document.querySelectorAll('.niche-chip').forEach(chip=>{
     if(chip.id==='moreChip')return;
@@ -1826,7 +2405,7 @@ async function generate(){
         const res=await fetch('/generate',{
             method:'POST',
             headers:getHeaders(),
-            body:JSON.stringify({topic,niche:selectedNiche}),
+            body:JSON.stringify({topic,niche:selectedNiche,language:selectedLanguage||'english'}),
             signal:controller.signal
         });
         clearTimeout(timeoutId);
@@ -3356,83 +3935,269 @@ function updateNavBar(data) {
     if (cta && plan === 'pro') cta.style.display = 'none';
 }
 
+
+// ════════════════════════════════════════════════════════
+//  DASHBOARD — high-conversion layout JS
+// ════════════════════════════════════════════════════════
+var _usageCache       = null;
+var _dashScoreHistory = JSON.parse(localStorage.getItem('tg_score_history') || '[]');
+
+function dashQuickGenerate() {
+    var t = document.getElementById('dashQuickTopic');
+    var topic = t ? t.value.trim() : '';
+    showPage('home');
+    setTimeout(function() {
+        var el = document.getElementById('topic');
+        if (el) { if (topic) el.value = topic; el.focus(); }
+    }, 220);
+}
+function dashQuickBlueprint() {
+    var u = document.getElementById('dashQuickUrl');
+    var url = u ? u.value.trim() : '';
+    showPage('blueprint');
+    setTimeout(function() {
+        var el = document.getElementById('bpUrl');
+        if (el && url) { el.value = url; if (typeof bp_onUrlInput === 'function') bp_onUrlInput(url); }
+    }, 220);
+}
+function dashQuickAnalyze(input) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    showPage('analyzer');
+    setTimeout(function() {
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        var el = document.getElementById('taFile');
+        if (el) { el.files = dt.files; if (typeof ta_loadFile === 'function') ta_loadFile(el); }
+    }, 300);
+}
+function dashSaveScore(score, label) {
+    _dashScoreHistory.push({ score:score, label:label||'Thumbnail', date:new Date().toISOString() });
+    if (_dashScoreHistory.length > 20) _dashScoreHistory = _dashScoreHistory.slice(-20);
+    localStorage.setItem('tg_score_history', JSON.stringify(_dashScoreHistory));
+}
+function dashRenderScore(data) {
+    var el = document.getElementById('dashScoreContent');
+    if (!el || !data) return;
+    var scores = data.scores || {};
+    var ctr    = data.ctr_score || 0;
+    var col    = ctr >= 8 ? '#43E97B' : ctr >= 6 ? '#FFE036' : '#FF6584';
+    var score100 = Math.round(ctr * 10);
+    var dimMap = [
+        { key:'emotional_impact', label:'Emotion Impact',   color:'#f472b6' },
+        { key:'text_clarity',     label:'Text Readability', color:'#60a5fa' },
+        { key:'color_contrast',   label:'Color Contrast',   color:'#FFE036' },
+        { key:'face_power',       label:'Subject Focus',    color:'#34d399' },
+        { key:'curiosity_gap',    label:'Curiosity Factor', color:'#fb923c' },
+        { key:'niche_fit',        label:'Niche Fit',        color:'#a78bfa' },
+    ];
+    var barsHtml = dimMap.map(function(d) {
+        var v   = scores[d.key] || 0;
+        var pct = Math.min(100, v * 10);
+        return '<div class="ds-dim-row">'
+             + '<span class="ds-dim-label">'+d.label+'</span>'
+             + '<div class="ds-dim-track"><div class="ds-dim-fill" style="width:0%;background:'+d.color+'" data-w="'+pct+'%"></div></div>'
+             + '<span class="ds-dim-val" style="color:'+d.color+'">'+v+'/10</span>'
+             + '</div>';
+    }).join('');
+    var suggsHtml = (data.fixes || []).slice(0, 3).map(function(f) {
+        return '<div class="ds-sugg">• '+escapeHtml(f.fix||f.action||'')+'</div>';
+    }).join('');
+    el.innerHTML = '<div class="ds-score-wrap">'
+        + '<div class="ds-score-circle" style="--score-c:'+col+';--score-pct:'+score100+'%">'
+        +   '<div class="ds-score-num" style="color:'+col+'">'+score100+'</div>'
+        +   '<div class="ds-score-den">/ 100</div>'
+        +   '<div class="ds-score-grade" style="color:'+col+'">'+(ctr>=8?'GREAT':ctr>=6?'GOOD':'NEEDS WORK')+'</div>'
+        + '</div>'
+        + '<div class="ds-dims">'+barsHtml+'</div>'
+        + '</div>'
+        + (suggsHtml ? '<div class="ds-sugg-wrap"><div class="ds-sugg-title">💡 AI Suggestions</div>'+suggsHtml+'</div>' : '');
+    requestAnimationFrame(function() {
+        el.querySelectorAll('.ds-dim-fill').forEach(function(b) {
+            b.style.transition = 'width .9s cubic-bezier(.16,1,.3,1)';
+            b.style.width = b.dataset.w;
+        });
+    });
+    dashSaveScore(score100, data.verdict ? data.verdict.slice(0,40) : 'Thumbnail');
+    dashUpdateProgress(score100);
+}
+function dashUpdateProgress(currentScore) {
+    var bar = document.getElementById('dashProgBar');
+    var cur = document.getElementById('dashProgCurrent');
+    var msg = document.getElementById('dashProgMsg');
+    if (!bar || !cur) return;
+    var target = 90;
+    var pct    = Math.min(100, Math.round(currentScore / target * 100));
+    cur.textContent = currentScore;
+    var col = currentScore >= 80 ? '#43E97B' : currentScore >= 60 ? '#FFE036' : '#FF6584';
+    cur.style.color = col;
+    requestAnimationFrame(function() { bar.style.width = pct + '%'; });
+    var gap = target - currentScore;
+    if (msg) msg.textContent = gap <= 0
+        ? '🎉 You have hit the target! Elite tier thumbnail creator.'
+        : 'You need +'+gap+' points to reach 90. Focus on the weakest dimensions above.';
+}
+function dashRenderRecentActivity() {
+    var genEl = document.getElementById('dashRecentGen');
+    var history = [];
+    try { history = JSON.parse(localStorage.getItem('tg_history') || '[]'); } catch(e) {}
+    if (genEl) {
+        if (!history.length) {
+            genEl.innerHTML = '<div class="dash-recent-empty">No generations yet — start on the Home tab!</div>';
+        } else {
+            genEl.innerHTML = history.slice().reverse().slice(0,6).map(function(item) {
+                var title = (item.titles && item.titles[0]) ? item.titles[0] : (item.topic || 'Untitled');
+                var dt    = item.saved_at ? new Date(item.saved_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+                return '<div class="dash-recent-item" onclick="showPage(\'home\')">'
+                     + '<div class="dash-recent-item-icon">🎨</div>'
+                     + '<div class="dash-recent-item-text">'
+                     +   '<div class="dash-recent-item-title">'+escapeHtml(title.length>48?title.slice(0,48)+'…':title)+'</div>'
+                     +   '<div class="dash-recent-item-meta">'+escapeHtml(item.niche||'tech')+(dt?' · '+dt:'')+'</div>'
+                     + '</div></div>';
+            }).join('');
+        }
+    }
+    var anaEl = document.getElementById('dashRecentAna');
+    if (anaEl) {
+        _dashScoreHistory = JSON.parse(localStorage.getItem('tg_score_history') || '[]');
+        if (!_dashScoreHistory.length) {
+            anaEl.innerHTML = '<div class="dash-recent-empty">No analyses yet — upload a thumbnail!</div>';
+        } else {
+            anaEl.innerHTML = _dashScoreHistory.slice().reverse().slice(0,6).map(function(item) {
+                var col = item.score >= 80 ? '#43E97B' : item.score >= 60 ? '#FFE036' : '#FF6584';
+                var dt  = item.date ? new Date(item.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '';
+                return '<div class="dash-recent-item">'
+                     + '<div class="dash-recent-item-icon">🔍</div>'
+                     + '<div class="dash-recent-item-text">'
+                     +   '<div class="dash-recent-item-title">Score: <strong style="color:'+col+'">'+item.score+' / 100</strong></div>'
+                     +   '<div class="dash-recent-item-meta">'+(dt||'Recent')+'</div>'
+                     + '</div>'
+                     + '<div class="dash-recent-item-score" style="color:'+col+'">'+item.score+'</div>'
+                     + '</div>';
+            }).join('');
+        }
+    }
+}
+function dashRenderIntelligence(usageData) {
+    _dashScoreHistory = JSON.parse(localStorage.getItem('tg_score_history') || '[]');
+    var avgEl = document.getElementById('dashAvgScore');
+    var subEl = document.getElementById('dashAvgSub');
+    var topEl = document.getElementById('dashTopEmotion');
+    var styEl = document.getElementById('dashTopStyle');
+    var anaEl = document.getElementById('dashTotalAna');
+    if (_dashScoreHistory.length) {
+        var sum = _dashScoreHistory.reduce(function(a,b){return a+b.score;},0);
+        var avg = Math.round(sum / _dashScoreHistory.length);
+        var col = avg>=80?'#43E97B':avg>=60?'#FFE036':'#FF6584';
+        if (avgEl) { avgEl.textContent=avg; avgEl.style.color=col; }
+        if (subEl) subEl.textContent='Based on '+_dashScoreHistory.length+' analyses';
+        var best = _dashScoreHistory.reduce(function(a,b){return a.score>b.score?a:b;});
+        if (topEl) { topEl.textContent=best.score+' / 100'; topEl.style.color='#43E97B'; }
+        if (styEl) styEl.textContent=best.label?best.label.slice(0,50):'Your best analysis';
+    }
+    if (usageData) {
+        var used  = usageData.used || {};
+        var total = (used.thumb_analysis||0)+(used.reverse||0)+(used.ctr_predict||0);
+        if (anaEl) anaEl.textContent = total;
+    }
+}
+function dashRenderCredits(data) {
+    var plan   = data.plan || 'free';
+    var used   = (data.used   || {}).generations || 0;
+    var limit  = (data.limits || {}).generations || 3;
+    var isInf  = limit >= 999;
+    var remain = isInf ? '∞' : Math.max(0, limit - used);
+    var pct    = isInf ? 30 : Math.min(100, Math.round(used/limit*100));
+    var usedEl  = document.getElementById('dashCreditsUsed');
+    var limEl   = document.getElementById('dashCreditsLimit');
+    var fillEl  = document.getElementById('dashCreditsFill');
+    var barEl   = document.getElementById('dashCreditsBar');
+    var subEl   = document.getElementById('dashCreditsSubtext');
+    var badgeEl = document.getElementById('dashPlanBadge');
+    var upBtn   = document.getElementById('dashUpgradeBtn');
+    var lowBan  = document.getElementById('dashLowBanner');
+    if (usedEl) usedEl.textContent = remain;
+    if (limEl)  limEl.textContent  = isInf ? '∞' : limit;
+    if (subEl)  subEl.textContent  = 'generations remaining this month';
+    requestAnimationFrame(function() {
+        if (fillEl) { fillEl.style.transition='width 1s cubic-bezier(.16,1,.3,1)'; fillEl.style.width=(isInf?70:(100-pct))+'%'; }
+    });
+    if (badgeEl) {
+        var labels = {free:'FREE',creator:'CREATOR',pro:'PRO'};
+        badgeEl.textContent  = labels[plan]||plan.toUpperCase();
+        badgeEl.className    = 'dash-plan-badge-'+plan;
+        badgeEl.style.cssText= 'font-size:12px;font-weight:700;padding:3px 12px;border-radius:99px;display:inline-block;';
+    }
+    if (upBtn) { if(plan==='pro') upBtn.style.display='none'; else if(plan==='creator') upBtn.textContent='Upgrade to Pro →'; }
+    if (lowBan) lowBan.classList.toggle('show', pct>=80 && !isInf);
+    if (barEl && pct>=80 && !isInf) barEl.classList.add('dash-credits-low');
+}
+function dashRenderUsageBars(data) {
+    var used   = data.used   || {};
+    var limits = data.limits || {};
+    var items  = [
+        {icon:'🎨',label:'Generations',        key:'generations',   color:'#FDE036'},
+        {icon:'🖼️', label:'AI Images',          key:'images',        color:'#818cf8'},
+        {icon:'🔍',label:'Thumbnail Analysis', key:'thumb_analysis',color:'#34d399'},
+        {icon:'📊',label:'CTR Predictions',    key:'ctr_predict',   color:'#f472b6'},
+        {icon:'🔬',label:'Reverse Engineering',key:'reverse',       color:'#fb923c'},
+        {icon:'⚡',label:'A/B Tests',          key:'ab_tests',      color:'#60a5fa'},
+        {icon:'📐',label:'Blueprints',         key:'blueprint',     color:'#a78bfa'},
+    ];
+    var rowsEl = document.getElementById('dashUsageRows');
+    if (!rowsEl) return;
+    rowsEl.innerHTML = items.map(function(it) {
+        var u=used[it.key]||0, l=limits[it.key]||0, isInf=l>=999;
+        var pct=isInf?0:Math.min(100,l>0?Math.round(u/l*100):0);
+        var bCls=pct>=90?'full':pct>=70?'warn':'';
+        var cnt =isInf?(u+' / ∞'):(u+' / '+l);
+        return '<div class="usage-row"><span class="usage-icon">'+it.icon+'</span><span class="usage-label">'+it.label+'</span><div class="usage-bar-wrap"><div class="usage-bar-fill '+bCls+'" style="width:'+pct+'%;background:'+it.color+'"></div></div><span class="usage-count">'+cnt+'</span></div>';
+    }).join('');
+}
 async function loadDashboard() {
-    var email = localStorage.getItem('tg_email') || '';
-    var admin = localStorage.getItem('tg_admin_code') || '';
+    var email   = localStorage.getItem('tg_email')      || '';
+    var admin   = localStorage.getItem('tg_admin_code') || '';
     var noEmail = document.getElementById('dashNoEmail');
     var content = document.getElementById('dashContent');
     var loading = document.getElementById('dashLoading');
     if (!email && !admin) {
-        if (loading) loading.style.display = 'none';
-        if (noEmail) noEmail.style.display = 'block';
+        if (loading) loading.style.display='none';
+        if (noEmail) noEmail.style.display='block';
+        if (content) content.style.display='none';
         return;
     }
-    if (loading) loading.style.display = 'block';
-    if (content) content.style.display = 'none';
-    if (noEmail) noEmail.style.display = 'none';
+    if (loading) loading.style.display='block';
+    if (content) content.style.display='none';
+    if (noEmail) noEmail.style.display='none';
     try {
-        var resp = await fetch('/user/usage', {
-            headers: { 'X-User-Email': email, 'X-Admin-Code': admin }
-        });
+        var resp = await fetch('/user/usage',{headers:{'X-User-Email':email,'X-Admin-Code':admin}});
         if (!resp.ok) throw new Error('fetch failed');
         var data = await resp.json();
         _usageCache = data;
-        if (loading) loading.style.display = 'none';
-        if (content) content.style.display = 'block';
-        var plan   = data.plan   || 'free';
-        var used   = data.used   || {};
-        var limits = data.limits || {};
-        var planTitles = { free:'Free Plan', creator:'Creator Plan', pro:'Pro Plan' };
-        var planSubs = {
-            free:    '3 generations · 1 image · Core features',
-            creator: '100 generations · 20 images · All features',
-            pro:     '300 generations · 50 images · Unlimited analysis'
-        };
-        var el = function(id){ return document.getElementById(id); };
-        if (el('dashPlanTitle'))  el('dashPlanTitle').textContent  = planTitles[plan] || plan;
-        if (el('dashPlanSub'))    el('dashPlanSub').textContent    = planSubs[plan]   || '';
-        if (el('dashEmail'))      el('dashEmail').textContent      = data.email === 'admin' ? 'Admin' : (data.email || '—');
-        if (el('dashPlanLabel'))  el('dashPlanLabel').textContent  = plan.toUpperCase();
-        if (el('dashStatGen'))    el('dashStatGen').textContent    = used.generations    || 0;
-        if (el('dashStatImg'))    el('dashStatImg').textContent    = used.images         || 0;
-        if (el('dashStatAna'))    el('dashStatAna').textContent    = (used.thumb_analysis||0) + (used.reverse||0) + (used.ctr_predict||0);
-        if (el('dashStatBp'))     el('dashStatBp').textContent     = used.blueprint      || 0;
-        if (plan === 'pro'     && el('dashUpgradeBtn')) el('dashUpgradeBtn').style.display = 'none';
-        if (plan === 'creator' && el('dashUpgradeBtn')) el('dashUpgradeBtn').textContent   = 'Upgrade to Pro →';
-        var usageItems = [
-            { icon:'🎨', label:'Generations',         key:'generations',    color:'#FDE036' },
-            { icon:'🖼️',  label:'AI Images',           key:'images',         color:'#818cf8' },
-            { icon:'🔍', label:'Thumbnail Analysis',  key:'thumb_analysis', color:'#34d399' },
-            { icon:'📊', label:'CTR Predictions',     key:'ctr_predict',    color:'#f472b6' },
-            { icon:'🔬', label:'Reverse Engineering', key:'reverse',        color:'#fb923c' },
-            { icon:'⚡', label:'A/B Tests',           key:'ab_tests',       color:'#60a5fa' },
-            { icon:'📐', label:'Blueprints',          key:'blueprint',      color:'#a78bfa' },
-        ];
-        var rowsEl = el('dashUsageRows');
-        if (rowsEl) {
-            rowsEl.innerHTML = usageItems.map(function(item) {
-                var u        = used[item.key]   || 0;
-                var l        = limits[item.key] || 0;
-                var pct      = l >= 999 ? (u > 0 ? 5 : 0) : Math.min(100, l > 0 ? Math.round(u/l*100) : 0);
-                var barCls   = pct >= 90 ? 'full' : pct >= 70 ? 'warn' : '';
-                var countTxt = l >= 999 ? (u + ' / ∞') : (u + ' / ' + l);
-                return '<div class="usage-row">'
-                     + '<span class="usage-icon">' + item.icon + '</span>'
-                     + '<span class="usage-label">' + item.label + '</span>'
-                     + '<div class="usage-bar-wrap">'
-                     +   '<div class="usage-bar-fill ' + barCls + '" style="width:' + pct + '%;background:' + item.color + '"></div>'
-                     + '</div>'
-                     + '<span class="usage-count">' + countTxt + '</span>'
-                     + '</div>';
-            }).join('');
+        if (loading) loading.style.display='none';
+        if (content) content.style.display='block';
+        dashRenderCredits(data);
+        dashRenderUsageBars(data);
+        dashRenderIntelligence(data);
+        dashRenderRecentActivity();
+        var emailEl=document.getElementById('dashEmail');
+        var planEl =document.getElementById('dashPlanLabel');
+        if (emailEl) emailEl.textContent=(data.email==='admin')?'Admin':(data.email||'—');
+        if (planEl)  planEl.textContent=(data.plan||'free').toUpperCase();
+        _dashScoreHistory=JSON.parse(localStorage.getItem('tg_score_history')||'[]');
+        if (_dashScoreHistory.length) {
+            var last=_dashScoreHistory[_dashScoreHistory.length-1];
+            dashUpdateProgress(last.score);
+            var curEl=document.getElementById('dashProgCurrent');
+            if(curEl){curEl.textContent=last.score; curEl.style.color=last.score>=80?'#43E97B':last.score>=60?'#FFE036':'#FF6584';}
         }
         updateNavBar(data);
     } catch(e) {
-        if (loading) loading.style.display = 'none';
+        if (loading) loading.style.display='none';
         if (noEmail) {
-            noEmail.style.display = 'block';
-            var h3 = noEmail.querySelector('h3');
-            if (h3) h3.textContent = '⚠️ Could not load dashboard. Check your email/connection.';
+            noEmail.style.display='block';
+            var h3=noEmail.querySelector('h3');
+            if(h3) h3.textContent='⚠️ Could not load dashboard. Check your connection.';
         }
     }
 }

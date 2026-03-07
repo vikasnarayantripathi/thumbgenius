@@ -38,6 +38,12 @@ RESEND_API_KEY           = os.getenv("RESEND_API_KEY")
 APP_URL                  = os.getenv("APP_URL", "https://thumbgenius.in")
 FROM_EMAIL               = os.getenv("FROM_EMAIL", "hello@thumbgenius.in")
 
+# ── Stripe (global payments) ───────────────────────────────────────────────
+STRIPE_SECRET_KEY       = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET   = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_CREATOR_PRICE_ID = os.getenv("STRIPE_CREATOR_PRICE_ID", "")   # $19/mo
+STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")        # $39/mo
+
 PLAN_LIMITS = {
     "free":    {"generations": 3,  "images": 1,  "thumb_analysis": 1,  "reverse": 2,  "ctr_predict": 0,  "ab_tests": 3,  "blueprint": 1},
     "creator": {"generations": 100,"images": 20, "thumb_analysis": 50, "reverse": 25, "ctr_predict": 30, "ab_tests": 20, "blueprint": 10},
@@ -266,9 +272,59 @@ async def create_razorpay_subscription(plan, email):
     except Exception as e:
         logger.error(f"Razorpay error: {e}"); return None
 
+# ── Stripe subscription helper ──────────────────────────────────────────────
+async def create_stripe_session(plan: str, email: str) -> dict:
+    """Create a Stripe Checkout session for global users."""
+    if not STRIPE_SECRET_KEY:
+        return {"error": "Stripe not configured"}
+    price_id = STRIPE_CREATOR_PRICE_ID if plan == "creator" else STRIPE_PRO_PRICE_ID
+    if not price_id:
+        return {"error": "Stripe price not configured"}
+    try:
+        r = await _http_sb.post(
+            "https://api.stripe.com/v1/checkout/sessions",
+            headers={"Authorization": f"Bearer {STRIPE_SECRET_KEY}"},
+            data={
+                "mode": "subscription",
+                "line_items[0][price]": price_id,
+                "line_items[0][quantity]": "1",
+                "customer_email": email,
+                "success_url": APP_URL + "/activate?session={CHECKOUT_SESSION_ID}&email=" + email + "&plan=" + plan,
+                "cancel_url": APP_URL + "/?cancelled=1",
+                "metadata[plan]": plan,
+                "metadata[email]": email,
+            }
+        )
+        return r.json()
+    except Exception as e:
+        logger.error(f"Stripe error: {e}")
+        return {"error": str(e)}
+
 # ══════════════════════════════════════════════════════════════════════════════
 # NICHE INTELLIGENCE
 # ══════════════════════════════════════════════════════════════════════════════
+
+# ── Creator Language Prompts ──────────────────────────────────────────────────
+LANGUAGE_PROMPTS = {
+    "english": {
+        "instruction": "Generate all content in English. Use global YouTube hooks and patterns.",
+        "title_style": "English clickbait with curiosity gap and power words.",
+        "overlay_style": "Bold English 3-5 words. Example: THIS CHANGED EVERYTHING",
+        "tag_note": "English SEO tags optimised for global YouTube search.",
+    },
+    "hindi": {
+        "instruction": "Generate ALL titles, overlays, hooks, and tags in Hindi (Devanagari script). Use Hindi YouTube culture.",
+        "title_style": "Hindi viral titles. Example: यह देखकर हैरान हो जाओगे — curiosity and shock angle.",
+        "overlay_style": "Bold Hindi Devanagari 2-4 words. Example: सच्चाई सामने आई",
+        "tag_note": "Hindi SEO tags — both Devanagari and Roman transliteration for maximum reach.",
+    },
+    "hinglish": {
+        "instruction": "Generate content in Hinglish — the natural Hindi+English mix used by Indian YouTubers. Mix both naturally.",
+        "title_style": "Hinglish style mixing both. Example: Yaar isko dekh ke shock ho gaya! or Maine 10L Kamaye Here is How",
+        "overlay_style": "Hinglish 3-5 words. Example: Sach Finally Out! or Bhai Ye Dekh",
+        "tag_note": "Mix Hindi + English tags and transliterated keywords for maximum India reach.",
+    },
+}
 
 NICHE_CONTEXT = {
     "tech":          "Curiosity gaps, tech specs as hooks, comparison angles. Indian audience loves value-for-money framing.",
@@ -297,13 +353,20 @@ NICHE_CONTEXT = {
     "parenting":     "Child development, parenting hacks. Indian family values context.",
 }
 
-def get_generate_prompt(topic, niche):
-    tip = NICHE_CONTEXT.get(niche, NICHE_CONTEXT["tech"])
-    return f"""You are a world-class YouTube growth strategist for the Indian creator market.
+def get_generate_prompt(topic, niche, language="english"):
+    tip  = NICHE_CONTEXT.get(niche, NICHE_CONTEXT["tech"])
+    lang = LANGUAGE_PROMPTS.get(language, LANGUAGE_PROMPTS["english"])
+    return f"""You are a world-class YouTube growth strategist.
 
 Video Topic: "{topic}"
 Niche: {niche}
 Niche Strategy: {tip}
+
+LANGUAGE: {language.upper()}
+Language Instruction: {lang["instruction"]}
+Title Style: {lang["title_style"]}
+Text Overlay Style: {lang["overlay_style"]}
+Tag Note: {lang["tag_note"]}
 
 Generate a complete viral content package. Respond ONLY in valid JSON.
 
@@ -371,19 +434,36 @@ async def user_status(request: Request):
 async def subscribe(request: Request):
     try: data = await request.json()
     except: return JSONResponse({"error": "Invalid request"}, status_code=400)
-    email = str(data.get("email", "")).strip().lower()
-    plan  = str(data.get("plan",  "")).strip().lower()
+    email          = str(data.get("email", "")).strip().lower()
+    plan           = str(data.get("plan", "")).strip().lower()
+    payment_method = str(data.get("payment_method", "razorpay")).strip().lower()
     if not email or "@" not in email:
         return JSONResponse({"error": "Valid email required"}, status_code=400)
     if plan not in ["creator", "pro"]:
         return JSONResponse({"error": "Invalid plan"}, status_code=400)
+
+    # ── Stripe (global users) ──────────────────────────────────────────────
+    if payment_method == "stripe":
+        session = await create_stripe_session(plan, email)
+        if "error" in session:
+            return JSONResponse({"error": session["error"]}, status_code=500)
+        token = secrets.token_urlsafe(32)
+        await sb_upsert_user(email, {"plan": plan, "stripe_session_id": session.get("id",""),
+                                      "activation_token": token, "is_active": False})
+        return JSONResponse({"payment_method": "stripe",
+                             "checkout_url": session.get("url", ""),
+                             "session_id": session.get("id", ""),
+                             "plan": plan, "email": email})
+
+    # ── Razorpay (India users) ─────────────────────────────────────────────
     sub = await create_razorpay_subscription(plan, email)
     if not sub or "id" not in sub:
         return JSONResponse({"error": "Payment setup failed."}, status_code=500)
     token = secrets.token_urlsafe(32)
     await sb_upsert_user(email, {"plan": plan, "razorpay_subscription_id": sub["id"],
                                   "activation_token": token, "is_active": False})
-    return JSONResponse({"subscription_id": sub["id"], "razorpay_key": RAZORPAY_KEY_ID,
+    return JSONResponse({"payment_method": "razorpay",
+                         "subscription_id": sub["id"], "razorpay_key": RAZORPAY_KEY_ID,
                          "plan": plan, "email": email,
                          "amount": 74900 if plan == "creator" else 144900})
 
@@ -441,6 +521,55 @@ async def razorpay_webhook(request: Request):
         logger.error(f"Webhook error: {e}")
     return JSONResponse({"status": "ok"})
 
+@app.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """Handle Stripe subscription events."""
+    try:
+        body      = await request.body()
+        sig       = request.headers.get("Stripe-Signature", "")
+        if STRIPE_WEBHOOK_SECRET and sig:
+            import time as _t
+            parts    = dict(kv.split("=",1) for kv in sig.split(",") if "=" in kv)
+            ts       = parts.get("t","0")
+            v1_sig   = parts.get("v1","")
+            payload  = f"{ts}.{body.decode()}"
+            expected = hmac.new(STRIPE_WEBHOOK_SECRET.encode(), payload.encode(), hashlib.sha256).hexdigest()
+            if not hmac.compare_digest(expected, v1_sig):
+                logger.warning("Stripe signature mismatch")
+                return JSONResponse({"status": "ok"})
+
+        event      = json.loads(body)
+        event_type = event.get("type","")
+        logger.info(f"Stripe webhook: {event_type}")
+
+        if event_type in ("customer.subscription.created","customer.subscription.updated",
+                          "invoice.payment_succeeded"):
+            obj   = event.get("data",{}).get("object",{})
+            meta  = obj.get("metadata",{})
+            email = obj.get("customer_email") or meta.get("email","")
+            plan  = meta.get("plan","")
+            if email and plan:
+                await sb_upsert_user(email, {"plan": plan, "is_active": True,
+                    "stripe_subscription_id": obj.get("subscription", obj.get("id","")),
+                    "generations_used": 0, "images_used": 0})
+                await invalidate_plan_cache(email)
+                if event_type == "customer.subscription.created":
+                    token = secrets.token_urlsafe(32)
+                    await sb_update_user(email, {"activation_token": token})
+                    asyncio.create_task(send_magic_link(email, token, plan))
+
+        elif event_type == "customer.subscription.deleted":
+            obj   = event.get("data",{}).get("object",{})
+            meta  = obj.get("metadata",{})
+            email = meta.get("email","")
+            if email:
+                await sb_update_user(email, {"plan":"free","is_active":False})
+                await invalidate_plan_cache(email)
+
+    except Exception as e:
+        logger.error(f"Stripe webhook error: {e}")
+    return JSONResponse({"status": "ok"})
+
 # ══════════════════════════════════════════════════════════════════════════════
 # MODULE 7 — PACKAGING ASSISTANT (generate + generate-image)
 # ══════════════════════════════════════════════════════════════════════════════
@@ -489,8 +618,10 @@ async def generate(request: Request):
                 return JSONResponse({"error":"free_limit_reached"},status_code=403)
     try: data = await request.json()
     except: return JSONResponse({"error":"Invalid request"},status_code=400)
-    topic = str(data.get("topic","")).strip()
-    niche = str(data.get("niche","tech")).strip()
+    topic    = str(data.get("topic","")).strip()
+    niche    = str(data.get("niche","tech")).strip()
+    language = str(data.get("language","english")).strip().lower()
+    if language not in ("english","hindi","hinglish"): language = "english"
     if not topic: return JSONResponse({"error":"Please enter a video topic"},status_code=400)
     if len(topic) > 300: return JSONResponse({"error":"Topic too long"},status_code=400)
     cached = await get_generation_cache(topic, niche)
@@ -503,7 +634,7 @@ async def generate(request: Request):
         response = await client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role":"system","content":"YouTube growth expert. Valid JSON only."},
-                      {"role":"user","content":get_generate_prompt(topic,niche)}],
+                      {"role":"user","content":get_generate_prompt(topic,niche,language)}],
             temperature=0.8, max_tokens=1200)
         result = parse_json_safe(response.choices[0].message.content)
         if is_adm: result["uses_remaining"] = 9999
