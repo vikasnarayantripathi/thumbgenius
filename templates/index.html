@@ -1794,23 +1794,66 @@ function toggleMoreNiches(e){
 
 async function generate(){
     const topic=document.getElementById('topic').value.trim();
-    if(!topic){const el=document.getElementById('topic');el.style.borderColor='rgba(255,92,0,0.6)';el.style.boxShadow='0 0 0 4px rgba(255,92,0,0.1)';el.focus();setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2000);return;}
-    document.getElementById('loading').style.display='block';
+    if(!topic){
+        const el=document.getElementById('topic');
+        el.style.borderColor='rgba(255,92,0,0.6)';
+        el.style.boxShadow='0 0 0 4px rgba(255,92,0,0.1)';
+        el.focus();
+        setTimeout(()=>{el.style.borderColor='';el.style.boxShadow='';},2000);
+        return;
+    }
+    const loadEl  = document.getElementById('loading');
+    const loadMsg = document.getElementById('loadingMsg');
+    const genBtn  = document.getElementById('generateBtn');
+    loadEl.style.display='block';
     document.getElementById('results').style.display='none';
     document.getElementById('upgradeBanner').style.display='none';
-    document.getElementById('generateBtn').disabled=true;
-    document.getElementById('loading').scrollIntoView({behavior:'smooth',block:'center'});
+    genBtn.disabled=true;
+    loadEl.scrollIntoView({behavior:'smooth',block:'center'});
+
+    const steps=['🧠 Analysing your topic…','✍️ Writing viral titles…','🎨 Crafting thumbnail concept…','🏷️ Building SEO tags…','✨ Almost done…'];
+    let stepIdx=0;
+    if(loadMsg) loadMsg.textContent=steps[0];
+    const stepTimer=setInterval(()=>{
+        stepIdx=Math.min(stepIdx+1,steps.length-1);
+        if(loadMsg) loadMsg.textContent=steps[stepIdx];
+    },2500);
+
+    const controller=new AbortController();
+    const timeoutId=setTimeout(()=>controller.abort(),25000);
+
     try{
-        const res=await fetch('/generate',{method:'POST',headers:getHeaders(),body:JSON.stringify({topic,niche:selectedNiche})});
+        const res=await fetch('/generate',{
+            method:'POST',
+            headers:getHeaders(),
+            body:JSON.stringify({topic,niche:selectedNiche}),
+            signal:controller.signal
+        });
+        clearTimeout(timeoutId);
+        clearInterval(stepTimer);
         const data=await res.json();
         if(data.error==='free_limit_reached'||data.error==='limit_reached'){
             document.getElementById('upgradeBanner').style.display='block';
-            document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});return;
+            document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});
+            return;
         }
         if(data.error){alert(data.error);return;}
-        document.getElementById('titles').innerHTML=data.titles.map((t,i)=>`<div class="title-row" onclick="copyToClipboard('${escapeHtml(t)}',this)"><span class="n">0${i+1}</span><span class="t">${escapeHtml(t)}</span><button class="cp">📋</button></div>`).join('');
+        document.getElementById('titles').innerHTML=data.titles.map((t,i)=>
+            '<div class="title-row" onclick="copyToClipboard(this.dataset.t,this)" data-t="'+escapeHtml(t)+'">'
+            +'<span class="n">0'+(i+1)+'</span>'
+            +'<span class="t">'+escapeHtml(t)+'</span>'
+            +'<button class="cp">📋</button></div>'
+        ).join('');
         const th=data.thumbnail;
-        document.getElementById('thumbnail').innerHTML=`<div class="titem"><div class="titem-label">Background</div><div class="titem-val">${escapeHtml(th.background)}</div></div><div class="titem"><div class="titem-label">Expression</div><div class="titem-val">${escapeHtml(th.face_expression)}</div></div><div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">${escapeHtml(th.text_overlay)}</div></div><div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">${escapeHtml(th.emotion_trigger)}</div></div><div class="titem wide"><div class="titem-label">CTR Score &amp; Analysis</div><div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">${escapeHtml(String(th.ctr_score))}</div><div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; ${escapeHtml(th.why_it_works)}</div></div></div>`;
+        document.getElementById('thumbnail').innerHTML=
+            '<div class="titem"><div class="titem-label">Background</div><div class="titem-val">'+escapeHtml(th.background)+'</div></div>'
+           +'<div class="titem"><div class="titem-label">Expression</div><div class="titem-val">'+escapeHtml(th.face_expression)+'</div></div>'
+           +'<div class="titem"><div class="titem-label">Text Overlay</div><div class="titem-val big">'+escapeHtml(th.text_overlay)+'</div></div>'
+           +'<div class="titem"><div class="titem-label">Emotion</div><div class="titem-val">'+escapeHtml(th.emotion_trigger)+'</div></div>'
+           +'<div class="titem wide"><div class="titem-label">CTR Score &amp; Analysis</div>'
+           +'<div class="ctr-big-row" style="margin-top:10px"><div class="ctr-num">'+escapeHtml(String(th.ctr_score))+'</div>'
+           +'<div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; '+escapeHtml(th.why_it_works)+'</div>'
+           +'</div></div>';
         lastConcept=th.background+'. Face expression: '+th.face_expression;
         lastTextOverlay=th.text_overlay;
         lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
@@ -1820,26 +1863,37 @@ async function generate(){
         document.getElementById('imageBtn').disabled=false;
         document.getElementById('hook').textContent=data.hook_script;
         document.getElementById('nicheTip').textContent=data.niche_tip;
-        if(data.uses_remaining!==undefined)document.getElementById('usesLeft').innerHTML=`<strong>${data.uses_remaining}</strong> remaining`;
-        const saveBtn=document.getElementById('saveBtn');saveBtn.textContent='💾 Save to History';saveBtn.classList.remove('saved');
-
-        // ── Render Tags ──
-        if(data.tags && (data.tags.primary||data.tags.longtail)){
-            const makeTags=(arr,cls)=>(arr||[]).map(t=>`<button class="tag-chip${cls?' '+cls:''}" onclick="copyToClipboard('${escapeHtml(t)}',this)">${escapeHtml(t)}</button>`).join('');
-            document.getElementById('tagsPrimary').innerHTML   = makeTags(data.tags.primary);
-            document.getElementById('tagsSecondary').innerHTML = makeTags(data.tags.secondary);
-            document.getElementById('tagsLongtail').innerHTML  = makeTags(data.tags.longtail,'');
-            document.getElementById('tagsHindi').innerHTML     = makeTags(data.tags.hindi_mix,'');
-            document.getElementById('tagsBlock').style.display = 'block';
+        if(data.uses_remaining!==undefined)
+            document.getElementById('usesLeft').innerHTML='<strong>'+data.uses_remaining+'</strong> remaining';
+        const saveBtn=document.getElementById('saveBtn');
+        saveBtn.textContent='💾 Save to History';
+        saveBtn.classList.remove('saved');
+        if(data.tags&&(data.tags.primary||data.tags.longtail)){
+            const makeTags=(arr,cls)=>(arr||[]).map(t=>'<button class="tag-chip'+(cls?' '+cls:'')+'" onclick="copyToClipboard(this.dataset.t,this)" data-t="'+escapeHtml(t)+'">'+escapeHtml(t)+'</button>').join('');
+            document.getElementById('tagsPrimary').innerHTML=makeTags(data.tags.primary);
+            document.getElementById('tagsSecondary').innerHTML=makeTags(data.tags.secondary);
+            document.getElementById('tagsLongtail').innerHTML=makeTags(data.tags.longtail,'');
+            document.getElementById('tagsHindi').innerHTML=makeTags(data.tags.hindi_mix,'');
+            document.getElementById('tagsBlock').style.display='block';
         } else {
-            document.getElementById('tagsBlock').style.display = 'none';
+            document.getElementById('tagsBlock').style.display='none';
         }
-
         document.getElementById('results').style.display='block';
         document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
-    }catch(e){alert('Something went wrong. Please try again.');}
-    finally{document.getElementById('loading').style.display='none';document.getElementById('generateBtn').disabled=false;}
+    } catch(e){
+        clearTimeout(timeoutId);
+        clearInterval(stepTimer);
+        if(e.name==='AbortError'){
+            alert('⏱️ Taking too long — AI might be busy. Please try again!');
+        } else {
+            alert('Something went wrong. Please try again.');
+        }
+    } finally{
+        loadEl.style.display='none';
+        genBtn.disabled=false;
+    }
 }
+
 
 async function generateImage(){
     if(!lastConcept){alert('Please generate a content package first!');return;}
@@ -3305,21 +3359,17 @@ function updateNavBar(data) {
 async function loadDashboard() {
     var email = localStorage.getItem('tg_email') || '';
     var admin = localStorage.getItem('tg_admin_code') || '';
-
     var noEmail = document.getElementById('dashNoEmail');
     var content = document.getElementById('dashContent');
     var loading = document.getElementById('dashLoading');
-
     if (!email && !admin) {
         if (loading) loading.style.display = 'none';
         if (noEmail) noEmail.style.display = 'block';
         return;
     }
-
     if (loading) loading.style.display = 'block';
     if (content) content.style.display = 'none';
     if (noEmail) noEmail.style.display = 'none';
-
     try {
         var resp = await fetch('/user/usage', {
             headers: { 'X-User-Email': email, 'X-Admin-Code': admin }
@@ -3327,22 +3377,18 @@ async function loadDashboard() {
         if (!resp.ok) throw new Error('fetch failed');
         var data = await resp.json();
         _usageCache = data;
-
         if (loading) loading.style.display = 'none';
         if (content) content.style.display = 'block';
-
         var plan   = data.plan   || 'free';
         var used   = data.used   || {};
         var limits = data.limits || {};
-
         var planTitles = { free:'Free Plan', creator:'Creator Plan', pro:'Pro Plan' };
-        var planSubs   = {
+        var planSubs = {
             free:    '3 generations · 1 image · Core features',
             creator: '100 generations · 20 images · All features',
             pro:     '300 generations · 50 images · Unlimited analysis'
         };
         var el = function(id){ return document.getElementById(id); };
-
         if (el('dashPlanTitle'))  el('dashPlanTitle').textContent  = planTitles[plan] || plan;
         if (el('dashPlanSub'))    el('dashPlanSub').textContent    = planSubs[plan]   || '';
         if (el('dashEmail'))      el('dashEmail').textContent      = data.email === 'admin' ? 'Admin' : (data.email || '—');
@@ -3351,10 +3397,8 @@ async function loadDashboard() {
         if (el('dashStatImg'))    el('dashStatImg').textContent    = used.images         || 0;
         if (el('dashStatAna'))    el('dashStatAna').textContent    = (used.thumb_analysis||0) + (used.reverse||0) + (used.ctr_predict||0);
         if (el('dashStatBp'))     el('dashStatBp').textContent     = used.blueprint      || 0;
-
         if (plan === 'pro'     && el('dashUpgradeBtn')) el('dashUpgradeBtn').style.display = 'none';
         if (plan === 'creator' && el('dashUpgradeBtn')) el('dashUpgradeBtn').textContent   = 'Upgrade to Pro →';
-
         var usageItems = [
             { icon:'🎨', label:'Generations',         key:'generations',    color:'#FDE036' },
             { icon:'🖼️',  label:'AI Images',           key:'images',         color:'#818cf8' },
@@ -3364,7 +3408,6 @@ async function loadDashboard() {
             { icon:'⚡', label:'A/B Tests',           key:'ab_tests',       color:'#60a5fa' },
             { icon:'📐', label:'Blueprints',          key:'blueprint',      color:'#a78bfa' },
         ];
-
         var rowsEl = el('dashUsageRows');
         if (rowsEl) {
             rowsEl.innerHTML = usageItems.map(function(item) {
@@ -3383,9 +3426,7 @@ async function loadDashboard() {
                      + '</div>';
             }).join('');
         }
-
         updateNavBar(data);
-
     } catch(e) {
         if (loading) loading.style.display = 'none';
         if (noEmail) {

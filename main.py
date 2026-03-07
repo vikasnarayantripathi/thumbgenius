@@ -85,7 +85,7 @@ app.add_middleware(
 )
 
 templates = Jinja2Templates(directory="templates")
-client    = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=2, timeout=45.0)
+client    = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=1, timeout=20.0)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # INFRASTRUCTURE — Redis, Supabase, Helpers
@@ -93,36 +93,35 @@ client    = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=2, timeout=45.0)
 
 async def redis_get(key):
     try:
-        async with httpx.AsyncClient(timeout=5.0) as h:
-            r = await h.get(f"{UPSTASH_REDIS_REST_URL}/get/{key}",
-                            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
-            return r.json().get("result")
+        r = await _http_redis.get(
+            f"{UPSTASH_REDIS_REST_URL}/get/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
+        return r.json().get("result")
     except Exception as e:
         logger.warning(f"Redis GET error: {e}"); return None
 
 async def redis_set(key, value, ex=None):
     try:
-        async with httpx.AsyncClient(timeout=5.0) as h:
-            url = f"{UPSTASH_REDIS_REST_URL}/set/{key}/{value}"
-            if ex: url += f"/ex/{ex}"
-            await h.get(url, headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
+        url = f"{UPSTASH_REDIS_REST_URL}/set/{key}/{value}"
+        if ex: url += f"/ex/{ex}"
+        await _http_redis.get(url, headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
     except Exception as e:
         logger.warning(f"Redis SET error: {e}")
 
 async def redis_incr(key):
     try:
-        async with httpx.AsyncClient(timeout=5.0) as h:
-            r = await h.get(f"{UPSTASH_REDIS_REST_URL}/incr/{key}",
-                            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
-            return r.json().get("result", 1)
+        r = await _http_redis.get(
+            f"{UPSTASH_REDIS_REST_URL}/incr/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
+        return r.json().get("result", 1)
     except Exception as e:
         logger.warning(f"Redis INCR error: {e}"); return 1
 
 async def redis_expire(key, seconds):
     try:
-        async with httpx.AsyncClient(timeout=5.0) as h:
-            await h.get(f"{UPSTASH_REDIS_REST_URL}/expire/{key}/{seconds}",
-                        headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
+        await _http_redis.get(
+            f"{UPSTASH_REDIS_REST_URL}/expire/{key}/{seconds}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
     except Exception as e:
         logger.warning(f"Redis EXPIRE error: {e}")
 
@@ -135,115 +134,83 @@ SB_HEADERS = {
 
 async def sb_get_user(email):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            r = await h.get(f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}&select=*", headers=SB_HEADERS)
-            d = r.json(); return d[0] if d else None
+        r = await _http_sb.get(f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}&select=*", headers=SB_HEADERS)
+        d = r.json(); return d[0] if d else None
     except Exception as e:
         logger.error(f"sb_get_user: {e}"); return None
 
 async def sb_upsert_user(email, data):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            await h.post(f"{SUPABASE_URL}/rest/v1/users",
-                         headers={**SB_HEADERS, "Prefer": "resolution=merge-duplicates,return=representation"},
-                         json={"email": email, **data})
+        payload = {"email": email, **data}
+        await _http_sb.post(
+            f"{SUPABASE_URL}/rest/v1/users",
+            headers={**SB_HEADERS, "Prefer": "resolution=merge-duplicates"},
+            json=payload)
     except Exception as e:
         logger.error(f"sb_upsert_user: {e}")
 
 async def sb_update_user(email, data):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            await h.patch(f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}", headers=SB_HEADERS, json=data)
+        await _http_sb.patch(
+            f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}",
+            headers=SB_HEADERS, json=data)
     except Exception as e:
         logger.error(f"sb_update_user: {e}")
 
 async def sb_get_user_by_token(token):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            r = await h.get(f"{SUPABASE_URL}/rest/v1/users?activation_token=eq.{token}&select=*", headers=SB_HEADERS)
-            d = r.json(); return d[0] if d else None
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?activation_token=eq.{token}&select=*",
+            headers=SB_HEADERS)
+        d = r.json(); return d[0] if d else None
     except Exception as e:
-        logger.error(f"sb_get_by_token: {e}"); return None
+        logger.error(f"sb_get_user_by_token: {e}"); return None
 
 async def sb_get_user_by_subscription(sub_id):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            r = await h.get(f"{SUPABASE_URL}/rest/v1/users?razorpay_subscription_id=eq.{sub_id}&select=*", headers=SB_HEADERS)
-            d = r.json(); return d[0] if d else None
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?razorpay_subscription_id=eq.{sub_id}&select=*",
+            headers=SB_HEADERS)
+        d = r.json(); return d[0] if d else None
     except Exception as e:
-        logger.error(f"sb_get_by_sub: {e}"); return None
+        logger.error(f"sb_get_user_by_subscription: {e}"); return None
 
-# Brand Kit helpers
 async def sb_get_brand_kit(email):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            r = await h.get(f"{SUPABASE_URL}/rest/v1/brand_kits?email=eq.{email}&select=*", headers=SB_HEADERS)
-            d = r.json(); return d[0] if d else None
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/brand_kits?email=eq.{email}&select=*",
+            headers=SB_HEADERS)
+        d = r.json(); return d[0] if d else None
     except Exception as e:
         logger.error(f"sb_get_brand_kit: {e}"); return None
 
 async def sb_save_brand_kit(email, kit_data):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            await h.post(f"{SUPABASE_URL}/rest/v1/brand_kits",
-                         headers={**SB_HEADERS, "Prefer": "resolution=merge-duplicates,return=representation"},
-                         json={"email": email, "kit_data": json.dumps(kit_data)})
+        await _http_sb.post(
+            f"{SUPABASE_URL}/rest/v1/brand_kits",
+            headers={**SB_HEADERS, "Prefer": "resolution=merge-duplicates"},
+            json={"email": email, "kit_data": json.dumps(kit_data)})
     except Exception as e:
         logger.error(f"sb_save_brand_kit: {e}")
 
-# Inspiration saves
-async def sb_save_inspiration(email, item):
+async def sb_save_inspiration(email, data):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            await h.post(f"{SUPABASE_URL}/rest/v1/inspiration_saves",
-                         headers=SB_HEADERS,
-                         json={"email": email, **item})
+        await _http_sb.post(
+            f"{SUPABASE_URL}/rest/v1/inspiration_saves",
+            headers=SB_HEADERS,
+            json={"email": email, **data})
     except Exception as e:
         logger.error(f"sb_save_inspiration: {e}")
 
 async def sb_get_inspirations(email):
     try:
-        async with httpx.AsyncClient(timeout=10.0) as h:
-            r = await h.get(f"{SUPABASE_URL}/rest/v1/inspiration_saves?email=eq.{email}&select=*&order=created_at.desc", headers=SB_HEADERS)
-            return r.json() or []
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/inspiration_saves?email=eq.{email}&select=*&order=created_at.desc",
+            headers=SB_HEADERS)
+        return r.json()
     except Exception as e:
         logger.error(f"sb_get_inspirations: {e}"); return []
 
-async def get_user_plan(email):
-    if not email:
-        return {"plan": "free", "generations_used": 0, "images_used": 0,
-                "thumb_analysis_used": 0, "reverse_used": 0, "ctr_predict_used": 0, "ab_tests_used": 0}
-    cache_key = f"plan:{email}"
-    cached = await redis_get(cache_key)
-    if cached:
-        try: return json.loads(cached)
-        except: pass
-    user = await sb_get_user(email)
-    if not user:
-        return {"plan": "free", "generations_used": 0, "images_used": 0,
-                "thumb_analysis_used": 0, "reverse_used": 0, "ctr_predict_used": 0, "ab_tests_used": 0}
-    plan_data = {
-        "plan": user.get("plan", "free"),
-        "generations_used":    user.get("generations_used", 0),
-        "images_used":         user.get("images_used", 0),
-        "thumb_analysis_used": user.get("thumb_analysis_used", 0),
-        "reverse_used":        user.get("reverse_used", 0),
-        "ctr_predict_used":    user.get("ctr_predict_used", 0),
-        "ab_tests_used":       user.get("ab_tests_used", 0),
-        "is_active":           user.get("is_active", False),
-    }
-    await redis_set(cache_key, json.dumps(plan_data), ex=300)
-    return plan_data
-
-async def invalidate_plan_cache(email):
-    await redis_set(f"plan:{email}", "", ex=1)
-
-def get_ip(request):
-    fwd = request.headers.get("X-Forwarded-For")
-    return fwd.split(",")[0].strip() if fwd else request.client.host
-
-def get_fingerprint(request):
-    return hashlib.md5(f"{get_ip(request)}{request.headers.get('User-Agent','')[:50]}".encode()).hexdigest()[:16]
 
 async def check_free_limit(request, key_type="free"):
     count = await redis_get(f"{key_type}:{get_fingerprint(request)}")
