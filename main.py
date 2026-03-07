@@ -1242,13 +1242,13 @@ Generate exactly {per_niche} topics per niche.
 
 Return a JSON object with a "topics" key containing an array:
 {{"topics": [
-  {{"niche":"tech","topic":"Specific compelling video title","why":"One sentence why this is trending in India right now","heat":"🔥🔥 High Momentum"}},
+  {{"niche":"tech","topic":"Specific compelling video title","why":"One sentence why this is trending right now","heat":"🔥🔥 High Momentum"}},
   ...
 ]}}
 
 Rules:
 - Topics must be specific, actionable video title ideas (not generic)
-- Highly relevant to the {niche} YouTube audience in 2025
+- Highly relevant to the {niche_list} YouTube audience in 2025
 - Each topic must have all 4 fields: niche, topic, why, heat
 - niche must exactly match one of: {niche_list}"""
 
