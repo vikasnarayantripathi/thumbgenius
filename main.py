@@ -801,17 +801,22 @@ async def generate_image(request: Request):
         # Spell out text character by character for DALL-E accuracy
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         img_prompt = (
-            f"Professional YouTube thumbnail image, 16:9 widescreen format. "
+            f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
+            f"Style: MrBeast/top YouTuber quality — extremely eye-catching, high production value. "
             f"Scene: {concept}. "
-            f"Ultra high contrast vibrant colors, cinematic lighting, photorealistic. "
-            f"No watermarks, no borders. "
+            f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
+            f"deep shadows and bright highlights for maximum contrast. "
+            f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
+            f"Mood: exciting, urgent, curiosity-inducing. "
+            f"Quality: photorealistic 8K, sharp details, professional color grading. "
+            f"No watermarks, no borders, no text unless specified below. "
         )
         if overlay:
             img_prompt += (
-                f"Overlay the following text EXACTLY as written in large bold white Impact font "
-                f"with black stroke outline, centered prominently: '{overlay}'. "
-                f"The text must be spelled correctly letter by letter: {overlay_spelled}. "
-                f"Double-check spelling before rendering."
+                f"Add this exact text as a bold overlay: '{overlay}'. "
+                f"Text style: massive bold Impact or Bebas Neue font, white letters with thick black outline stroke, "
+                f"slight drop shadow, positioned in lower third or center. "
+                f"Spell it EXACTLY: {overlay_spelled}. Each letter: {', '.join(list(overlay.upper()))}."
             )
         response = await client.images.generate(
             model="dall-e-3",
