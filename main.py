@@ -53,6 +53,13 @@ ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro"]}}
 
 def is_admin(code: str) -> bool:
     return code.upper() in ADMIN_CODES
+def get_fingerprint(request: Request) -> str:
+    """Simple fingerprint from IP + User-Agent for rate limiting."""
+    ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+    ip = ip.split(",")[0].strip()
+    ua = request.headers.get("user-agent", "")[:50]
+    return f"{ip}:{ua}"[:100]
+
 
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
 @asynccontextmanager
