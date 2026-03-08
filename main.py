@@ -826,7 +826,7 @@ async def generate_image(request: Request):
         return JSONResponse({"image_url":response.data[0].url,
                              "images_remaining":9999 if is_adm else max(0,limit-used-1)})
     except Exception as e:
-        logger.error(f"/generate-image error: {e}"); return JSONResponse({"error":"Image generation failed."},status_code=500)
+        import traceback; logger.error(f"/generate-image error: {e}\n{traceback.format_exc()}"); return JSONResponse({"error":str(e)},status_code=500)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # MODULE 1 — THUMBNAIL INTELLIGENCE ANALYZER
