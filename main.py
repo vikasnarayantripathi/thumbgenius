@@ -59,6 +59,11 @@ def get_fingerprint(request: Request) -> str:
     ip = ip.split(",")[0].strip()
     ua = request.headers.get("user-agent", "")[:50]
     return f"{ip}:{ua}"[:100]
+def get_ip(request: Request) -> str:
+    """Get client IP from request."""
+    ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "unknown")
+    return ip.split(",")[0].strip()
+
 
 
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
