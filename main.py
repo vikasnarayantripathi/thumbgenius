@@ -819,9 +819,9 @@ async def generate_image(request: Request):
                 f"Spell it EXACTLY: {overlay_spelled}. Each letter: {', '.join(list(overlay.upper()))}."
             )
         response = await client.images.generate(
-            model="dall-e-3",
+            model="dall-e-2",
             prompt=img_prompt,
-            size="1792x1024", quality="hd", n=1)
+            size="1024x1024", n=1)
         if not is_adm:
             if email: asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":response.data[0].url})); asyncio.create_task(invalidate_plan_cache(email))
             else:
