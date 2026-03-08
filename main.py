@@ -94,7 +94,8 @@ class CSPMiddleware(BaseHTTPMiddleware):
             "img-src 'self' data: blob: https://oaidalleapiprodscus.blob.core.windows.net "
                 "https://*.openai.com https://*.blob.core.windows.net; "
             "connect-src 'self' https://api.openai.com https://oaidalleapiprodscus.blob.core.windows.net https://api.razorpay.com "
-                "https://lumberjack.razorpay.com https://jfestnbagyjrpoczhxbw.supabase.co; "
+                "https://lumberjack.razorpay.com https://jfestnbagyjrpoczhxbw.supabase.co "
+                "https://ipapi.co https://generativelanguage.googleapis.com; "
             "frame-src https://api.razorpay.com https://checkout.razorpay.com; "
             "object-src 'none';"
         )
@@ -104,7 +105,7 @@ app.add_middleware(CSPMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://thumbgenius.in", "https://www.thumbgenius.in"],
+    allow_origins=["https://thumbgenius.in", "https://www.thumbgenius.in", "http://localhost:3000", "http://localhost:8000"],
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "X-User-Email", "X-Admin-Code"],
 )
@@ -825,13 +826,12 @@ async def generate_image(request: Request):
             "instances": [{"prompt": img_prompt[:2000]}],
             "parameters": {"sampleCount": 1, "aspectRatio": "16:9", "personGeneration": "allow_adult"}
         }
-        async with httpx.AsyncClient(timeout=25.0) as hc:
+        async with httpx.AsyncClient(timeout=60.0) as hc:
             r = await hc.post(gemini_url, json=payload)
         if r.status_code != 200:
             raise Exception(f"Imagen API error: {r.status_code} {r.text[:200]}")
         rdata = r.json()
         img_b64 = rdata["predictions"][0]["bytesBase64Encoded"]
-        img_bytes = _b64.b64decode(img_b64)
         if not is_adm:
             if email:
                 asyncio.create_task(sb_update_user(email,{"images_used":used+1}))
