@@ -326,35 +326,98 @@ LANGUAGE_PROMPTS = {
     },
 }
 
-NICHE_CONTEXT = {
+# ── English / Global niche context ───────────────────────────────────────────
+NICHE_CONTEXT_EN = {
     "tech":          "Curiosity gaps, tech specs as hooks, comparison angles. Value-for-money and comparison formats perform well globally.",
-    "finance":       "Money amounts, percentage gains/losses, urgency. SIP, mutual funds, stock market, salary references.",
-    "gaming":        "Challenge framing, game names, rank/level references. Free Fire, BGMI, GTA.",
-    "fitness":       "Transformation angles, time-based promises. Desi diet, home workout, no gym.",
-    "food":          "Sensory words, regional cuisine names. Street food, regional recipes, restaurant reviews.",
-    "travel":        "Discovery angles, budget travel, hidden gems. Hill stations, beaches, visa-free.",
+    "finance":       "Money amounts, percentage gains/losses, urgency. Investment returns, salary growth, side income.",
+    "gaming":        "Challenge framing, game names, rank/level references. Free Fire, BGMI, GTA, Minecraft, Valorant.",
+    "fitness":       "Transformation angles, time-based promises. Home workout, no equipment, before/after.",
+    "food":          "Sensory words, regional cuisine names. Street food, recipes, restaurant reviews.",
+    "travel":        "Discovery angles, budget travel, hidden gems. Off-beat destinations, visa-free, solo travel.",
     "education":     "Skill gaps, career outcomes, time-to-learn. Job market, salary hikes, certifications.",
-    "motivation":    "Struggle-to-success arcs, Indian success stories. Entrepreneur mindset.",
-    "beauty":        "Transformation, product comparisons. Affordable dupes, skin tone inclusive.",
-    "entertainment": "Controversy, reactions, predictions. Bollywood, OTT reviews, celebrity drama.",
-    "business":      "Success stories, income figures. Indian startup ecosystem references.",
-    "productivity":  "Time-saving angles, before/after routines. Indian work culture context.",
-    "cricket":       "Match energy, player names, stats. IPL, World Cup references.",
-    "automobiles":   "Speed, comparison, value-for-money. Maruti vs Hyundai type comparisons.",
-    "examprep":      "UPSC/JEE/NEET context, rank mentions, study hacks. AIR 1 type references.",
-    "health":        "Transformation, doctor-backed claims. Ayurveda and modern medicine mix.",
-    "pets":          "Cute and emotional. Dog/cat focus. Breed recommendations for Indian climate.",
-    "music":         "Genre-specific energy, artist names. Indian indie and Bollywood music context.",
-    "realestate":    "Price reveals, location names, investment angle. Mumbai, Delhi, Bangalore.",
-    "spirituality":  "Calm but impactful. Meditation, yoga, Indian philosophy.",
-    "stocks":        "Market movements, portfolio gains. Sensex, Nifty, smallcap references.",
-    "cooking":       "Quick recipes, ingredient reveals. Desi twists on global dishes.",
-    "fashion":       "Trend reveals, outfit ideas. Indian wedding fashion, street style.",
-    "parenting":     "Child development, parenting hacks. Indian family values context.",
+    "motivation":    "Struggle-to-success arcs, underdog stories. Entrepreneur mindset, discipline, consistency.",
+    "beauty":        "Transformation, product comparisons. Affordable dupes, skin tone inclusive, honest reviews.",
+    "entertainment": "Controversy, reactions, predictions. OTT reviews, celebrity drama, movie breakdowns.",
+    "business":      "Success stories, income figures. Startup ecosystem, solopreneur, passive income.",
+    "productivity":  "Time-saving angles, before/after routines. Work smarter, deep work, morning routines.",
+    "cricket":       "Match energy, player names, stats. IPL, World Cup, Test cricket references.",
+    "automobiles":   "Speed, comparison, value-for-money. EV vs petrol, budget cars, long drive reviews.",
+    "examprep":      "Exam strategy, rank mentions, study hacks. Competitive exam preparation tips.",
+    "health":        "Transformation, expert-backed claims. Natural remedies, modern medicine, mental health.",
+    "pets":          "Cute and emotional. Dog/cat focus. Care tips, breed guides, pet vlogs.",
+    "music":         "Genre-specific energy, artist names. Indie, covers, music production, react videos.",
+    "realestate":    "Price reveals, location names, investment angle. Property buying, renting tips.",
+    "spirituality":  "Calm but impactful. Meditation, yoga, mindfulness, ancient wisdom.",
+    "stocks":        "Market movements, portfolio gains. Index funds, trading strategies, passive investing.",
+    "cooking":       "Quick recipes, ingredient reveals. Easy meals, healthy cooking, fusion cuisine.",
+    "fashion":       "Trend reveals, outfit ideas. Budget fashion, styling tips, seasonal lookbooks.",
+    "parenting":     "Child development, parenting hacks. Raising kids, screen time, education at home.",
 }
 
+# ── Hindi niche context (deep India cultural references, Devanagari output) ───
+NICHE_CONTEXT_HI = {
+    "tech":          "जिज्ञासा और तुलना — कौन सा फोन सबसे अच्छा? सस्ते में best performance। OnePlus vs Samsung type hooks।",
+    "finance":       "पैसे की बात — SIP, mutual funds, salary tips। ₹ amounts use करें। FOMO और urgency strong काम करती है।",
+    "gaming":        "Challenge और rank — Free Fire, BGMI, GTA। गेम के नाम और players के references। Hindi gaming slang।",
+    "fitness":       "Transformation — घर पर workout, बिना gym। पहले vs बाद। Desi diet और protein sources।",
+    "food":          "खाने की खुशबू और स्वाद — street food, desi recipes, dhaba reviews। Regional cuisine names।",
+    "travel":        "अनजानी जगहें — budget travel, hill stations, beaches। सस्ते में घूमो type hooks।",
+    "education":     "Career और नौकरी — UPSC, JEE, NEET। Rank, salary hike, certification। Study hacks।",
+    "motivation":    "संघर्ष से सफलता — real Indian success stories। Virat, Dhoni, Ratan Tata type references। जिंदगी बदल दो।",
+    "beauty":        "Transformation — affordable products, skin whitening myths busted, desi beauty tips। Honest reviews।",
+    "entertainment": "Controversy और reactions — Bollywood gossip, OTT reviews, celebrity drama। भाई क्या हो रहा है।",
+    "business":      "Business ideas और income — startup, chai pe charcha, small business India। ₹ income figures।",
+    "productivity":  "Time management — subah ki routine, deep work, कम समय में ज़्यादा काम। Indian work culture।",
+    "cricket":       "Cricket की दीवानगी — IPL, Virat, Rohit, World Cup। Match energy और stats। जीत की खुशी।",
+    "automobiles":   "गाड़ी की बात — Maruti vs Hyundai, petrol vs electric, budget cars। Long drive और mileage।",
+    "examprep":      "UPSC/JEE/NEET — AIR 1 toppers की strategy। Study schedule, revision tips। सफलता का रास्ता।",
+    "health":        "सेहत और तंदुरुस्ती — Ayurveda, home remedies, doctor advice। Weight loss, diabetes, immunity।",
+    "pets":          "प्यारे जानवर — dogs और cats। Indian climate के लिए breed tips। Pet care और training।",
+    "music":         "संगीत की दुनिया — Bollywood songs, indie artists, music covers। Reactions और behind the scenes।",
+    "realestate":    "Property की बात — Mumbai, Delhi, Bangalore। Flat खरीदना या किराया? Investment angle।",
+    "spirituality":  "आत्मा की शांति — meditation, yoga, Gita gyaan। Spiritual stories और ancient wisdom।",
+    "stocks":        "Share market — Sensex, Nifty, smallcap। Portfolio tips, trading strategy। पैसा काम करे।",
+    "cooking":       "रसोई के secrets — quick recipes, desi tadka। Mummy ke haath ka khana type nostalgia।",
+    "fashion":       "Style की बात — Indian wedding fashion, budget outfits, seasonal looks। Affordable tips।",
+    "parenting":     "बच्चों की परवरिश — Indian family values, screen time, homework help। संस्कार और education।",
+}
+
+# ── Hinglish niche context (natural Hindi+English creator mix) ────────────────
+NICHE_CONTEXT_HN = {
+    "tech":          "Curiosity aur comparison — kaunsa phone best hai? Budget mein best performance. OnePlus vs Samsung type hooks. Hinglish hooks work great.",
+    "finance":       "Paisa ki baat — SIP, mutual funds, salary tips. ₹ amounts use karo. FOMO aur urgency strong karti hai. 'Maine itna kamaya' hooks.",
+    "gaming":        "Challenge aur rank — Free Fire, BGMI, GTA. Hindi gaming slang mix karo. 'Bhai ye dekh' type energy.",
+    "fitness":       "Transformation — ghar pe workout, bina gym. Pehle vs baad. Desi diet aur protein sources Hindi mein.",
+    "food":          "Khane ki khushbu aur taste — street food, desi recipes. 'Yaar ye kha ke dekhna' type sensory hooks.",
+    "travel":        "Anjani jagahein — budget travel, hill stations. 'Saste mein ghoomo' type hooks. Hinglish works perfectly.",
+    "education":     "Career aur job — UPSC, JEE, NEET. Rank, salary hike. 'Ye trick try karo' study hacks.",
+    "motivation":    "Sangharsh se safalta — real Indian stories. Virat, Dhoni references. 'Zindagi badal do' energy.",
+    "beauty":        "Transformation — affordable products, desi beauty tips. 'Yaar isko try karo' honest reviews.",
+    "entertainment": "Controversy aur reactions — Bollywood, OTT reviews. 'Bhai kya ho raha hai' energy.",
+    "business":      "Business ideas — startup, small business. '₹ mein kitna kama sakte ho' income reveals.",
+    "productivity":  "Time management — subah ki routine, deep work. 'Kam samay mein zyada kaam' hooks.",
+    "cricket":       "Cricket ki deewanagi — IPL, Virat, Rohit. Match energy. 'Bhai ye match dekha' reactions.",
+    "automobiles":   "Gaadi ki baat — Maruti vs Hyundai, petrol vs electric. 'Bhai ye gaadi leni chahiye' reviews.",
+    "examprep":      "UPSC/JEE/NEET prep — toppers ki strategy. 'Ye trick try karo' study hacks in Hinglish.",
+    "health":        "Sehat ki baat — Ayurveda meets modern. Home remedies. 'Yaar ye try karo' health tips.",
+    "pets":          "Pyare janwar — dogs aur cats. Indian climate tips. 'Mera pet bahut cute hai' type content.",
+    "music":         "Music ki duniya — Bollywood, indie. Reactions aur covers. 'Yaar ye sun ke dil bhar aaya' hooks.",
+    "realestate":    "Property ki baat — flat kharidna ya kiraya? Investment. 'Bhai ye deal pakad lo' urgency.",
+    "spirituality":  "Aatma ki shanti — meditation, yoga, Gita. 'Zindagi mein peace chahiye' hooks.",
+    "stocks":        "Share market — Sensex, Nifty. 'Bhai ye stocks dekh' portfolio tips in Hinglish.",
+    "cooking":       "Rasoi ke secrets — quick recipes, desi tadka. 'Mummy ke haath ka khana' nostalgia hooks.",
+    "fashion":       "Style ki baat — Indian wedding fashion, budget outfits. 'Bhai ye outfit try karo' hooks.",
+    "parenting":     "Bacchon ki parvarish — Indian family values, screen time. 'Aaj kal ke bacche' hooks.",
+}
+
+# ── Default fallback (keeps backward compat) ─────────────────────────────────
+NICHE_CONTEXT = NICHE_CONTEXT_EN
+
 def get_generate_prompt(topic, niche, language="english"):
-    tip  = NICHE_CONTEXT.get(niche, NICHE_CONTEXT["tech"])
+    # Pick language-specific niche context
+    ctx_map = {"hindi": NICHE_CONTEXT_HI, "hinglish": NICHE_CONTEXT_HN}
+    ctx  = ctx_map.get(language, NICHE_CONTEXT_EN)
+    tip  = ctx.get(niche, ctx.get("tech", ""))
     lang = LANGUAGE_PROMPTS.get(language, LANGUAGE_PROMPTS["english"])
     return f"""You are a world-class YouTube growth strategist with expertise across global markets.
 
@@ -631,11 +694,13 @@ async def generate(request: Request):
             else: asyncio.create_task(increment_free_limit(request))
         cached["from_cache"] = True; return JSONResponse(cached)
     try:
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role":"system","content":"YouTube growth expert. Valid JSON only."},
-                      {"role":"user","content":get_generate_prompt(topic,niche,language)}],
-            temperature=0.8, max_tokens=1200)
+        response = await asyncio.wait_for(
+            client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role":"system","content":"You are a YouTube growth expert. Return ONLY valid JSON, no markdown, no explanation."},
+                          {"role":"user","content":get_generate_prompt(topic,niche,language)}],
+                temperature=0.8, max_tokens=1800),
+            timeout=20.0)
         result = parse_json_safe(response.choices[0].message.content)
         if is_adm: result["uses_remaining"] = 9999
         elif email:
@@ -646,6 +711,9 @@ async def generate(request: Request):
             result["uses_remaining"] = max(0, 3-(await check_free_limit(request)+1))
         asyncio.create_task(set_generation_cache(topic,niche,result))
         return JSONResponse(result)
+    except asyncio.TimeoutError:
+        logger.error("/generate timeout after 20s")
+        return JSONResponse({"error":"AI is taking too long. Please try again."},status_code=504)
     except json.JSONDecodeError:
         return JSONResponse({"error":"AI returned invalid response. Try again."},status_code=500)
     except Exception as e:
