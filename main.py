@@ -820,7 +820,7 @@ async def generate_image(request: Request):
             )
         # Use Gemini Imagen 3
         import base64 as _b64
-        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key={GEMINI_API_KEY}"
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={GEMINI_API_KEY}"
         payload = {
             "instances": [{"prompt": img_prompt[:2000]}],
             "parameters": {"sampleCount": 1, "aspectRatio": "16:9", "personGeneration": "allow_adult"}
