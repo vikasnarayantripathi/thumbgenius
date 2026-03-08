@@ -109,7 +109,7 @@ app.add_middleware(
 
 templates  = Jinja2Templates(directory="templates")
 client     = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=1, timeout=20.0)
-_http_redis = httpx.AsyncClient(timeout=5.0)
+_http_redis = httpx.AsyncClient(timeout=5.0, verify=False)
 _http_sb    = httpx.AsyncClient(timeout=10.0)
 
 # ══════════════════════════════════════════════════════════════════════════════
