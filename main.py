@@ -7,6 +7,7 @@ YouTube Packaging Intelligence Platform
 """
 
 from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -797,15 +798,14 @@ async def generate_image(request: Request):
     concept = str(data.get("concept","")).strip()
     overlay = str(data.get("text_overlay","")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
-    import secrets
-    job_id = secrets.token_urlsafe(16)
-    await redis_set(f"imgjob:{job_id}", "pending", ex=300)
-    async def do_generate():
+
+    async def generate_stream():
+        import json as _j
         try:
             overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
             img_prompt = (
                 f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
-                f"Style: MrBeast/top YouTuber quality — extremely eye-catching, high production value. "
+                f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
                 f"Scene: {concept}. "
                 f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
                 f"deep shadows and bright highlights for maximum contrast. "
@@ -820,12 +820,15 @@ async def generate_image(request: Request):
                     f"Text style: massive bold Impact font, white letters with thick black outline. "
                     f"Spell EXACTLY: {overlay_spelled}."
                 )
-            response = await client.images.generate(
+            task = asyncio.create_task(client.images.generate(
                 model="dall-e-3",
                 prompt=img_prompt[:4000],
-                size="1792x1024", quality="hd", n=1)
+                size="1792x1024", quality="hd", n=1))
+            while not task.done():
+                yield b"data: ping\n\n"
+                await asyncio.sleep(2)
+            response = await task
             url = response.data[0].url
-            await redis_set(f"imgjob:{job_id}", f"done:{url}", ex=300)
             if not is_adm:
                 if email:
                     asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":url}))
@@ -834,12 +837,16 @@ async def generate_image(request: Request):
                     img_key2 = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
                     cnt2 = await redis_incr(img_key2)
                     if cnt2 == 1: await redis_expire(img_key2, 30*24*3600)
+            remaining = 9999 if is_adm else max(0, limit-used-1)
+            result = _j.dumps({"image_url": url, "images_remaining": remaining})
+            yield f"data: {result}\n\n".encode()
         except Exception as e:
-            logger.error(f"bg image gen error: {e}")
-            await redis_set(f"imgjob:{job_id}", f"error:{str(e)[:200]}", ex=300)
-    asyncio.create_task(do_generate())
-    remaining = 9999 if is_adm else max(0, limit-used-1)
-    return JSONResponse({"job_id": job_id, "images_remaining": remaining})
+            logger.error(f"/generate-image stream error: {e}")
+            import json as _j2
+            yield f"data: {_j2.dumps({'error': str(e)})}\n\n".encode()
+
+    return StreamingResponse(generate_stream(), media_type="text/event-stream")
+
 
 @app.get("/image-status/{job_id}")
 async def image_status(job_id: str):
