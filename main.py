@@ -820,7 +820,7 @@ async def generate_image(request: Request):
             )
         response = await client.images.generate(
             model="dall-e-2",
-            prompt=img_prompt,
+            prompt=img_prompt[:1000],
             size="1024x1024", n=1)
         if not is_adm:
             if email: asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":response.data[0].url})); asyncio.create_task(invalidate_plan_cache(email))
