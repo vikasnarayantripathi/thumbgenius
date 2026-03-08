@@ -91,7 +91,7 @@ class CSPMiddleware(BaseHTTPMiddleware):
             "font-src 'self' https://fonts.gstatic.com; "
             "img-src 'self' data: blob: https://oaidalleapiprodscus.blob.core.windows.net "
                 "https://*.openai.com https://*.blob.core.windows.net; "
-            "connect-src 'self' https://api.openai.com https://api.razorpay.com "
+            "connect-src 'self' https://api.openai.com https://oaidalleapiprodscus.blob.core.windows.net https://api.razorpay.com "
                 "https://lumberjack.razorpay.com https://jfestnbagyjrpoczhxbw.supabase.co; "
             "frame-src https://api.razorpay.com https://checkout.razorpay.com; "
             "object-src 'none';"
