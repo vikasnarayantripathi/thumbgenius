@@ -157,6 +157,44 @@ SB_HEADERS = {
     "Prefer": "return=representation",
 }
 
+
+async def redis_del(key):
+    try:
+        await _http_redis.get(
+            f"{UPSTASH_REDIS_REST_URL}/del/{key}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
+    except Exception as e:
+        logger.warning(f"Redis DEL error: {e}")
+
+async def get_user_plan(email: str) -> dict:
+    if not email:
+        return {"plan": "free"}
+    cached = await redis_get(f"plan:{email}")
+    if cached:
+        try:
+            import json as _j
+            return _j.loads(cached)
+        except Exception:
+            pass
+    try:
+        headers = {"apikey": SUPABASE_ANON_KEY, "Authorization": f"Bearer {SUPABASE_ANON_KEY}"}
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}&select=*&limit=1",
+            headers=headers)
+        if r.status_code == 200:
+            rows = r.json()
+            if rows:
+                import json as _j
+                await redis_set(f"plan:{email}", _j.dumps(rows[0]), ex=300)
+                return rows[0]
+    except Exception as e:
+        logger.warning(f"get_user_plan error: {e}")
+    return {"plan": "free"}
+
+async def invalidate_plan_cache(email: str):
+    if email:
+        await redis_del(f"plan:{email}")
+
 async def sb_get_user(email):
     try:
         r = await _http_sb.get(f"{SUPABASE_URL}/rest/v1/users?email=eq.{email}&select=*", headers=SB_HEADERS)
