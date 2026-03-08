@@ -2547,7 +2547,7 @@ async function generateImage(){
         const data = await res.json();
         if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
         if(data.error){alert(data.error);return;}
-        const imgUrl = '/image-data/' + data.image_id;
+        const imgUrl = 'data:image/png;base64,' + data.image_b64;
         document.getElementById('thumbnailImg').src = imgUrl;
         document.getElementById('downloadBtn').href = imgUrl;
         document.getElementById('imgResult').style.display='block';
