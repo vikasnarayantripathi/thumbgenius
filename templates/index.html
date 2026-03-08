@@ -1036,6 +1036,42 @@
   display:none;line-height:1.5;}
 .stripe-note.show{display:block;}
 
+
+/* ── Hero stat strip ── */
+.hero-stats-strip{display:flex;align-items:center;gap:0;margin:14px 0 4px;flex-wrap:wrap;gap:8px 0;}
+.hstat{display:flex;flex-direction:column;align-items:center;padding:0 18px;}
+.hstat:first-child{padding-left:0;}
+.hstat-num{font-size:22px;font-weight:900;color:var(--yellow);line-height:1;}
+.hstat-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+.hstat-div{width:1px;height:32px;background:var(--border);}
+
+/* ── Blueprint callout section ── */
+.blueprint-callout{padding:48px 40px;background:linear-gradient(135deg,rgba(255,224,54,.04),rgba(139,133,255,.04));
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.bc-inner{max-width:860px;margin:0 auto;text-align:center;}
+.bc-badge{display:inline-block;background:rgba(255,92,0,.12);border:1px solid rgba(255,92,0,.3);
+  color:#FF5C00;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 14px;border-radius:99px;margin-bottom:16px;}
+.bc-title{font-size:clamp(20px,3vw,28px);font-weight:800;color:var(--white);line-height:1.3;margin-bottom:12px;}
+.bc-sub{font-size:14px;color:var(--dim);line-height:1.7;max-width:640px;margin:0 auto 24px;}
+.bc-steps{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:28px;}
+.bc-step{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:600;color:var(--white);}
+.bc-step-n{width:22px;height:22px;border-radius:50%;background:var(--yellow);color:#000;
+  font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bc-arrow{font-size:18px;color:var(--dim);}
+.bc-btn{background:var(--yellow);color:#000;border:none;border-radius:12px;
+  padding:14px 32px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;
+  letter-spacing:.02em;transition:all .15s;}
+.bc-btn:hover{opacity:.9;transform:translateY(-1px);}
+@media(max-width:600px){
+  .blueprint-callout{padding:36px 20px;}
+  .bc-steps{gap:8px;}
+  .bc-arrow{display:none;}
+  .hstat-div{display:none;}
+  .hstat{padding:0 12px;}
+}
+
 </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
@@ -1182,13 +1218,22 @@ function showPage(p){
 <div class="page active" id="page-home">
 <section class="hero">
     <div class="hero-left">
-        <div class="hero-tag"><span class="pulse"></span>YouTube Packaging Intelligence Platform</div>
+        <div class="hero-tag"><span class="pulse"></span>AI YouTube CTR Optimizer — Thumbnails · Titles · Blueprint</div>
+        <div class="hero-stats-strip">
+            <div class="hstat"><span class="hstat-num">2×</span><span class="hstat-label">avg CTR lift</span></div>
+            <div class="hstat-div"></div>
+            <div class="hstat"><span class="hstat-num">7</span><span class="hstat-label">score dimensions</span></div>
+            <div class="hstat-div"></div>
+            <div class="hstat"><span class="hstat-num">24</span><span class="hstat-label">niches covered</span></div>
+            <div class="hstat-div"></div>
+            <div class="hstat"><span class="hstat-num">3</span><span class="hstat-label">languages</span></div>
+        </div>
         <h1 class="hero-h1">
-            <span>Your thumbnail</span><br>
-            <span class="word-thumb">is your</span><br>
-            <span class="word-click">ad.</span>
+            <span>Double your</span><br>
+            <span class="word-thumb">YouTube</span><br>
+            <span class="word-click">CTR.</span>
         </h1>
-        <p class="hero-p">Most creators lose views before their video even plays. ThumbGenius helps you engineer thumbnails that stop the scroll, signal the right emotion, and convert impressions into clicks — with data-backed titles, AI images, and CTR prediction built in.</p>
+        <p class="hero-p">Most creators lose views before their video even plays. ThumbGenius analyzes, scores, and engineers your thumbnail + title into a click-magnet — with AI-generated images, CTR prediction, and a Viral Blueprint built in. <strong style="color:rgba(255,224,54,0.9)">Paste any YouTube link and instantly see how to improve it.</strong></p>
         <div class="hero-form">
             <div class="input-wrap">
                 <span class="input-icon">&#x1F3AC;</span>
@@ -1227,9 +1272,9 @@ function showPage(p){
                 <div class="lang-chip" id="langHi" onclick="setLanguage('hindi',this)"><span class="lang-chip-flag">🇮🇳</span> हिंदी</div>
                 <div class="lang-chip" id="langHn" onclick="setLanguage('hinglish',this)"><span class="lang-chip-flag">🎭</span> Hinglish</div>
             </div>
-            <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate Packaging Intelligence</button>
+            <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate My Thumbnail & Titles</button>
             <div class="form-footer">
-                <div class="free-badge"><span class="dot">&#x25CF;</span> <span id="freeBadgeText">3 free runs &middot; no signup needed</span></div>
+                <div class="free-badge"><span class="dot">&#x25CF;</span> <span id="freeBadgeText">Free to try &middot; no signup &middot; instant results</span></div>
                 <div id="usesLeft"><strong>3</strong> remaining</div>
             </div>
         </div>
@@ -1369,6 +1414,22 @@ id="results">
     </div>
 </div>
 
+<section class="blueprint-callout">
+    <div class="bc-inner">
+        <div class="bc-badge">🔥 Most Powerful Feature</div>
+        <div class="bc-title">Paste any YouTube link → Instantly clone &amp; improve its thumbnail</div>
+        <div class="bc-sub">The Viral Blueprint reverse-engineers any top-performing thumbnail — breaking down emotion, composition, color contrast, and text hook — then generates improved variations for your own video.</div>
+        <div class="bc-steps">
+            <div class="bc-step"><span class="bc-step-n">1</span> Paste a YouTube URL</div>
+            <div class="bc-arrow">→</div>
+            <div class="bc-step"><span class="bc-step-n">2</span> Get a 7-dimension score</div>
+            <div class="bc-arrow">→</div>
+            <div class="bc-step"><span class="bc-step-n">3</span> Generate improved variants</div>
+        </div>
+        <button class="bc-btn" onclick="showPage('blueprint')">Try Viral Blueprint →</button>
+    </div>
+</section>
+
 <section class="hiw">
     <div class="section-kicker">How It Works</div>
     <div class="section-h">From topic to<br><em>publish-ready.</em></div>
@@ -1463,7 +1524,7 @@ id="results">
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:hello@thumbgenius.in"><span class="__cf_email__" data-cfemail="137b767f7f7c53677b667e7174767d7a66603d7a7d">[email&#160;protected]</span></a>
+    <a href="mailto:hello@thumbgenius.in">hello@thumbgenius.in</a>
 </footer>
 </div>
 
