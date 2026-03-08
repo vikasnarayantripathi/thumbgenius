@@ -4218,53 +4218,81 @@ function dashRenderUsageBars(data) {
         return '<div class="usage-row"><span class="usage-icon">'+it.icon+'</span><span class="usage-label">'+it.label+'</span><div class="usage-bar-wrap"><div class="usage-bar-fill '+bCls+'" style="width:'+pct+'%;background:'+it.color+'"></div></div><span class="usage-count">'+cnt+'</span></div>';
     }).join('');
 }
+
+
+
+
+
+
 async function loadDashboard() {
-    var email   = localStorage.getItem('tg_email')      || '';
-    var admin   = localStorage.getItem('tg_admin_code') || '';
-    var noEmail = document.getElementById('dashNoEmail');
-    var content = document.getElementById('dashContent');
-    var loading = document.getElementById('dashLoading');
+    var email = localStorage.getItem('tg_email') || '';
+    var admin = localStorage.getItem('tg_admin_code') || '';
+    var noEmail   = document.getElementById('dashNoEmail');
+    var content   = document.getElementById('dashContent');
+    var loading   = document.getElementById('dashLoading');
+
     if (!email && !admin) {
-        if (loading) loading.style.display='none';
-        if (noEmail) noEmail.style.display='block';
-        if (content) content.style.display='none';
+        if (loading) loading.style.display = 'none';
+        if (noEmail) noEmail.style.display = 'block';
         return;
     }
-    if (loading) loading.style.display='block';
-    if (content) content.style.display='none';
-    if (noEmail) noEmail.style.display='none';
+    if (loading)  loading.style.display  = 'block';
+    if (content)  content.style.display  = 'none';
+    if (noEmail)  noEmail.style.display  = 'none';
+
     try {
-        var resp = await fetch('/user/usage',{headers:{'X-User-Email':email,'X-Admin-Code':admin}});
-        if (!resp.ok) throw new Error('fetch failed');
-        var data = await resp.json();
-        _usageCache = data;
-        if (loading) loading.style.display='none';
-        if (content) content.style.display='block';
-        dashRenderCredits(data);
-        dashRenderUsageBars(data);
-        dashRenderIntelligence(data);
-        dashRenderRecentActivity();
-        var emailEl=document.getElementById('dashEmail');
-        var planEl =document.getElementById('dashPlanLabel');
-        if (emailEl) emailEl.textContent=(data.email==='admin')?'Admin':(data.email||'—');
-        if (planEl)  planEl.textContent=(data.plan||'free').toUpperCase();
-        _dashScoreHistory=JSON.parse(localStorage.getItem('tg_score_history')||'[]');
-        if (_dashScoreHistory.length) {
-            var last=_dashScoreHistory[_dashScoreHistory.length-1];
-            dashUpdateProgress(last.score);
-            var curEl=document.getElementById('dashProgCurrent');
-            if(curEl){curEl.textContent=last.score; curEl.style.color=last.score>=80?'#43E97B':last.score>=60?'#FFE036':'#FF6584';}
+        var res  = await fetch('/user/usage', { method:'GET', headers: getHeaders() });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+
+        if (loading)  loading.style.display  = 'none';
+        if (content)  content.style.display  = 'block';
+
+        var plan   = data.plan   || 'free';
+        var used   = data.used   || {};
+        var limits = data.limits || {};
+
+        // Plan badge
+        var planBadge = document.getElementById('dashPlanBadge');
+        if (planBadge) {
+            planBadge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
+            planBadge.className = 'dash-plan-badge ' + plan;
         }
+
+        // Email
+        var emailEl = document.getElementById('dashEmail');
+        if (emailEl) emailEl.textContent = email || 'Admin';
+
+        // Usage bars
+        dashRenderUsageBars(used, limits);
+
+        // Credits bar
+        dashRenderCredits(used, limits, plan);
+
+        // Recent intelligence (history)
+        dashRenderRecentActivity();
+
+        // Intelligence tips
+        dashRenderIntelligence(plan);
+
+        // Score from history
+        dashRenderScore();
+
+        // Progress
+        dashUpdateProgress(used, limits, plan);
+
         updateNavBar(data);
+
     } catch(e) {
-        if (loading) loading.style.display='none';
+        if (loading) loading.style.display = 'none';
         if (noEmail) {
             noEmail.style.display = 'block';
             var h3 = noEmail.querySelector('h3');
-            if (h3) h3.textContent = '⚠️ Could not load dashboard.';
+            if (h3) h3.textContent = '⚠️ Could not load dashboard. Check your connection.';
         }
     }
 }
+
 </script>
 
 </body>
