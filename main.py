@@ -820,17 +820,17 @@ async def generate_image(request: Request):
             )
         # Use Gemini Imagen 3
         import base64 as _b64
-        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key={GEMINI_API_KEY}"
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GEMINI_API_KEY}"
         payload = {
-            "contents": [{"parts": [{"text": img_prompt[:2000]}]}],
-            "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
+            "instances": [{"prompt": img_prompt[:2000]}],
+            "parameters": {"sampleCount": 1, "aspectRatio": "16:9", "personGeneration": "allow_adult"}
         }
         async with httpx.AsyncClient(timeout=25.0) as hc:
             r = await hc.post(gemini_url, json=payload)
         if r.status_code != 200:
             raise Exception(f"Imagen API error: {r.status_code} {r.text[:200]}")
         rdata = r.json()
-        img_b64 = rdata["candidates"][0]["content"]["parts"][0]["inlineData"]["data"]
+        img_b64 = rdata["predictions"][0]["bytesBase64Encoded"]
         img_bytes = _b64.b64decode(img_b64)
         # Store in Redis temporarily (5 min)
         import secrets as _sec
