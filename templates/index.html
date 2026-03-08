@@ -2543,40 +2543,16 @@ async function generateImage(){
     document.getElementById('imgUpgrade').style.display='none';
     document.getElementById('imageBtn').disabled=true;
     try{
-        await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/generate-image');
-            const hdrs = getHeaders();
-            Object.keys(hdrs).forEach(k => xhr.setRequestHeader(k, hdrs[k]));
-            xhr.setRequestHeader('Content-Type','application/json');
-            let buffer = '';
-            xhr.onprogress = () => {
-                buffer += xhr.responseText.substring(xhr.responseText.lastIndexOf('data:'));
-                const lines = xhr.responseText.split('\n');
-                for(const line of lines){
-                    if(!line.startsWith('data:')) continue;
-                    const raw = line.slice(5).trim();
-                    if(raw === 'ping') continue;
-                    try{
-                        const d = JSON.parse(raw);
-                        if(d.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';resolve();return;}
-                        if(d.error){alert(d.error);resolve();return;}
-                        if(d.image_url){
-                            const proxyUrl='/proxy-image?url='+encodeURIComponent(d.image_url);
-                            document.getElementById('thumbnailImg').src=proxyUrl;
-                            document.getElementById('downloadBtn').href=proxyUrl;
-                            document.getElementById('imgResult').style.display='block';
-                            renderImgTitleChips();
-                            if(d.images_remaining!==undefined){const n=d.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
-                            resolve();
-                        }
-                    }catch(e){}
-                }
-            };
-            xhr.onerror = () => reject(new Error('Stream failed'));
-            xhr.onload = () => resolve();
-            xhr.send(JSON.stringify({concept:lastConcept,text_overlay:lastTextOverlay,niche:selectedNiche}));
-        });
+                const res = await fetch('/generate-image', {method:'POST', headers:getHeaders(), body:JSON.stringify({concept:lastConcept, text_overlay:lastTextOverlay, niche:selectedNiche})});
+        const data = await res.json();
+        if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
+        if(data.error){alert(data.error);return;}
+        const imgUrl = '/image-data/' + data.image_id;
+        document.getElementById('thumbnailImg').src = imgUrl;
+        document.getElementById('downloadBtn').href = imgUrl;
+        document.getElementById('imgResult').style.display='block';
+        renderImgTitleChips();
+        if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
     }catch(e){alert('Image generation failed. Please try again.');}
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
 }

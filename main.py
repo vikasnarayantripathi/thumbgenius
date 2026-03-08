@@ -798,54 +798,66 @@ async def generate_image(request: Request):
     concept = str(data.get("concept","")).strip()
     overlay = str(data.get("text_overlay","")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
-
-    async def generate_stream():
-        import json as _j
-        try:
-            overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
-            img_prompt = (
-                f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
-                f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
-                f"Scene: {concept}. "
-                f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
-                f"deep shadows and bright highlights for maximum contrast. "
-                f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
-                f"Mood: exciting, urgent, curiosity-inducing. "
-                f"Quality: photorealistic 8K, sharp details, professional color grading. "
-                f"No watermarks, no borders, no text unless specified below. "
+    try:
+        overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
+        img_prompt = (
+            f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
+            f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
+            f"Scene: {concept}. "
+            f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
+            f"deep shadows and bright highlights for maximum contrast. "
+            f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
+            f"Mood: exciting, urgent, curiosity-inducing. "
+            f"Quality: photorealistic 8K, sharp details, professional color grading. "
+            f"No watermarks, no borders, no text unless specified below. "
+        )
+        if overlay:
+            img_prompt += (
+                f"Add this exact text as bold overlay: '{overlay}'. "
+                f"Text style: massive bold Impact font, white letters with thick black outline. "
+                f"Spell EXACTLY: {overlay_spelled}."
             )
-            if overlay:
-                img_prompt += (
-                    f"Add this exact text as bold overlay: '{overlay}'. "
-                    f"Text style: massive bold Impact font, white letters with thick black outline. "
-                    f"Spell EXACTLY: {overlay_spelled}."
-                )
-            task = asyncio.create_task(client.images.generate(
-                model="dall-e-3",
-                prompt=img_prompt[:4000],
-                size="1792x1024", quality="hd", n=1))
-            while not task.done():
-                yield b"data: ping\n\n"
-                await asyncio.sleep(2)
-            response = await task
-            url = response.data[0].url
-            if not is_adm:
-                if email:
-                    asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":url}))
-                    asyncio.create_task(invalidate_plan_cache(email))
-                else:
-                    img_key2 = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
-                    cnt2 = await redis_incr(img_key2)
-                    if cnt2 == 1: await redis_expire(img_key2, 30*24*3600)
-            remaining = 9999 if is_adm else max(0, limit-used-1)
-            result = _j.dumps({"image_url": url, "images_remaining": remaining})
-            yield f"data: {result}\n\n".encode()
-        except Exception as e:
-            logger.error(f"/generate-image stream error: {e}")
-            import json as _j2
-            yield f"data: {_j2.dumps({'error': str(e)})}\n\n".encode()
+        # Use Gemini Imagen 3
+        import base64 as _b64
+        gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key={GEMINI_API_KEY}"
+        payload = {
+            "instances": [{"prompt": img_prompt[:2000]}],
+            "parameters": {"sampleCount": 1, "aspectRatio": "16:9", "personGeneration": "allow_adult"}
+        }
+        async with httpx.AsyncClient(timeout=25.0) as hc:
+            r = await hc.post(gemini_url, json=payload)
+        if r.status_code != 200:
+            raise Exception(f"Imagen API error: {r.status_code} {r.text[:200]}")
+        rdata = r.json()
+        img_b64 = rdata["predictions"][0]["bytesBase64Encoded"]
+        img_bytes = _b64.b64decode(img_b64)
+        # Store in Redis temporarily (5 min)
+        import secrets as _sec
+        img_id = _sec.token_urlsafe(12)
+        await redis_set(f"img_data:{img_id}", img_b64, ex=300)
+        if not is_adm:
+            if email:
+                asyncio.create_task(sb_update_user(email,{"images_used":used+1}))
+                asyncio.create_task(invalidate_plan_cache(email))
+            else:
+                img_key2 = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
+                cnt2 = await redis_incr(img_key2)
+                if cnt2 == 1: await redis_expire(img_key2, 30*24*3600)
+        remaining = 9999 if is_adm else max(0, limit-used-1)
+        return JSONResponse({"image_id": img_id, "images_remaining": remaining})
+    except Exception as e:
+        logger.error(f"/generate-image error: {e}")
+        return JSONResponse({"error": str(e)[:200]}, status_code=500)
 
-    return StreamingResponse(generate_stream(), media_type="text/event-stream")
+@app.get("/image-data/{img_id}")
+async def image_data(img_id: str):
+    img_b64 = await redis_get(f"img_data:{img_id}")
+    if not img_b64:
+        return JSONResponse({"error": "Image expired or not found"}, status_code=404)
+    import base64 as _b64
+    img_bytes = _b64.b64decode(img_b64)
+    from fastapi.responses import Response
+    return Response(content=img_bytes, media_type="image/png")
 
 
 @app.get("/image-status/{job_id}")
