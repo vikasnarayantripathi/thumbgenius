@@ -832,10 +832,6 @@ async def generate_image(request: Request):
         rdata = r.json()
         img_b64 = rdata["predictions"][0]["bytesBase64Encoded"]
         img_bytes = _b64.b64decode(img_b64)
-        # Store in Redis temporarily (5 min)
-        import secrets as _sec
-        img_id = _sec.token_urlsafe(12)
-        await redis_set(f"img_data:{img_id}", img_b64, ex=300)
         if not is_adm:
             if email:
                 asyncio.create_task(sb_update_user(email,{"images_used":used+1}))
@@ -845,7 +841,7 @@ async def generate_image(request: Request):
                 cnt2 = await redis_incr(img_key2)
                 if cnt2 == 1: await redis_expire(img_key2, 30*24*3600)
         remaining = 9999 if is_adm else max(0, limit-used-1)
-        return JSONResponse({"image_id": img_id, "images_remaining": remaining})
+        return JSONResponse({"image_b64": img_b64, "images_remaining": remaining})
     except Exception as e:
         logger.error(f"/generate-image error: {e}")
         return JSONResponse({"error": str(e)[:200]}, status_code=500)
