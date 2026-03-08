@@ -59,6 +59,11 @@ def is_admin(code: str) -> bool:
 async def lifespan(app: FastAPI):
     logger.info("ThumbGenius v4.0 — Packaging Intelligence Platform starting...")
     yield
+    try:
+        await _http_redis.aclose()
+        await _http_sb.aclose()
+    except Exception:
+        pass
 
 app = FastAPI(lifespan=lifespan)
 
@@ -90,8 +95,10 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-User-Email", "X-Admin-Code"],
 )
 
-templates = Jinja2Templates(directory="templates")
-client    = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=1, timeout=20.0)
+templates  = Jinja2Templates(directory="templates")
+client     = AsyncOpenAI(api_key=OPENAI_API_KEY, max_retries=1, timeout=20.0)
+_http_redis = httpx.AsyncClient(timeout=5.0)
+_http_sb    = httpx.AsyncClient(timeout=10.0)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # INFRASTRUCTURE — Redis, Supabase, Helpers
