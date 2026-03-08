@@ -797,45 +797,63 @@ async def generate_image(request: Request):
     concept = str(data.get("concept","")).strip()
     overlay = str(data.get("text_overlay","")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
-    try:
-        # Spell out text character by character for DALL-E accuracy
-        overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
-        img_prompt = (
-            f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
-            f"Style: MrBeast/top YouTuber quality — extremely eye-catching, high production value. "
-            f"Scene: {concept}. "
-            f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
-            f"deep shadows and bright highlights for maximum contrast. "
-            f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
-            f"Mood: exciting, urgent, curiosity-inducing. "
-            f"Quality: photorealistic 8K, sharp details, professional color grading. "
-            f"No watermarks, no borders, no text unless specified below. "
-        )
-        if overlay:
-            img_prompt += (
-                f"Add this exact text as a bold overlay: '{overlay}'. "
-                f"Text style: massive bold Impact or Bebas Neue font, white letters with thick black outline stroke, "
-                f"slight drop shadow, positioned in lower third or center. "
-                f"Spell it EXACTLY: {overlay_spelled}. Each letter: {', '.join(list(overlay.upper()))}."
+    import secrets
+    job_id = secrets.token_urlsafe(16)
+    await redis_set(f"imgjob:{job_id}", "pending", ex=300)
+    async def do_generate():
+        try:
+            overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
+            img_prompt = (
+                f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
+                f"Style: MrBeast/top YouTuber quality — extremely eye-catching, high production value. "
+                f"Scene: {concept}. "
+                f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
+                f"deep shadows and bright highlights for maximum contrast. "
+                f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
+                f"Mood: exciting, urgent, curiosity-inducing. "
+                f"Quality: photorealistic 8K, sharp details, professional color grading. "
+                f"No watermarks, no borders, no text unless specified below. "
             )
-        response = await client.images.generate(
-            model="dall-e-2",
-            prompt=img_prompt[:1000],
-            size="1024x1024", n=1)
-        if not is_adm:
-            if email: asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":response.data[0].url})); asyncio.create_task(invalidate_plan_cache(email))
-            else:
-                img_key = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
-                cnt = await redis_incr(img_key)
-                if cnt == 1: await redis_expire(img_key, 30*24*3600)
-        return JSONResponse({"image_url":response.data[0].url,
-                             "images_remaining":9999 if is_adm else max(0,limit-used-1)})
-    except Exception as e:
-        import traceback; logger.error(f"/generate-image error: {e}\n{traceback.format_exc()}"); return JSONResponse({"error":str(e)},status_code=500)
+            if overlay:
+                img_prompt += (
+                    f"Add this exact text as bold overlay: '{overlay}'. "
+                    f"Text style: massive bold Impact font, white letters with thick black outline. "
+                    f"Spell EXACTLY: {overlay_spelled}."
+                )
+            response = await client.images.generate(
+                model="dall-e-3",
+                prompt=img_prompt[:4000],
+                size="1792x1024", quality="hd", n=1)
+            url = response.data[0].url
+            await redis_set(f"imgjob:{job_id}", f"done:{url}", ex=300)
+            if not is_adm:
+                if email:
+                    asyncio.create_task(sb_update_user(email,{"images_used":used+1,"last_image_url":url}))
+                    asyncio.create_task(invalidate_plan_cache(email))
+                else:
+                    img_key2 = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
+                    cnt2 = await redis_incr(img_key2)
+                    if cnt2 == 1: await redis_expire(img_key2, 30*24*3600)
+        except Exception as e:
+            logger.error(f"bg image gen error: {e}")
+            await redis_set(f"imgjob:{job_id}", f"error:{str(e)[:200]}", ex=300)
+    asyncio.create_task(do_generate())
+    remaining = 9999 if is_adm else max(0, limit-used-1)
+    return JSONResponse({"job_id": job_id, "images_remaining": remaining})
 
-# ══════════════════════════════════════════════════════════════════════════════
-# MODULE 1 — THUMBNAIL INTELLIGENCE ANALYZER
-# ══════════════════════════════════════════════════════════════════════════════
+@app.get("/image-status/{job_id}")
+async def image_status(job_id: str):
+    val = await redis_get(f"imgjob:{job_id}")
+    if not val:
+        return JSONResponse({"status":"not_found"}, status_code=404)
+    if val == "pending":
+        return JSONResponse({"status":"pending"})
+    if val.startswith("done:"):
+        return JSONResponse({"status":"done","image_url":val[5:]})
+    if val.startswith("error:"):
+        return JSONResponse({"status":"error","message":val[6:]})
+    return JSONResponse({"status":"pending"})
+
 
 @app.post("/analyze-thumbnail")
 async def analyze_thumbnail(request: Request):

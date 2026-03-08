@@ -2547,11 +2547,36 @@ async function generateImage(){
         const data=await res.json();
         if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
         if(data.error){alert(data.error);return;}
-        document.getElementById('thumbnailImg').src=data.image_url;
-        fetch(data.image_url).then(r=>r.blob()).then(blob=>{const u=URL.createObjectURL(blob);document.getElementById('downloadBtn').href=u;}).catch(()=>{document.getElementById('downloadBtn').href=data.image_url;});
-        document.getElementById('imgResult').style.display='block';
-        renderImgTitleChips();
-        if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
+        // Poll for result
+        const jobId=data.job_id;
+        const loadEl=document.getElementById('imgLoading');
+        let dots=0;
+        const pollInterval=setInterval(async()=>{
+            dots=(dots+1)%4;
+            if(loadEl) loadEl.querySelector('p') && (loadEl.querySelector('p').textContent='Generating your HD thumbnail'+'.'.repeat(dots+1));
+            try{
+                const pr=await fetch('/image-status/'+jobId,{headers:getHeaders()});
+                const pd=await pr.json();
+                if(pd.status==='done'){
+                    clearInterval(pollInterval);
+                    const imgUrl=pd.image_url;
+                    const proxyUrl='/proxy-image?url='+encodeURIComponent(imgUrl);
+                    document.getElementById('thumbnailImg').src=proxyUrl;
+                    document.getElementById('downloadBtn').href=proxyUrl;
+                    document.getElementById('imgResult').style.display='block';
+                    renderImgTitleChips();
+                    if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
+                    document.getElementById('imgLoading').style.display='none';
+                    document.getElementById('imageBtn').disabled=false;
+                } else if(pd.status==='error'){
+                    clearInterval(pollInterval);
+                    alert('Image generation failed: '+(pd.message||'Unknown error'));
+                    document.getElementById('imgLoading').style.display='none';
+                    document.getElementById('imageBtn').disabled=false;
+                }
+            }catch(e){clearInterval(pollInterval);alert('Polling failed.');}
+        },2000);
+        return; // finally block will not hide loading — polling handles it
     }catch(e){alert('Image generation failed. Please try again.');}
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
 }
