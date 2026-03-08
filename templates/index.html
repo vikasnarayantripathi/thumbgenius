@@ -2473,8 +2473,8 @@ async function generate(){
         clearInterval(stepTimer);
         const data=await res.json();
         if(data.error==='free_limit_reached'||data.error==='limit_reached'){
-            document.getElementById('upgradeBanner').style.display='block';
-            document.getElementById('upgradeBanner').scrollIntoView({behavior:'smooth',block:'center'});
+            var _ub=document.getElementById('upgradeBanner');if(_ub)_ub.style.display='block';
+            if(_ub)_ub.scrollIntoView({behavior:'smooth',block:'center'});
             return;
         }
         if(data.error){alert(data.error);return;}
@@ -2497,10 +2497,10 @@ async function generate(){
         lastConcept=th.background+'. Face expression: '+th.face_expression;
         lastTextOverlay=th.text_overlay;
         lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
-        document.getElementById('imgResult').style.display='none';
-        document.getElementById('imgUpgrade').style.display='none';
-        document.getElementById('imgLoading').style.display='none';
-        document.getElementById('imageBtn').disabled=false;
+        var _ir=document.getElementById('imgResult');if(_ir)_ir.style.display='none';
+        var _iu=document.getElementById('imgUpgrade');if(_iu)_iu.style.display='none';
+        var _il=document.getElementById('imgLoading');if(_il)_il.style.display='none';
+        var _ib=document.getElementById('imageBtn');if(_ib)_ib.disabled=false;
         document.getElementById('hook').textContent=data.hook_script;
         document.getElementById('nicheTip').textContent=data.niche_tip;
         if(data.uses_remaining!==undefined)
@@ -2514,12 +2514,12 @@ async function generate(){
             document.getElementById('tagsSecondary').innerHTML=makeTags(data.tags.secondary);
             document.getElementById('tagsLongtail').innerHTML=makeTags(data.tags.longtail,'');
             document.getElementById('tagsHindi').innerHTML=makeTags(data.tags.hindi_mix,'');
-            document.getElementById('tagsBlock').style.display='block';
+            var _tb=document.getElementById('tagsBlock');if(_tb)_tb.style.display='block';
         } else {
-            document.getElementById('tagsBlock').style.display='none';
+            var _tb=document.getElementById('tagsBlock');if(_tb)_tb.style.display='none';
         }
-        document.getElementById('results').style.display='block';
-        document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+        var _rs=document.getElementById('results');if(_rs)_rs.style.display='block';
+        if(_rs)_rs.scrollIntoView({behavior:'smooth',block:'start'});
     } catch(e){
         clearTimeout(timeoutId);
         clearInterval(stepTimer);
