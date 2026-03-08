@@ -2526,7 +2526,8 @@ async function generate(){
         if(e.name==='AbortError'){
             alert('⏱️ Taking too long — AI might be busy. Please try again!');
         } else {
-            alert('Something went wrong. Please try again.');
+            console.error('GENERATE ERROR:', e, e.message, e.stack);
+            alert('Something went wrong: ' + e.message);
         }
     } finally{
         loadEl.style.display='none';
