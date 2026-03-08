@@ -2530,8 +2530,8 @@ async function generate(){
             alert('Something went wrong: ' + e.message);
         }
     } finally{
-        loadEl.style.display='none';
-        genBtn.disabled=false;
+        if(loadEl) loadEl.style.display='none';
+        if(genBtn) genBtn.disabled=false;
     }
 }
 
