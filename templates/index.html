@@ -1184,30 +1184,7 @@ function showPage(p){
         </div>
 
         <div id="promoSuccessBox" class="promo-success">
-            <!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- PATCH 2 — TWO HTML CHANGES                                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-
-
-<!-- ── CHANGE A ────────────────────────────────────────────────────────── -->
-<!-- ADD this entire block just BEFORE the opening <nav> tag                -->
-
-<div class="login-modal-overlay" id="loginModal">
-    <div class="login-modal">
-        <button class="login-modal-close" onclick="closeLoginModal()">&#x2715;</button>
-        <div style="font-size:36px;margin-bottom:12px">🔑</div>
-        <h2>Log In to ThumbGenius</h2>
-        <p>Enter your email and we'll send you a magic login link.<br>No password needed.</p>
-        <input type="email" class="login-modal-input" id="loginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendLoginLink()" />
-        <button class="login-modal-btn" id="loginBtn" onclick="sendLoginLink()">Send Login Link →</button>
-        <div class="login-modal-msg" id="loginMsg"></div>
-        <div class="login-modal-divider">or</div>
-        <p style="font-size:13px;color:rgba(255,255,255,0.3)">New here? <a href="#" onclick="closeLoginModal();openPaymentModal()" style="color:#FFE036;text-decoration:none">Start for free →</a></p>
-    </div>
-</div>
-
-<button class="btn-login-nav" id="navLoginBtn" onclick="openLoginModal()">Login</button>
-<button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
+            
 
             <p>&#x1F389; Access Code Activated!</p>
             <p id="promoSuccessMsg">You now have Creator Plan access</p>
@@ -1232,14 +1209,7 @@ function showPage(p){
         </div>
     </div>
 </div>
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-<!-- PATCH 2 — TWO HTML CHANGES                                             -->
-<!-- ═══════════════════════════════════════════════════════════════════════ -->
-
-
-<!-- ── CHANGE A ────────────────────────────────────────────────────────── -->
-<!-- ADD this entire block just BEFORE the opening <nav> tag                -->
-
+<!-- ── Login Modal ──────────────────────────────────────────────────────── -->
 <div class="login-modal-overlay" id="loginModal">
     <div class="login-modal">
         <button class="login-modal-close" onclick="closeLoginModal()">&#x2715;</button>
@@ -1254,14 +1224,6 @@ function showPage(p){
     </div>
 </div>
 
-
-<!-- ── CHANGE B ────────────────────────────────────────────────────────── -->
-<!-- FIND this line in <nav>:                                                -->
-<!--   <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button> -->
-<!-- REPLACE with:                                                           -->
-
-<button class="btn-login-nav" id="navLoginBtn" onclick="openLoginModal()">Login</button>
-<button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
 <nav>
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
