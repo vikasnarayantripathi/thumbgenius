@@ -233,6 +233,15 @@ async def sb_get_user_by_token(token):
     except Exception as e:
         logger.error(f"sb_get_user_by_token: {e}"); return None
 
+async def sb_get_user_by_login_token(token):
+    try:
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?login_token=eq.{token}&select=*",
+            headers=SB_HEADERS)
+        d = r.json(); return d[0] if d else None
+    except Exception as e:
+        logger.error(f"sb_get_user_by_login_token: {e}"); return None
+
 async def sb_get_user_by_subscription(sub_id):
     try:
         r = await _http_sb.get(
@@ -320,6 +329,30 @@ async def send_magic_link(email, token, plan):
         logger.info(f"Magic link sent to {email}")
     except Exception as e:
         logger.error(f"Email send error: {e}")
+
+async def send_login_link_email(email, token):
+    login_url = f"{APP_URL}/activate?login_token={token}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post("https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "from": f"ThumbGenius <{FROM_EMAIL}>",
+                    "to": [email],
+                    "subject": "🔑 Your ThumbGenius Login Link",
+                    "html": f"""<div style="font-family:Arial;max-width:600px;margin:0 auto;background:#02020A;color:#fff;padding:40px;border-radius:12px;">
+                        <h1 style="color:#FDE036">ThumbGenius</h1>
+                        <p style="color:#aaa">YouTube Packaging Intelligence Platform</p>
+                        <h2>Your Login Link 🔑</h2>
+                        <p style="color:#ccc">Click below to log in to your account. No password needed.</p>
+                        <a href="{login_url}" style="display:inline-block;background:#FDE036;color:#02020A;font-weight:bold;font-size:18px;padding:16px 40px;border-radius:8px;text-decoration:none;margin:24px 0;">Log In to ThumbGenius →</a>
+                        <p style="color:#666;font-size:14px">This link expires in 15 minutes. If you didn't request this, ignore this email.</p>
+                        <p style="color:#444;font-size:12px">ThumbGenius · thumbgenius.in</p>
+                    </div>"""
+                })
+        logger.info(f"Login link sent to {email}")
+    except Exception as e:
+        logger.error(f"Login email send error: {e}")
 
 async def create_razorpay_subscription(plan, email):
     plan_id = RAZORPAY_CREATOR_PLAN_ID if plan == "creator" else RAZORPAY_PRO_PLAN_ID
@@ -591,22 +624,85 @@ async def subscribe(request: Request):
                          "plan": plan, "email": email,
                          "amount": 74900 if plan == "creator" else 144900})
 
-# ─── Activate ─────────────────────────────────────────────────────────────────
+# ─── Send Login Link ───────────────────────────────────────────────────────────
+@app.post("/send-login-link")
+async def send_login_link(request: Request):
+    try:
+        body  = await request.json()
+        email = body.get("email", "").strip().lower()
+        if not email or "@" not in email:
+            return JSONResponse({"error": "Invalid email"}, status_code=400)
+        user = await sb_get_user(email)
+        if not user:
+            await sb_upsert_user(email, {
+                "plan": "free", "is_active": True,
+                "generations_used": 0, "images_used": 0
+            })
+        from datetime import datetime, timezone, timedelta
+        token   = secrets.token_urlsafe(32)
+        expires = (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat()
+        await sb_update_user(email, {"login_token": token, "login_token_expires": expires})
+        asyncio.create_task(send_login_link_email(email, token))
+        return JSONResponse({"ok": True})
+    except Exception as e:
+        logger.error(f"send_login_link error: {e}")
+        return JSONResponse({"error": "Server error"}, status_code=500)
+
+# ─── Activate / Login ─────────────────────────────────────────────────────────
 @app.get("/activate", response_class=HTMLResponse)
-async def activate(request: Request, token: str = ""):
+async def activate(request: Request, token: str = "", login_token: str = ""):
+
+    # ── Login link flow ──
+    if login_token:
+        from datetime import datetime, timezone
+        user = await sb_get_user_by_login_token(login_token)
+        if not user:
+            return HTMLResponse("""<!DOCTYPE html><html><head><title>Link Expired</title>
+            <style>body{font-family:Arial;background:#02020A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+            .box{text-align:center;padding:40px}h1{color:#f87171}a{background:#FFE036;color:#02020A;font-weight:bold;padding:14px 32px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:24px}</style>
+            </head><body><div class="box"><h1>🔗 Link Expired or Invalid</h1>
+            <p style="color:#aaa">This login link has already been used or has expired.</p>
+            <a href="/">Go Back & Request New Link →</a></div></body></html>""", status_code=400)
+        expires_str = user.get("login_token_expires")
+        if expires_str:
+            expires = datetime.fromisoformat(expires_str.replace("Z", "+00:00"))
+            if datetime.now(timezone.utc) > expires:
+                return HTMLResponse("""<!DOCTYPE html><html><head><title>Link Expired</title>
+                <style>body{font-family:Arial;background:#02020A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+                .box{text-align:center;padding:40px}h1{color:#f87171}a{background:#FFE036;color:#02020A;font-weight:bold;padding:14px 32px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:24px}</style>
+                </head><body><div class="box"><h1>⏰ Login Link Expired</h1>
+                <p style="color:#aaa">Login links expire after 15 minutes. Please request a new one.</p>
+                <a href="/">Go Back & Request New Link →</a></div></body></html>""", status_code=400)
+        await sb_update_user(user["email"], {"login_token": None, "login_token_expires": None})
+        await invalidate_plan_cache(user["email"])
+        plan      = user.get("plan", "free")
+        email_safe = user["email"].replace("'", "\'")
+        return HTMLResponse(f"""<!DOCTYPE html><html><head><title>Logged In!</title>
+        <style>body{{font-family:Arial;background:#02020A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}}
+        .box{{text-align:center;padding:40px}}h1{{color:#FDE036}}p{{color:#aaa}}
+        a{{background:#FDE036;color:#02020A;font-weight:bold;padding:16px 40px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:24px}}</style>
+        </head><body><div class="box"><h1>✅ Logged In!</h1>
+        <p>Welcome back, <strong style="color:#fff">{user["email"]}</strong></p>
+        <p>Plan: <strong style="color:#FFE036">{plan.upper()}</strong></p>
+        <a href="/">Start Creating →</a></div>
+        <script>localStorage.setItem('tg_email','{email_safe}');localStorage.setItem('tg_plan','{plan}');</script>
+        </body></html>""")
+
+    # ── Activation link flow (after payment) ──
     if not token: return HTMLResponse("<h1>Invalid link</h1>", status_code=400)
     user = await sb_get_user_by_token(token)
     if not user: return HTMLResponse("<h1>Link expired or invalid</h1>", status_code=400)
     await sb_update_user(user["email"], {"is_active": True, "activation_token": None,
                                           "generations_used": 0, "images_used": 0})
     await invalidate_plan_cache(user["email"])
-    plan_name = "Creator" if user["plan"] == "creator" else "Pro"
+    plan_name  = "Creator" if user["plan"] == "creator" else "Pro"
+    email_safe = user["email"].replace("'", "\'")
     return HTMLResponse(f"""<!DOCTYPE html><html><head><title>Activated!</title>
     <style>body{{font-family:Arial;background:#02020A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}}
     .box{{text-align:center;padding:40px}}h1{{color:#FDE036}}a{{background:#FDE036;color:#02020A;font-weight:bold;padding:16px 40px;border-radius:8px;text-decoration:none;display:inline-block;margin-top:24px}}</style>
     </head><body><div class="box"><h1>🎉 Activated!</h1><p>Welcome to <strong>{plan_name}</strong> Plan!</p>
     <p>{user["email"]}</p><a href="/">Start Creating →</a></div>
-    <script>localStorage.setItem('tg_email','{user["email"]}');localStorage.setItem('tg_plan','{user["plan"]}');</script>
+    <script>localStorage.setItem('tg_email','{email_safe}');localStorage.setItem('tg_plan','{user["plan"]}');</script>
     </body></html>""")
 
 # ─── Razorpay Webhook ─────────────────────────────────────────────────────────

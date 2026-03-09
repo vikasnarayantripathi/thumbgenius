@@ -1072,6 +1072,29 @@
   .hstat{padding:0 12px;}
 }
 
+/* ── LOGIN MODAL CSS ─────────────────────────────────────────────────────── */
+/* ADD THIS BLOCK just before the closing </style> tag in your index.html     */
+
+.login-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.login-modal-overlay.open{opacity:1;pointer-events:all}
+.login-modal{background:#0D0D1A;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:40px;width:100%;max-width:420px;position:relative;text-align:center}
+.login-modal h2{font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.login-modal p{color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:24px;line-height:1.6}
+.login-modal-input{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#fff;outline:none;transition:all 0.25s;box-sizing:border-box}
+.login-modal-input:focus{border-color:rgba(255,224,54,0.5);background:rgba(255,255,255,0.08)}
+.login-modal-btn{width:100%;margin-top:14px;background:#FFE036;color:#02020A;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s}
+.login-modal-btn:hover{background:#fff176}
+.login-modal-btn:disabled{opacity:0.5;cursor:not-allowed}
+.login-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.3);font-size:20px;cursor:pointer;line-height:1}
+.login-modal-close:hover{color:#fff}
+.login-modal-msg{margin-top:14px;font-size:13px;min-height:20px}
+.login-modal-msg.success{color:#4ade80}
+.login-modal-msg.error{color:#f87171}
+.login-modal-divider{margin:20px 0;color:rgba(255,255,255,0.2);font-size:12px;display:flex;align-items:center;gap:10px}
+.login-modal-divider::before,.login-modal-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.08)}
+.btn-login-nav{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:8px;padding:6px 16px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s;margin-right:8px}
+.btn-login-nav:hover{border-color:rgba(255,224,54,0.4);color:#FFE036}
+
 </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
@@ -1163,6 +1186,31 @@ function showPage(p){
         </div>
 
         <div id="promoSuccessBox" class="promo-success">
+            <!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- PATCH 2 — TWO HTML CHANGES                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+
+<!-- ── CHANGE A ────────────────────────────────────────────────────────── -->
+<!-- ADD this entire block just BEFORE the opening <nav> tag                -->
+
+<div class="login-modal-overlay" id="loginModal">
+    <div class="login-modal">
+        <button class="login-modal-close" onclick="closeLoginModal()">&#x2715;</button>
+        <div style="font-size:36px;margin-bottom:12px">🔑</div>
+        <h2>Log In to ThumbGenius</h2>
+        <p>Enter your email and we'll send you a magic login link.<br>No password needed.</p>
+        <input type="email" class="login-modal-input" id="loginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendLoginLink()" />
+        <button class="login-modal-btn" id="loginBtn" onclick="sendLoginLink()">Send Login Link →</button>
+        <div class="login-modal-msg" id="loginMsg"></div>
+        <div class="login-modal-divider">or</div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.3)">New here? <a href="#" onclick="closeLoginModal();openPaymentModal()" style="color:#FFE036;text-decoration:none">Start for free →</a></p>
+    </div>
+</div>
+
+<button class="btn-login-nav" id="navLoginBtn" onclick="openLoginModal()">Login</button>
+<button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
+
             <p>&#x1F389; Access Code Activated!</p>
             <p id="promoSuccessMsg">You now have Creator Plan access</p>
         </div>
@@ -1186,7 +1234,36 @@ function showPage(p){
         </div>
     </div>
 </div>
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- PATCH 2 — TWO HTML CHANGES                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 
+
+<!-- ── CHANGE A ────────────────────────────────────────────────────────── -->
+<!-- ADD this entire block just BEFORE the opening <nav> tag                -->
+
+<div class="login-modal-overlay" id="loginModal">
+    <div class="login-modal">
+        <button class="login-modal-close" onclick="closeLoginModal()">&#x2715;</button>
+        <div style="font-size:36px;margin-bottom:12px">🔑</div>
+        <h2>Log In to ThumbGenius</h2>
+        <p>Enter your email and we'll send you a magic login link.<br>No password needed.</p>
+        <input type="email" class="login-modal-input" id="loginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendLoginLink()" />
+        <button class="login-modal-btn" id="loginBtn" onclick="sendLoginLink()">Send Login Link →</button>
+        <div class="login-modal-msg" id="loginMsg"></div>
+        <div class="login-modal-divider">or</div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.3)">New here? <a href="#" onclick="closeLoginModal();openPaymentModal()" style="color:#FFE036;text-decoration:none">Start for free →</a></p>
+    </div>
+</div>
+
+
+<!-- ── CHANGE B ────────────────────────────────────────────────────────── -->
+<!-- FIND this line in <nav>:                                                -->
+<!--   <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button> -->
+<!-- REPLACE with:                                                           -->
+
+<button class="btn-login-nav" id="navLoginBtn" onclick="openLoginModal()">Login</button>
+<button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
 <nav>
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
@@ -1197,7 +1274,8 @@ function showPage(p){
                 <span class="nav-gen-count" id="navGenCount"></span>
             </div>
             <span class="nav-badge" id="navBadge">Packaging Intelligence Platform</span>
-            <button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
+            <button class="btn-login-nav" id="navLoginBtn" onclick="openLoginModal()">Login</button>
+<button class="nav-cta" id="navCtaBtn" onclick="openPaymentModal()">Upgrade &rarr;</button>
         </div>
     </div>
     <div class="nav-bottom">
@@ -1523,7 +1601,7 @@ function showPage(p){
 <footer>
     <div class="logo">Thumb<span>Genius</span></div>
     <p>&copy; 2025 ThumbGenius &middot; YouTube Packaging Intelligence Platform</p>
-    <a href="mailto:hello@thumbgenius.in">hello@thumbgenius.in</a>
+    <a href="/cdn-cgi/l/email-protection#3159545d5d5e714559445c5356545f5844421f585f"><span class="__cf_email__" data-cfemail="4e262b2222210e3a263b232c292b20273b3d602720">[email&#160;protected]</span></a>
 </footer>
 </div>
 
@@ -2108,7 +2186,7 @@ function showPage(p){
 </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 let selectedNiche='tech', selectedPlan='creator', selectedRegion='india', selectedLanguage='english';
 let lastConcept='', lastTextOverlay='', lastGeneratedData=null;
@@ -4225,6 +4303,71 @@ function dashRenderUsageBars(data) {
 
 
 
+
+
+// ═══════════════════════════════════════════════════════
+// AUTH — LOGIN MODAL
+// ═══════════════════════════════════════════════════════
+
+function openLoginModal() {
+    document.getElementById('loginModal').classList.add('open');
+    document.getElementById('loginEmail').value = currentUserEmail || '';
+    document.getElementById('loginMsg').textContent = '';
+    document.getElementById('loginMsg').className = 'login-modal-msg';
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginBtn').textContent = 'Send Login Link →';
+    setTimeout(() => document.getElementById('loginEmail').focus(), 100);
+}
+
+function closeLoginModal() {
+    document.getElementById('loginModal').classList.remove('open');
+}
+
+async function sendLoginLink() {
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const msg   = document.getElementById('loginMsg');
+    const btn   = document.getElementById('loginBtn');
+    if (!email || !email.includes('@')) {
+        msg.textContent = '❌ Please enter a valid email address.';
+        msg.className = 'login-modal-msg error';
+        return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    msg.textContent = '';
+    try {
+        const res  = await fetch('/send-login-link', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            btn.textContent = '✅ Link Sent!';
+            msg.textContent = 'Check ' + email + ' for your login link. It expires in 15 minutes.';
+            msg.className = 'login-modal-msg success';
+        } else {
+            throw new Error(data.error || 'Failed');
+        }
+    } catch (e) {
+        btn.disabled = false;
+        btn.textContent = 'Send Login Link →';
+        msg.textContent = '❌ Something went wrong. Please try again.';
+        msg.className = 'login-modal-msg error';
+    }
+}
+
+function updateLoginButtonVisibility() {
+    const loginBtn = document.getElementById('navLoginBtn');
+    if (!loginBtn) return;
+    loginBtn.style.display = currentUserEmail ? 'none' : '';
+}
+
+// Close login modal on backdrop click
+document.addEventListener('DOMContentLoaded', function() {
+    var lm = document.getElementById('loginModal');
+    if (lm) lm.addEventListener('click', function(e){ if(e.target===this) closeLoginModal(); });
+});
 
 async function loadDashboard() {
     var email = localStorage.getItem('tg_email') || '';
