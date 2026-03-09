@@ -94,7 +94,8 @@ class CSPMiddleware(BaseHTTPMiddleware):
             "img-src 'self' data: blob: https://oaidalleapiprodscus.blob.core.windows.net "
                 "https://*.openai.com https://*.blob.core.windows.net; "
             "connect-src 'self' https://api.openai.com https://oaidalleapiprodscus.blob.core.windows.net https://api.razorpay.com "
-                "https://lumberjack.razorpay.com https://jfestnbagyjrpoczhxbw.supabase.co "
+                "https://lumberjack.razorpay.com https://jfestnbagyjrpoczhxbw.supabase.co https://ipapi.co; "
+                
                 "https://ipapi.co https://generativelanguage.googleapis.com; "
             "frame-src https://api.razorpay.com https://checkout.razorpay.com; "
             "object-src 'none';"
@@ -1643,7 +1644,7 @@ async def blueprint_analyze(request: Request):
         # Increment usage counters
         if not is_adm:
             if email:
-                await sb_update_user(email, {"blueprint_used": (await get_user_plan(email)).get("blueprint_used", 0) + 1})
+                await sb_update_user(email, {"blueprint_used": used + 1})
                 await invalidate_plan_cache(email)
             else:
                 fp  = get_fingerprint(request)
