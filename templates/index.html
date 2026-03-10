@@ -1391,15 +1391,28 @@ function showPage(p){
     <div class="image-rblock">
         <div class="rblock-head">&#x1F5BC;&#xFE0F; AI Thumbnail Image — Ready to Publish</div>
         <p class="img-desc" id="imgDesc">Turn your thumbnail blueprint into a publish-ready image. Add your selected title as a styled overlay, then download. <strong>1 free image included.</strong> Powered by DALL-E 3.</p>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-            <label class="tg-toggle-wrap" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
-                <div style="position:relative;width:44px;height:24px">
-                    <input type="checkbox" id="textOverlayToggle" checked style="opacity:0;width:0;height:0;position:absolute">
-                    <span id="textOverlaySlider" style="position:absolute;inset:0;background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.3);border-radius:99px;transition:0.2s;cursor:pointer" onclick="toggleTextOverlay()">
-                        <span id="textOverlayKnob" style="position:absolute;left:3px;top:3px;width:16px;height:16px;background:#FFE036;border-radius:50%;transition:0.2s;transform:translateX(0)"></span>
+        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleImgOption('bakedText')">
+                <div style="position:relative;width:44px;height:24px;flex-shrink:0">
+                    <span id="bakedTextSlider" style="position:absolute;inset:0;background:rgba(255,224,54,0.3);border:1px solid rgba(255,224,54,0.6);border-radius:99px;transition:0.2s">
+                        <span id="bakedTextKnob" style="position:absolute;left:3px;top:3px;width:16px;height:16px;background:#FFE036;border-radius:50%;transition:0.2s;transform:translateX(20px)"></span>
                     </span>
                 </div>
-                <span style="font-size:13px;color:rgba(255,255,255,0.6)">Text Overlay on Image</span>
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Baked-in Text</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.35)">Text inside AI image</div>
+                </div>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleImgOption('titleOverlay')">
+                <div style="position:relative;width:44px;height:24px;flex-shrink:0">
+                    <span id="titleOverlaySlider" style="position:absolute;inset:0;background:rgba(255,224,54,0.3);border:1px solid rgba(255,224,54,0.6);border-radius:99px;transition:0.2s">
+                        <span id="titleOverlayKnob" style="position:absolute;left:3px;top:3px;width:16px;height:16px;background:#FFE036;border-radius:50%;transition:0.2s;transform:translateX(20px)"></span>
+                    </span>
+                </div>
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Title Overlay</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.35)">Drawn on top after gen</div>
+                </div>
             </label>
         </div>
         <button class="btn-img" id="imageBtn" onclick="generateImage()">&#x1F3A8; Generate Thumbnail Image</button>
@@ -2219,20 +2232,14 @@ function getHeaders(){
 }
 
 // ── escapeHtml ──────────────────────────────────────
-function toggleTextOverlay() {
-    const cb = document.getElementById('textOverlayToggle');
-    const knob = document.getElementById('textOverlayKnob');
-    const slider = document.getElementById('textOverlaySlider');
-    cb.checked = !cb.checked;
-    if (cb.checked) {
-        knob.style.transform = 'translateX(20px)';
-        slider.style.background = 'rgba(255,224,54,0.3)';
-        slider.style.borderColor = 'rgba(255,224,54,0.6)';
-    } else {
-        knob.style.transform = 'translateX(0)';
-        slider.style.background = 'rgba(255,255,255,0.05)';
-        slider.style.borderColor = 'rgba(255,255,255,0.15)';
-    }
+var _imgOptions = { bakedText: true, titleOverlay: true };
+function toggleImgOption(key) {
+    _imgOptions[key] = !_imgOptions[key];
+    const on = _imgOptions[key];
+    const knob   = document.getElementById(key + 'Knob');
+    const slider = document.getElementById(key + 'Slider');
+    if (knob)   knob.style.transform   = on ? 'translateX(20px)' : 'translateX(0)';
+    if (slider) { slider.style.background = on ? 'rgba(255,224,54,0.3)' : 'rgba(255,255,255,0.05)'; slider.style.borderColor = on ? 'rgba(255,224,54,0.6)' : 'rgba(255,255,255,0.15)'; }
 }
 
 function copyText(id) {
@@ -2640,8 +2647,7 @@ async function generateImage(){
     document.getElementById('imgUpgrade').style.display='none';
     document.getElementById('imageBtn').disabled=true;
     try{
-                const useTextOverlay = document.getElementById('textOverlayToggle') ? document.getElementById('textOverlayToggle').checked : true;
-                const res = await fetch('/generate-image', {method:'POST', headers:getHeaders(), body:JSON.stringify({concept:lastConcept, text_overlay:useTextOverlay ? lastTextOverlay : '', niche:selectedNiche})});
+                const res = await fetch('/generate-image', {method:'POST', headers:getHeaders(), body:JSON.stringify({concept:lastConcept, text_overlay:_imgOptions.bakedText ? lastTextOverlay : '', niche:selectedNiche})});
         const data = await res.json();
         if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
         if(data.error){alert(data.error);return;}
@@ -3082,9 +3088,7 @@ async function downloadWithTitle(){
             tmp.onload = function(){
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 ctx.drawImage(tmp, 0, 0, canvas.width, canvas.height);
-                const dlToggle = document.getElementById('textOverlayToggle');
-                const dlWithText = dlToggle ? dlToggle.checked : true;
-                if(titleText && dlWithText){
+                if(titleText && _imgOptions.titleOverlay){
                     drawTitleOnCanvas(ctx, canvas.width, canvas.height, titleText);
                 }
                 canvas.toBlob(blob=>{
