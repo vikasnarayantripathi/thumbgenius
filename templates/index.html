@@ -1147,9 +1147,9 @@ function showPage(p){
                 <div class="plan-tab-price plan-tab-price-inr">&#x20B9;749<span>/mo</span></div>
                 <div class="plan-tab-price plan-tab-price-usd">$19<span>/mo</span></div>
                 <ul class="plan-tab-feats">
-                    <li>100 generations/month</li>
-                    <li>20 AI thumbnail images</li>
-                    <li>A/B Tester + Analyzer</li>
+                    <li>50 AI image credits/month</li>
+                    <li>Unlimited text generations</li>
+                    <li>30 thumbnail analyses</li>
                     <li>All languages supported</li>
                 </ul>
             </div>
@@ -1158,10 +1158,21 @@ function showPage(p){
                 <div class="plan-tab-price plan-tab-price-inr">&#x20B9;1,449<span>/mo</span></div>
                 <div class="plan-tab-price plan-tab-price-usd">$39<span>/mo</span></div>
                 <ul class="plan-tab-feats">
-                    <li>300 generations/month</li>
-                    <li>50 AI thumbnail images</li>
-                    <li>All Creator features</li>
+                    <li>150 AI image credits/month</li>
+                    <li>Unlimited text generations</li>
+                    <li>100 thumbnail analyses</li>
                     <li>Priority support</li>
+                </ul>
+            </div>
+            <div class="plan-tab" id="planTabEnterprise" onclick="selectPlan('enterprise')">
+                <div class="plan-tab-name" style="color:#43E97B">ENTERPRISE</div>
+                <div class="plan-tab-price plan-tab-price-inr">&#x20B9;25,000<span>/mo</span></div>
+                <div class="plan-tab-price plan-tab-price-usd">$299<span>/mo</span></div>
+                <ul class="plan-tab-feats">
+                    <li>1000 AI image credits/month</li>
+                    <li>500 thumbnail analyses</li>
+                    <li>API access included</li>
+                    <li>Dedicated support</li>
                 </ul>
             </div>
         </div>
@@ -1196,6 +1207,7 @@ function showPage(p){
             <div style="display:flex;gap:12px">
                 <button onclick="activateAdminPlan('creator')" style="flex:1;background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:var(--yellow);font-weight:700">&#x26A1; Creator</button>
                 <button onclick="activateAdminPlan('pro')" style="flex:1;background:rgba(139,133,255,0.08);border:1px solid rgba(139,133,255,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:#8B85FF;font-weight:700">&#x1F680; Pro</button>
+                <button onclick="activateAdminPlan('enterprise')" style="flex:1;background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:#43E97B;font-weight:700">&#x1F3E2; Enterprise</button>
             </div>
         </div>
 
@@ -2272,9 +2284,10 @@ function selectPlan(plan){
     selectedPlan=plan;
     document.getElementById('planTabCreator').classList.toggle('selected',plan==='creator');
     document.getElementById('planTabPro').classList.toggle('selected',plan==='pro');
-    const isGlobal = selectedRegion==='global';
-    const inrPrice = plan==='creator'?'₹749':'₹1,449';
-    const usdPrice = plan==='creator'?'$19':'$39';
+    const entTab = document.getElementById('planTabEnterprise');
+    if(entTab) entTab.classList.toggle('selected',plan==='enterprise');
+    const inrPrice = plan==='creator'?'₹749':plan==='pro'?'₹1,449':'₹25,000';
+    const usdPrice = plan==='creator'?'$19':plan==='pro'?'$39':'$299';
     const rzpBtn   = document.getElementById('checkoutBtn');
     const strpBtn  = document.getElementById('stripeBtn');
     if(rzpBtn) rzpBtn.textContent='⚡ Pay '+inrPrice+'/month with Razorpay';
