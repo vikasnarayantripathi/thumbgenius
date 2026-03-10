@@ -5,4 +5,4 @@ razorpay
 python-dotenv
 jinja2
 aiofiles
-httpxPillow==10.3.0
+Pillow==10.3.0
