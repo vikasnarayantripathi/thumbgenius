@@ -3323,6 +3323,71 @@ const THUMB_COLORS = [
 let activeFont = THUMB_FONTS[Math.floor(Math.random()*THUMB_FONTS.length)];
 let activeColor = THUMB_COLORS[0];
 
+// ═══════════════════════════════════════════════
+// CUSTOM IMAGE UPLOAD
+// ═══════════════════════════════════════════════
+function handleCustomImgUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        _customImgB64 = e.target.result.split(',')[1];
+        const preview = document.getElementById('customImgPreview');
+        const modeWrap = document.getElementById('customImgModeWrap');
+        const clearBtn = document.getElementById('customImgClearBtn');
+        if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
+        if (modeWrap) modeWrap.style.display = 'flex';
+        if (clearBtn) clearBtn.style.display = 'block';
+        setCustomImgMode('generate');
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearCustomImg() {
+    _customImgB64 = null;
+    const p = document.getElementById('customImgPreview');
+    const m = document.getElementById('customImgModeWrap');
+    const c = document.getElementById('customImgClearBtn');
+    const f = document.getElementById('customImgFile');
+    const d = document.getElementById('customImgModeDesc');
+    if (p) p.style.display = 'none';
+    if (m) m.style.display = 'none';
+    if (c) c.style.display = 'none';
+    if (f) f.value = '';
+    if (d) d.textContent = 'Upload a photo to enable custom thumbnail generation';
+}
+
+function setCustomImgMode(mode) {
+    _customImgMode = mode;
+    const genBtn = document.getElementById('modeGenAround');
+    const bgBtn  = document.getElementById('modeUseAsBg');
+    const desc   = document.getElementById('customImgModeDesc');
+    if (mode === 'generate') {
+        if (genBtn) { genBtn.style.background='rgba(139,133,255,0.15)'; genBtn.style.border='2px solid rgba(139,133,255,0.5)'; genBtn.style.color='#8B85FF'; }
+        if (bgBtn)  { bgBtn.style.background='transparent'; bgBtn.style.border='1px solid rgba(255,255,255,0.1)'; bgBtn.style.color='rgba(255,255,255,0.4)'; }
+        if (desc) desc.textContent = 'AI will generate a thumbnail incorporating your photo';
+    } else {
+        if (bgBtn)  { bgBtn.style.background='rgba(139,133,255,0.15)'; bgBtn.style.border='2px solid rgba(139,133,255,0.5)'; bgBtn.style.color='#8B85FF'; }
+        if (genBtn) { genBtn.style.background='transparent'; genBtn.style.border='1px solid rgba(255,255,255,0.1)'; genBtn.style.color='rgba(255,255,255,0.4)'; }
+        if (desc) desc.textContent = 'Your photo will be used as background — title overlay on top';
+    }
+}
+
+function showCustomImgPanel(plan) {
+    const panel  = document.getElementById('customImgPanel');
+    const locked = document.getElementById('customImgLocked');
+    if (plan === 'pro' || plan === 'enterprise') {
+        if (panel)  panel.style.display  = 'block';
+        if (locked) locked.style.display = 'none';
+    } else if (plan === 'creator' || plan === 'free') {
+        if (panel)  panel.style.display  = 'none';
+        if (locked) locked.style.display = 'block';
+    } else {
+        if (panel)  panel.style.display  = 'none';
+        if (locked) locked.style.display = 'none';
+    }
+}
+
 function drawCanvasOverlay(titleText) {
     const img = document.getElementById('thumbnailImg');
     if (!img || !img.src || img.src === window.location.href) return;
