@@ -905,12 +905,8 @@ async def generate_image(request: Request):
                 img_prompt = f"YouTube thumbnail: {concept}. {lang_style} Photorealistic 8K, ultra-vibrant colors, cinematic lighting, no text."
         except:
             img_prompt = f"YouTube thumbnail: {concept}. {lang_style} Photorealistic 8K, ultra-vibrant colors, cinematic lighting, no text."
-        # Append text instruction after AI prompt is ready
-        if overlay and not no_baked_text:
-            spelled = " ".join(list(overlay.upper()))
-            img_prompt += f" Add bold text overlay: '{overlay}'. Impact font, white with black outline. Spell: {spelled}."
-        else:
-            img_prompt += " NO text, words or letters anywhere in the image."
+        # Always clean image — text rendered by frontend canvas
+        img_prompt += " NO text, words, letters or watermarks anywhere in the image. Pure visual only."
 
         # If custom image provided — use Gemini Vision to generate around it
         if custom_image_b64 and custom_image_mode == "generate":

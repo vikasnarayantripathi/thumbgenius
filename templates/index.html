@@ -2982,8 +2982,8 @@ async function generateImage(){
     document.getElementById('imageBtn').disabled=true;
     try{
                 // Use custom image if uploaded
-                // Baked text uses AI-generated text_overlay (short punchy), title overlay uses selected title
-                let imgPayload = {concept:lastConcept, text_overlay:_imgOptions.bakedText ? lastTextOverlay : '', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:!_imgOptions.bakedText};
+                // Always generate clean image — text is drawn on canvas by JS
+                let imgPayload = {concept:lastConcept, text_overlay:'', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:true};
                 if (_customImgB64 && _customImgMode === 'generate') {
                     imgPayload.custom_image_b64 = _customImgB64;
                     imgPayload.custom_image_mode = 'generate';
@@ -3006,13 +3006,9 @@ async function generateImage(){
         const dlBtn=document.getElementById('downloadBtn'); if(dlBtn) dlBtn.href = imgUrl;
         document.getElementById('imgResult').style.display='block';
         renderImgTitleChips();
-        // Auto-apply overlay if titleOverlay is ON and a title chip is already selected
-        if (_imgOptions.titleOverlay) {
-            const sel = document.getElementById('imgTitleSelector');
-            if (sel) sel.style.display = 'block';
-        } else {
-            const sel = document.getElementById('imgTitleSelector');
-            if (sel) sel.style.display = 'none';
+        // If bakedText ON — auto-draw AI text overlay on image
+        if (_imgOptions.bakedText && lastTextOverlay) {
+            drawCanvasOverlay(lastTextOverlay);
         }
         if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
     }catch(e){
@@ -3410,7 +3406,8 @@ function renderImgTitleChips(){
     if(!lastGeneratedData||!lastGeneratedData.titles)return;
     const wrap=document.getElementById('imgTitleChips');
     const selector=document.getElementById('imgTitleSelector');
-    selector.style.display='block';
+    // Only show selector if titleOverlay toggle is ON
+    selector.style.display = _imgOptions.titleOverlay ? 'block' : 'none';
     const noneBtn='<button class="img-title-chip-none" onclick="clearImgTitle()">&#x2715; No title</button>';
     wrap.innerHTML=noneBtn+lastGeneratedData.titles.map((t,i)=>{
         const short=t.length>55?t.substring(0,55)+'...':t;
@@ -3419,9 +3416,11 @@ function renderImgTitleChips(){
     }).join('');
     renderFontChips();
     renderColorChips();
-    // Auto-select the first title chip so title is always on by default
-    const firstChip = wrap.querySelector('.img-title-chip');
-    if(firstChip) selectImgTitle(firstChip);
+    // Only auto-select title if titleOverlay toggle is ON
+    if(_imgOptions.titleOverlay){
+        const firstChip = wrap.querySelector('.img-title-chip');
+        if(firstChip) selectImgTitle(firstChip);
+    }
 }
 
 function renderFontChips(){
