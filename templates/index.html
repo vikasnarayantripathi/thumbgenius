@@ -2304,6 +2304,21 @@ function toggleImgOption(key) {
     const slider = document.getElementById(key + 'Slider');
     if (knob)   knob.style.transform   = on ? 'translateX(20px)' : 'translateX(0)';
     if (slider) { slider.style.background = on ? 'rgba(255,224,54,0.3)' : 'rgba(255,255,255,0.05)'; slider.style.borderColor = on ? 'rgba(255,224,54,0.6)' : 'rgba(255,255,255,0.15)'; }
+    // When title overlay toggled OFF — hide overlay and deselect chips
+    if (key === 'titleOverlay' && !on) {
+        const overlay = document.getElementById('imgTitleOverlay');
+        const overlayText = document.getElementById('imgOverlayText');
+        const fontColorWrap = document.getElementById('imgFontColorWrap');
+        if (overlay) overlay.style.display = 'none';
+        if (overlayText) overlayText.textContent = '';
+        if (fontColorWrap) fontColorWrap.style.display = 'none';
+        document.querySelectorAll('.img-title-chip').forEach(c => c.classList.remove('selected'));
+    }
+    // When title overlay toggled ON — re-show selector
+    if (key === 'titleOverlay' && on) {
+        const sel = document.getElementById('imgTitleSelector');
+        if (sel) sel.style.display = 'block';
+    }
 }
 
 function copyText(id) {
