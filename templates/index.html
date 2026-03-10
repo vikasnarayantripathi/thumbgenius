@@ -2210,8 +2210,7 @@ function getHeaders(){
 // ── escapeHtml ──────────────────────────────────────
 function copyText(id) {
     const el = document.getElementById(id);
-    const btn = document.querySelector('[onclick="copyText(''+id+'')"]');
-    copyToClipboard(el ? el.innerText : '', btn);
+    copyToClipboard(el ? el.innerText : '', el);
 }
 
 function copyToClipboard(text, el) {
