@@ -1693,6 +1693,9 @@ function showPage(p){
             </div>
             <div class="img-canvas-wrap">
                 <img id="thumbnailImg" src="" alt="Generated Thumbnail" />
+                <div class="img-baked-overlay" id="imgBakedOverlay" style="display:none;position:absolute;bottom:40px;left:0;right:0;text-align:center;padding:0 16px;pointer-events:none">
+                    <span id="imgBakedText" style="background:rgba(0,0,0,0.7);color:#FFE036;font-size:clamp(14px,3vw,24px);font-weight:900;padding:6px 14px;border-radius:6px;letter-spacing:1px;text-transform:uppercase;text-shadow:2px 2px 4px rgba(0,0,0,0.8)"></span>
+                </div>
                 <div class="img-title-overlay" id="imgTitleOverlay" style="display:none">
                     <span id="imgOverlayText"></span>
                 </div>
@@ -2537,6 +2540,12 @@ function toggleImgOption(key) {
     if (knob)   knob.style.transform   = on ? 'translateX(20px)' : 'translateX(0)';
     if (slider) { slider.style.background = on ? 'rgba(255,224,54,0.3)' : 'rgba(255,255,255,0.05)'; slider.style.borderColor = on ? 'rgba(255,224,54,0.6)' : 'rgba(255,255,255,0.15)'; }
     // When title overlay toggled OFF — hide everything
+    if (key === 'bakedText' && !on) {
+        drawCanvasOverlay('');
+    }
+    if (key === 'bakedText' && on && lastTextOverlay) {
+        drawCanvasOverlay(lastTextOverlay);
+    }
     if (key === 'titleOverlay' && !on) {
         const overlay = document.getElementById('imgTitleOverlay');
         const overlayText = document.getElementById('imgOverlayText');
@@ -2547,8 +2556,6 @@ function toggleImgOption(key) {
         if (fontColorWrap) fontColorWrap.style.display = 'none';
         if (sel) sel.style.display = 'none';
         document.querySelectorAll('.img-title-chip').forEach(c => c.classList.remove('selected'));
-        // Redraw canvas without title
-        drawCanvasOverlay('');
     }
     // When title overlay toggled ON — show selector
     if (key === 'titleOverlay' && on) {
@@ -3385,21 +3392,16 @@ function showCustomImgPanel(plan) {
 }
 
 function drawCanvasOverlay(titleText) {
-    const img = document.getElementById('thumbnailImg');
-    if (!img || !img.src || img.src === window.location.href) return;
+    const bakedOverlay = document.getElementById('imgBakedOverlay');
+    const bakedText = document.getElementById('imgBakedText');
+    if (!bakedOverlay || !bakedText) return;
     if (!titleText) {
-        // Just show raw image, no overlay
-        document.getElementById('imgTitleOverlay').style.display = 'none';
-        document.getElementById('imgOverlayText').textContent = '';
+        bakedOverlay.style.display = 'none';
+        bakedText.textContent = '';
         return;
     }
-    // Use CSS overlay (existing system) — just set text and show
-    const overlay = document.getElementById('imgTitleOverlay');
-    const overlayText = document.getElementById('imgOverlayText');
-    if (overlay && overlayText) {
-        overlayText.textContent = titleText;
-        overlay.style.display = 'flex';
-    }
+    bakedText.textContent = titleText;
+    bakedOverlay.style.display = 'block';
 }
 
 function renderImgTitleChips(){
