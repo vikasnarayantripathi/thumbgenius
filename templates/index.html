@@ -2995,11 +2995,14 @@ async function generateImage(){
         if(data.error){alert(data.error);return;}
         const imgUrl = 'data:image/png;base64,' + data.image_b64;
         document.getElementById('thumbnailImg').src = imgUrl;
-        document.getElementById('downloadBtn').href = imgUrl;
+        const dlBtn=document.getElementById('downloadBtn'); if(dlBtn) dlBtn.href = imgUrl;
         document.getElementById('imgResult').style.display='block';
         renderImgTitleChips();
         if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
-    }catch(e){alert('Image generation failed. Please try again.');}
+    }catch(e){
+        console.error('Image gen error:', e);
+        alert('Image generation failed: ' + e.message);
+    }
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
 }
 
