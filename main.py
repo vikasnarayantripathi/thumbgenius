@@ -867,26 +867,41 @@ async def generate_image(request: Request):
     except: return JSONResponse({"error":"Invalid request"},status_code=400)
     concept = str(data.get("concept","")).strip()
     overlay = str(data.get("text_overlay","")).strip()
+    language = str(data.get("language","english")).strip().lower()
+    no_baked_text = bool(data.get("no_baked_text", False))
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
     try:
+        # Language-specific style hints for image
+        lang_style_map = {
+            "hindi":    "Indian YouTube style, vibrant Bollywood-influenced colors, dramatic expression.",
+            "hinglish": "Indian YouTube style, vibrant colors, dramatic expression popular in India.",
+            "telugu":   "Telugu YouTube style, vibrant colors, dramatic Tollywood-influenced composition.",
+            "tamil":    "Tamil YouTube style, vibrant Kollywood-influenced colors and composition.",
+            "bengali":  "Bengali YouTube style, rich warm colors, expressive composition.",
+            "marathi":  "Marathi YouTube style, vibrant colors, expressive dramatic composition.",
+        }
+        lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         img_prompt = (
             f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
             f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
+            f"{lang_style} "
             f"Scene: {concept}. "
             f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
             f"deep shadows and bright highlights for maximum contrast. "
             f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
             f"Mood: exciting, urgent, curiosity-inducing. "
             f"Quality: photorealistic 8K, sharp details, professional color grading. "
-            f"No watermarks, no borders, no text unless specified below. "
+            f"No watermarks, no borders. "
         )
-        if overlay:
+        if overlay and not no_baked_text:
             img_prompt += (
                 f"Add this exact text as bold overlay: '{overlay}'. "
                 f"Text style: massive bold Impact font, white letters with thick black outline. "
                 f"Spell EXACTLY: {overlay_spelled}."
             )
+        else:
+            img_prompt += "NO text, words, or letters anywhere in the image. Pure visual only."
         # Use Gemini Imagen 3
         import base64 as _b64
         gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GEMINI_API_KEY}"

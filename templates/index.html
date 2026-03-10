@@ -2725,7 +2725,7 @@ async function generateImage(){
     document.getElementById('imgUpgrade').style.display='none';
     document.getElementById('imageBtn').disabled=true;
     try{
-                const res = await fetch('/generate-image', {method:'POST', headers:getHeaders(), body:JSON.stringify({concept:lastConcept, text_overlay:_imgOptions.bakedText ? lastTextOverlay : '', niche:selectedNiche})});
+                const res = await fetch('/generate-image', {method:'POST', headers:getHeaders(), body:JSON.stringify({concept:lastConcept, text_overlay:_imgOptions.bakedText ? lastTextOverlay : '', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:!_imgOptions.bakedText})});
         const data = await res.json();
         if(data.error==='image_limit_reached'){document.getElementById('imgUpgrade').style.display='block';return;}
         if(data.error){alert(data.error);return;}
