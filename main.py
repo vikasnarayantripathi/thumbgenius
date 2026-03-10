@@ -885,16 +885,14 @@ async def generate_image(request: Request):
         lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         img_prompt = (
-            f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
-            f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
+            f"YouTube thumbnail, 16:9 widescreen, photorealistic, ultra high quality. "
+            f"{concept}. "
             f"{lang_style} "
-            f"Scene: {concept}. "
-            f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
-            f"deep shadows and bright highlights for maximum contrast. "
-            f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
-            f"Mood: exciting, urgent, curiosity-inducing. "
-            f"Quality: photorealistic 8K, sharp details, professional color grading. "
-            f"No watermarks, no borders. "
+            f"Style: MrBeast-level production quality, extremely eye-catching, cinematic lighting. "
+            f"Colors: ultra-vibrant, oversaturated, high contrast with deep shadows and bright highlights. "
+            f"Composition: strong focal point, dynamic angles, rule of thirds. "
+            f"Mood: exciting, dramatic, curiosity-inducing, emotionally engaging. "
+            f"No borders, no watermarks, no UI elements. "
         )
         if overlay and not no_baked_text:
             img_prompt += (
