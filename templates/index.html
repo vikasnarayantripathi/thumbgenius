@@ -47,6 +47,12 @@
         .nav-tab { background:transparent; color:var(--dim); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
         .nav-tab:hover { color:var(--white); border-color:rgba(255,255,255,0.2); }
         .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); background:rgba(255,224,54,0.05); }
+        .nav-dropdown-wrap { position:relative; display:inline-block; }
+        .nav-dropdown { display:none; position:absolute; top:calc(100% + 8px); left:0; background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:12px; padding:8px; min-width:200px; z-index:999; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+        .nav-dropdown button { display:block; width:100%; text-align:left; background:none; border:none; color:rgba(255,255,255,0.7); font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; font-weight:500; padding:9px 14px; border-radius:8px; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+        .nav-dropdown button:hover { background:rgba(255,224,54,0.08); color:#FFE036; }
+        .nav-dropdown-wrap.open .nav-dropdown { display:block; }
+        .nav-dropdown-wrap.open .nav-tab { color:var(--yellow); border-color:rgba(255,224,54,0.3); background:rgba(255,224,54,0.05); }
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(2,2,10,0.88); backdrop-filter:blur(20px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
         .modal-overlay.open { display:flex; }
         .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:740px; width:100%; position:relative; overflow-y:auto; max-height:90vh; }
@@ -1097,6 +1103,7 @@
 <script>
 // Early stub — lets nav onclick work before main script loads
 function showPage(p){
+    closeNavDropdowns();
     document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
     document.querySelectorAll('.nav-tab').forEach(function(el){el.classList.remove('active');});
     var page = document.getElementById('page-'+p);
@@ -1251,17 +1258,32 @@ function showPage(p){
         </div>
     </div>
     <div class="nav-bottom">
-        <button class="nav-tab active" id="tab-home"      onclick="showPage('home')">&#x1F3E0; Home</button>
-        <button class="nav-tab"        id="tab-analyzer"  onclick="showPage('analyzer')">&#x1F3AF; Analyzer</button>
-        <button class="nav-tab"        id="tab-ctr"       onclick="showPage('ctr')">&#x1F4CA; CTR</button>
-        <button class="nav-tab"        id="tab-reverse"   onclick="showPage('reverse')">&#x1F52C; Reverse</button>
-        <button class="nav-tab"        id="tab-ab"        onclick="showPage('ab')">&#x26A1; A/B</button>
-        <button class="nav-tab"        id="tab-library"   onclick="showPage('library')">&#x1F4A1; Library</button>
-        <button class="nav-tab"        id="tab-branding"  onclick="showPage('branding')">&#x1F3A8; Branding</button>
-        <button class="nav-tab"        id="tab-trending"  onclick="showPage('trending')">&#x1F525; Trending</button>
-        <button class="nav-tab"        id="tab-history"   onclick="showPage('history')">&#x1F4C2; History</button>
-        <button class="nav-tab"        id="tab-blueprint" onclick="showPage('blueprint')">&#x1F4D0; Blueprint</button>
-        <button class="nav-tab"        id="tab-dashboard" onclick="showPage('dashboard')">&#x1F4CA; Dashboard</button>
+        <button class="nav-tab active" id="tab-home" onclick="showPage('home')">&#x26A1; Generate</button>
+
+        <!-- Analyze dropdown -->
+        <div class="nav-dropdown-wrap" id="analyzeWrap">
+            <button class="nav-tab" id="tab-analyze-group" onclick="toggleNavDropdown('analyzeWrap')">&#x1F4CA; Analyze &#x25BE;</button>
+            <div class="nav-dropdown" id="analyzeDropdown">
+                <button onclick="showPage('analyzer');closeNavDropdowns()">&#x1F3AF; Thumbnail Analyzer</button>
+                <button onclick="showPage('ctr');closeNavDropdowns()">&#x1F4CA; CTR Predictor</button>
+                <button onclick="showPage('reverse');closeNavDropdowns()">&#x1F52C; Reverse Engineer</button>
+                <button onclick="showPage('ab');closeNavDropdowns()">&#x26A1; A/B Tester</button>
+                <button onclick="showPage('blueprint');closeNavDropdowns()">&#x1F4D0; Blueprint</button>
+            </div>
+        </div>
+
+        <!-- Discover dropdown -->
+        <div class="nav-dropdown-wrap" id="discoverWrap">
+            <button class="nav-tab" id="tab-discover-group" onclick="toggleNavDropdown('discoverWrap')">&#x1F525; Discover &#x25BE;</button>
+            <div class="nav-dropdown" id="discoverDropdown">
+                <button onclick="showPage('trending');closeNavDropdowns()">&#x1F525; Trending Styles</button>
+                <button onclick="showPage('library');closeNavDropdowns()">&#x1F4A1; Inspiration Library</button>
+                <button onclick="showPage('branding');closeNavDropdowns()">&#x1F3A8; Brand Kit</button>
+            </div>
+        </div>
+
+        <button class="nav-tab" id="tab-history" onclick="showPage('history')">&#x1F4C2; History</button>
+        <button class="nav-tab" id="tab-dashboard" onclick="showPage('dashboard')">&#x1F4CA; Dashboard</button>
     </div>
 </nav>
 
