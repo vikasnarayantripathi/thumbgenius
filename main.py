@@ -511,7 +511,7 @@ NICHE_CONTEXT = NICHE_CONTEXT_EN
 
 def get_generate_prompt(topic, niche, language="english"):
     # Pick language-specific niche context
-    ctx_map = {"hindi": NICHE_CONTEXT_HI, "hinglish": NICHE_CONTEXT_HN}
+    ctx_map = {"hindi": NICHE_CONTEXT_HI, "hinglish": NICHE_CONTEXT_HN, "telugu": NICHE_CONTEXT_HI, "tamil": NICHE_CONTEXT_HI, "bengali": NICHE_CONTEXT_HI, "marathi": NICHE_CONTEXT_HI}
     ctx  = ctx_map.get(language, NICHE_CONTEXT_EN)
     tip  = ctx.get(niche, ctx.get("tech", ""))
     lang = LANGUAGE_PROMPTS.get(language, LANGUAGE_PROMPTS["english"])
