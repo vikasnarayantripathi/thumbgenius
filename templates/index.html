@@ -49,14 +49,14 @@
         .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); background:rgba(255,224,54,0.05); }
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(2,2,10,0.88); backdrop-filter:blur(20px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
         .modal-overlay.open { display:flex; }
-        .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:520px; width:100%; position:relative; overflow:hidden; }
+        .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:740px; width:100%; position:relative; overflow:hidden; }
         .modal::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow),var(--pink)); }
         .modal-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.06); border:none; color:rgba(255,255,255,0.4); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
         .modal-close:hover { background:rgba(255,45,122,0.15); color:#FF2D7A; }
         .modal-header { padding:40px 40px 0; text-align:center; }
         .modal-header h2 { font-size:28px; font-weight:800; letter-spacing:-1px; margin-bottom:8px; }
         .modal-header p { color:var(--dim); font-size:14px; line-height:1.6; }
-        .plan-tabs { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:16px 20px 0; }
+        .plan-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:16px 20px 0; }
         .plan-tab { border:1px solid var(--border); border-radius:16px; padding:14px 12px; cursor:pointer; transition:all 0.2s; position:relative; }
         .plan-tab.selected { border-color:rgba(255,224,54,0.5); background:rgba(255,224,54,0.06); }
         .plan-tab.selected::after { content:'\2713'; position:absolute; top:12px; right:12px; background:var(--yellow); color:#000; width:20px; height:20px; border-radius:50%; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; }
