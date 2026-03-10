@@ -869,6 +869,8 @@ async def generate_image(request: Request):
     overlay = str(data.get("text_overlay","")).strip()
     language = str(data.get("language","english")).strip().lower()
     no_baked_text = bool(data.get("no_baked_text", False))
+    custom_image_b64 = data.get("custom_image_b64", None)
+    custom_image_mode = str(data.get("custom_image_mode", "")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
     try:
         # Language-specific style hints for image
@@ -902,6 +904,27 @@ async def generate_image(request: Request):
             )
         else:
             img_prompt += "NO text, words, or letters anywhere in the image. Pure visual only."
+
+        # If custom image provided — use Gemini Vision to generate around it
+        if custom_image_b64 and custom_image_mode == "generate":
+            import base64 as _b64
+            gemini_vision_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+            vision_prompt = f"You are a YouTube thumbnail designer. Based on this photo, create a detailed image generation prompt for a viral YouTube thumbnail. The thumbnail is about: {concept}. Style: {img_prompt} Describe exactly how to incorporate the person/subject from this photo into the thumbnail."
+            vision_payload = {
+                "contents": [{
+                    "parts": [
+                        {"text": vision_prompt},
+                        {"inline_data": {"mime_type": "image/jpeg", "data": custom_image_b64}}
+                    ]
+                }]
+            }
+            async with httpx.AsyncClient(timeout=30.0) as hv:
+                vr = await hv.post(gemini_vision_url, json=vision_payload)
+            if vr.status_code == 200:
+                vdata = vr.json()
+                enhanced_prompt = vdata.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                if enhanced_prompt:
+                    img_prompt = enhanced_prompt[:2000]
         # Use Gemini Imagen 3
         import base64 as _b64
         gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GEMINI_API_KEY}"
