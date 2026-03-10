@@ -49,7 +49,7 @@
         .nav-tab.active { color:var(--yellow); border-color:rgba(255,224,54,0.3); background:rgba(255,224,54,0.05); }
         .modal-overlay { display:none; position:fixed; inset:0; background:rgba(2,2,10,0.88); backdrop-filter:blur(20px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
         .modal-overlay.open { display:flex; }
-        .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:740px; width:100%; position:relative; overflow:hidden; }
+        .modal { background:#0d0d1a; border:1px solid rgba(255,224,54,0.15); border-radius:28px; max-width:740px; width:100%; position:relative; overflow-y:auto; max-height:90vh; }
         .modal::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--orange),var(--yellow),var(--pink)); }
         .modal-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.06); border:none; color:rgba(255,255,255,0.4); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
         .modal-close:hover { background:rgba(255,45,122,0.15); color:#FF2D7A; }
@@ -396,7 +396,7 @@
             .ab-scores { grid-template-columns:1fr; }
             .analyzer-score-row { grid-template-columns:1fr 1fr; }
             .trending-grid { grid-template-columns:1fr; }
-            .plan-tabs { grid-template-columns:1fr; overflow-y:auto; max-height:60vh; }
+            .plan-tabs { grid-template-columns:1fr; }
             .feature-page { padding:130px 16px 60px; }
         }
         @media (max-width:768px) {
