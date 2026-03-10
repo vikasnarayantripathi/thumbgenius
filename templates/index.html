@@ -1103,6 +1103,21 @@
 </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
+function enterApp() {
+    document.getElementById('landingPage').style.display = 'none';
+    document.getElementById('appWrapper').style.display = 'block';
+    localStorage.setItem('tg_entered_app', '1');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const entered = localStorage.getItem('tg_entered_app');
+    const hasEmail = localStorage.getItem('tg_email');
+    if (entered || hasEmail) {
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('appWrapper').style.display = 'block';
+    }
+});
+
 function showPage(p){
     closeNavDropdowns();
     document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
