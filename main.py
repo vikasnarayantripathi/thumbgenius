@@ -386,6 +386,30 @@ LANGUAGE_PROMPTS = {
         "overlay_style": "Hinglish 3-5 words. Example: Sach Finally Out! or Bhai Ye Dekh",
         "tag_note": "Mix Hindi + English tags and transliterated keywords for maximum India reach.",
     },
+    "telugu": {
+        "instruction": "Generate ALL content in Telugu script. Use Telugu YouTube culture, hooks, and expressions.",
+        "title_style": "Telugu viral titles with curiosity and shock. Example: ఇది చూసి నోరు తెరుచుకుంటుంది — dramatic revelation style.",
+        "overlay_style": "Bold Telugu 2-4 words. Example: నిజం బయటపడింది or షాకింగ్ న్యూస్",
+        "tag_note": "Telugu SEO tags — both Telugu script and Roman transliteration for maximum Andhra/Telangana reach.",
+    },
+    "tamil": {
+        "instruction": "Generate ALL content in Tamil script. Use Tamil YouTube culture, kollywood references, and expressions.",
+        "title_style": "Tamil viral titles. Example: இதை பார்த்து அதிர்ச்சி ஆனேன் — curiosity and emotion driven.",
+        "overlay_style": "Bold Tamil 2-4 words. Example: உண்மை வெளியே or அதிர்ச்சி செய்தி",
+        "tag_note": "Tamil SEO tags — Tamil script and Roman transliteration for maximum TN reach.",
+    },
+    "bengali": {
+        "instruction": "Generate ALL content in Bengali script. Use Bengali YouTube culture and expressions.",
+        "title_style": "Bengali viral titles. Example: এটা দেখে চমকে গেলাম — shock and curiosity driven.",
+        "overlay_style": "Bold Bengali 2-4 words. Example: সত্য প্রকাশ or চমকের খবর",
+        "tag_note": "Bengali SEO tags — Bengali script and Roman transliteration for West Bengal and Bangladesh reach.",
+    },
+    "marathi": {
+        "instruction": "Generate ALL content in Marathi script. Use Marathi YouTube culture and expressions.",
+        "title_style": "Marathi viral titles. Example: हे पाहून थक्क झालो — shock and curiosity driven.",
+        "overlay_style": "Bold Marathi 2-4 words. Example: सत्य समोर or धक्कादायक बातमी",
+        "tag_note": "Marathi SEO tags — Marathi script and Roman transliteration for Maharashtra reach.",
+    },
 }
 
 # ── English / Global niche context ───────────────────────────────────────────
