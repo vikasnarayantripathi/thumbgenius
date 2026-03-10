@@ -6,3 +6,4 @@ python-dotenv
 jinja2
 aiofiles
 Pillow==10.3.0
+httpx
