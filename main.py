@@ -507,6 +507,7 @@ Generate a complete viral content package. Respond ONLY in valid JSON.
   }},
   "hook_script": "First 15 seconds script starting with pattern interrupt.",
   "niche_tip": "One tactical tip for this niche on YouTube right now.",
+  "seo_description": "150-200 word YouTube description. Start with the primary keyword. Include 3-5 natural keyword variations. Add value with what viewers will learn. End with call-to-action and 3 relevant hashtags. Write in the selected language.",
   "tags": {{
     "primary": ["t1","t2","t3","t4","t5"],
     "secondary": ["t6","t7","t8","t9","t10"],

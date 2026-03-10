@@ -1455,6 +1455,11 @@ function showPage(p){
         <p class="hook-p" id="hook"></p>
         <button class="copy-sm" onclick="copyText('hook')">&#x1F4CB; Copy Script</button>
     </div>
+    <div class="rblock" id="seoDescBlock" style="display:none">
+        <div class="rblock-head">&#x1F4DD; SEO Description</div>
+        <p style="font-size:13px;line-height:1.7;color:rgba(255,255,255,0.75);white-space:pre-wrap" id="seoDesc"></p>
+        <button class="copy-sm" onclick="copyText('seoDesc')">&#x1F4CB; Copy Description</button>
+    </div>
     <div class="tip-rblock"><div class="tip-label">&#x1F4A1; Niche Packaging Insight</div><p class="tip-val" id="nicheTip"></p></div>
     <div class="rblock" id="tagsBlock" style="display:none">
         <div class="rblock-head">&#x1F3F7;&#xFE0F; SEO Tags &amp; Keywords</div>
@@ -2646,6 +2651,12 @@ async function generate(){
         var _il=document.getElementById('imgLoading');if(_il)_il.style.display='none';
         var _ib=document.getElementById('imageBtn');if(_ib)_ib.disabled=false;
         document.getElementById('hook').textContent=data.hook_script;
+        if (data.seo_description) {
+            document.getElementById('seoDesc').textContent = data.seo_description;
+            document.getElementById('seoDescBlock').style.display = 'block';
+        } else {
+            document.getElementById('seoDescBlock').style.display = 'none';
+        }
         document.getElementById('nicheTip').textContent=data.niche_tip;
         if(data.uses_remaining!==undefined)
             document.getElementById('usesLeft').innerHTML='<strong>'+data.uses_remaining+'</strong> remaining';
