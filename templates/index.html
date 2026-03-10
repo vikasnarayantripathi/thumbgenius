@@ -4438,7 +4438,7 @@ async function sendLoginLink() {
             body: JSON.stringify({ email })
         });
         const data = await res.json();
-        if (data.ok) {
+        if (data.success) {
             btn.textContent = '✅ Link Sent!';
             msg.textContent = 'Check ' + email + ' for your login link. It expires in 15 minutes.';
             msg.className = 'login-modal-msg success';
