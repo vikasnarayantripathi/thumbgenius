@@ -2967,6 +2967,9 @@ async function generate(){
 }
 
 
+var _customImgB64 = null;
+var _customImgMode = 'generate';
+
 async function generateImage(){
     if(!lastConcept){alert('Please generate a content package first!');return;}
     document.getElementById('imgLoading').style.display='block';
