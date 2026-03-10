@@ -2536,17 +2536,21 @@ function toggleImgOption(key) {
     const slider = document.getElementById(key + 'Slider');
     if (knob)   knob.style.transform   = on ? 'translateX(20px)' : 'translateX(0)';
     if (slider) { slider.style.background = on ? 'rgba(255,224,54,0.3)' : 'rgba(255,255,255,0.05)'; slider.style.borderColor = on ? 'rgba(255,224,54,0.6)' : 'rgba(255,255,255,0.15)'; }
-    // When title overlay toggled OFF — hide overlay and deselect chips
+    // When title overlay toggled OFF — hide everything
     if (key === 'titleOverlay' && !on) {
         const overlay = document.getElementById('imgTitleOverlay');
         const overlayText = document.getElementById('imgOverlayText');
         const fontColorWrap = document.getElementById('imgFontColorWrap');
+        const sel = document.getElementById('imgTitleSelector');
         if (overlay) overlay.style.display = 'none';
         if (overlayText) overlayText.textContent = '';
         if (fontColorWrap) fontColorWrap.style.display = 'none';
+        if (sel) sel.style.display = 'none';
         document.querySelectorAll('.img-title-chip').forEach(c => c.classList.remove('selected'));
+        // Redraw canvas without title
+        drawCanvasOverlay('');
     }
-    // When title overlay toggled ON — re-show selector
+    // When title overlay toggled ON — show selector
     if (key === 'titleOverlay' && on) {
         const sel = document.getElementById('imgTitleSelector');
         if (sel) sel.style.display = 'block';
@@ -2978,7 +2982,8 @@ async function generateImage(){
     document.getElementById('imageBtn').disabled=true;
     try{
                 // Use custom image if uploaded
-                let imgPayload = {concept:lastConcept, text_overlay:_imgOptions.bakedText ? lastTextOverlay : '', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:!_imgOptions.bakedText};
+                // Always generate clean image, handle text via canvas overlay
+                let imgPayload = {concept:lastConcept, text_overlay:'', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:true};
                 if (_customImgB64 && _customImgMode === 'generate') {
                     imgPayload.custom_image_b64 = _customImgB64;
                     imgPayload.custom_image_mode = 'generate';
@@ -3001,6 +3006,14 @@ async function generateImage(){
         const dlBtn=document.getElementById('downloadBtn'); if(dlBtn) dlBtn.href = imgUrl;
         document.getElementById('imgResult').style.display='block';
         renderImgTitleChips();
+        // Auto-apply overlay if titleOverlay is ON and a title chip is already selected
+        if (_imgOptions.titleOverlay) {
+            const sel = document.getElementById('imgTitleSelector');
+            if (sel) sel.style.display = 'block';
+        } else {
+            const sel = document.getElementById('imgTitleSelector');
+            if (sel) sel.style.display = 'none';
+        }
         if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
     }catch(e){
         console.error('Image gen error:', e);
@@ -3309,6 +3322,24 @@ const THUMB_COLORS = [
 ];
 let activeFont = THUMB_FONTS[Math.floor(Math.random()*THUMB_FONTS.length)];
 let activeColor = THUMB_COLORS[0];
+
+function drawCanvasOverlay(titleText) {
+    const img = document.getElementById('thumbnailImg');
+    if (!img || !img.src || img.src === window.location.href) return;
+    if (!titleText) {
+        // Just show raw image, no overlay
+        document.getElementById('imgTitleOverlay').style.display = 'none';
+        document.getElementById('imgOverlayText').textContent = '';
+        return;
+    }
+    // Use CSS overlay (existing system) — just set text and show
+    const overlay = document.getElementById('imgTitleOverlay');
+    const overlayText = document.getElementById('imgOverlayText');
+    if (overlay && overlayText) {
+        overlayText.textContent = titleText;
+        overlay.style.display = 'flex';
+    }
+}
 
 function renderImgTitleChips(){
     if(!lastGeneratedData||!lastGeneratedData.titles)return;
