@@ -884,24 +884,27 @@ async def generate_image(request: Request):
         }
         lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
-        img_prompt = (
-            f"YouTube thumbnail, 16:9 widescreen, photorealistic, ultra high quality. "
-            f"{concept}. "
-            f"{lang_style} "
-            f"Style: MrBeast-level production quality, extremely eye-catching, cinematic lighting. "
-            f"Colors: ultra-vibrant, oversaturated, high contrast with deep shadows and bright highlights. "
-            f"Composition: strong focal point, dynamic angles, rule of thirds. "
-            f"Mood: exciting, dramatic, curiosity-inducing, emotionally engaging. "
-            f"No borders, no watermarks, no UI elements. "
-        )
-        if overlay and not no_baked_text:
-            img_prompt += (
-                f"Add this exact text as bold overlay: '{overlay}'. "
-                f"Text style: massive bold Impact font, white letters with thick black outline. "
-                f"Spell EXACTLY: {overlay_spelled}."
-            )
-        else:
-            img_prompt += "NO text, words, or letters anywhere in the image. Pure visual only."
+        # Use Gemini Flash to write an optimized Imagen prompt
+        try:
+            pw_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+            pw_body = {"contents":[{"parts":[{"text":
+                f"Write a detailed Imagen AI prompt for a YouTube thumbnail.\n"
+                f"Topic/Scene: {concept}\n"
+                f"Style: {lang_style}\n"
+                f"Requirements: 16:9 widescreen, photorealistic 8K, MrBeast-level quality, "
+                f"ultra-vibrant colors, dramatic cinematic lighting, strong focal point, "
+                f"NO text or letters anywhere.\n"
+                f"Write ONLY the image prompt, no explanation, under 300 words."
+            }]}]}
+            async with httpx.AsyncClient(timeout=12.0) as hc:
+                pr = await hc.post(pw_url, json=pw_body)
+            if pr.status_code == 200:
+                ai_p = pr.json().get("candidates",[{}])[0].get("content",{}).get("parts",[{}])[0].get("text","").strip()
+                img_prompt = ai_p[:1500] if ai_p else f"YouTube thumbnail: {concept}. {lang_style} Photorealistic, vibrant, cinematic, no text."
+            else:
+                img_prompt = f"YouTube thumbnail: {concept}. {lang_style} Photorealistic 8K, ultra-vibrant colors, cinematic lighting, no text."
+        except:
+            img_prompt = f"YouTube thumbnail: {concept}. {lang_style} Photorealistic 8K, ultra-vibrant colors, cinematic lighting, no text."
 
         # If custom image provided — use Gemini Vision to generate around it
         if custom_image_b64 and custom_image_mode == "generate":
