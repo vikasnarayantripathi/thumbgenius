@@ -2438,7 +2438,7 @@ function detectUserRegion(){
 
 // ═══ ADMIN / PROMO CODE SYSTEM ═══
 var ADMIN_CODES = {
-    'VIKAS2025': { plans: ['creator','pro'], label: 'Admin Access', emoji: '👑' },
+    'VIKAS2025': { plans: ['creator','pro','enterprise'], label: 'Admin Access', emoji: '👑' },
 };
 
 function togglePromoField(){
@@ -2482,9 +2482,9 @@ function applyPromoCode(){
 
 function activateAdminPlan(plan){
     const email = currentUserEmail || localStorage.getItem('tg_email');
-    const limits = { creator:{gen:100,img:20}, pro:{gen:300,img:50} };
-    const lim = limits[plan];
-    const label = plan==='pro' ? '🚀 Pro Plan' : '⚡ Creator Plan';
+    const limits = { creator:{gen:9999,img:50}, pro:{gen:9999,img:150}, enterprise:{gen:9999,img:1000} };
+    const lim = limits[plan] || limits.creator;
+    const label = plan==='enterprise' ? '🏢 Enterprise Plan' : plan==='pro' ? '🚀 Pro Plan' : '⚡ Creator Plan';
 
     currentUserPlan = plan;
     localStorage.setItem('tg_plan', plan);
