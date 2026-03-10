@@ -2182,6 +2182,12 @@ function getHeaders(){
 }
 
 // ── escapeHtml ──────────────────────────────────────
+function copyText(id) {
+    const el = document.getElementById(id);
+    const btn = document.querySelector('[onclick="copyText(''+id+'')"]');
+    copyToClipboard(el ? el.innerText : '', btn);
+}
+
 function copyToClipboard(text, el) {
     navigator.clipboard.writeText(text).then(() => {
         if (el) {
@@ -2595,15 +2601,7 @@ async function generateImage(){
     finally{document.getElementById('imgLoading').style.display='none';document.getElementById('imageBtn').disabled=false;}
 }
 
-function saveToHistory(){
-    if(!lastGeneratedData){alert('Generate something first!');return;}
-    const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
-    history.unshift({...lastGeneratedData,id:Date.now()});
-    if(history.length>20)history.pop();
-    localStorage.setItem('tg_history',JSON.stringify(history));
-    const btn=document.getElementById('saveBtn');btn.textContent='✅ Saved!';btn.classList.add('saved');
-    setTimeout(()=>{btn.textContent='💾 Save to History';btn.classList.remove('saved');},2000);
-}
+// saveToHistory defined below
 
 function renderHistory(){
     const history=JSON.parse(localStorage.getItem('tg_history')||'[]');
@@ -3695,7 +3693,7 @@ function saveToHistory() {
     try { items = JSON.parse(raw) || []; } catch(e) { items = []; }
     const entry = Object.assign({}, lastGeneratedData, {
         saved_at: new Date().toISOString(),
-        niche: document.getElementById('niche') ? document.getElementById('niche').value : 'tech',
+        niche: selectedNiche || 'tech',
         topic: document.getElementById('topic') ? document.getElementById('topic').value : '',
     });
     // Avoid duplicates — remove existing same topic+niche
@@ -4372,19 +4370,19 @@ async function loadDashboard() {
         dashRenderUsageBars(used, limits);
 
         // Credits bar
-        dashRenderCredits(used, limits, plan);
+        dashRenderCredits(data);
 
         // Recent intelligence (history)
         dashRenderRecentActivity();
 
         // Intelligence tips
-        dashRenderIntelligence(plan);
+        dashRenderIntelligence(data);
 
         // Score from history
         dashRenderScore();
 
-        // Progress
-        dashUpdateProgress(used, limits, plan);
+        // Progress (score computed inside dashRenderScore via dashSaveScore)
+        dashUpdateProgress(0);
 
         updateNavBar(data);
 
