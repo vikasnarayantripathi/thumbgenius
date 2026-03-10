@@ -234,6 +234,16 @@ async def sb_get_user_by_token(token):
     except Exception as e:
         logger.error(f"sb_get_user_by_token: {e}"); return None
 
+async def sb_get_user_by_login_token(token):
+    try:
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?login_token=eq.{token}&select=*",
+            headers=SB_HEADERS)
+        data = r.json()
+        return data[0] if data else None
+    except Exception as e:
+        logger.error(f"sb_get_user_by_login_token: {e}"); return None
+
 async def sb_get_user_by_subscription(sub_id):
     try:
         r = await _http_sb.get(
@@ -619,7 +629,38 @@ async def subscribe(request: Request):
 
 # ─── Activate ─────────────────────────────────────────────────────────────────
 @app.get("/activate", response_class=HTMLResponse)
-async def activate(request: Request, token: str = ""):
+async def activate(request: Request, token: str = "", login_token: str = ""):
+    from datetime import timezone as _tz
+
+    # ── Magic link login flow ──────────────────────────────────
+    if login_token:
+        user = await sb_get_user_by_login_token(login_token)
+        if not user:
+            return HTMLResponse("<h1>Login link expired or invalid. Please request a new one.</h1>", status_code=400)
+        # Check expiry
+        expires = user.get("login_token_expires")
+        if expires:
+            try:
+                exp_dt = datetime.fromisoformat(expires.replace("Z", "+00:00"))
+                if datetime.now(_tz.utc) > exp_dt:
+                    return HTMLResponse("<h1>Login link expired. Please request a new one.</h1>", status_code=400)
+            except: pass
+        await sb_update_user(user["email"], {"login_token": None, "login_token_expires": None})
+        await invalidate_plan_cache(user["email"])
+        plan = user.get("plan", "free")
+        return HTMLResponse(f"""<!DOCTYPE html><html><head><title>Logged In!</title>
+        <style>body{{font-family:Arial;background:#02020A;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}}
+        .box{{text-align:center;padding:40px}}h1{{color:#FDE036}}p{{color:#aaa}}</style>
+        </head><body><div class="box"><h1>✅ Logged In!</h1><p>Welcome back, <strong>{user["email"]}</strong></p>
+        <p>Plan: <strong style="color:#FDE036">{plan.upper()}</strong></p>
+        <p>Redirecting...</p></div>
+        <script>
+            localStorage.setItem('tg_email','{user["email"]}');
+            localStorage.setItem('tg_plan','{plan}');
+            setTimeout(function(){{ window.location.href = '/'; }}, 1500);
+        </script></body></html>""")
+
+    # ── Payment activation flow ────────────────────────────────
     if not token: return HTMLResponse("<h1>Invalid link</h1>", status_code=400)
     user = await sb_get_user_by_token(token)
     if not user: return HTMLResponse("<h1>Link expired or invalid</h1>", status_code=400)
@@ -1984,3 +2025,55 @@ async def enterprise_remove_member(request: Request):
         return JSONResponse({"error": "Invalid request"}, status_code=400)
     await sb_update_user(member_email, {"plan": "free", "team_owner_email": None})
     return JSONResponse({"success": True})
+
+# ═══════════════════════════════════════════════════════════════
+# MAGIC LINK LOGIN — FOR ALL USERS
+# ═══════════════════════════════════════════════════════════════
+
+async def send_login_link_email(email: str, token: str):
+    login_url = f"{APP_URL}/activate?login_token={token}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post("https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "from": f"ThumbGenius <{FROM_EMAIL}>",
+                    "to": [email],
+                    "subject": "🔑 Your ThumbGenius Login Link",
+                    "html": f"""<div style="font-family:Arial;max-width:600px;margin:0 auto;background:#02020A;color:#fff;padding:40px;border-radius:12px;">
+                        <h1 style="color:#FDE036">ThumbGenius</h1>
+                        <p style="color:#aaa">YouTube Packaging Intelligence Platform</p>
+                        <h2>Your Login Link 🔑</h2>
+                        <p style="color:#ccc">Click below to login. Link expires in 15 minutes.</p>
+                        <a href="{login_url}" style="display:inline-block;background:#FDE036;color:#02020A;font-weight:bold;font-size:18px;padding:16px 40px;border-radius:8px;text-decoration:none;margin:24px 0;">Login to ThumbGenius →</a>
+                        <p style="color:#666;font-size:14px">If you didn't request this, ignore this email.</p>
+                        <p style="color:#444;font-size:12px">ThumbGenius · thumbgenius.in</p>
+                    </div>"""
+                })
+        logger.info(f"Login link sent to {email}")
+    except Exception as e:
+        logger.error(f"Login link email error: {e}")
+
+@app.post("/send-login-link")
+async def send_login_link(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email", "").strip().lower()
+    except:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    if not email or "@" not in email:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+    # Get or create user
+    user = await sb_get_user(email)
+    from datetime import timezone as _tz
+    token = secrets.token_urlsafe(32)
+    token_expires = (datetime.now(_tz.utc) + timedelta(minutes=15)).isoformat()
+    if user:
+        await sb_update_user(email, {"login_token": token, "login_token_expires": token_expires})
+    else:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post(f"{SUPABASE_URL}/rest/v1/users",
+                headers={**SB_HEADERS, "Prefer": "return=minimal"},
+                json={"email": email, "plan": "free", "login_token": token, "login_token_expires": token_expires})
+    asyncio.create_task(send_login_link_email(email, token))
+    return JSONResponse({"success": True, "message": "Login link sent! Check your email."})
