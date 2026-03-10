@@ -2499,7 +2499,14 @@ function activateAdminPlan(plan){
         generations_limit:lim.gen, images_limit:lim.img,
     });
 
-    setTimeout(()=>{ closePaymentModal(); }, 1800);
+    setTimeout(()=>{
+        closePaymentModal();
+        // Reload dashboard to show enterprise panel
+        if (plan === 'enterprise') {
+            loadEnterprisePanel(plan);
+            document.getElementById('enterprisePanel').style.display = 'block';
+        }
+    }, 1800);
 }
 
 // Check admin code on every API call - inject into getHeaders
