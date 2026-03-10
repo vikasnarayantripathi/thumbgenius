@@ -2192,6 +2192,39 @@ function showPage(p){
       <div id="dashUsageRows" style="display:none;padding-top:8px"></div>
     </div>
 
+
+    <!-- ⑩ Enterprise Panel — only shown for enterprise users -->
+    <div class="dash-section" id="enterprisePanel" style="display:none;border-color:rgba(67,233,123,0.2)">
+      <div class="dash-section-hd" style="margin-bottom:20px">
+        <div class="dash-section-label" style="color:#43E97B">🏢 Enterprise Dashboard</div>
+      </div>
+
+      <!-- API Key -->
+      <div style="margin-bottom:28px">
+        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🔑 Your API Key</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div id="entApiKeyBox" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:12px 16px;font-family:monospace;font-size:13px;color:#43E97B;min-width:200px;word-break:break-all">Loading...</div>
+          <button onclick="entCopyApiKey()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">📋 Copy</button>
+          <button onclick="entRegenApiKey()" style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.2);border-radius:10px;padding:10px 16px;color:#ff6464;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">🔄 Regenerate</button>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px">Use this key in the Authorization header: <code style="color:rgba(67,233,123,0.6)">X-API-Key: your-key</code></div>
+      </div>
+
+      <!-- Team Members -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">👥 Team Members <span id="entSeatsLabel" style="color:rgba(67,233,123,0.7);font-weight:400"></span></div>
+          <div style="display:flex;gap:8px">
+            <input id="entInviteEmail" type="email" placeholder="colleague@email.com" style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:8px 14px;color:#fff;font-family:inherit;font-size:13px;width:200px;outline:none">
+            <button onclick="entInviteMember()" style="background:#43E97B;border:none;border-radius:10px;padding:8px 16px;color:#02020A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">+ Invite</button>
+          </div>
+        </div>
+        <div id="entMembersList" style="display:flex;flex-direction:column;gap:8px">
+          <div style="color:rgba(255,255,255,0.3);font-size:13px">Loading team...</div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /dashContent -->
 </div>
 </div>
@@ -4445,6 +4478,9 @@ async function loadDashboard() {
         dashUpdateProgress(0);
 
         updateNavBar(data);
+
+        // Enterprise panel
+        loadEnterprisePanel(plan);
 
     } catch(e) {
         if (loading) loading.style.display = 'none';

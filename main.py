@@ -1803,3 +1803,159 @@ async def proxy_image(url: str = ""):
     except Exception as e:
         logger.error(f"/proxy-image error: {e}")
         return JSONResponse({"error": "Failed to fetch image"}, status_code=500)
+# ═══════════════════════════════════════════════════════════════
+# ENTERPRISE — API KEY + TEAM MANAGEMENT
+# ═══════════════════════════════════════════════════════════════
+
+def generate_api_key(email: str) -> str:
+    """Generate a deterministic but secure API key for enterprise user."""
+    import hashlib, secrets
+    base = hashlib.sha256(f"{email}:{secrets.token_hex(8)}".encode()).hexdigest()
+    return f"tg-ent-{base[:32]}"
+
+async def sb_get_team_members(owner_email: str):
+    """Get all team members for an enterprise owner."""
+    try:
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?team_owner_email=eq.{owner_email}&select=email,plan,images_used,thumb_analysis_used,created_at",
+            headers=SB_HEADERS)
+        return r.json() if r.status_code == 200 else []
+    except Exception as e:
+        logger.error(f"sb_get_team_members: {e}"); return []
+
+async def send_team_invite_email(member_email: str, owner_email: str, login_token: str):
+    """Send invite email to a new team member."""
+    login_url = f"{APP_URL}/activate?login_token={login_token}"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post("https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "from": f"ThumbGenius <{FROM_EMAIL}>",
+                    "to": [member_email],
+                    "subject": "🏢 You've been invited to ThumbGenius Enterprise",
+                    "html": f"""<div style="font-family:Arial;max-width:600px;margin:0 auto;background:#02020A;color:#fff;padding:40px;border-radius:12px;">
+                        <h1 style="color:#43E97B">ThumbGenius Enterprise</h1>
+                        <p style="color:#aaa">YouTube Packaging Intelligence Platform</p>
+                        <h2>You've been invited! 🎉</h2>
+                        <p style="color:#ccc"><strong>{owner_email}</strong> has invited you to their ThumbGenius Enterprise team.</p>
+                        <a href="{login_url}" style="display:inline-block;background:#43E97B;color:#02020A;font-weight:bold;font-size:18px;padding:16px 40px;border-radius:8px;text-decoration:none;margin:24px 0;">Accept Invite & Login →</a>
+                        <p style="color:#666;font-size:14px">This link expires in 24 hours.</p>
+                        <p style="color:#444;font-size:12px">ThumbGenius · thumbgenius.in</p>
+                    </div>"""
+                })
+        logger.info(f"Team invite sent to {member_email}")
+    except Exception as e:
+        logger.error(f"Team invite email error: {e}")
+
+@app.get("/enterprise/api-key")
+async def enterprise_get_api_key(request: Request):
+    """Get or generate API key for enterprise user."""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    user = await sb_get_user(email)
+    if not user or user.get("plan") != "enterprise":
+        return JSONResponse({"error": "Enterprise plan required"}, status_code=403)
+    # Return existing key or generate new one
+    api_key = user.get("api_key")
+    if not api_key:
+        api_key = generate_api_key(email)
+        await sb_update_user(email, {"api_key": api_key})
+    return JSONResponse({"api_key": api_key})
+
+@app.post("/enterprise/regenerate-key")
+async def enterprise_regenerate_api_key(request: Request):
+    """Regenerate API key for enterprise user."""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    user = await sb_get_user(email)
+    if not user or user.get("plan") != "enterprise":
+        return JSONResponse({"error": "Enterprise plan required"}, status_code=403)
+    api_key = generate_api_key(email)
+    await sb_update_user(email, {"api_key": api_key})
+    return JSONResponse({"api_key": api_key})
+
+@app.post("/enterprise/invite")
+async def enterprise_invite_member(request: Request):
+    """Invite a team member to enterprise account."""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    owner = await sb_get_user(email)
+    if not owner or owner.get("plan") != "enterprise":
+        return JSONResponse({"error": "Enterprise plan required"}, status_code=403)
+    # Check seat limit
+    members = await sb_get_team_members(email)
+    seat_limit = owner.get("seat_limit") or 5
+    if len(members) >= seat_limit:
+        return JSONResponse({"error": f"Seat limit reached ({seat_limit} seats). Contact support to add more."}, status_code=400)
+    try:
+        data = await request.json()
+        member_email = data.get("email","").strip().lower()
+    except:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    if not member_email or "@" not in member_email:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+    if member_email == email:
+        return JSONResponse({"error": "Cannot invite yourself"}, status_code=400)
+    # Create or update member account
+    existing = await sb_get_user(member_email)
+    import secrets as _sec
+    from datetime import timezone as _tz
+    login_token = _sec.token_urlsafe(32)
+    token_expires = (datetime.now(_tz.utc) + timedelta(hours=24)).isoformat()
+    if existing:
+        await sb_update_user(member_email, {
+            "plan": "enterprise",
+            "team_owner_email": email,
+            "login_token": login_token,
+            "login_token_expires": token_expires
+        })
+    else:
+        async with httpx.AsyncClient(timeout=10.0) as h:
+            await h.post(f"{SUPABASE_URL}/rest/v1/users",
+                headers={**SB_HEADERS, "Prefer": "return=minimal"},
+                json={
+                    "email": member_email,
+                    "plan": "enterprise",
+                    "team_owner_email": email,
+                    "login_token": login_token,
+                    "login_token_expires": token_expires
+                })
+    asyncio.create_task(send_team_invite_email(member_email, email, login_token))
+    return JSONResponse({"success": True, "message": f"Invite sent to {member_email}"})
+
+@app.get("/enterprise/team")
+async def enterprise_get_team(request: Request):
+    """Get team members list for enterprise owner."""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    user = await sb_get_user(email)
+    if not user or user.get("plan") != "enterprise":
+        return JSONResponse({"error": "Enterprise plan required"}, status_code=403)
+    members = await sb_get_team_members(email)
+    return JSONResponse({
+        "members": members,
+        "seat_limit": user.get("seat_limit") or 5,
+        "seats_used": len(members)
+    })
+
+@app.delete("/enterprise/remove-member")
+async def enterprise_remove_member(request: Request):
+    """Remove a team member from enterprise account."""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    owner = await sb_get_user(email)
+    if not owner or owner.get("plan") != "enterprise":
+        return JSONResponse({"error": "Enterprise plan required"}, status_code=403)
+    try:
+        data = await request.json()
+        member_email = data.get("email","").strip().lower()
+    except:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+    await sb_update_user(member_email, {"plan": "free", "team_owner_email": None})
+    return JSONResponse({"success": True})
