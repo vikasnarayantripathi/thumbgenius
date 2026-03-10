@@ -2982,8 +2982,8 @@ async function generateImage(){
     document.getElementById('imageBtn').disabled=true;
     try{
                 // Use custom image if uploaded
-                // Always generate clean image, handle text via canvas overlay
-                let imgPayload = {concept:lastConcept, text_overlay:'', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:true};
+                // Baked text uses AI-generated text_overlay (short punchy), title overlay uses selected title
+                let imgPayload = {concept:lastConcept, text_overlay:_imgOptions.bakedText ? lastTextOverlay : '', niche:selectedNiche, language:selectedLanguage||'english', no_baked_text:!_imgOptions.bakedText};
                 if (_customImgB64 && _customImgMode === 'generate') {
                     imgPayload.custom_image_b64 = _customImgB64;
                     imgPayload.custom_image_mode = 'generate';
