@@ -885,16 +885,7 @@ async def generate_image(request: Request):
         lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         # Claude Haiku writes a precise, detailed Imagen prompt
-        import re as _re
-        # Parse topic and scene separately
-        topic_match = _re.search(r'TOPIC:(.*?)\|SCENE:(.*)', concept, _re.IGNORECASE | _re.DOTALL)
-        if topic_match:
-            video_topic = topic_match.group(1).strip()
-            visual_scene = topic_match.group(2).strip()
-        else:
-            video_topic = ""
-            visual_scene = concept
-        clean_concept = f"Video is about: {video_topic}. Visual scene: {visual_scene}"[:400]
+        clean_concept = concept.strip()[:400]
         try:
             claude_resp = await client.messages.create(
                 model="claude-haiku-4-5-20251001",
