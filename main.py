@@ -888,13 +888,17 @@ async def generate_image(request: Request):
         try:
             pw_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
             pw_body = {"contents":[{"parts":[{"text":
-                f"Write a detailed Imagen AI prompt for a YouTube thumbnail.\n"
+                f"Write a detailed Imagen AI image generation prompt for a YouTube thumbnail.\n"
                 f"Topic/Scene: {concept}\n"
                 f"Style: {lang_style}\n"
-                f"Requirements: 16:9 widescreen, photorealistic 8K, MrBeast-level quality, "
-                f"ultra-vibrant colors, dramatic cinematic lighting, strong focal point, "
-                f"NO text or letters anywhere.\n"
-                f"Write ONLY the image prompt, no explanation, under 300 words."
+                f"STRICT RULES:\n"
+                f"- ABSOLUTELY NO text, words, letters, numbers, titles, captions or writing of any kind in the image\n"
+                f"- ABSOLUTELY NO watermarks, logos, UI elements\n"
+                f"- Describe ONLY visual elements: people, objects, background, lighting, colors, composition\n"
+                f"- 16:9 widescreen, photorealistic 8K, MrBeast-level quality\n"
+                f"- Ultra-vibrant colors, dramatic cinematic lighting, strong focal point\n"
+                f"- Do NOT mention any text overlay in your prompt\n"
+                f"Write ONLY the image prompt, no explanation, under 200 words."
             }]}]}
             async with httpx.AsyncClient(timeout=12.0) as hc:
                 pr = await hc.post(pw_url, json=pw_body)

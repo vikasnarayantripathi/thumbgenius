@@ -3422,6 +3422,12 @@ function renderImgTitleChips(){
     if(_imgOptions.titleOverlay){
         const firstChip = wrap.querySelector('.img-title-chip');
         if(firstChip) selectImgTitle(firstChip);
+    } else {
+        // Make sure overlay is hidden
+        const ov = document.getElementById('imgTitleOverlay');
+        if(ov) ov.style.display = 'none';
+        const ot = document.getElementById('imgOverlayText');
+        if(ot) ot.textContent = '';
     }
 }
 
