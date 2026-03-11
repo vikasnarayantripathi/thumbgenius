@@ -892,13 +892,18 @@ async def generate_image(request: Request):
                 model="claude-haiku-4-5-20251001",
                 max_tokens=350,
                 messages=[{"role":"user","content":
-                    f"Write an Imagen AI image generation prompt for a YouTube thumbnail.\n"
-                    f"Scene: {clean_concept}\n"
+                    f"Write an AI image generation prompt for a YouTube thumbnail.\n"
+                    f"Thumbnail concept: {clean_concept}\n"
                     f"Style: {lang_style}\n"
-                    f"Rules: photorealistic 8K, 16:9, ultra-vibrant colors, cinematic lighting, "
-                    f"dramatic expressions, MrBeast quality. "
-                    f"ABSOLUTELY NO text, words, letters, watermarks anywhere. "
-                    f"Describe only visual elements. Output prompt only, max 150 words."
+                    f"CRITICAL RULES:\n"
+                    f"- Output ONLY visual scene description\n"
+                    f"- DO NOT include any words, titles, book names, or text from the concept\n"
+                    f"- Describe ONLY: person expressions, background, objects, lighting, colors, camera angle\n"
+                    f"- NO text, letters, words, watermarks, captions in the image\n"
+                    f"- Photorealistic 8K, 16:9 widescreen, cinematic lighting, ultra-vibrant\n"
+                    f"- MrBeast/top YouTuber quality thumbnail\n"
+                    f"Example: Instead of showing book title, show a person holding money looking surprised\n"
+                    f"Output prompt only, max 120 words."
                 }]
             )
             img_prompt = claude_resp.content[0].text.strip()
