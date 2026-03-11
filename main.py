@@ -874,17 +874,15 @@ async def generate_image(request: Request):
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
     try:
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
+        niche = str(data.get("niche","")).strip()
         img_prompt = (
-            f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
-            f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
-            f"Scene: {concept}. "
-            f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
-            f"deep shadows and bright highlights for maximum contrast. "
-            f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
-            f"Mood: exciting, urgent, curiosity-inducing. "
-            f"Quality: photorealistic 8K, sharp details, professional color grading. "
-            f"No watermarks, no borders, absolutely NO text, NO letters, NO words, NO characters of any language in the image. Clean image only. "
-            f"Person should look Indian/South Asian. "
+            f"YouTube thumbnail photo, 16:9 widescreen. "
+            f"SCENE: {concept}. "
+            f"NICHE: {niche}. "
+            f"Person: Indian/South Asian man or woman, expressive face, professional look. "
+            f"Style: ultra-vibrant colors, cinematic dramatic lighting, photorealistic 8K. "
+            f"Composition: close-up face on right or left, dynamic background behind. "
+            f"STRICT: absolutely zero text, zero letters, zero words, zero watermarks, zero logos anywhere in the image. Pure visual only."
         )
 
         # If custom image provided — use Gemini Vision to generate around it
