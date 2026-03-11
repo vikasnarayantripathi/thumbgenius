@@ -82,6 +82,7 @@ async def lifespan(app: FastAPI):
         pass
 
 app = FastAPI(lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ─── CSP Middleware ───────────────────────────────────────────────────────────
 class CSPMiddleware(BaseHTTPMiddleware):
