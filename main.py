@@ -873,36 +873,18 @@ async def generate_image(request: Request):
     custom_image_mode = str(data.get("custom_image_mode", "")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
     try:
-        # Language-specific style hints for image
-        lang_style_map = {
-            "hindi":    "Indian YouTube style, vibrant Bollywood-influenced colors, dramatic expression.",
-            "hinglish": "Indian YouTube style, vibrant colors, dramatic expression popular in India.",
-        }
-        lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
-        # Claude Haiku writes a precise, detailed Imagen prompt
-        clean_concept = concept.strip()[:400]
-        try:
-            claude_resp = await client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=350,
-                messages=[{"role":"user","content":
-                    f"Convert this YouTube thumbnail concept into an Imagen AI image prompt.\n\n"
-                    f"CONCEPT TO VISUALIZE:\n{clean_concept}\n\n"
-                    f"STYLE: {lang_style}\n\n"
-                    f"YOUR JOB: Expand the concept into a detailed visual scene description.\n"
-                    f"- Keep ALL the visual elements from the concept (split screen, expressions, props, backgrounds)\n"
-                    f"- Add cinematic details: lighting, colors, camera angle, depth\n"
-                    f"- Photorealistic 8K, 16:9 widescreen, ultra-vibrant, MrBeast quality\n"
-                    f"- ZERO text, letters, words, watermarks in the image\n\n"
-                    f"Output ONLY the image prompt, max 150 words."
-                }]
-            )
-            img_prompt = claude_resp.content[0].text.strip()
-        except Exception as ce:
-            logger.error(f"Claude prompt writer error: {ce}")
-            img_prompt = f"YouTube thumbnail, {clean_concept}, {lang_style}, photorealistic 8K, ultra-vibrant colors, cinematic lighting, dramatic expression"
-        img_prompt += " No text, no words, no letters, no watermarks anywhere in the image."
+        img_prompt = (
+            f"Create a stunning YouTube thumbnail image in 16:9 widescreen format. "
+            f"Style: MrBeast/top YouTuber quality, extremely eye-catching, high production value. "
+            f"Scene: {concept}. "
+            f"Visual style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, "
+            f"deep shadows and bright highlights for maximum contrast. "
+            f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
+            f"Mood: exciting, urgent, curiosity-inducing. "
+            f"Quality: photorealistic 8K, sharp details, professional color grading. "
+            f"No watermarks, no borders, no text in the image. "
+        )
 
         # If custom image provided — use Gemini Vision to generate around it
         if custom_image_b64 and custom_image_mode == "generate":
