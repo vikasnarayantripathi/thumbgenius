@@ -876,13 +876,13 @@ async def generate_image(request: Request):
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         niche = str(data.get("niche","")).strip()
         img_prompt = (
-            f"YouTube thumbnail photo, 16:9 widescreen. "
-            f"SCENE: {concept}. "
-            f"NICHE: {niche}. "
-            f"Person: Indian/South Asian man or woman, expressive face, professional look. "
-            f"Style: ultra-vibrant colors, cinematic dramatic lighting, photorealistic 8K. "
-            f"Composition: close-up face on right or left, dynamic background behind. "
-            f"STRICT: absolutely zero text, zero letters, zero words, zero watermarks, zero logos anywhere in the image. Pure visual only."
+            f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
+            f"EXACT SCENE TO RECREATE: {concept}. "
+            f"Do NOT add random props. Only show what is described in the scene above. "
+            f"Person: Indian/South Asian, highly expressive face matching the emotion in the scene. "
+            f"Style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, MrBeast quality. "
+            f"Composition: person face prominent on one side, background scene clearly visible. "
+            f"CRITICAL: zero text, zero letters, zero words, zero watermarks, zero logos. No exceptions."
         )
 
         # If custom image provided — use Gemini Vision to generate around it
