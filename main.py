@@ -944,7 +944,21 @@ async def generate_image(request: Request):
         if r.status_code != 200:
             raise Exception(f"Imagen API error: {r.status_code} {r.text[:200]}")
         rdata = r.json()
-        img_b64 = rdata["predictions"][0]["bytesBase64Encoded"]
+        # Handle Imagen response safely
+        predictions = rdata.get("predictions")
+        if not predictions or len(predictions) == 0:
+            # Imagen blocked or failed — retry with simpler prompt
+            simple_prompt = f"YouTube thumbnail, {concept}, vibrant colors, cinematic lighting, photorealistic, no text"
+            payload2 = {"instances": [{"prompt": simple_prompt}], "parameters": {"sampleCount": 1, "aspectRatio": "16:9", "personGeneration": "allow_adult"}}
+            async with httpx.AsyncClient(timeout=60.0) as hc2:
+                r2 = await hc2.post(gemini_url, json=payload2)
+            if r2.status_code != 200:
+                raise Exception(f"Imagen retry failed: {r2.status_code}")
+            rdata = r2.json()
+            predictions = rdata.get("predictions", [])
+            if not predictions:
+                raise Exception(f"Imagen returned no image. Response: {str(rdata)[:200]}")
+        img_b64 = predictions[0]["bytesBase64Encoded"]
         if not is_adm:
             if email:
                 asyncio.create_task(sb_update_user(email,{"images_used":used+1}))
