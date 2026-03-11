@@ -6,6 +6,7 @@ YouTube Packaging Intelligence Platform
            Reverse Engineering, A/B Testing, Inspiration Library, Branding System
 """
 
+from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from fastapi.templating import Jinja2Templates
