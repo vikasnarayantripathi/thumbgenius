@@ -2931,7 +2931,7 @@ async function generate(){
            +'<div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; '+escapeHtml(th.why_it_works)+'</div>'
            +'</div></div>';
         lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
-        lastConcept=th.background+'. Face expression: '+th.face_expression;
+        lastConcept='Indian YouTuber, '+th.face_expression+' expression, '+th.background+', related to topic: '+topic;
         document.getElementById('imgResult').style.display='none';
         document.getElementById('thumbnailImg').src='';
         lastTextOverlay=th.text_overlay;
