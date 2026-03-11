@@ -877,10 +877,6 @@ async def generate_image(request: Request):
         lang_style_map = {
             "hindi":    "Indian YouTube style, vibrant Bollywood-influenced colors, dramatic expression.",
             "hinglish": "Indian YouTube style, vibrant colors, dramatic expression popular in India.",
-            "telugu":   "Telugu YouTube style, vibrant colors, dramatic Tollywood-influenced composition.",
-            "tamil":    "Tamil YouTube style, vibrant Kollywood-influenced colors and composition.",
-            "bengali":  "Bengali YouTube style, rich warm colors, expressive composition.",
-            "marathi":  "Marathi YouTube style, vibrant colors, expressive dramatic composition.",
         }
         lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
