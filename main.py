@@ -887,17 +887,14 @@ async def generate_image(request: Request):
                 model="claude-haiku-4-5-20251001",
                 max_tokens=350,
                 messages=[{"role":"user","content":
-                    f"Write an AI image generation prompt for a YouTube thumbnail.\n"
-                    f"Thumbnail concept: {clean_concept}\n"
-                    f"Style: {lang_style}\n"
-                    f"CRITICAL RULES:\n"
-                    f"- Use the topic to understand the theme, then describe ONLY visual elements\n"
-                    f"- DO NOT render any text, titles, words, book names, letters in the image\n"
-                    f"- Translate topic into visual metaphors: money=cash bundles, success=luxury car, etc\n"
-                    f"- Describe: person expressions, props, background, lighting, colors, camera angle\n"
-                    f"- NO text, letters, words, watermarks anywhere in the image\n"
-                    f"- Photorealistic 8K, 16:9, cinematic lighting, ultra-vibrant, MrBeast quality\n"
-                    f"- Example: 'Rich Dad Poor Dad' → Indian man in suit on left with gold coins, poor man on right with empty pockets, dramatic split lighting\n"
+                    f"Convert this YouTube thumbnail concept into an Imagen AI image prompt.\n\n"
+                    f"CONCEPT TO VISUALIZE:\n{clean_concept}\n\n"
+                    f"STYLE: {lang_style}\n\n"
+                    f"YOUR JOB: Expand the concept into a detailed visual scene description.\n"
+                    f"- Keep ALL the visual elements from the concept (split screen, expressions, props, backgrounds)\n"
+                    f"- Add cinematic details: lighting, colors, camera angle, depth\n"
+                    f"- Photorealistic 8K, 16:9 widescreen, ultra-vibrant, MrBeast quality\n"
+                    f"- ZERO text, letters, words, watermarks in the image\n\n"
                     f"Output ONLY the image prompt, max 150 words."
                 }]
             )
