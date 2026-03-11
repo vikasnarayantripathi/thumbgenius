@@ -883,7 +883,8 @@ async def generate_image(request: Request):
             f"Composition: rule of thirds, dynamic diagonal lines, strong focal point. "
             f"Mood: exciting, urgent, curiosity-inducing. "
             f"Quality: photorealistic 8K, sharp details, professional color grading. "
-            f"No watermarks, no borders, no text in the image. "
+            f"No watermarks, no borders, absolutely NO text, NO letters, NO words, NO characters of any language in the image. Clean image only. "
+            f"Person should look Indian/South Asian. "
         )
 
         # If custom image provided — use Gemini Vision to generate around it
