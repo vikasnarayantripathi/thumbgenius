@@ -914,25 +914,9 @@ async def generate_image(request: Request):
             "instances": [{"prompt": img_prompt[:2000]}],
             "parameters": {"sampleCount": 1, "aspectRatio": "16:9", "personGeneration": "allow_adult"}
         }
+        # DALL-E 3 primary — best for YouTube thumbnails (follows prompts accurately)
         img_b64 = None
         try:
-            async with httpx.AsyncClient(timeout=60.0) as hc:
-                r = await hc.post(gemini_url, json=payload)
-            if r.status_code == 200:
-                rdata = r.json()
-                predictions = rdata.get("predictions")
-                if predictions and len(predictions) > 0:
-                    img_b64 = predictions[0]["bytesBase64Encoded"]
-                    logger.info("Imagen generated successfully")
-                else:
-                    logger.warning(f"Imagen empty predictions: {str(rdata)[:100]}")
-            else:
-                logger.warning(f"Imagen {r.status_code} — using DALL-E 3 fallback")
-        except Exception as ie:
-            logger.warning(f"Imagen exception: {ie}")
-
-        if not img_b64:
-            logger.info("Falling back to DALL-E 3")
             dalle_resp = await client.images.generate(
                 model="dall-e-3",
                 prompt=img_prompt[:4000],
@@ -942,6 +926,22 @@ async def generate_image(request: Request):
                 response_format="b64_json"
             )
             img_b64 = dalle_resp.data[0].b64_json
+            logger.info("DALL-E 3 generated successfully")
+        except Exception as de:
+            logger.warning(f"DALL-E 3 failed: {de} — trying Imagen fallback")
+
+        if not img_b64:
+            try:
+                async with httpx.AsyncClient(timeout=60.0) as hc:
+                    r = await hc.post(gemini_url, json=payload)
+                if r.status_code == 200:
+                    rdata = r.json()
+                    predictions = rdata.get("predictions")
+                    if predictions and len(predictions) > 0:
+                        img_b64 = predictions[0]["bytesBase64Encoded"]
+                        logger.info("Imagen fallback successful")
+            except Exception as ie:
+                logger.warning(f"Imagen fallback also failed: {ie}")
         if not is_adm:
             if email:
                 asyncio.create_task(sb_update_user(email,{"images_used":used+1}))
