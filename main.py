@@ -886,12 +886,15 @@ async def generate_image(request: Request):
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         # Claude Haiku writes a precise, detailed Imagen prompt
         import re as _re
-        # Extract ONLY visual elements — remove topic title to prevent AI rendering it as text
-        clean_concept = _re.sub(r'Topic:.*', '', concept, flags=_re.IGNORECASE)
-        clean_concept = _re.sub(r'(Title:|Text:|Overlay:|Caption:).*', '', clean_concept, flags=_re.IGNORECASE)
-        # Remove common book/show titles that AI tends to render as text
-        clean_concept = _re.sub(r'\b(rich dad poor dad|rich dad|poor dad)\b', '', clean_concept, flags=_re.IGNORECASE)
-        clean_concept = clean_concept.strip()[:300]
+        # Parse topic and scene separately
+        topic_match = _re.search(r'TOPIC:(.*?)\|SCENE:(.*)', concept, _re.IGNORECASE | _re.DOTALL)
+        if topic_match:
+            video_topic = topic_match.group(1).strip()
+            visual_scene = topic_match.group(2).strip()
+        else:
+            video_topic = ""
+            visual_scene = concept
+        clean_concept = f"Video is about: {video_topic}. Visual scene: {visual_scene}"[:400]
         try:
             claude_resp = await client.messages.create(
                 model="claude-haiku-4-5-20251001",
@@ -901,14 +904,14 @@ async def generate_image(request: Request):
                     f"Thumbnail concept: {clean_concept}\n"
                     f"Style: {lang_style}\n"
                     f"CRITICAL RULES:\n"
-                    f"- Output ONLY visual scene description\n"
-                    f"- DO NOT include any words, titles, book names, or text from the concept\n"
-                    f"- Describe ONLY: person expressions, background, objects, lighting, colors, camera angle\n"
-                    f"- NO text, letters, words, watermarks, captions in the image\n"
-                    f"- Photorealistic 8K, 16:9 widescreen, cinematic lighting, ultra-vibrant\n"
-                    f"- MrBeast/top YouTuber quality thumbnail\n"
-                    f"Example: Instead of showing book title, show a person holding money looking surprised\n"
-                    f"Output prompt only, max 120 words."
+                    f"- Use the topic to understand the theme, then describe ONLY visual elements\n"
+                    f"- DO NOT render any text, titles, words, book names, letters in the image\n"
+                    f"- Translate topic into visual metaphors: money=cash bundles, success=luxury car, etc\n"
+                    f"- Describe: person expressions, props, background, lighting, colors, camera angle\n"
+                    f"- NO text, letters, words, watermarks anywhere in the image\n"
+                    f"- Photorealistic 8K, 16:9, cinematic lighting, ultra-vibrant, MrBeast quality\n"
+                    f"- Example: 'Rich Dad Poor Dad' → Indian man in suit on left with gold coins, poor man on right with empty pockets, dramatic split lighting\n"
+                    f"Output ONLY the image prompt, max 150 words."
                 }]
             )
             img_prompt = claude_resp.content[0].text.strip()

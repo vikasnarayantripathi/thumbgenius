@@ -2931,7 +2931,7 @@ async function generate(){
            +'<div class="titem-val" style="flex:1;font-size:15px;line-height:1.65">/ 10 &nbsp;—&nbsp; '+escapeHtml(th.why_it_works)+'</div>'
            +'</div></div>';
         lastGeneratedData={topic,niche:selectedNiche,titles:data.titles,thumbnail:th,hook:data.hook_script,tip:data.niche_tip,date:new Date().toLocaleDateString('en-IN')};
-        lastConcept=th.background+'. Face expression: '+th.face_expression+'. Emotion: '+(th.emotion_trigger||'');
+        lastConcept='TOPIC:'+topic+'|SCENE:'+th.background+'. Face: '+th.face_expression+'. Emotion: '+(th.emotion_trigger||'');
         lastTextOverlay=th.text_overlay;
         var _ir=document.getElementById('imgResult');if(_ir)_ir.style.display='none';
         var _iu=document.getElementById('imgUpgrade');if(_iu)_iu.style.display='none';
