@@ -1117,16 +1117,17 @@ function enterApp() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const plan = localStorage.getItem('tg_plan') || 'free';
     const entered = localStorage.getItem('tg_entered_app');
-    const hasEmail = localStorage.getItem('tg_email');
     const forceLanding = new URLSearchParams(window.location.search).get('landing');
+    // Always show landing UNLESS: paid plan OR explicitly entered via Try Free
     if (forceLanding === '1') {
-        // Show landing page regardless
         document.getElementById('landingPage').style.display = 'block';
         document.getElementById('appWrapper').style.display = 'none';
         return;
     }
-    if (entered || hasEmail) {
+    const isPaid = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
+    if (isPaid || entered === '1') {
         document.getElementById('landingPage').style.display = 'none';
         document.getElementById('appWrapper').style.display = 'block';
     }
