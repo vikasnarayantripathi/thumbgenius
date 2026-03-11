@@ -884,33 +884,28 @@ async def generate_image(request: Request):
         }
         lang_style = lang_style_map.get(language, "Global YouTube style, vibrant colors.")
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
-        # Use Gemini Flash to write an optimized Imagen prompt
+        # Claude Haiku writes a precise, detailed Imagen prompt
+        import re as _re
+        clean_concept = _re.sub(r'(Title:|Text:|Overlay:|Caption:).*', '', concept, flags=_re.IGNORECASE).strip()[:300]
         try:
-            pw_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-            pw_body = {"contents":[{"parts":[{"text":
-                f"Write a detailed Imagen AI image generation prompt for a YouTube thumbnail.\n"
-                f"Topic/Scene: {concept}\n"
-                f"Style: {lang_style}\n"
-                f"STRICT RULES:\n"
-                f"- ABSOLUTELY NO text, words, letters, numbers, titles, captions or writing of any kind in the image\n"
-                f"- ABSOLUTELY NO watermarks, logos, UI elements\n"
-                f"- Describe ONLY visual elements: people, objects, background, lighting, colors, composition\n"
-                f"- 16:9 widescreen, photorealistic 8K, MrBeast-level quality\n"
-                f"- Ultra-vibrant colors, dramatic cinematic lighting, strong focal point\n"
-                f"- Do NOT mention any text overlay in your prompt\n"
-                f"Write ONLY the image prompt, no explanation, under 200 words."
-            }]}]}
-            async with httpx.AsyncClient(timeout=12.0) as hc:
-                pr = await hc.post(pw_url, json=pw_body)
-            if pr.status_code == 200:
-                ai_p = pr.json().get("candidates",[{}])[0].get("content",{}).get("parts",[{}])[0].get("text","").strip()
-                img_prompt = ai_p[:1500] if ai_p else f"YouTube thumbnail: {concept}. {lang_style} Photorealistic, vibrant, cinematic, no text."
-            else:
-                img_prompt = f"YouTube thumbnail: {concept}. {lang_style} Photorealistic 8K, ultra-vibrant colors, cinematic lighting, no text."
-        except:
-            img_prompt = f"YouTube thumbnail: {concept}. {lang_style} Photorealistic 8K, ultra-vibrant colors, cinematic lighting, no text."
-        # Always clean image — text rendered by frontend canvas
-        img_prompt += " NO text, words, letters or watermarks anywhere in the image. Pure visual only."
+            claude_resp = await client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=350,
+                messages=[{"role":"user","content":
+                    f"Write an Imagen AI image generation prompt for a YouTube thumbnail.\n"
+                    f"Scene: {clean_concept}\n"
+                    f"Style: {lang_style}\n"
+                    f"Rules: photorealistic 8K, 16:9, ultra-vibrant colors, cinematic lighting, "
+                    f"dramatic expressions, MrBeast quality. "
+                    f"ABSOLUTELY NO text, words, letters, watermarks anywhere. "
+                    f"Describe only visual elements. Output prompt only, max 150 words."
+                }]
+            )
+            img_prompt = claude_resp.content[0].text.strip()
+        except Exception as ce:
+            logger.error(f"Claude prompt writer error: {ce}")
+            img_prompt = f"YouTube thumbnail, {clean_concept}, {lang_style}, photorealistic 8K, ultra-vibrant colors, cinematic lighting, dramatic expression"
+        img_prompt += " No text, no words, no letters, no watermarks anywhere in the image."
 
         # If custom image provided — use Gemini Vision to generate around it
         if custom_image_b64 and custom_image_mode == "generate":
