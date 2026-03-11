@@ -407,6 +407,13 @@
             .feature-page { padding:130px 16px 60px; }
         }
         @media (max-width:768px) {
+            /* Landing page mobile */
+            #landingPage { padding-top:60px; }
+            #landingPage h1 { font-size:32px !important; line-height:1.2 !important; }
+            #landingPage p { font-size:14px !important; }
+            #landingPage .landing-features { grid-template-columns:1fr !important; }
+            #landingPage .landing-pricing { grid-template-columns:1fr !important; }
+            #landingPage section { padding:40px 16px !important; }
             .nav-top { padding:0 16px; height:48px; }
             .nav-bottom { padding:0 12px 8px; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
             .nav-bottom::-webkit-scrollbar { display:none; }
@@ -1112,6 +1119,13 @@ function enterApp() {
 document.addEventListener('DOMContentLoaded', function() {
     const entered = localStorage.getItem('tg_entered_app');
     const hasEmail = localStorage.getItem('tg_email');
+    const forceLanding = new URLSearchParams(window.location.search).get('landing');
+    if (forceLanding === '1') {
+        // Show landing page regardless
+        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('appWrapper').style.display = 'none';
+        return;
+    }
     if (entered || hasEmail) {
         document.getElementById('landingPage').style.display = 'none';
         document.getElementById('appWrapper').style.display = 'block';
