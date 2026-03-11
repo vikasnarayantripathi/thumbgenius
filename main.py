@@ -886,7 +886,12 @@ async def generate_image(request: Request):
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         # Claude Haiku writes a precise, detailed Imagen prompt
         import re as _re
-        clean_concept = _re.sub(r'(Title:|Text:|Overlay:|Caption:).*', '', concept, flags=_re.IGNORECASE).strip()[:300]
+        # Extract ONLY visual elements — remove topic title to prevent AI rendering it as text
+        clean_concept = _re.sub(r'Topic:.*', '', concept, flags=_re.IGNORECASE)
+        clean_concept = _re.sub(r'(Title:|Text:|Overlay:|Caption:).*', '', clean_concept, flags=_re.IGNORECASE)
+        # Remove common book/show titles that AI tends to render as text
+        clean_concept = _re.sub(r'\b(rich dad poor dad|rich dad|poor dad)\b', '', clean_concept, flags=_re.IGNORECASE)
+        clean_concept = clean_concept.strip()[:300]
         try:
             claude_resp = await client.messages.create(
                 model="claude-haiku-4-5-20251001",
