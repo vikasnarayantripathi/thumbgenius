@@ -2992,7 +2992,7 @@ async function generateImage(){
     try{
                 // Use custom image if uploaded
                 // Always generate clean image — text is drawn on canvas by JS
-                let imgPayload = {concept:lastConcept, text_overlay:lastTextOverlay, niche:selectedNiche};
+                let imgPayload = {concept:lastConcept, text_overlay:'', niche:selectedNiche};
                 if (_customImgB64 && _customImgMode === 'generate') {
                     imgPayload.custom_image_b64 = _customImgB64;
                     imgPayload.custom_image_mode = 'generate';
