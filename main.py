@@ -1788,17 +1788,21 @@ async def blueprint_analyze(request: Request):
         image_b64 = image_b64.split(",", 1)[1]
 
     try:
-        response = await client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text",      "text": BLUEPRINT_SCORE_PROMPT.format(niche=niche)},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}", "detail": "high"}},
-                ]
-            }],
-            max_tokens=1200,
-            response_format={"type": "json_object"},
+        import asyncio as _asyncio
+        response = await _asyncio.wait_for(
+            client.chat.completions.create(
+                model="gpt-4o",
+                messages=[{
+                    "role": "user",
+                    "content": [
+                        {"type": "text",      "text": BLUEPRINT_SCORE_PROMPT.format(niche=niche)},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}", "detail": "low"}},
+                    ]
+                }],
+                max_tokens=800,
+                response_format={"type": "json_object"},
+            ),
+            timeout=25
         )
         result = parse_json_safe(response.choices[0].message.content)
 
