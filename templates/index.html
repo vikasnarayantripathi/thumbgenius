@@ -1124,8 +1124,8 @@
 function enterApp() {
     var lp = document.getElementById("landingPage");
     var aw = document.getElementById("appWrapper");
-    lp.style.cssText = "display:none !important";
-    aw.style.cssText = "display:block !important";
+    lp.style.cssText = "display:none !important; height:0 !important; overflow:hidden !important; position:absolute !important; visibility:hidden !important;";
+    aw.style.cssText = "display:block !important;";
     localStorage.setItem("tg_entered_app", "1");
     localStorage.setItem("tg_app_version", "5");
 }
@@ -1149,8 +1149,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('landingPage').style.display = 'block';
         document.getElementById('appWrapper').style.display = 'none';
     } else {
-        document.getElementById('landingPage').style.display = 'none';
-        document.getElementById('appWrapper').style.display = 'block';
+        document.getElementById('landingPage').style.cssText = 'display:none !important; height:0 !important; overflow:hidden !important; visibility:hidden !important;';
+        document.getElementById('appWrapper').style.cssText = 'display:block !important;';
     }
 });
 
