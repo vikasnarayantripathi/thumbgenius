@@ -1127,14 +1127,14 @@ function enterApp() {
     document.getElementById('landingPage').classList.remove('visible');
     document.getElementById('appWrapper').style.display = 'block';
     localStorage.setItem("tg_entered_app", "1");
-    localStorage.setItem("tg_app_version", "5");
+    localStorage.setItem("tg_app_version", "6");
     return;
     var lp = document.getElementById("landingPage");
     var aw = document.getElementById("appWrapper");
     lp.style.cssText = "display:none !important; height:0 !important; overflow:hidden !important; position:absolute !important; visibility:hidden !important;";
     aw.style.cssText = "display:block !important;";
     localStorage.setItem("tg_entered_app", "1");
-    localStorage.setItem("tg_app_version", "5");
+    localStorage.setItem("tg_app_version", "6");
 }
 
 
@@ -1144,9 +1144,9 @@ function enterApp() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('tg_app_version') !== '5') {
+    if (localStorage.getItem('tg_app_version') !== '6') {
         localStorage.removeItem('tg_entered_app');
-        localStorage.setItem('tg_app_version', '5');
+        localStorage.setItem('tg_app_version', '6');
     }
     const plan = localStorage.getItem('tg_plan') || 'free';
     const entered = localStorage.getItem('tg_entered_app');
