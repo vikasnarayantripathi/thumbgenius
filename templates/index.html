@@ -1122,11 +1122,19 @@
 <script>
 // Early stub — lets nav onclick work before main script loads
 function enterApp() {
-    document.getElementById('landingPage').style.display = 'none';
-    document.getElementById('appWrapper').style.display = 'block';
-    localStorage.setItem('tg_entered_app', '1');
-    localStorage.setItem('tg_app_version', '5');
+    var lp = document.getElementById("landingPage");
+    var aw = document.getElementById("appWrapper");
+    lp.style.cssText = "display:none !important";
+    aw.style.cssText = "display:block !important";
+    localStorage.setItem("tg_entered_app", "1");
+    localStorage.setItem("tg_app_version", "5");
 }
+
+
+
+
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem('tg_app_version') !== '5') {
