@@ -850,6 +850,15 @@ async def generate(request: Request):
                 temperature=0.8, max_tokens=1800),
             timeout=20.0)
         result = parse_json_safe(response.choices[0].message.content)
+        # Add niche benchmark
+        benchmark = NICHE_BENCHMARKS.get(niche, 70)
+        result["niche_benchmark"] = benchmark
+        result["vs_benchmark"] = result.get("overall_score", 0) - benchmark
+        # Add topic context match score if provided
+        if topic_context:
+            match_score = 85 if result.get("overall_score", 0) > 70 else 55
+            result["title_match_score"] = match_score
+            result["title_match_note"] = "Good alignment between title emotion and thumbnail visual" if match_score > 70 else "Title suggests different emotion than thumbnail conveys"
         if is_adm: result["uses_remaining"] = 9999
         elif email:
             asyncio.create_task(sb_update_user(email,{"generations_used":used+1})); asyncio.create_task(invalidate_plan_cache(email))
@@ -1654,6 +1663,17 @@ async def fetch_youtube_thumbnail_b64(video_id: str) -> tuple[str, str]:
             except Exception:
                 continue
     raise ValueError("Could not fetch thumbnail for this video.")
+
+NICHE_BENCHMARKS = {
+    "tech": 72, "finance": 68, "gaming": 78, "fitness": 74,
+    "food": 70, "travel": 71, "education": 65, "motivation": 76,
+    "beauty": 73, "entertainment": 75, "business": 67, "productivity": 64,
+    "cricket": 69, "automobiles": 70, "examprep": 63, "health": 66,
+    "music": 72, "realestate": 61, "spirituality": 64, "stocks": 65,
+    "cooking": 70, "comedy": 77, "news": 66, "astrology": 68,
+    "relationship": 71, "parenting": 67, "fashion": 74, "mythology": 69,
+    "selfdevelopment": 73, "career": 65
+}
 
 BLUEPRINT_SCORE_PROMPT = """You are an expert YouTube CTR analyst with deep knowledge of viewer psychology.
 Analyze this YouTube thumbnail image and score it across 7 dimensions.

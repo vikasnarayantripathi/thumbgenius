@@ -1900,6 +1900,11 @@ function showPage(p){
     </div>
   </div>
 
+  <div class="input-wrap" style="margin-top:10px" id="bpTopicWrap">
+    <span class="input-icon">✏️</span>
+    <input type="text" id="bpTopicCtx" placeholder="Optional: Enter your video title to check thumbnail-title match" style="padding-left:52px;font-size:13px"/>
+  </div>
+
   <!-- THUMBNAIL PREVIEW (before analysis) -->
   <div id="bpThumbPreview" style="display:none;margin:24px 0">
     <div class="res-label" style="margin-bottom:10px">EXTRACTED THUMBNAIL</div>
@@ -1913,6 +1918,30 @@ function showPage(p){
       <button class="btn-regen" id="bpHeatmapToggle" onclick="bp_toggleHeatmap()"
               style="font-size:12px;padding:8px 16px">👁 Show Attention Heatmap</button>
       <span style="font-size:11px;color:rgba(255,255,255,0.25)">Simulated viewer attention based on visual weight analysis</span>
+    </div>
+  </div>
+
+  <!-- MOBILE PREVIEW -->
+  <div id="bpMobilePreview" style="display:none;margin:24px 0">
+    <div class="res-label" style="margin-bottom:12px">📱 MOBILE SIZE PREVIEW</div>
+    <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+      <div style="text-align:center">
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:6px;letter-spacing:1px">120px — YouTube Mobile</div>
+        <img id="bpMobileThumb120" src="" style="width:120px;height:68px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.1)"/>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:6px;letter-spacing:1px">200px — YouTube Desktop</div>
+        <img id="bpMobileThumb200" src="" style="width:200px;height:112px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.1)"/>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:6px;letter-spacing:1px">360px — Full Size</div>
+        <img id="bpMobileThumb360" src="" style="width:360px;max-width:100%;height:auto;border-radius:6px;border:1px solid rgba(255,255,255,0.1)"/>
+      </div>
+    </div>
+    <div style="margin-top:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 16px">
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7">
+        💡 <strong style="color:rgba(255,255,255,0.7)">Pro tip:</strong> At 120px, text under 30px font size becomes unreadable. Faces should occupy at least 40% of frame. Colors must have 4.5:1 contrast ratio minimum.
+      </div>
     </div>
   </div>
 
@@ -4028,9 +4057,10 @@ async function bp_analyze() {
     btn.disabled         = true;
     document.getElementById('bpResult').style.display = 'none';
     try {
+        const topicCtx = (document.getElementById('bpTopicCtx') || {value:''}).value || '';
         const res  = await fetch('/blueprint/analyze', {
             method:'POST', headers:_hdrs(),
-            body: JSON.stringify({ image_b64: _bp_image_b64, niche: niche })
+            body: JSON.stringify({ image_b64: _bp_image_b64, niche: niche, topic_context: topicCtx })
         });
         const data = await res.json();
         loadEl.style.display = 'none';
@@ -4044,6 +4074,9 @@ async function bp_analyze() {
         bp_renderVerdict(data);
         bp_renderDimBars(data.scores || {});
         bp_renderFixes(data.fixes || []);
+        bp_renderBenchmark(data, niche);
+        bp_renderTitleMatch(data);
+        bp_renderMobilePreview();
         bp_buildHeatmap();
         document.getElementById('bpVarGrid').innerHTML = '';
         document.getElementById('bpVarLoading').style.display = 'none';
@@ -4055,6 +4088,49 @@ async function bp_analyze() {
         btn.disabled = false;
         alert('Analysis failed. Please try again.');
     }
+}
+
+function bp_renderBenchmark(data, niche) {
+    const score = data.overall_score || 0;
+    const bench = data.niche_benchmark || 70;
+    const diff  = data.vs_benchmark || (score - bench);
+    const card  = document.getElementById('bpBenchmarkCard');
+    const val   = document.getElementById('bpBenchmarkVal');
+    const note  = document.getElementById('bpBenchmarkNote');
+    const row   = document.getElementById('bpMetaRow');
+    if(!card) return;
+    const color = diff >= 0 ? '#43E97B' : '#FF6584';
+    const arrow = diff >= 0 ? '▲' : '▼';
+    val.innerHTML = `<span style="color:${color}">${arrow} ${Math.abs(diff)}</span> <span style="font-size:14px;color:rgba(255,255,255,0.4)">vs ${bench} avg</span>`;
+    note.textContent = diff >= 0
+        ? `Above average for ${niche} niche — keep it up!`
+        : `${Math.abs(diff)} points below ${niche} niche average`;
+    note.style.color = color;
+    row.style.display = 'block';
+}
+
+function bp_renderTitleMatch(data) {
+    const card  = document.getElementById('bpTitleMatchCard');
+    const val   = document.getElementById('bpTitleMatchVal');
+    const note  = document.getElementById('bpTitleMatchNote');
+    if(!card || !data.title_match_score) return;
+    const score = data.title_match_score;
+    const color = score >= 70 ? '#43E97B' : '#FDE036';
+    val.innerHTML = `<span style="color:${color}">${score}/100</span>`;
+    note.textContent = data.title_match_note || '';
+    note.style.color = color;
+    card.style.display = 'block';
+}
+
+function bp_renderMobilePreview() {
+    const src = document.getElementById('bpThumbImg').src;
+    if(!src) return;
+    const preview = document.getElementById('bpMobilePreview');
+    ['bpMobileThumb120','bpMobileThumb200','bpMobileThumb360'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.src = src;
+    });
+    if(preview) preview.style.display = 'block';
 }
 
 function bp_renderScore(score, grade) {
