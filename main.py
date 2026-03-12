@@ -1530,7 +1530,9 @@ async def trending(request: Request, niches: str = ""):
     # Parse requested niches
     VALID_NICHES = {"tech","finance","gaming","fitness","food","travel","education","motivation",
                     "beauty","entertainment","business","productivity","cricket","automobiles",
-                    "examprep","health","music","realestate","spirituality","stocks"}
+                    "examprep","health","music","realestate","spirituality","stocks",
+                    "cooking","comedy","news","astrology","relationship","parenting",
+                    "fashion","mythology","selfdevelopment","career"}
     if niches:
         requested = [n.strip().lower() for n in niches.split(",") if n.strip().lower() in VALID_NICHES]
     else:
