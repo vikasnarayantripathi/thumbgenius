@@ -1129,21 +1129,18 @@ function enterApp() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('tg_app_version') !== '4') {
+    if (localStorage.getItem('tg_app_version') !== '5') {
         localStorage.removeItem('tg_entered_app');
         localStorage.setItem('tg_app_version', '5');
     }
     const plan = localStorage.getItem('tg_plan') || 'free';
     const entered = localStorage.getItem('tg_entered_app');
     const forceLanding = new URLSearchParams(window.location.search).get('landing');
-    // Always show landing UNLESS: paid plan OR explicitly entered via Try Free
-    if (forceLanding === '1') {
+    const isPaid = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
+    if (forceLanding === '1' || (!isPaid && !entered)) {
         document.getElementById('landingPage').style.display = 'block';
         document.getElementById('appWrapper').style.display = 'none';
-        return;
-    }
-    const isPaid = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
-    if (isPaid || entered === '1') {
+    } else {
         document.getElementById('landingPage').style.display = 'none';
         document.getElementById('appWrapper').style.display = 'block';
     }
@@ -1293,7 +1290,7 @@ function showPage(p){
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- LANDING PAGE -->
 <!-- ═══════════════════════════════════════════════════════ -->
-<div id="landingPage" style="display:block">
+<div id="landingPage" style="display:none">
 
 <!-- Landing Nav -->
 <div style="position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(2,2,10,0.95) 0%,transparent 100%);backdrop-filter:blur(8px)">
@@ -1730,7 +1727,7 @@ function showPage(p){
 
 </div><!-- /landingPage -->
 
-<div id="appWrapper" style="display:none">
+<div id="appWrapper" style="display:block">
 <nav>
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
