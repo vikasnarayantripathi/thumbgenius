@@ -1118,10 +1118,17 @@
 .btn-login-nav{background:none;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);border-radius:8px;padding:6px 16px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s;margin-right:8px}
 .btn-login-nav:hover{border-color:rgba(255,224,54,0.4);color:#FFE036}
 
+#landingPage { display:none !important; }
+#landingPage.visible { display:block !important; }
 </style>
 <script>
 // Early stub — lets nav onclick work before main script loads
 function enterApp() {
+    document.getElementById('landingPage').classList.remove('visible');
+    document.getElementById('appWrapper').style.display = 'block';
+    localStorage.setItem("tg_entered_app", "1");
+    localStorage.setItem("tg_app_version", "5");
+    return;
     var lp = document.getElementById("landingPage");
     var aw = document.getElementById("appWrapper");
     lp.style.cssText = "display:none !important; height:0 !important; overflow:hidden !important; position:absolute !important; visibility:hidden !important;";
@@ -1146,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const forceLanding = new URLSearchParams(window.location.search).get('landing');
     const isPaid = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
     if (forceLanding === '1' || (!isPaid && !entered)) {
-        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('landingPage').classList.add('visible');
         document.getElementById('appWrapper').style.display = 'none';
     } else {
         document.getElementById('landingPage').style.cssText = 'display:none !important; height:0 !important; overflow:hidden !important; visibility:hidden !important;';
