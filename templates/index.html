@@ -1155,7 +1155,22 @@ function toggleNavDropdown(id){
     if(!isOpen) wrap.classList.add('open');
 }
 document.addEventListener('click', function(e){
-    if(!e.target.closest('.nav-dropdown-wrap')) closeNavDropdowns();
+    var inDropdown = false;
+    var el = e.target;
+    while(el){
+        if(el.classList && el.classList.contains('nav-dropdown-wrap')){inDropdown=true;break;}
+        el = el.parentElement;
+    }
+    if(!inDropdown) closeNavDropdowns();
+});
+document.addEventListener('touchstart', function(e){
+    var inDropdown = false;
+    var el = e.target;
+    while(el){
+        if(el.classList && el.classList.contains('nav-dropdown-wrap')){inDropdown=true;break;}
+        el = el.parentElement;
+    }
+    if(!inDropdown) closeNavDropdowns();
 });
 function showPage(p){
     closeNavDropdowns();
