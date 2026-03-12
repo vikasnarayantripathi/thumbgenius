@@ -591,6 +591,10 @@ async def terms(request: Request):
 async def refund(request: Request):
     return HTMLResponse("""<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Refund Policy - ThumbGenius</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{background:#02020A;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;max-width:800px;margin:0 auto;padding:40px 24px;line-height:1.8}h1{color:#FFE036;font-size:32px}h2{color:rgba(255,255,255,0.8);font-size:20px;margin-top:32px}p,li{color:rgba(255,255,255,0.6);font-size:15px}a{color:#FFE036}header{margin-bottom:40px}footer{margin-top:60px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);text-align:center;font-size:13px;color:rgba(255,255,255,0.3)}</style></head><body><header><a href="/" style="color:#FFE036;text-decoration:none;font-size:14px">← Back to ThumbGenius</a><h1>Refund Policy</h1><p>Last updated: January 2025</p></header><h2>7-Day Refund Guarantee</h2><p>We offer a full refund within 7 days of your first payment if you are not satisfied with ThumbGenius. No questions asked.</p><h2>How to Request a Refund</h2><p>Email us at <a href="mailto:support@thumbgenius.in">support@thumbgenius.in</a> with your registered email and reason. We will process the refund within 5-7 business days to your original payment method.</p><h2>Exceptions</h2><p>Refunds are not available after 7 days of purchase, or if the account has been found to violate our Terms of Service.</p><h2>Subscription Cancellations</h2><p>Cancelling a subscription stops future billing but does not automatically trigger a refund for the current period. Contact us if you need a refund for the current period.</p><h2>Contact</h2><p>Email: <a href="mailto:support@thumbgenius.in">support@thumbgenius.in</a></p><footer>© 2025 ThumbGenius · <a href="/">Home</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></footer></body></html>""")
 
+@app.get("/landing")
+async def landing_page(request: Request):
+    return templates.TemplateResponse("landing.html", {"request": request})
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "thumbgenius", "version": "4.0"}
