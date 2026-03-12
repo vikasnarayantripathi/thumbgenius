@@ -1143,24 +1143,20 @@ function enterApp() {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('tg_app_version') !== '6') {
-        localStorage.removeItem('tg_entered_app');
-        localStorage.setItem('tg_app_version', '6');
-    }
-    const plan = localStorage.getItem('tg_plan') || 'free';
-    const entered = localStorage.getItem('tg_entered_app');
-    const forceLanding = new URLSearchParams(window.location.search).get('landing');
-    const isPaid = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
-    if (forceLanding === '1' || (!isPaid && !entered)) {
-        document.getElementById('landingPage').classList.add('visible');
-        document.getElementById('appWrapper').style.display = 'none';
-    } else {
-        document.getElementById('landingPage').style.cssText = 'display:none !important; height:0 !important; overflow:hidden !important; visibility:hidden !important;';
-        document.getElementById('appWrapper').style.cssText = 'display:block !important;';
-    }
-});
 
+
+function closeNavDropdowns(){
+    document.querySelectorAll('.nav-dropdown-wrap').forEach(function(el){el.classList.remove('open');});
+}
+function toggleNavDropdown(id){
+    var wrap = document.getElementById(id);
+    var isOpen = wrap.classList.contains('open');
+    closeNavDropdowns();
+    if(!isOpen) wrap.classList.add('open');
+}
+document.addEventListener('click', function(e){
+    if(!e.target.closest('.nav-dropdown-wrap')) closeNavDropdowns();
+});
 function showPage(p){
     closeNavDropdowns();
     document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
