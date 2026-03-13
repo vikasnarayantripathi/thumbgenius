@@ -1176,6 +1176,9 @@ function tg_checkSession() {
         } else {
             window.location.href = "/landing";
         }
+    } else {
+        // Valid session — show app
+        document.getElementById('appWrapper').style.display = 'block';
     }
 })();
 
@@ -1366,7 +1369,7 @@ function showPage(p){
 <!-- LANDING PAGE -->
 <!-- ═══════════════════════════════════════════════════════ -->
 
-<div id="appWrapper" style="display:block">
+<div id="appWrapper" style="display:none">
 <nav>
     <div class="nav-top">
         <div class="logo">Thumb<span>Genius</span></div>
