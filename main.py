@@ -1514,16 +1514,73 @@ async def analyze_channel(request: Request):
     try: data = await request.json()
     except: return JSONResponse({"error":"Invalid request"},status_code=400)
     titles = str(data.get("titles","")).strip()
+    niche  = str(data.get("niche","tech")).strip()
     if not titles: return JSONResponse({"error":"Please enter your video titles"},status_code=400)
+    prompt = f"""You are a YouTube channel growth expert and packaging strategist.
+Analyze these YouTube video titles from a creator in the {niche} niche:
+"{titles}"
+
+Return ONLY valid JSON (no markdown):
+{{
+  "overall_grade": "B+",
+  "overall_score": 72,
+  "packaging_dna": "Your titles follow a [pattern] style — mostly [type]. You rely heavily on [pattern] but rarely use [missing pattern].",
+  "scores": {{
+    "ctr_power":     {{"score": 70, "label": "Good",   "note": "specific observation"}},
+    "emotion":       {{"score": 60, "label": "Average","note": "specific observation"}},
+    "clarity":       {{"score": 80, "label": "Strong", "note": "specific observation"}},
+    "curiosity_gap": {{"score": 55, "label": "Weak",   "note": "specific observation"}},
+    "consistency":   {{"score": 75, "label": "Good",   "note": "specific observation"}}
+  }},
+  "best_title":  {{"title": "the best title from the list", "reason": "why it works"}},
+  "worst_title": {{"title": "the worst title from the list", "reason": "why it fails"}},
+  "patterns": [
+    {{"pattern": "Pattern name", "frequency": "70%", "impact": "positive/negative", "note": "explanation"}}
+  ],
+  "missing_patterns": ["curiosity gap", "number hooks", "emotional triggers"],
+  "issues": [
+    {{"title": "Issue name", "detail": "Specific explanation with example from their titles"}}
+  ],
+  "fixes": [
+    {{"title": "Fix name", "detail": "Specific actionable fix", "example": "Before: X → After: Y"}}
+  ],
+  "rewrites": [
+    {{"original": "their title", "improved": "10x better version", "why": "what makes it better"}}
+  ],
+  "title_ideas": [
+    {{"title": "AI-generated title idea for their niche", "hook_type": "curiosity/emotion/number/shock"}}
+  ],
+  "competitor_benchmark": {{
+    "their_score": 72,
+    "top_creator_score": 88,
+    "gap": 16,
+    "top_creator_habit": "Top {niche} creators use curiosity gaps 3x more and lead with numbers"
+  }},
+  "verdict": "2-3 sentence overall channel packaging verdict"
+}}
+Rules:
+- title_ideas: generate exactly 10 title ideas specific to their niche and style
+- rewrites: rewrite ALL titles provided, one by one
+- Be specific, reference their actual titles in feedback
+- patterns: identify 2-3 patterns you see in their titles"""
+
     try:
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role":"system","content":"YouTube growth expert. JSON only."},
-                {"role":"user","content":f'Analyze these YouTube video titles. JSON only.\nTitles: "{titles}"\nReturn: {{"ctr_score":7,"emotion_score":6,"clarity_score":8,"issues":[{{"title":"issue","detail":"explanation"}}],"fixes":[{{"title":"fix","detail":"how to apply"}}],"rewrites":[{{"original":"old","improved":"better"}}]}}'}
-            ],
-            temperature=0.7, max_tokens=800)
-        return JSONResponse(parse_json_safe(response.choices[0].message.content))
+        response = await asyncio.wait_for(
+            client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role":"system","content":"YouTube packaging expert. Return ONLY valid JSON, no markdown."},
+                    {"role":"user","content":prompt}
+                ],
+                temperature=0.7, max_tokens=2500,
+                response_format={"type": "json_object"}
+            ),
+            timeout=25
+        )
+        result = parse_json_safe(response.choices[0].message.content)
+        return JSONResponse(result)
+    except asyncio.TimeoutError:
+        return JSONResponse({"error":"Analysis taking too long. Please try again."}, status_code=504)
     except Exception as e:
         logger.error(f"/analyze-channel error: {e}"); return JSONResponse({"error":"Analysis failed."},status_code=500)
 
