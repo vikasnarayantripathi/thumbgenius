@@ -462,7 +462,24 @@
 
 
 <script>
-function enterApp() { window.location.href = '/'; }
+function enterApp() {
+    const now = Date.now();
+    localStorage.setItem("tg_trial_start", now.toString());
+    localStorage.setItem("tg_entered_app", "1");
+    localStorage.setItem("tg_app_version", "6");
+    window.location.href = '/';
+}
+
+// Show trial expired message if redirected here
+(function(){
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('expired') === '1'){
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#FF6584;color:#fff;text-align:center;padding:12px;font-size:14px;font-weight:700;z-index:9999';
+        banner.textContent = '⏰ Your free trial has expired. Login or upgrade to continue.';
+        document.body.prepend(banner);
+    }
+})();
 function openPaymentModal(plan) { window.location.href = '/?upgrade=' + (plan||'creator'); }
 function openLoginModal() { window.location.href = '/?login=1'; }
 </script>

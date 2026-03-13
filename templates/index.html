@@ -1126,18 +1126,58 @@
 <script>
 // Early stub — lets nav onclick work before main script loads
 function enterApp() {
-    document.getElementById('landingPage').classList.remove('visible');
-    document.getElementById('appWrapper').style.display = 'block';
+    // Called from landing page "Try Free" button
+    const now = Date.now();
+    localStorage.setItem("tg_trial_start", now.toString());
     localStorage.setItem("tg_entered_app", "1");
     localStorage.setItem("tg_app_version", "6");
-    return;
-    var lp = document.getElementById("landingPage");
-    var aw = document.getElementById("appWrapper");
-    lp.style.cssText = "display:none !important; height:0 !important; overflow:hidden !important; position:absolute !important; visibility:hidden !important;";
-    aw.style.cssText = "display:block !important;";
-    localStorage.setItem("tg_entered_app", "1");
-    localStorage.setItem("tg_app_version", "6");
+    window.location.href = "/";
 }
+
+function tg_checkSession() {
+    const email    = localStorage.getItem('tg_email') || '';
+    const plan     = localStorage.getItem('tg_plan')  || 'free';
+    const entered  = localStorage.getItem('tg_entered_app');
+    const trialStart = parseInt(localStorage.getItem('tg_trial_start') || '0');
+    const isPaid   = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
+    const now      = Date.now();
+    const trialAge = now - trialStart; // ms since trial started
+    const TRIAL_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+    // Logged in users always get in
+    if (email) return true;
+
+    // Admin code always gets in
+    const adminCode = localStorage.getItem('tg_admin_code') || '';
+    if (adminCode) return true;
+
+    // Trial user — check if still valid (within 24hrs)
+    if (entered && trialStart && trialAge < TRIAL_TTL) return true;
+
+    // No valid session — send to landing
+    return false;
+}
+
+// Run on every page load
+(function() {
+    const email    = localStorage.getItem('tg_email') || '';
+    const entered  = localStorage.getItem('tg_entered_app');
+    const trialStart = parseInt(localStorage.getItem('tg_trial_start') || '0');
+    const trialAge = Date.now() - trialStart;
+    const TRIAL_TTL = 24 * 60 * 60 * 1000;
+    const adminCode = localStorage.getItem('tg_admin_code') || '';
+
+    if (!tg_checkSession()) {
+        // Was a trial user whose trial expired
+        if (entered && trialStart && trialAge >= TRIAL_TTL && !email && !adminCode) {
+            localStorage.removeItem('tg_entered_app');
+            localStorage.removeItem('tg_trial_start');
+            window.location.href = "/landing?expired=1";
+        } else {
+            window.location.href = "/landing";
+        }
+    }
+})();
 
 
 
