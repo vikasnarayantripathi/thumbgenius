@@ -1646,128 +1646,168 @@ function showPage(p){
     </div>
 </div>
 
-<div class="page" id="page-analyzer">
-    <div class="feature-page">
+<div class="page" id="page-channel">
+<div class="feature-page" style="max-width:900px">
 
-        <!-- ── SECTION 1: Channel Packaging Intelligence ── -->
-        <div class="feature-page-title">🧬 Channel Packaging Intelligence</div>
-        <p class="feature-page-sub">Paste 3–10 of your recent video titles. Get a full AI-powered packaging audit — your DNA, patterns, scores, rewrites, and 10 viral title ideas.</p>
+    <div class="feature-page-title">🧬 Channel Packaging Intelligence</div>
+    <p class="feature-page-sub">Paste 3–10 of your recent video titles. Get a full AI-powered packaging audit — your DNA, patterns, competitor benchmark, rewrites, and viral title ideas.</p>
 
-        <!-- INPUT -->
-        <div class="analyzer-input-wrap">
-            <textarea id="channelInput" rows="4" placeholder="Paste your recent video titles here, one per line or separated by commas...&#10;&#10;e.g.&#10;My Review of iPhone 16&#10;Top 5 Budget Phones in 2025&#10;I Tested 10 Gadgets So You Don't Have To" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;resize:vertical;min-height:120px;outline:none;line-height:1.6"></textarea>
-            <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;align-items:center">
-                <select id="caNiche" class="mod-select" style="margin-bottom:0;max-width:200px">
-                    <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
-                    <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
-                    <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
-                    <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
-                    <option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option>
-                    <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
-                    <option value="examprep">🎓 Exam Prep</option><option value="health">💊 Health</option>
-                    <option value="music">🎵 Music</option><option value="cooking">🍳 Cooking</option>
-                    <option value="comedy">😂 Comedy</option><option value="news">📰 News</option>
-                    <option value="astrology">🔮 Astrology</option><option value="mythology">🕉️ Mythology</option>
-                    <option value="career">💼 Career</option><option value="selfdevelopment">🧠 Self Dev</option>
-                    <option value="fashion">👗 Fashion</option><option value="relationship">❤️ Relationship</option>
-                    <option value="parenting">👶 Parenting</option><option value="stocks">📊 Stocks</option>
-                    <option value="automobiles">🚗 Automobiles</option><option value="spirituality">🌿 Spirituality</option>
-                    <option value="realestate">🏠 Real Estate</option><option value="productivity">⚡ Productivity</option>
-                </select>
-                <button class="btn-gen" id="analyzeBtn" onclick="runAnalysis()" style="flex:1;max-width:260px">🧬 Run Packaging Audit</button>
+    <!-- TIER BADGES -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 16px;flex:1;min-width:160px;text-align:center">
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;letter-spacing:1px">FREE</div>
+            <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.6)">Basic Audit</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:3px">3 scores · issues · rewrites</div>
+        </div>
+        <div style="background:rgba(139,133,255,0.08);border:1px solid rgba(139,133,255,0.25);border-radius:10px;padding:10px 16px;flex:1;min-width:160px;text-align:center">
+            <div style="font-size:11px;color:#8B85FF;margin-bottom:4px;letter-spacing:1px">CREATOR</div>
+            <div style="font-size:13px;font-weight:700;color:#8B85FF">5X Audit</div>
+            <div style="font-size:11px;color:rgba(139,133,255,0.6);margin-top:3px">5 dimensions · patterns · 5 title ideas</div>
+        </div>
+        <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.25);border-radius:10px;padding:10px 16px;flex:1;min-width:160px;text-align:center">
+            <div style="font-size:11px;color:var(--yellow);margin-bottom:4px;letter-spacing:1px">PRO</div>
+            <div style="font-size:13px;font-weight:700;color:var(--yellow)">10X Audit</div>
+            <div style="font-size:11px;color:rgba(255,224,54,0.6);margin-top:3px">Full DNA · benchmark · 10 title ideas</div>
+        </div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="analyzer-input-wrap">
+        <textarea id="channelInput" rows="4" placeholder="Paste your recent video titles here, one per line or separated by commas...&#10;&#10;e.g.&#10;My Review of iPhone 16&#10;Top 5 Budget Phones in 2025&#10;I Tested 10 Gadgets So You Don't Have To" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;resize:vertical;min-height:120px;outline:none;line-height:1.6;box-sizing:border-box"></textarea>
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;align-items:center">
+            <select id="caNiche" class="mod-select" style="margin-bottom:0;max-width:200px">
+                <option value="tech">📱 Tech</option><option value="finance">💰 Finance</option>
+                <option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option>
+                <option value="food">🍕 Food</option><option value="travel">✈️ Travel</option>
+                <option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option>
+                <option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option>
+                <option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option>
+                <option value="examprep">🎓 Exam Prep</option><option value="health">💊 Health</option>
+                <option value="music">🎵 Music</option><option value="cooking">🍳 Cooking</option>
+                <option value="comedy">😂 Comedy</option><option value="news">📰 News</option>
+                <option value="astrology">🔮 Astrology</option><option value="mythology">🕉️ Mythology</option>
+                <option value="career">💼 Career</option><option value="selfdevelopment">🧠 Self Dev</option>
+                <option value="fashion">👗 Fashion</option><option value="relationship">❤️ Relationship</option>
+                <option value="parenting">👶 Parenting</option><option value="stocks">📊 Stocks</option>
+                <option value="automobiles">🚗 Automobiles</option><option value="spirituality">🌿 Spirituality</option>
+                <option value="realestate">🏠 Real Estate</option><option value="productivity">⚡ Productivity</option>
+            </select>
+            <button class="btn-gen" id="analyzeBtn" onclick="runAnalysis()" style="flex:1;max-width:280px">🧬 Run Packaging Audit</button>
+        </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="mod-loading" id="caLoading" style="display:none">
+        <div class="loading-spinner"></div>
+        <p id="caLoadingMsg">Analyzing your channel packaging DNA…</p>
+    </div>
+
+    <!-- RESULT -->
+    <div id="caResult" style="display:none;margin-top:32px">
+
+        <!-- GRADE + DNA -->
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:28px">
+            <div style="text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px 32px;min-width:140px">
+                <div style="font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:8px">CHANNEL GRADE</div>
+                <div id="caGrade" style="font-size:56px;font-weight:900;line-height:1">—</div>
+                <div id="caScore" style="font-size:14px;color:rgba(255,255,255,0.4);margin-top:4px">— / 100</div>
+                <div id="caTierBadge" style="font-size:10px;font-weight:700;letter-spacing:1px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:3px 8px;margin-top:8px;display:inline-block;color:rgba(255,255,255,0.4)">Basic</div>
+            </div>
+            <div style="flex:1;min-width:220px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px">
+                <div style="font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:10px">🧬 PACKAGING DNA</div>
+                <p id="caDna" style="font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0"></p>
+                <p id="caVerdict" style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px"></p>
             </div>
         </div>
 
-        <!-- LOADING -->
-        <div class="mod-loading" id="caLoading" style="display:none">
-            <div class="loading-spinner"></div>
-            <p id="caLoadingMsg">Analyzing your channel packaging DNA…</p>
+        <!-- 5 DIMENSIONS -->
+        <div class="res-label" style="margin-bottom:14px">5-DIMENSION BREAKDOWN</div>
+        <div id="caDimGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:28px"></div>
+
+        <!-- BEST / WORST -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px">
+            <div style="flex:1;min-width:200px;background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.2);border-radius:14px;padding:16px 20px">
+                <div style="font-size:10px;letter-spacing:1px;color:rgba(67,233,123,0.7);font-weight:700;margin-bottom:8px">🏆 BEST TITLE</div>
+                <div id="caBestTitle" style="font-size:14px;font-weight:700;color:#43E97B;margin-bottom:6px"></div>
+                <div id="caBestReason" style="font-size:12px;color:rgba(255,255,255,0.5)"></div>
+            </div>
+            <div style="flex:1;min-width:200px;background:rgba(255,101,132,0.05);border:1px solid rgba(255,101,132,0.2);border-radius:14px;padding:16px 20px">
+                <div style="font-size:10px;letter-spacing:1px;color:rgba(255,101,132,0.7);font-weight:700;margin-bottom:8px">💀 WORST TITLE</div>
+                <div id="caWorstTitle" style="font-size:14px;font-weight:700;color:#FF6584;margin-bottom:6px"></div>
+                <div id="caWorstReason" style="font-size:12px;color:rgba(255,255,255,0.5)"></div>
+            </div>
         </div>
 
-        <!-- RESULT -->
-        <div id="caResult" style="display:none;margin-top:32px">
-
-            <!-- GRADE + VERDICT -->
-            <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;margin-bottom:28px">
-                <div style="text-align:center;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px 32px;min-width:140px">
-                    <div style="font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:8px">CHANNEL GRADE</div>
-                    <div id="caGrade" style="font-size:56px;font-weight:900;line-height:1">—</div>
-                    <div id="caScore" style="font-size:14px;color:rgba(255,255,255,0.4);margin-top:4px">— / 100</div>
-                </div>
-                <div style="flex:1;min-width:220px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px">
-                    <div style="font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:10px">🧬 PACKAGING DNA</div>
-                    <p id="caDna" style="font-size:14px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0"></p>
-                    <p id="caVerdict" style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:10px"></p>
-                </div>
+        <!-- COMPETITOR BENCHMARK (Pro only) -->
+        <div id="caBenchmarkWrap" style="background:rgba(255,224,54,0.04);border:1px solid rgba(255,224,54,0.15);border-radius:14px;padding:16px 20px;margin-bottom:28px;display:none">
+            <div style="font-size:10px;letter-spacing:1px;color:rgba(255,224,54,0.7);font-weight:700;margin-bottom:10px">📊 COMPETITOR BENCHMARK</div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
+                <div style="text-align:center"><div style="font-size:28px;font-weight:900" id="caBenchYours">—</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">Your Score</div></div>
+                <div style="font-size:24px;color:rgba(255,255,255,0.2)">vs</div>
+                <div style="text-align:center"><div style="font-size:28px;font-weight:900;color:var(--yellow)" id="caBenchTop">—</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">Top Creators</div></div>
+                <div style="flex:1;min-width:150px"><p id="caBenchNote" style="font-size:13px;color:rgba(255,255,255,0.5);margin:0;line-height:1.6"></p></div>
             </div>
+        </div>
 
-            <!-- 5 DIMENSION SCORES -->
-            <div class="res-label" style="margin-bottom:14px">5-DIMENSION BREAKDOWN</div>
-            <div id="caDimGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:28px"></div>
-
-            <!-- BEST / WORST -->
-            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px">
-                <div style="flex:1;min-width:200px;background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.2);border-radius:14px;padding:16px 20px">
-                    <div style="font-size:10px;letter-spacing:1px;color:rgba(67,233,123,0.7);font-weight:700;margin-bottom:8px">🏆 BEST TITLE</div>
-                    <div id="caBestTitle" style="font-size:14px;font-weight:700;color:#43E97B;margin-bottom:6px"></div>
-                    <div id="caBestReason" style="font-size:12px;color:rgba(255,255,255,0.5)"></div>
-                </div>
-                <div style="flex:1;min-width:200px;background:rgba(255,101,132,0.05);border:1px solid rgba(255,101,132,0.2);border-radius:14px;padding:16px 20px">
-                    <div style="font-size:10px;letter-spacing:1px;color:rgba(255,101,132,0.7);font-weight:700;margin-bottom:8px">💀 WORST TITLE</div>
-                    <div id="caWorstTitle" style="font-size:14px;font-weight:700;color:#FF6584;margin-bottom:6px"></div>
-                    <div id="caWorstReason" style="font-size:12px;color:rgba(255,255,255,0.5)"></div>
-                </div>
-            </div>
-
-            <!-- COMPETITOR BENCHMARK -->
-            <div id="caBenchmarkWrap" style="background:rgba(255,224,54,0.04);border:1px solid rgba(255,224,54,0.15);border-radius:14px;padding:16px 20px;margin-bottom:28px">
-                <div style="font-size:10px;letter-spacing:1px;color:rgba(255,224,54,0.7);font-weight:700;margin-bottom:10px">📊 COMPETITOR BENCHMARK</div>
-                <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
-                    <div style="text-align:center"><div style="font-size:28px;font-weight:900" id="caBenchYours">—</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">Your Score</div></div>
-                    <div style="font-size:24px;color:rgba(255,255,255,0.2)">vs</div>
-                    <div style="text-align:center"><div style="font-size:28px;font-weight:900;color:var(--yellow)" id="caBenchTop">—</div><div style="font-size:11px;color:rgba(255,255,255,0.3)">Top Creators</div></div>
-                    <div style="flex:1;min-width:150px"><p id="caBenchNote" style="font-size:13px;color:rgba(255,255,255,0.5);margin:0;line-height:1.6"></p></div>
-                </div>
-            </div>
-
-            <!-- PATTERNS -->
+        <!-- PATTERNS (Creator/Pro) -->
+        <div id="caPatternsWrap" style="display:none">
             <div class="res-label" style="margin-bottom:12px">🔍 TITLE PATTERNS DETECTED</div>
             <div id="caPatterns" style="margin-bottom:28px"></div>
-
-            <!-- MISSING PATTERNS -->
-            <div id="caMissingWrap" style="background:rgba(255,101,132,0.04);border:1px solid rgba(255,101,132,0.15);border-radius:14px;padding:16px 20px;margin-bottom:28px">
+            <div style="background:rgba(255,101,132,0.04);border:1px solid rgba(255,101,132,0.15);border-radius:14px;padding:16px 20px;margin-bottom:28px">
                 <div style="font-size:10px;letter-spacing:1px;color:rgba(255,101,132,0.7);font-weight:700;margin-bottom:10px">❌ MISSING FROM YOUR TITLES</div>
                 <div id="caMissing" style="display:flex;flex-wrap:wrap;gap:8px"></div>
             </div>
+        </div>
 
-            <!-- ISSUES + FIXES -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:28px">
-                <div>
-                    <div class="res-label" style="margin-bottom:12px">⚠️ ISSUES FOUND</div>
-                    <div id="caIssues"></div>
-                </div>
-                <div>
-                    <div class="res-label" style="margin-bottom:12px">✅ HOW TO FIX</div>
-                    <div id="caFixes"></div>
-                </div>
+        <!-- ISSUES + FIXES -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:28px">
+            <div>
+                <div class="res-label" style="margin-bottom:12px">⚠️ ISSUES FOUND</div>
+                <div id="caIssues"></div>
             </div>
-
-            <!-- REWRITES -->
-            <div class="res-label" style="margin-bottom:12px">✏️ AI TITLE REWRITES</div>
-            <div id="caRewrites" style="margin-bottom:28px"></div>
-
-            <!-- 10 VIRAL TITLE IDEAS -->
-            <div style="background:linear-gradient(135deg,rgba(255,224,54,0.06),rgba(139,85,255,0.06));border:1px solid rgba(255,224,54,0.15);border-radius:20px;padding:24px;margin-bottom:28px">
-                <div style="font-size:18px;font-weight:800;margin-bottom:4px">💡 10 Viral Title Ideas For Your Channel</div>
-                <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:18px">AI-generated based on your niche, style, and missing patterns</div>
-                <div id="caTitleIdeas"></div>
+            <div>
+                <div class="res-label" style="margin-bottom:12px">✅ HOW TO FIX</div>
+                <div id="caFixes"></div>
             </div>
+        </div>
 
-            <!-- SHARE CARD -->
-            <div style="text-align:center;margin-top:8px">
-                <button onclick="ca_shareScore()" style="background:rgba(255,224,54,0.1);border:1px solid rgba(255,224,54,0.3);color:var(--yellow);padding:12px 28px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">📤 Share My Channel Score</button>
+        <!-- REWRITES -->
+        <div class="res-label" style="margin-bottom:12px">✏️ AI TITLE REWRITES</div>
+        <div id="caRewrites" style="margin-bottom:28px"></div>
+
+        <!-- TITLE IDEAS -->
+        <div style="background:linear-gradient(135deg,rgba(255,224,54,0.06),rgba(139,85,255,0.06));border:1px solid rgba(255,224,54,0.15);border-radius:20px;padding:24px;margin-bottom:28px">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px">
+                <div style="font-size:18px;font-weight:800">💡 Viral Title Ideas For Your Channel</div>
+                <span id="caTierIdeasBadge" style="font-size:11px;font-weight:700;background:rgba(255,224,54,0.1);color:var(--yellow);border-radius:8px;padding:4px 10px"></span>
             </div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:18px">AI-generated based on your niche, style, and missing patterns</div>
+            <div id="caTitleIdeas"></div>
+            <div id="caTitleIdeasUpgrade" style="display:none;text-align:center;padding:20px;background:rgba(255,224,54,0.04);border-radius:12px;margin-top:8px">
+                <p style="color:rgba(255,255,255,0.5);margin-bottom:12px">🔒 Upgrade to <strong style="color:#8B85FF">Creator</strong> for 5 title ideas or <strong style="color:var(--yellow)">Pro</strong> for 10 viral titles</p>
+                <button class="btn-pay" style="padding:10px 24px;font-size:13px" onclick="openPaymentModal()">Upgrade Now →</button>
+            </div>
+        </div>
 
+        <!-- SHARE -->
+        <div style="text-align:center;margin-top:8px">
+            <button onclick="ca_shareScore()" style="background:rgba(255,224,54,0.1);border:1px solid rgba(255,224,54,0.3);color:var(--yellow);padding:12px 28px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">📤 Share My Channel Score</button>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<div class="page" id="page-analyzer">
+    <div class="feature-page">
+
+        <!-- Channel Analyzer moved to its own page -->
+        <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.2);border-radius:14px;padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div style="flex:1">
+                <div style="font-size:15px;font-weight:700;color:var(--yellow);margin-bottom:4px">🧬 Channel Packaging Intelligence has moved!</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.5)">Get your full channel DNA audit, 5-dimension scores, and viral title ideas.</div>
+            </div>
+            <button class="btn-gen" onclick="showPage('channel')" style="padding:10px 20px;font-size:13px;white-space:nowrap">Open Channel Analyzer →</button>
         </div>
 
         <!-- ── DIVIDER ── -->
