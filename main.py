@@ -1511,11 +1511,41 @@ async def branding_get(request: Request):
 
 @app.post("/analyze-channel")
 async def analyze_channel(request: Request):
+    email      = request.headers.get("X-User-Email","").strip().lower()
+    admin_code = request.headers.get("X-Admin-Code","").strip().upper()
+    is_adm     = is_admin(admin_code)
+    # Determine plan
+    if is_adm:
+        plan = "pro"
+    elif email:
+        pd   = await get_user_plan(email)
+        plan = pd.get("plan","free")
+    else:
+        plan = "free"
+
     try: data = await request.json()
     except: return JSONResponse({"error":"Invalid request"},status_code=400)
     titles = str(data.get("titles","")).strip()
     niche  = str(data.get("niche","tech")).strip()
     if not titles: return JSONResponse({"error":"Please enter your video titles"},status_code=400)
+
+    # Tier config
+    if plan == "pro" or is_adm:
+        model       = "gpt-4o"
+        max_tokens  = 2500
+        title_ideas = 10
+        tier_label  = "10X Pro"
+    elif plan == "creator":
+        model       = "gpt-4o-mini"
+        max_tokens  = 2000
+        title_ideas = 5
+        tier_label  = "5X Creator"
+    else:
+        model       = "gpt-4o-mini"
+        max_tokens  = 1000
+        title_ideas = 0
+        tier_label  = "Basic"
+
     prompt = f"""You are a YouTube channel growth expert and packaging strategist.
 Analyze these YouTube video titles from a creator in the {niche} niche:
 "{titles}"
