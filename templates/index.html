@@ -1158,26 +1158,99 @@ function tg_checkSession() {
     return false;
 }
 
-// Run on every page load
-document.addEventListener('DOMContentLoaded', function() {
-    const email    = localStorage.getItem('tg_email') || '';
-    const entered  = localStorage.getItem('tg_entered_app');
-    const trialStart = parseInt(localStorage.getItem('tg_trial_start') || '0');
-    const trialAge = Date.now() - trialStart;
-    const TRIAL_TTL = 24 * 60 * 60 * 1000;
-    const adminCode = localStorage.getItem('tg_admin_code') || '';
+// ── Session Manager ──
+const TG_IDLE_TIMEOUT = 3 * 60 * 60 * 1000; // 3 hours idle logout
+const TG_TRIAL_TTL    = 24 * 60 * 60 * 1000; // 24 hour trial
 
-    if (!tg_checkSession()) {
-        if (entered && trialStart && trialAge >= TRIAL_TTL && !email && !adminCode) {
-            localStorage.removeItem('tg_entered_app');
-            localStorage.removeItem('tg_trial_start');
-            window.location.href = "/landing?expired=1";
-        } else {
-            window.location.href = "/landing";
-        }
-    } else {
+function tg_logout(reason) {
+    localStorage.removeItem('tg_email');
+    localStorage.removeItem('tg_plan');
+    localStorage.removeItem('tg_token');
+    localStorage.removeItem('tg_entered_app');
+    localStorage.removeItem('tg_trial_start');
+    localStorage.removeItem('tg_last_active');
+    window.location.href = '/landing' + (reason ? '?msg=' + reason : '');
+}
+
+function tg_updateActivity() {
+    localStorage.setItem('tg_last_active', Date.now().toString());
+}
+
+function tg_initSession() {
+    const email     = localStorage.getItem('tg_email') || '';
+    const adminCode = localStorage.getItem('tg_admin_code') || '';
+    const plan      = localStorage.getItem('tg_plan') || 'free';
+    const entered   = localStorage.getItem('tg_entered_app') || '';
+    const trialStart= parseInt(localStorage.getItem('tg_trial_start') || '0');
+    const lastActive= parseInt(localStorage.getItem('tg_last_active') || '0');
+    const now       = Date.now();
+    const isPaid    = (plan==='creator'||plan==='pro'||plan==='enterprise');
+
+    // Admin always in
+    if (adminCode) {
+        tg_updateActivity();
         document.getElementById('appWrapper').style.display = 'block';
+        return;
     }
+
+    // Logged in paid user
+    if (email && isPaid) {
+        // Check idle timeout
+        if (lastActive && (now - lastActive) > TG_IDLE_TIMEOUT) {
+            tg_logout('idle');
+            return;
+        }
+        tg_updateActivity();
+        document.getElementById('appWrapper').style.display = 'block';
+        return;
+    }
+
+    // Logged in free user
+    if (email) {
+        if (lastActive && (now - lastActive) > TG_IDLE_TIMEOUT) {
+            tg_logout('idle');
+            return;
+        }
+        tg_updateActivity();
+        document.getElementById('appWrapper').style.display = 'block';
+        return;
+    }
+
+    // Trial user — must have entered via landing page
+    if (entered && trialStart && (now - trialStart) < TG_TRIAL_TTL) {
+        tg_updateActivity();
+        document.getElementById('appWrapper').style.display = 'block';
+        return;
+    }
+
+    // Trial expired
+    if (entered && trialStart && (now - trialStart) >= TG_TRIAL_TTL) {
+        tg_logout('expired');
+        return;
+    }
+
+    // No session at all — go to landing
+    window.location.href = '/landing';
+}
+
+// Track activity on user interactions
+['click','keydown','scroll','touchstart'].forEach(function(evt) {
+    document.addEventListener(evt, tg_updateActivity, {passive:true});
+});
+
+// Check idle every 5 minutes
+setInterval(function() {
+    const email     = localStorage.getItem('tg_email') || '';
+    const adminCode = localStorage.getItem('tg_admin_code') || '';
+    if (!email && !adminCode) return;
+    const lastActive = parseInt(localStorage.getItem('tg_last_active') || '0');
+    if (lastActive && (Date.now() - lastActive) > TG_IDLE_TIMEOUT) {
+        tg_logout('idle');
+    }
+}, 5 * 60 * 1000);
+
+document.addEventListener('DOMContentLoaded', function() {
+    tg_initSession();
 });
 
 
