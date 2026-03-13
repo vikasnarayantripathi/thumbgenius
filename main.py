@@ -1567,7 +1567,7 @@ Rules:
     try:
         response = await asyncio.wait_for(
             client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4o-mini",
                 messages=[
                     {"role":"system","content":"YouTube packaging expert. Return ONLY valid JSON, no markdown."},
                     {"role":"user","content":prompt}
