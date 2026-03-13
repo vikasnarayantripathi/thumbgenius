@@ -1866,7 +1866,7 @@ async def blueprint_variations(request: Request):
     # Number of variations by plan
     plan_data = await get_user_plan(email) if email else {"plan": "free"}
     plan      = plan_data.get("plan", "free") if not is_adm else "pro"
-    count     = 5 if plan == "pro" else 3
+    count     = 3 if plan == "pro" else 2
 
     # Build scores summary string
     scores_summary = "\n".join(
@@ -1902,12 +1902,15 @@ async def blueprint_variations(request: Request):
             try:
                 dalle_prompt = v.get("dalle_prompt", "")
                 # Enforce correct spelling via letter-by-letter technique for text overlays
-                img_resp = await client.images.generate(
-                    model="dall-e-3",
-                    prompt=dalle_prompt + " Style: professional YouTube thumbnail, photorealistic, 16:9 aspect ratio, high contrast, vibrant colors.",
-                    size="1792x1024",
-                    quality="hd",
-                    n=1,
+                img_resp = await asyncio.wait_for(
+                    client.images.generate(
+                        model="dall-e-3",
+                        prompt=dalle_prompt + " Style: professional YouTube thumbnail, photorealistic, 16:9 aspect ratio, high contrast, vibrant colors.",
+                        size="1792x1024",
+                        quality="standard",
+                        n=1,
+                    ),
+                    timeout=25
                 )
                 return {
                     "variation_number":   v.get("variation_number", 1),
