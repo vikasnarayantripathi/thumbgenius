@@ -1159,7 +1159,7 @@ function tg_checkSession() {
 }
 
 // Run on every page load
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     const email    = localStorage.getItem('tg_email') || '';
     const entered  = localStorage.getItem('tg_entered_app');
     const trialStart = parseInt(localStorage.getItem('tg_trial_start') || '0');
@@ -1168,7 +1168,6 @@ function tg_checkSession() {
     const adminCode = localStorage.getItem('tg_admin_code') || '';
 
     if (!tg_checkSession()) {
-        // Was a trial user whose trial expired
         if (entered && trialStart && trialAge >= TRIAL_TTL && !email && !adminCode) {
             localStorage.removeItem('tg_entered_app');
             localStorage.removeItem('tg_trial_start');
@@ -1177,10 +1176,9 @@ function tg_checkSession() {
             window.location.href = "/landing";
         }
     } else {
-        // Valid session — show app
         document.getElementById('appWrapper').style.display = 'block';
     }
-})();
+});
 
 
 
