@@ -4281,6 +4281,7 @@ async function bp_generateVariations() {
             body: JSON.stringify({ scores:_bp_last_scores, biggest_weakness:_bp_last_weakness, niche:niche, topic_context:document.getElementById('bpUrl').value.trim() })
         });
         const data = await res.json();
+        console.log('Variations response:', JSON.stringify(data));
         loadEl.style.display='none'; btn.disabled=false;
         if (data.error==='upgrade_required') { document.getElementById('bpVarUpgradeNote').style.display='block'; return; }
         if (data.error) { alert(data.error); return; }
