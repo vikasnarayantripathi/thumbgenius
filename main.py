@@ -850,15 +850,6 @@ async def generate(request: Request):
                 temperature=0.8, max_tokens=1800),
             timeout=20.0)
         result = parse_json_safe(response.choices[0].message.content)
-        # Add niche benchmark
-        benchmark = NICHE_BENCHMARKS.get(niche, 70)
-        result["niche_benchmark"] = benchmark
-        result["vs_benchmark"] = result.get("overall_score", 0) - benchmark
-        # Add topic context match score if provided
-        if topic_context:
-            match_score = 85 if result.get("overall_score", 0) > 70 else 55
-            result["title_match_score"] = match_score
-            result["title_match_note"] = "Good alignment between title emotion and thumbnail visual" if match_score > 70 else "Title suggests different emotion than thumbnail conveys"
         if is_adm: result["uses_remaining"] = 9999
         elif email:
             asyncio.create_task(sb_update_user(email,{"generations_used":used+1})); asyncio.create_task(invalidate_plan_cache(email))
@@ -977,6 +968,8 @@ async def generate_image(request: Request):
                 img_key2 = f"img:{hashlib.md5(get_ip(request).encode()).hexdigest()[:16]}"
                 cnt2 = await redis_incr(img_key2)
                 if cnt2 == 1: await redis_expire(img_key2, 30*24*3600)
+        if not img_b64:
+            return JSONResponse({"error": "Image generation failed. Please try again."}, status_code=500)
         # Apply watermark for free users
         plan_for_wm = "free"
         if is_adm:
