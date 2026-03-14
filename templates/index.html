@@ -3108,19 +3108,34 @@ async function runABTest(){
 }
 
 async function runAnalysis(){
-    const input=document.getElementById('channelInput').value.trim();if(!input){alert('Please enter your video titles!');return;}
-    document.getElementById('analyzeBtn').disabled=true;document.getElementById('analyzeBtn').textContent='⏳ Analyzing…';
-    document.getElementById('analyzerResult').style.display='none';
-    try{
-        const res=await fetch('/analyze-channel',{method:'POST',headers:getHeaders(),body:JSON.stringify({titles:input})});
-        const result=await res.json();if(result.error){alert(result.error);return;}
-        document.getElementById('scoreCTR').textContent=result.ctr_score;document.getElementById('scoreEmotion').textContent=result.emotion_score;document.getElementById('scoreClarity').textContent=result.clarity_score;
-        document.getElementById('analyzerIssues').innerHTML=result.issues.map(i=>`<div class="issue-item"><span class="issue-icon">⚠️</span><div class="issue-text"><strong>${escapeHtml(i.title)}</strong>${escapeHtml(i.detail)}</div></div>`).join('');
-        document.getElementById('analyzerFixes').innerHTML=result.fixes.map(f=>`<div class="issue-item"><span class="issue-icon">✅</span><div class="issue-text"><strong>${escapeHtml(f.title)}</strong>${escapeHtml(f.detail)}</div></div>`).join('');
-        document.getElementById('analyzerRewrite').innerHTML=result.rewrites.map(r=>`<div class="issue-item"><span class="issue-icon">✏️</span><div class="issue-text"><strong style="color:rgba(255,255,255,0.4);text-decoration:line-through;font-weight:400">${escapeHtml(r.original)}</strong><strong style="color:#FFE036">${escapeHtml(r.improved)}</strong></div></div>`).join('');
-        document.getElementById('analyzerResult').style.display='block';document.getElementById('analyzerResult').scrollIntoView({behavior:'smooth',block:'start'});
-    }catch(e){alert('Analysis failed. Please try again.');}
-    finally{document.getElementById('analyzeBtn').disabled=false;document.getElementById('analyzeBtn').textContent='🔍 Analyze';}
+    const titles = (document.getElementById('channelInput')||{value:''}).value.trim();
+    const niche  = (document.getElementById('caNiche')||{value:'tech'}).value || 'tech';
+    if(!titles){ alert('Please enter your video titles'); return; }
+    const loadEl = document.getElementById('caLoading');
+    const resEl  = document.getElementById('caResult');
+    const btn    = document.getElementById('analyzeBtn');
+    if(loadEl) loadEl.style.display = 'block';
+    if(resEl)  resEl.style.display  = 'none';
+    if(btn)    btn.disabled = true;
+    const msgs = ['Analyzing your channel packaging DNA…','Detecting title patterns…','Benchmarking against top creators…','Generating viral title ideas…'];
+    let mi = 0;
+    const msgEl = document.getElementById('caLoadingMsg');
+    const msgInterval = setInterval(()=>{ mi=(mi+1)%msgs.length; if(msgEl) msgEl.textContent=msgs[mi]; }, 2000);
+    try {
+        const res  = await fetch('/analyze-channel', { method:'POST', headers:_hdrs(), body:JSON.stringify({titles, niche}) });
+        const data = await res.json();
+        clearInterval(msgInterval);
+        if(loadEl) loadEl.style.display='none';
+        if(btn) btn.disabled=false;
+        if(data.error){ alert(data.error); return; }
+        ca_render(data, niche);
+        if(resEl){ resEl.style.display='block'; resEl.scrollIntoView({behavior:'smooth',block:'start'}); }
+    } catch(e) {
+        clearInterval(msgInterval);
+        if(loadEl) loadEl.style.display='none';
+        if(btn) btn.disabled=false;
+        alert('Analysis failed. Please try again.');
+    }
 }
 
 // ═══ TRENDING - CATEGORY SYSTEM ═══
