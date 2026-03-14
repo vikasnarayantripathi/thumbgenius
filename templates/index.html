@@ -5357,6 +5357,9 @@ async function loadDashboard() {
         // Email
         var emailEl = document.getElementById('dashEmail');
         if (emailEl) emailEl.textContent = email || 'Admin';
+        // Fix plan label
+        var planLabel = document.getElementById('dashPlanLabel');
+        if(planLabel){ planLabel.textContent = plan.toUpperCase(); planLabel.style.color = plan==='enterprise'?'#43E97B':plan==='pro'?'#FDE036':plan==='creator'?'#8B85FF':'rgba(255,255,255,0.4)'; }
 
         // Usage bars
         dashRenderUsageBars(used, limits);
