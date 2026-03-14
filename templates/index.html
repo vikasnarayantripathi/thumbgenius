@@ -5149,7 +5149,7 @@ async function loadDashboard() {
     try {
         var res  = await fetch('/user/usage', { method:'GET', headers: getHeaders() });
         var data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Failed');
+        if (data.error && !data.plan) throw new Error(data.error || 'Failed');
 
         if (loading)  loading.style.display  = 'none';
         if (content)  content.style.display  = 'block';
