@@ -48,10 +48,26 @@ STRIPE_CREATOR_PRICE_ID = os.getenv("STRIPE_CREATOR_PRICE_ID", "")   # $19/mo
 STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")        # $39/mo
 
 PLAN_LIMITS = {
-    "free":       {"generations": 3,    "images": 5,    "thumb_analysis": 1,   "reverse": 2,    "ctr_predict": 0,    "ab_tests": 3,    "blueprint": 1,   "watermark": True},
-    "creator":    {"generations": 9999, "images": 50,   "thumb_analysis": 30,  "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999,"watermark": False},
-    "pro":        {"generations": 9999, "images": 150,  "thumb_analysis": 100, "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999,"watermark": False},
-    "enterprise": {"generations": 9999, "images": 1000, "thumb_analysis": 500, "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999,"watermark": False},
+    "free":       {"generations": 3,    "images": 5,    "thumb_analysis": 1,   "reverse": 2,    "ctr_predict": 0,    "ab_tests": 3,    "blueprint": 1,    "watermark": True,  "hd_images": 0,   "team_seats": 1,  "api_access": False},
+    "creator":    {"generations": 500,  "images": 50,   "thumb_analysis": 30,  "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 0,   "team_seats": 1,  "api_access": False},
+    "pro":        {"generations": 2000, "images": 150,  "thumb_analysis": 100, "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 10,  "team_seats": 3,  "api_access": False},
+    "enterprise": {"generations": 9999, "images": 500,  "thumb_analysis": 500, "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 100, "team_seats": 10, "api_access": True},
+}
+
+# Top-up packages (images)
+TOPUP_PACKAGES = {
+    "topup_10":  {"images": 10,  "price_inr": 49,   "price_usd": 1,  "label": "+10 Images"},
+    "topup_30":  {"images": 30,  "price_inr": 99,   "price_usd": 2,  "label": "+30 Images"},
+    "topup_100": {"images": 100, "price_inr": 249,  "price_usd": 4,  "label": "+100 Images"},
+    "topup_300": {"images": 300, "price_inr": 599,  "price_usd": 8,  "label": "+300 Images"},
+}
+
+# Affiliate commission rates
+AFFILIATE_RATES = {
+    "free":       {"rate": 0.00, "duration_months": 0,  "label": "₹100 flat per paid referral"},
+    "creator":    {"rate": 0.20, "duration_months": 6,  "label": "20% recurring for 6 months"},
+    "pro":        {"rate": 0.30, "duration_months": 12, "label": "30% recurring for 12 months"},
+    "enterprise": {"rate": 0.40, "duration_months": 999,"label": "40% lifetime recurring"},
 }
 ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro", "enterprise"]}}
 
@@ -934,20 +950,25 @@ async def generate_image(request: Request):
         }
         # DALL-E 3 primary — best for YouTube thumbnails (follows prompts accurately)
         img_b64 = None
-        try:
-            dalle_resp = await client.images.generate(
-                model="dall-e-3",
-                prompt=img_prompt[:4000],
-                size="1792x1024",
-                quality="standard",
-                n=1,
-                response_format="b64_json"
-            )
-            img_b64 = dalle_resp.data[0].b64_json
-            logger.info("DALL-E 3 generated successfully")
-        except Exception as de:
-            logger.warning(f"DALL-E 3 failed: {de} — trying Imagen fallback")
+        use_hd = bool(data.get("hd_mode", False))
 
+        # HD mode = DALL-E 3 (costs 2 image credits, Pro/Enterprise only)
+        if use_hd and plan_for_wm in ("pro", "enterprise"):
+            try:
+                dalle_resp = await client.images.generate(
+                    model="dall-e-3",
+                    prompt=img_prompt[:4000],
+                    size="1792x1024",
+                    quality="hd",
+                    n=1,
+                    response_format="b64_json"
+                )
+                img_b64 = dalle_resp.data[0].b64_json
+                logger.info("DALL-E 3 HD generated successfully")
+            except Exception as de:
+                logger.warning(f"DALL-E 3 HD failed: {de} — falling back to Imagen")
+
+        # Standard mode = Imagen 4 Fast (primary, cheap)
         if not img_b64:
             try:
                 async with httpx.AsyncClient(timeout=60.0) as hc:
@@ -957,9 +978,25 @@ async def generate_image(request: Request):
                     predictions = rdata.get("predictions")
                     if predictions and len(predictions) > 0:
                         img_b64 = predictions[0]["bytesBase64Encoded"]
-                        logger.info("Imagen fallback successful")
+                        logger.info("Imagen 4 Fast generated successfully")
             except Exception as ie:
-                logger.warning(f"Imagen fallback also failed: {ie}")
+                logger.warning(f"Imagen 4 Fast failed: {ie} — trying DALL-E 3 fallback")
+
+        # Final fallback = DALL-E 3 standard
+        if not img_b64:
+            try:
+                dalle_resp = await client.images.generate(
+                    model="dall-e-3",
+                    prompt=img_prompt[:4000],
+                    size="1792x1024",
+                    quality="standard",
+                    n=1,
+                    response_format="b64_json"
+                )
+                img_b64 = dalle_resp.data[0].b64_json
+                logger.info("DALL-E 3 fallback generated successfully")
+            except Exception as de:
+                logger.warning(f"DALL-E 3 fallback also failed: {de}")
         if not is_adm:
             if email:
                 asyncio.create_task(sb_update_user(email,{"images_used":used+1}))

@@ -2482,6 +2482,86 @@ function showPage(p){
       <div style="font-size:12px;color:var(--dim);margin-top:12px">Inspired by top YouTube creators globally. Use these as starting points for your next thumbnail style.</div>
     </div>
 
+    <!-- ⑧b TOP-UP SECTION -->
+    <div class="dash-section" id="dashTopupSection" style="background:rgba(255,224,54,0.03);border:1px solid rgba(255,224,54,0.15);border-radius:20px;padding:24px;margin-bottom:20px">
+        <div class="dash-section-hd" style="margin-bottom:16px">
+            <div class="dash-section-label" style="color:var(--yellow)">⚡ Image Top-Up Packages</div>
+            <span id="dashImagesLeft" style="font-size:12px;color:rgba(255,255,255,0.4)"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="dashTopupGrid">
+            <div onclick="buyTopup('topup_10')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+                <div style="font-size:22px;font-weight:900;color:var(--yellow)">+10</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
+                <div style="font-size:14px;font-weight:700;color:#fff">₹49</div>
+            </div>
+            <div onclick="buyTopup('topup_30')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+                <div style="font-size:22px;font-weight:900;color:var(--yellow)">+30</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
+                <div style="font-size:14px;font-weight:700;color:#fff">₹99</div>
+            </div>
+            <div onclick="buyTopup('topup_100')" style="background:rgba(139,133,255,0.08);border:1px solid rgba(139,133,255,0.25);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#8B85FF'" onmouseout="this.style.borderColor='rgba(139,133,255,0.25)'">
+                <div style="font-size:22px;font-weight:900;color:#8B85FF">+100</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
+                <div style="font-size:14px;font-weight:700;color:#fff">₹249</div>
+                <div style="font-size:10px;color:#8B85FF;margin-top:4px">POPULAR</div>
+            </div>
+            <div onclick="buyTopup('topup_300')" style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.25);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='rgba(255,224,54,0.25)'">
+                <div style="font-size:22px;font-weight:900;color:var(--yellow)">+300</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
+                <div style="font-size:14px;font-weight:700;color:#fff">₹599</div>
+                <div style="font-size:10px;color:var(--yellow);margin-top:4px">BEST VALUE</div>
+            </div>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.3)">💡 Top-up credits never expire. Use anytime.</div>
+    </div>
+
+    <!-- ⑧c AFFILIATE SECTION -->
+    <div class="dash-section" id="dashAffiliateSection" style="background:linear-gradient(135deg,rgba(67,233,123,0.05),rgba(139,133,255,0.05));border:1px solid rgba(67,233,123,0.2);border-radius:20px;padding:24px;margin-bottom:20px">
+        <div class="dash-section-hd" style="margin-bottom:16px">
+            <div class="dash-section-label" style="color:#43E97B">🤝 Affiliate Program</div>
+            <span id="dashAffBadge" style="font-size:11px;font-weight:700;background:rgba(67,233,123,0.1);color:#43E97B;border-radius:6px;padding:3px 8px"></span>
+        </div>
+        <!-- Commission rate -->
+        <div id="dashAffRate" style="background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.15);border-radius:12px;padding:14px 18px;margin-bottom:16px">
+            <div style="font-size:12px;color:rgba(67,233,123,0.7);font-weight:700;margin-bottom:4px">YOUR COMMISSION RATE</div>
+            <div id="dashAffRateLabel" style="font-size:18px;font-weight:900;color:#43E97B">—</div>
+        </div>
+        <!-- Referral link -->
+        <div style="margin-bottom:16px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px">YOUR REFERRAL LINK</div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <div id="dashAffLink" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.7);word-break:break-all">Loading...</div>
+                <button onclick="copyAffLink()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">📋 Copy</button>
+                <button onclick="shareAffLink()" style="background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);border-radius:10px;padding:10px 16px;color:#8B85FF;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">📤 Share</button>
+            </div>
+        </div>
+        <!-- Stats -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px">
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
+                <div id="dashAffClicks" style="font-size:24px;font-weight:900;color:#fff">0</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Link Clicks</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
+                <div id="dashAffReferrals" style="font-size:24px;font-weight:900;color:#43E97B">0</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Paid Referrals</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
+                <div id="dashAffEarnings" style="font-size:24px;font-weight:900;color:var(--yellow)">₹0</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Total Earned</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
+                <div id="dashAffPending" style="font-size:24px;font-weight:900;color:#8B85FF">₹0</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Pending Payout</div>
+            </div>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.3)">💸 Payouts processed monthly via bank transfer/UPI. Minimum ₹500.</div>
+        <!-- Upgrade prompt for free users -->
+        <div id="dashAffUpgrade" style="display:none;margin-top:12px;background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.15);border-radius:10px;padding:12px 16px;text-align:center">
+            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:8px">🔒 Upgrade to <strong style="color:#8B85FF">Creator</strong> for 20% recurring commissions</p>
+            <button class="btn-pay" style="padding:8px 20px;font-size:12px" onclick="openPaymentModal()">Upgrade Now →</button>
+        </div>
+    </div>
+
     <!-- ⑨ Usage breakdown (collapsible) -->
     <div class="dash-usage-section">
       <div class="dash-section-hd" style="cursor:pointer;user-select:none"
@@ -5129,6 +5209,115 @@ document.addEventListener('DOMContentLoaded', function() {
     var lm = document.getElementById('loginModal');
     if (lm) lm.addEventListener('click', function(e){ if(e.target===this) closeLoginModal(); });
 });
+
+// ── TOP-UP FUNCTIONS ──
+async function buyTopup(packageId) {
+    const email = localStorage.getItem('tg_email') || '';
+    const plan  = localStorage.getItem('tg_plan')  || 'free';
+    if(!email){ alert('Please login to purchase top-up'); openLoginModal(); return; }
+    if(plan === 'free'){ alert('Top-ups are available for Creator, Pro and Enterprise plans. Please upgrade first.'); openPaymentModal(); return; }
+    // Open Razorpay for top-up payment
+    const packages = {'topup_10':{price:4900,label:'+10 Images'},'topup_30':{price:9900,label:'+30 Images'},'topup_100':{price:24900,label:'+100 Images'},'topup_300':{price:59900,label:'+300 Images'}};
+    const pkg = packages[packageId];
+    if(!pkg) return;
+    const options = {
+        key: window.RAZORPAY_KEY || '',
+        amount: pkg.price,
+        currency: 'INR',
+        name: 'ThumbGenius',
+        description: 'Image Top-Up: ' + pkg.label,
+        prefill: { email: email },
+        theme: { color: '#FFE036' },
+        handler: async function(response) {
+            const res = await fetch('/topup/apply', {
+                method:'POST', headers: _hdrs(),
+                body: JSON.stringify({package_id: packageId, payment_id: response.razorpay_payment_id})
+            });
+            const data = await res.json();
+            if(data.success){
+                alert('✅ ' + data.images_added + ' images added to your account!');
+                loadDashboard();
+            } else {
+                alert('Payment received but top-up failed. Contact support.');
+            }
+        }
+    };
+    if(typeof Razorpay !== 'undefined'){
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } else {
+        alert('Payment gateway loading... Please try again in a moment.');
+    }
+}
+
+// ── AFFILIATE FUNCTIONS ──
+async function loadAffiliateSection() {
+    try {
+        const res  = await fetch('/affiliate/info', {headers: _hdrs()});
+        const data = await res.json();
+        if(data.error) return;
+        const plan = data.plan || 'free';
+        // Badge
+        const badge = document.getElementById('dashAffBadge');
+        const badgeColors = {free:'rgba(255,255,255,0.4)',creator:'#8B85FF',pro:'#FDE036',enterprise:'#43E97B'};
+        if(badge){ badge.textContent = plan.toUpperCase(); badge.style.color = badgeColors[plan]||'#fff'; }
+        // Rate
+        const rateEl = document.getElementById('dashAffRateLabel');
+        if(rateEl) rateEl.textContent = data.commission_rate || '—';
+        // Link
+        const linkEl = document.getElementById('dashAffLink');
+        if(linkEl) linkEl.textContent = data.referral_link || '';
+        // Stats
+        const clicksEl = document.getElementById('dashAffClicks');
+        if(clicksEl) clicksEl.textContent = data.total_referrals || 0;
+        const refEl = document.getElementById('dashAffReferrals');
+        if(refEl) refEl.textContent = data.total_referrals || 0;
+        const earnEl = document.getElementById('dashAffEarnings');
+        if(earnEl) earnEl.textContent = '₹' + (data.total_earnings || 0);
+        const pendEl = document.getElementById('dashAffPending');
+        if(pendEl) pendEl.textContent = '₹' + (data.pending_payout || 0);
+        // Show upgrade prompt for free
+        const upgradeEl = document.getElementById('dashAffUpgrade');
+        if(upgradeEl) upgradeEl.style.display = plan==='free' ? 'block' : 'none';
+        // Store referral link globally
+        window._affLink = data.referral_link || '';
+    } catch(e) { console.warn('Affiliate section error:', e); }
+}
+
+function copyAffLink() {
+    const link = window._affLink || document.getElementById('dashAffLink').textContent;
+    navigator.clipboard.writeText(link).then(()=>alert('✅ Referral link copied!'));
+}
+
+function shareAffLink() {
+    const link = window._affLink || document.getElementById('dashAffLink').textContent;
+    const text = '🧬 I've been using ThumbGenius to 2X my YouTube CTR! Check it out → ' + link;
+    if(navigator.share){ navigator.share({title:'ThumbGenius',text,url:link}); }
+    else { navigator.clipboard.writeText(text).then(()=>alert('Copied! Share it on WhatsApp, Twitter, anywhere 🚀')); }
+}
+
+// Track referral on page load
+(function(){
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if(ref){
+        localStorage.setItem('tg_ref', ref);
+        fetch('/affiliate/track', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ref_code: ref})});
+    }
+})();
+
+// Update images remaining display
+function dashUpdateImagesLeft(used, limits, topup) {
+    const el = document.getElementById('dashImagesLeft');
+    if(!el) return;
+    const base  = (limits.images || 0);
+    const extra = (topup || 0);
+    const total = base + extra;
+    const usedImg = used.images || 0;
+    const left  = Math.max(0, total - usedImg);
+    el.textContent = left + ' images remaining (' + usedImg + '/' + total + ' used)';
+    el.style.color = left < 5 ? '#FF6584' : left < 20 ? '#FDE036' : 'rgba(255,255,255,0.4)';
+}
 
 async function loadDashboard() {
     var email = localStorage.getItem('tg_email') || '';

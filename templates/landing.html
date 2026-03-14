@@ -475,7 +475,7 @@ function enterApp() {
     const params = new URLSearchParams(window.location.search);
     if(params.get('expired') === '1'){
         const banner = document.createElement('div');
-        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#FF6584;color:#fff;text-align:center;padding:12px;font-size:14px;font-weight:700;z-index:9999';
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#FF6584;color:#fff;text-align:center;padding:12px;font-size:14px;font-weight:700;z-index:25000';
         banner.textContent = '⏰ Your free trial has expired. Login or upgrade to continue.';
         document.body.prepend(banner);
     }
