@@ -1790,23 +1790,14 @@ function showPage(p){
     <div class="analyzer-input-wrap">
         <textarea id="channelInput" rows="4" placeholder="Paste your recent video titles here, one per line or separated by commas...&#10;&#10;e.g.&#10;My Review of iPhone 16&#10;Top 5 Budget Phones in 2025&#10;I Tested 10 Gadgets So You Don't Have To" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:16px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;resize:vertical;min-height:120px;outline:none;line-height:1.6;box-sizing:border-box"></textarea>
         <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;align-items:center">
-            <select id="caNiche" class="mod-select" style="margin-bottom:0;width:200px">
-                <option value="tech">Tech</option><option value="finance">Finance</option>
-                <option value="gaming">Gaming</option><option value="fitness">Fitness</option>
-                <option value="food">Food</option><option value="travel">Travel</option>
-                <option value="education">Education</option><option value="motivation">Motivation</option>
-                <option value="beauty">Beauty</option><option value="entertainment">Entertainment</option>
-                <option value="business">Business</option><option value="cricket">Cricket</option>
-                <option value="examprep">Exam Prep</option><option value="health">Health</option>
-                <option value="music">Music</option><option value="cooking">Cooking</option>
-                <option value="comedy">Comedy</option><option value="news">News</option>
-                <option value="astrology">Astrology</option><option value="mythology">Mythology</option>
-                <option value="career">Career</option><option value="selfdevelopment">Self Dev</option>
-                <option value="fashion">Fashion</option><option value="relationship">Relationship</option>
-                <option value="parenting">Parenting</option><option value="stocks">Stocks</option>
-                <option value="automobiles">Automobiles</option><option value="spirituality">Spirituality</option>
-                <option value="realestate">Real Estate</option><option value="productivity">Productivity</option>
-            </select>
+            <div style="position:relative;width:200px" id="caNicheWrap">
+                <input type="hidden" id="caNiche" value="tech">
+                <button type="button" id="caNicheBtn" onclick="toggleNicheDD()" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center">
+                    <span id="caNicheBtnLabel">📱 Tech</span><span>▾</span>
+                </button>
+                <div id="caNicheDD" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#0d0d1a;border:1px solid rgba(255,255,255,0.12);border-radius:10px;z-index:9999;max-height:220px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.6)">
+                </div>
+            </div>
             <button class="btn-gen" id="analyzeBtn" onclick="runAnalysis()" style="flex:1;max-width:280px">🧬 Run Packaging Audit</button>
         </div>
     </div>
@@ -3106,6 +3097,48 @@ async function runABTest(){
     }catch(e){alert('Test failed. Please try again.');}
     finally{document.getElementById('abBtn').disabled=false;document.getElementById('abBtn').textContent='⚡ Test These Titles';}
 }
+
+const CA_NICHES = [
+    {v:'tech',label:'📱 Tech'},{v:'finance',label:'💰 Finance'},{v:'gaming',label:'🎮 Gaming'},
+    {v:'fitness',label:'💪 Fitness'},{v:'food',label:'🍕 Food'},{v:'travel',label:'✈️ Travel'},
+    {v:'education',label:'📚 Education'},{v:'motivation',label:'🔥 Motivation'},{v:'beauty',label:'💄 Beauty'},
+    {v:'entertainment',label:'🎬 Entertainment'},{v:'business',label:'📈 Business'},{v:'cricket',label:'🏏 Cricket'},
+    {v:'examprep',label:'🎓 Exam Prep'},{v:'health',label:'💊 Health'},{v:'music',label:'🎵 Music'},
+    {v:'cooking',label:'🍳 Cooking'},{v:'comedy',label:'😂 Comedy'},{v:'news',label:'📰 News'},
+    {v:'astrology',label:'🔮 Astrology'},{v:'mythology',label:'🕉️ Mythology'},{v:'career',label:'💼 Career'},
+    {v:'selfdevelopment',label:'🧠 Self Dev'},{v:'fashion',label:'👗 Fashion'},{v:'relationship',label:'❤️ Relationship'},
+    {v:'parenting',label:'👶 Parenting'},{v:'stocks',label:'📊 Stocks'},{v:'automobiles',label:'🚗 Automobiles'},
+    {v:'spirituality',label:'🌿 Spirituality'},{v:'realestate',label:'🏠 Real Estate'},{v:'productivity',label:'⚡ Productivity'}
+];
+
+function initNicheDD() {
+    const dd = document.getElementById('caNicheDD');
+    if(!dd) return;
+    dd.innerHTML = CA_NICHES.map(n=>
+        `<div onclick="selectNicheDD('${n.v}','${n.label}')" style="padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;color:rgba(255,255,255,0.8);transition:background 0.15s" onmouseover="this.style.background='rgba(255,224,54,0.08)';this.style.color='#FFE036'" onmouseout="this.style.background='';this.style.color='rgba(255,255,255,0.8)'">${n.label}</div>`
+    ).join('');
+}
+
+function toggleNicheDD() {
+    const dd = document.getElementById('caNicheDD');
+    if(!dd) return;
+    if(dd.style.display==='none'){ initNicheDD(); dd.style.display='block'; }
+    else dd.style.display='none';
+}
+
+function selectNicheDD(val, label) {
+    document.getElementById('caNiche').value = val;
+    document.getElementById('caNicheBtnLabel').textContent = label;
+    document.getElementById('caNicheDD').style.display='none';
+}
+
+document.addEventListener('click', function(e){
+    const wrap = document.getElementById('caNicheWrap');
+    if(wrap && !wrap.contains(e.target)){
+        const dd = document.getElementById('caNicheDD');
+        if(dd) dd.style.display='none';
+    }
+});
 
 const CA_DIM_META = {
     ctr_power:     {icon:'⚡', label:'CTR Power'},
