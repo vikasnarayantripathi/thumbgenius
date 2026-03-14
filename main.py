@@ -1531,18 +1531,18 @@ async def analyze_channel(request: Request):
 
     # Tier config
     if plan == "pro" or is_adm:
-        model       = "gpt-4o"
-        max_tokens  = 2500
+        model       = "gpt-4o-mini"
+        max_tokens  = 2000
         title_ideas = 10
         tier_label  = "10X Pro"
     elif plan == "creator":
         model       = "gpt-4o-mini"
-        max_tokens  = 2000
+        max_tokens  = 1500
         title_ideas = 5
         tier_label  = "5X Creator"
     else:
         model       = "gpt-4o-mini"
-        max_tokens  = 1000
+        max_tokens  = 800
         title_ideas = 0
         tier_label  = "Basic"
 
