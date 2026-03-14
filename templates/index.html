@@ -3107,6 +3107,157 @@ async function runABTest(){
     finally{document.getElementById('abBtn').disabled=false;document.getElementById('abBtn').textContent='⚡ Test These Titles';}
 }
 
+const CA_DIM_META = {
+    ctr_power:     {icon:'⚡', label:'CTR Power'},
+    emotion:       {icon:'❤️', label:'Emotion'},
+    clarity:       {icon:'🎯', label:'Clarity'},
+    curiosity_gap: {icon:'🔍', label:'Curiosity Gap'},
+    consistency:   {icon:'📐', label:'Consistency'},
+};
+
+function ca_render(data, niche) {
+    const score = data.overall_score || 0;
+    const grade = data.overall_grade || '—';
+    const col   = score>=75?'#43E97B':score>=55?'#FDE036':'#FF6584';
+    const plan  = data._plan || 'free';
+    const tier  = data._tier || 'Basic';
+
+    const gradeEl = document.getElementById('caGrade');
+    if(gradeEl){ gradeEl.textContent=grade; gradeEl.style.color=col; }
+    const scoreEl = document.getElementById('caScore');
+    if(scoreEl) scoreEl.textContent = score+' / 100';
+    const dnaEl = document.getElementById('caDna');
+    if(dnaEl) dnaEl.textContent = data.packaging_dna||'';
+    const verdictEl = document.getElementById('caVerdict');
+    if(verdictEl) verdictEl.textContent = data.verdict||'';
+
+    // Tier badge
+    const tierColors = {'Basic':'rgba(255,255,255,0.4)','5X Creator':'#8B85FF','10X Pro':'#FDE036'};
+    const tierBadge = document.getElementById('caTierBadge');
+    if(tierBadge){ tierBadge.textContent=tier; tierBadge.style.color=tierColors[tier]||'#fff'; tierBadge.style.borderColor=tierColors[tier]||'rgba(255,255,255,0.2)'; }
+
+    // 5 dimensions
+    const dimGrid = document.getElementById('caDimGrid');
+    if(dimGrid) dimGrid.innerHTML = Object.entries(CA_DIM_META).map(([key,meta])=>{
+        const d = (data.scores||{})[key]||{score:0,label:'—',note:''};
+        const s = d.score||0;
+        const c = s>=70?'#43E97B':s>=50?'#FDE036':'#FF6584';
+        return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:13px;font-weight:700">${meta.icon} ${meta.label}</span>
+                <span style="font-size:20px;font-weight:900;color:${c}">${s}</span>
+            </div>
+            <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:4px;margin-bottom:8px">
+                <div style="height:4px;background:${c};border-radius:4px;width:${s}%;transition:width 0.8s ease"></div>
+            </div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.45)">${escapeHtml(d.note||'')}</div>
+        </div>`;
+    }).join('');
+
+    // Best/Worst
+    const best=data.best_title||{};const worst=data.worst_title||{};
+    const btEl=document.getElementById('caBestTitle'); if(btEl) btEl.textContent=best.title||'—';
+    const brEl=document.getElementById('caBestReason'); if(brEl) brEl.textContent=best.reason||'';
+    const wtEl=document.getElementById('caWorstTitle'); if(wtEl) wtEl.textContent=worst.title||'—';
+    const wrEl=document.getElementById('caWorstReason'); if(wrEl) wrEl.textContent=worst.reason||'';
+
+    // Benchmark
+    const bench=data.competitor_benchmark||{};
+    const benchWrap=document.getElementById('caBenchmarkWrap');
+    if(benchWrap){
+        if(plan==='pro' && bench.their_score){
+            document.getElementById('caBenchYours').textContent=bench.their_score||score;
+            document.getElementById('caBenchYours').style.color=col;
+            document.getElementById('caBenchTop').textContent=bench.top_creator_score||88;
+            document.getElementById('caBenchNote').textContent=bench.top_creator_habit||'';
+            benchWrap.style.display='block';
+        } else if(plan!=='pro'){
+            benchWrap.innerHTML=`<div style="font-size:10px;letter-spacing:1px;color:rgba(255,224,54,0.7);font-weight:700;margin-bottom:8px">📊 COMPETITOR BENCHMARK</div><div style="text-align:center;padding:16px"><p style="color:rgba(255,255,255,0.4);margin-bottom:10px">🔒 Unlock competitor benchmarking with <strong style="color:var(--yellow)">Pro</strong></p><button class="btn-pay" style="padding:8px 20px;font-size:12px" onclick="openPaymentModal()">Upgrade to Pro →</button></div>`;
+            benchWrap.style.display='block';
+        }
+    }
+
+    // Patterns
+    const patternsWrap=document.getElementById('caPatternsWrap');
+    const patterns=data.patterns||[];
+    if(patternsWrap && (plan==='creator'||plan==='pro') && patterns.length){
+        patternsWrap.style.display='block';
+        const patEl=document.getElementById('caPatterns');
+        if(patEl) patEl.innerHTML=patterns.map(p=>{
+            const pc=p.impact==='positive'?'#43E97B':'#FF6584';
+            return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 18px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start">
+                <span style="background:${p.impact==='positive'?'rgba(67,233,123,0.1)':'rgba(255,101,132,0.1)'};color:${pc};border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;white-space:nowrap">${p.frequency||''}</span>
+                <div><div style="font-size:13px;font-weight:700;color:${pc};margin-bottom:4px">${escapeHtml(p.pattern||'')}</div><div style="font-size:12px;color:rgba(255,255,255,0.45)">${escapeHtml(p.note||'')}</div></div>
+            </div>`;
+        }).join('');
+        const missingEl=document.getElementById('caMissing');
+        if(missingEl) missingEl.innerHTML=(data.missing_patterns||[]).map(m=>
+            `<span style="background:rgba(255,101,132,0.08);border:1px solid rgba(255,101,132,0.2);color:#FF6584;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600">${escapeHtml(m)}</span>`
+        ).join('');
+    }
+
+    // Issues
+    const issuesEl=document.getElementById('caIssues');
+    if(issuesEl) issuesEl.innerHTML=(data.issues||[]).map(i=>
+        `<div style="background:rgba(255,101,132,0.04);border:1px solid rgba(255,101,132,0.12);border-radius:12px;padding:14px;margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#FF6584;margin-bottom:4px">⚠️ ${escapeHtml(i.title||'')}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5)">${escapeHtml(i.detail||'')}</div>
+        </div>`
+    ).join('');
+
+    // Fixes
+    const fixesEl=document.getElementById('caFixes');
+    if(fixesEl) fixesEl.innerHTML=(data.fixes||[]).map(f=>
+        `<div style="background:rgba(67,233,123,0.04);border:1px solid rgba(67,233,123,0.12);border-radius:12px;padding:14px;margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#43E97B;margin-bottom:4px">✅ ${escapeHtml(f.title||'')}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5)">${escapeHtml(f.detail||'')}</div>
+            ${f.example?`<div style="font-size:11px;color:rgba(255,224,54,0.7);margin-top:6px;font-style:italic">${escapeHtml(f.example)}</div>`:''}
+        </div>`
+    ).join('');
+
+    // Rewrites
+    const rewritesEl=document.getElementById('caRewrites');
+    if(rewritesEl) rewritesEl.innerHTML=(data.rewrites||[]).map(r=>
+        `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 18px;margin-bottom:8px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-bottom:6px">ORIGINAL</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:10px;text-decoration:line-through">${escapeHtml(r.original||'')}</div>
+            <div style="font-size:11px;color:rgba(255,224,54,0.6);margin-bottom:6px">10X VERSION</div>
+            <div style="font-size:14px;font-weight:700;color:var(--yellow)">${escapeHtml(r.improved||'')}</div>
+            ${r.why?`<div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px">💡 ${escapeHtml(r.why)}</div>`:''}
+        </div>`
+    ).join('');
+
+    // Title Ideas
+    const ideas=data.title_ideas||[];
+    const hookColors={curiosity:'#8B85FF',emotion:'#FF6584',number:'#43E97B',shock:'#FDE036'};
+    const ideasEl=document.getElementById('caTitleIdeas');
+    const ideasBadge=document.getElementById('caTierIdeasBadge');
+    const ideasUpgrade=document.getElementById('caTitleIdeasUpgrade');
+    if(plan==='free'){
+        if(ideasUpgrade) ideasUpgrade.style.display='block';
+        if(ideasBadge) ideasBadge.textContent='🔒 Upgrade to Unlock';
+    } else {
+        if(ideasUpgrade) ideasUpgrade.style.display='none';
+        if(ideasBadge) ideasBadge.textContent=plan==='pro'?'10 Ideas · Pro':'5 Ideas · Creator';
+    }
+    if(ideasEl) ideasEl.innerHTML=ideas.map((idea,i)=>{
+        const hc=hookColors[idea.hook_type]||'#8B85FF';
+        return `<div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+            <span style="font-size:18px;font-weight:900;color:rgba(255,255,255,0.15);min-width:28px">${String(i+1).padStart(2,'0')}</span>
+            <span style="flex:1;font-size:14px;font-weight:600;color:rgba(255,255,255,0.85)">${escapeHtml(idea.title||'')}</span>
+            <span style="font-size:10px;font-weight:700;color:${hc};background:${hc}18;border-radius:6px;padding:3px 8px;white-space:nowrap">${(idea.hook_type||'').toUpperCase()}</span>
+        </div>`;
+    }).join('');
+}
+
+function ca_shareScore() {
+    const grade=document.getElementById('caGrade').textContent;
+    const score=document.getElementById('caScore').textContent;
+    const text=`🧬 My YouTube Channel Packaging Score: ${grade} (${score}) via ThumbGenius!\n\nGet your free channel audit → thumbgenius.in`;
+    if(navigator.share){ navigator.share({title:'My ThumbGenius Score',text,url:'https://thumbgenius.in'}); }
+    else { navigator.clipboard.writeText(text).then(()=>alert('Score copied! Share it anywhere 🚀')); }
+}
+
 async function runAnalysis(){
     const titles = (document.getElementById('channelInput')||{value:''}).value.trim();
     const niche  = (document.getElementById('caNiche')||{value:'tech'}).value || 'tech';
