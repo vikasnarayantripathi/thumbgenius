@@ -811,7 +811,8 @@ async def user_usage(request: Request):
     if not email and not is_adm:
         return JSONResponse({"error":"not_logged_in"}, status_code=401)
     if is_adm:
-        return JSONResponse({"plan":"pro","email":"admin","limits":PLAN_LIMITS["pro"],
+        return JSONResponse({"plan":"enterprise","email":"admin","limits":PLAN_LIMITS["enterprise"],
+                             "topup_images":0,
                              "used":{"generations":0,"images":0,"thumb_analysis":0,
                                      "reverse":0,"ctr_predict":0,"ab_tests":0,"blueprint":0}})
     pd = await get_user_plan(email)
@@ -826,7 +827,8 @@ async def user_usage(request: Request):
         "ab_tests":       pd.get("ab_tests_used",0),
         "blueprint":      pd.get("blueprint_used",0),
     }
-    return JSONResponse({"plan":plan,"email":email,"limits":limits,"used":used})
+    return JSONResponse({"plan":plan,"email":email,"limits":limits,"used":used,
+                         "topup_images": pd.get("topup_images",0)})
 
 @app.post("/generate")
 async def generate(request: Request):
