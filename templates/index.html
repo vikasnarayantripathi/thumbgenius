@@ -5291,7 +5291,7 @@ function copyAffLink() {
 
 function shareAffLink() {
     const link = window._affLink || document.getElementById('dashAffLink').textContent;
-    const text = '🧬 I've been using ThumbGenius to 2X my YouTube CTR! Check it out → ' + link;
+    const text = `🧬 I've been using ThumbGenius to 2X my YouTube CTR! Check it out → ` + link;
     if(navigator.share){ navigator.share({title:'ThumbGenius',text,url:link}); }
     else { navigator.clipboard.writeText(text).then(()=>alert('Copied! Share it on WhatsApp, Twitter, anywhere 🚀')); }
 }
