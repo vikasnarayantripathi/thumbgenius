@@ -1437,7 +1437,8 @@ Include variety: mix niches, techniques, and CTR tiers. Make descriptions specif
         await redis_set(cache_key, json.dumps(result), ex=3600)
         return JSONResponse(result)
     except Exception as e:
-        logger.error(f"/inspiration/library error: {e}"); return JSONResponse({"error":"Failed to load library."},status_code=500)
+        logger.error(f"/inspiration/library error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"Failed to load library: {type(e).__name__}"},status_code=500)
 
 @app.post("/inspiration/save")
 async def inspiration_save(request: Request):
