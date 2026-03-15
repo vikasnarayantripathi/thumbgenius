@@ -541,9 +541,10 @@
         /* Nav user bar */
         .nav-user-bar { display:flex; align-items:center; gap:8px; }
         .nav-plan-badge { font-size:10px; font-weight:800; letter-spacing:1.5px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
-        .nav-plan-badge.free    { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); }
-        .nav-plan-badge.creator { background:rgba(255,224,54,0.15); color:var(--yellow); border:1px solid rgba(255,224,54,0.3); }
-        .nav-plan-badge.pro     { background:rgba(139,85,255,0.2); color:#A78BFA; border:1px solid rgba(139,85,255,0.4); }
+        .nav-plan-badge.free       { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); }
+        .nav-plan-badge.creator    { background:rgba(255,224,54,0.15); color:var(--yellow); border:1px solid rgba(255,224,54,0.3); }
+        .nav-plan-badge.pro        { background:rgba(139,85,255,0.2); color:#A78BFA; border:1px solid rgba(139,85,255,0.4); }
+        .nav-plan-badge.enterprise { background:rgba(67,233,123,0.15); color:#43E97B; border:1px solid rgba(67,233,123,0.4); }
         .nav-user-email { font-size:11px; color:rgba(255,255,255,0.4); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .nav-usage-ring { cursor:pointer; flex-shrink:0; }
         #navUsageArc { transition: stroke-dashoffset 1s ease; }
@@ -730,9 +731,10 @@
         /* ── Nav user bar ─────────────────────────────────── */
         .nav-user-bar       { display:flex; align-items:center; gap:8px; }
         .nav-plan-pill      { font-size:10px; font-weight:800; letter-spacing:1.5px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
-        .nav-plan-pill.free    { background:rgba(255,255,255,.08); color:rgba(255,255,255,.4); }
-        .nav-plan-pill.creator { background:rgba(255,224,54,.12); color:var(--yellow); border:1px solid rgba(255,224,54,.25); }
-        .nav-plan-pill.pro     { background:rgba(139,85,255,.15); color:#c4b5fd; border:1px solid rgba(139,85,255,.3); }
+        .nav-plan-pill.free       { background:rgba(255,255,255,.08); color:rgba(255,255,255,.4); }
+        .nav-plan-pill.creator    { background:rgba(255,224,54,.12); color:var(--yellow); border:1px solid rgba(255,224,54,.25); }
+        .nav-plan-pill.pro        { background:rgba(139,85,255,.15); color:#c4b5fd; border:1px solid rgba(139,85,255,.3); }
+        .nav-plan-pill.enterprise { background:rgba(67,233,123,.12); color:#43E97B; border:1px solid rgba(67,233,123,.3); }
         .nav-user-email     { font-size:11px; color:rgba(255,255,255,.35); max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .nav-gen-count      { font-size:11px; color:var(--dim); white-space:nowrap; }
         .nav-gen-count strong { color:var(--yellow); }
@@ -885,6 +887,7 @@
 .dash-plan-badge-free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);}
 .dash-plan-badge-creator{background:rgba(255,224,54,.12);color:#FFE036;}
 .dash-plan-badge-pro{background:rgba(139,133,255,.15);color:#8B85FF;}
+.dash-plan-badge-enterprise{background:rgba(67,233,123,.15);color:#43E97B;border:1px solid rgba(67,233,123,.3);}
 
 
 /* ── High-Conversion Dashboard styles ── */
@@ -2740,21 +2743,37 @@ async function loadUserStatus(){
 }
 
 function updateUIForPlan(data){
-    const plan=data.plan||'free';
+    const plan = data.plan || 'free';
+    const planLabels = {free:'FREE', creator:'CREATOR', pro:'PRO', enterprise:'ENTERPRISE'};
+    const planColors = {free:'rgba(255,255,255,0.4)', creator:'#FFE036', pro:'#A78BFA', enterprise:'#43E97B'};
     showCustomImgPanel(plan);
-    if(currentUserEmail && plan!=='free' && data.is_active){
+
+    // Update navPlanPill everywhere
+    const pill = document.getElementById('navPlanPill');
+    if(pill){
+        pill.textContent  = planLabels[plan] || plan.toUpperCase();
+        pill.className    = 'nav-plan-pill ' + plan;
+    }
+
+    if(currentUserEmail && plan !== 'free' && data.is_active){
         document.getElementById('userStatusBar').classList.add('visible');
-        document.getElementById('statusPlanBadge').textContent=plan.toUpperCase();
-        document.getElementById('statusEmail').textContent=currentUserEmail;
-        const genLeft=(data.generations_limit||100)-(data.generations_used||0);
-        const imgLeft=(data.images_limit||20)-(data.images_used||0);
-        document.getElementById('statusUsage').textContent=genLeft+' generations · '+imgLeft+' images left';
-        document.getElementById('navCtaBtn').textContent='✓ '+plan.charAt(0).toUpperCase()+plan.slice(1);
-        document.getElementById('navBadge').textContent=plan.charAt(0).toUpperCase()+plan.slice(1)+' Plan Active';
-        document.getElementById('usesLeft').innerHTML='<strong>'+genLeft+'</strong> remaining';
-        document.getElementById('freeBadgeText').textContent=genLeft+' generations left';
-        document.getElementById('imgDesc').innerHTML='Generate an actual thumbnail image. <strong>'+imgLeft+' images remaining</strong> this month.';
-    }else{updateUIForFree();}
+        const statusBadge = document.getElementById('statusPlanBadge');
+        if(statusBadge){ statusBadge.textContent = planLabels[plan]; statusBadge.style.color = planColors[plan]; }
+        document.getElementById('statusEmail').textContent = currentUserEmail;
+        const genLeft = (data.generations_limit||100) - (data.generations_used||0);
+        const imgLeft = (data.images_limit||20)       - (data.images_used||0);
+        document.getElementById('statusUsage').textContent = genLeft + ' generations · ' + imgLeft + ' images left';
+        document.getElementById('navCtaBtn').textContent   = '✓ ' + (planLabels[plan]||plan);
+        document.getElementById('navBadge').textContent    = (planLabels[plan]||plan) + ' Plan Active';
+        document.getElementById('usesLeft').innerHTML      = '<strong>' + genLeft + '</strong> remaining';
+        document.getElementById('freeBadgeText').textContent = genLeft + ' generations left';
+        document.getElementById('imgDesc').innerHTML       = 'Generate an actual thumbnail image. <strong>' + imgLeft + ' images remaining</strong> this month.';
+        // Hide upgrade button for paid plans
+        const ctaBtn = document.getElementById('navCtaBtn');
+        if(ctaBtn) ctaBtn.style.background = planColors[plan]||'#FFE036';
+    } else {
+        updateUIForFree();
+    }
 }
 
 function updateUIForFree(){
@@ -5360,9 +5379,11 @@ async function loadDashboard() {
 
         // Plan badge
         var planBadge = document.getElementById('dashPlanBadge');
+        const planDisplay = {free:'Free',creator:'Creator',pro:'Pro',enterprise:'Enterprise'};
+        const planBgClass = {free:'dash-plan-badge-free',creator:'dash-plan-badge-creator',pro:'dash-plan-badge-pro',enterprise:'dash-plan-badge-enterprise'};
         if (planBadge) {
-            planBadge.textContent = plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan';
-            planBadge.className = 'dash-plan-badge ' + plan;
+            planBadge.textContent = (planDisplay[plan]||plan) + ' Plan';
+            planBadge.className   = planBgClass[plan] || 'dash-plan-badge-free';
         }
 
         // Email
