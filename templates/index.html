@@ -1177,6 +1177,14 @@ function tg_updateActivity() {
 }
 
 function tg_initSession() {
+    // Fresh login — skip session check
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('login') === '1'){
+        document.getElementById('appWrapper').style.display = 'block';
+        // Clean URL
+        window.history.replaceState({}, '', '/');
+        return;
+    }
     const email     = localStorage.getItem('tg_email') || '';
     const adminCode = localStorage.getItem('tg_admin_code') || '';
     const plan      = localStorage.getItem('tg_plan') || 'free';
