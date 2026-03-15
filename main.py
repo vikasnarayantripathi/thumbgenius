@@ -256,10 +256,13 @@ async def sb_get_user_by_token(token):
 
 async def sb_get_user_by_login_token(token):
     try:
+        from urllib.parse import quote
+        encoded_token = quote(token, safe='')
         r = await _http_sb.get(
-            f"{SUPABASE_URL}/rest/v1/users?login_token=eq.{token}&select=*",
+            f"{SUPABASE_URL}/rest/v1/users?login_token=eq.{encoded_token}&select=*",
             headers=SB_HEADERS)
         data = r.json()
+        logger.info(f"Login token lookup: {len(data)} results for token {token[:10]}...")
         return data[0] if data else None
     except Exception as e:
         logger.error(f"sb_get_user_by_login_token: {e}"); return None
