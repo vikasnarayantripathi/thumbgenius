@@ -1408,7 +1408,7 @@ async def inspiration_library(request: Request, niche: str = "", trigger: str = 
         except: pass
     niche_filter   = f"Focus on {niche} niche thumbnails." if niche else "Mix across all niches."
     trigger_filter = f"Show thumbnails that use the {trigger} psychological technique." if trigger else "Mix all psychological techniques."
-    prompt = f"""Generate 12 high-performing YouTube thumbnail concepts for the Inspiration Library.
+    prompt = f"""Generate 6 high-performing YouTube thumbnail concepts for the Inspiration Library.
 {niche_filter} {trigger_filter} Focus on global YouTube trends (2024-2025).
 
 Return ONLY a JSON array:
@@ -1428,14 +1428,20 @@ Return ONLY a JSON array:
 
 Include variety: mix niches, techniques, and CTR tiers. Make descriptions specific enough to visualize."""
     try:
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role":"system","content":"YouTube thumbnail expert. JSON only."},
-                      {"role":"user","content":prompt}],
-            temperature=0.9, max_tokens=2000)
+        response = await asyncio.wait_for(
+            client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role":"system","content":"YouTube thumbnail expert. Return ONLY a valid JSON array, no markdown."},
+                          {"role":"user","content":prompt}],
+                temperature=0.9, max_tokens=1500),
+            timeout=25
+        )
         result = parse_json_safe(response.choices[0].message.content)
+        if not isinstance(result, list): result = result.get("items", result.get("thumbnails", []))
         await redis_set(cache_key, json.dumps(result), ex=3600)
         return JSONResponse(result)
+    except asyncio.TimeoutError:
+        return JSONResponse({"error": "timeout"}, status_code=500)
     except Exception as e:
         logger.error(f"/inspiration/library error: {type(e).__name__}: {e}")
         return JSONResponse({"error": f"Failed to load library: {type(e).__name__}"},status_code=500)
