@@ -1135,26 +1135,34 @@ function enterApp() {
 }
 
 function tg_checkSession() {
-    const email    = localStorage.getItem('tg_email') || '';
-    const plan     = localStorage.getItem('tg_plan')  || 'free';
-    const entered  = localStorage.getItem('tg_entered_app');
+    const email      = localStorage.getItem('tg_email') || '';
+    const plan       = localStorage.getItem('tg_plan')  || 'free';
+    const entered    = localStorage.getItem('tg_entered_app');
     const trialStart = parseInt(localStorage.getItem('tg_trial_start') || '0');
-    const isPaid   = (plan === 'creator' || plan === 'pro' || plan === 'enterprise');
-    const now      = Date.now();
-    const trialAge = now - trialStart; // ms since trial started
-    const TRIAL_TTL = 24 * 60 * 60 * 1000; // 24 hours
+    const lastActive = parseInt(localStorage.getItem('tg_last_active') || '0');
+    const adminCode  = localStorage.getItem('tg_admin_code') || '';
+    const now        = Date.now();
+    const TRIAL_TTL  = 24 * 60 * 60 * 1000; // 24 hours
+    const IDLE_TTL   = TG_IDLE_TIMEOUT;      // 3 hours
 
-    // Logged in users always get in
-    if (email) return true;
-
-    // Admin code always gets in
-    const adminCode = localStorage.getItem('tg_admin_code') || '';
+    // Admin always gets in
     if (adminCode) return true;
 
-    // Trial user — check if still valid (within 24hrs)
-    if (entered && trialStart && trialAge < TRIAL_TTL) return true;
+    // Logged in user — check idle timeout
+    if (email) {
+        if (lastActive && (now - lastActive) > IDLE_TTL) return false;
+        return true;
+    }
 
-    // No valid session — send to landing
+    // Trial user — must have entered AND be within 24hrs AND not idle
+    if (entered && trialStart) {
+        if ((now - trialStart) >= TRIAL_TTL) return false; // trial expired
+        if (lastActive && (now - lastActive) > IDLE_TTL) return false; // idle
+        if (!lastActive && (now - trialStart) > IDLE_TTL) return false; // idle with no activity
+        return true;
+    }
+
+    // No session
     return false;
 }
 
