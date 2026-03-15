@@ -817,7 +817,7 @@ async def user_usage(request: Request):
     is_adm     = is_admin(admin_code)
     if not email and not is_adm:
         return JSONResponse({"error":"not_logged_in"}, status_code=401)
-    if is_adm:
+    if is_adm and not email:
         return JSONResponse({"plan":"enterprise","email":"admin","limits":PLAN_LIMITS["enterprise"],
                              "topup_images":0,
                              "used":{"generations":0,"images":0,"thumb_analysis":0,
