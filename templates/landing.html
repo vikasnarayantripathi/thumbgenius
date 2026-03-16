@@ -537,5 +537,33 @@ function loginWithGoogle() { window.location.href = '/auth/google'; }
         <div id="landingLoginMsg" style="margin-top:14px;font-size:13px;min-height:20px"></div>
     </div>
 </div>
+
+<script>
+// Handle Supabase OAuth implicit flow - token comes in URL fragment
+(function() {
+    var hash = window.location.hash;
+    if(hash && hash.includes('access_token=')) {
+        var params = new URLSearchParams(hash.substring(1));
+        var accessToken = params.get('access_token');
+        if(accessToken) {
+            // Decode JWT to get email
+            try {
+                var payload = JSON.parse(atob(accessToken.split('.')[1]));
+                var email = payload.email || '';
+                if(email) {
+                    localStorage.setItem('tg_email', email);
+                    localStorage.setItem('tg_plan', 'free');
+                    localStorage.setItem('tg_last_active', Date.now().toString());
+                    // Redirect to app
+                    window.location.href = '/?login=1&email=' + encodeURIComponent(email);
+                    return;
+                }
+            } catch(e) {
+                console.error('Token parse error:', e);
+            }
+        }
+    }
+})();
+</script>
 </body>
 </html>
