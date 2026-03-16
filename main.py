@@ -623,16 +623,22 @@ async def landing_page(request: Request):
 # GOOGLE OAUTH
 # ══════════════════════════════════════════════════════════════════════════════
 @app.get("/auth/google")
-async def auth_google():
+async def auth_google(request: Request):
     """Redirect to Supabase Google OAuth"""
-    from urllib.parse import urlencode, quote
-    params = urlencode({
-        "provider": "google",
-        "redirect_to": f"{APP_URL}/auth/callback"
-    })
-    supabase_oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?{params}"
-    logger.info(f"OAuth redirect to: {supabase_oauth_url}")
-    return RedirectResponse(supabase_oauth_url)
+    try:
+        from urllib.parse import urlencode
+        if not SUPABASE_URL:
+            return JSONResponse({"error": "SUPABASE_URL not set"}, status_code=500)
+        params = urlencode({
+            "provider": "google",
+            "redirect_to": f"{APP_URL}/auth/callback"
+        })
+        supabase_oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?{params}"
+        logger.info(f"OAuth redirect to: {supabase_oauth_url}")
+        return RedirectResponse(supabase_oauth_url)
+    except Exception as e:
+        logger.error(f"auth_google error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/auth/callback")
 async def auth_callback(request: Request, code: str = "", error: str = ""):
