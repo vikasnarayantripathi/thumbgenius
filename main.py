@@ -2374,3 +2374,4 @@ async def send_login_link(request: Request):
                 json={"email": email, "plan": "free", "login_token": token, "login_token_expires": token_expires})
     asyncio.create_task(send_login_link_email(email, token))
     return JSONResponse({"success": True, "message": "Login link sent! Check your email."})
+
