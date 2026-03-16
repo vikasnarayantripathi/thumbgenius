@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
