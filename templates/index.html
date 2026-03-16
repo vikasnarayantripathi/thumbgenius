@@ -5245,26 +5245,7 @@ function updateLoginButtonVisibility() {
 document.addEventListener('DOMContentLoaded', function() {
     var lm = document.getElementById('loginModal');
     if (lm) lm.addEventListener('click', function(e){ if(e.target===this) closeLoginModal(); });
-    // Handle Google OAuth callback
-    var urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.get('login') === '1' && urlParams.get('email')) {
-        var oauthEmail = urlParams.get('email');
-        localStorage.setItem('tg_email', oauthEmail);
-        localStorage.setItem('tg_plan', 'free');
-        localStorage.setItem('tg_session', 'oauth_' + Date.now());
-        localStorage.setItem('tg_last_active', Date.now().toString());
-        window.history.replaceState({}, '', '/');
-        // Show app immediately
-        var aw = document.getElementById('appWrapper');
-        if(aw) aw.style.display = 'block';
-        // Hide landing if visible
-        var lp = document.getElementById('landingPage');
-        if(lp) lp.classList.remove('visible');
-        setTimeout(function(){ 
-            if(typeof loadUserPlan === 'function') loadUserPlan(oauthEmail);
-            if(typeof showPage === 'function') showPage('home');
-        }, 300);
-    }
+    // OAuth handled in tg_initSession above
 });
 
 // ── TOP-UP FUNCTIONS ──
