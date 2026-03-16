@@ -625,12 +625,14 @@ async def landing_page(request: Request):
 @app.get("/auth/google")
 async def auth_google():
     """Redirect to Supabase Google OAuth"""
-    import urllib.parse
-    params = urllib.parse.urlencode({
+    from urllib.parse import urlencode, quote
+    params = urlencode({
         "provider": "google",
         "redirect_to": f"{APP_URL}/auth/callback"
     })
-    return RedirectResponse(f"{SUPABASE_URL}/auth/v1/authorize?{params}")
+    supabase_oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?{params}"
+    logger.info(f"OAuth redirect to: {supabase_oauth_url}")
+    return RedirectResponse(supabase_oauth_url)
 
 @app.get("/auth/callback")
 async def auth_callback(request: Request, code: str = "", error: str = ""):
