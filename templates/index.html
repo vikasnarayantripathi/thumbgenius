@@ -5259,7 +5259,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(aw) aw.style.display = 'block';
         // Hide landing if visible
         var lp = document.getElementById('landingPage');
-        if(lp) lp.style.display = 'none';
+        if(lp) lp.classList.remove('visible');
         setTimeout(function(){ 
             if(typeof loadUserPlan === 'function') loadUserPlan(oauthEmail);
             if(typeof showPage === 'function') showPage('home');
