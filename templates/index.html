@@ -2799,8 +2799,14 @@ function updateUIForFree(){
 }
 
 function logout(){
-    localStorage.removeItem('tg_email');localStorage.removeItem('tg_plan');
-    currentUserEmail='';currentUserPlan='free';updateUIForFree();
+    localStorage.removeItem('tg_email');
+    localStorage.removeItem('tg_plan');
+    localStorage.removeItem('tg_last_active');
+    localStorage.removeItem('tg_entered_app');
+    localStorage.removeItem('tg_trial_start');
+    localStorage.removeItem('tg_session');
+    currentUserEmail='';currentUserPlan='free';
+    window.location.href = '/landing';
 }
 
 function openPaymentModal(plan){
