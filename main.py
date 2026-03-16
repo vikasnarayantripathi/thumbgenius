@@ -618,6 +618,78 @@ async def refund(request: Request):
 async def landing_page(request: Request):
     return templates.TemplateResponse("landing.html", {"request": request})
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GOOGLE OAUTH
+# ══════════════════════════════════════════════════════════════════════════════
+@app.get("/auth/google")
+async def auth_google():
+    """Redirect to Supabase Google OAuth"""
+    import urllib.parse
+    params = urllib.parse.urlencode({
+        "provider": "google",
+        "redirect_to": f"{APP_URL}/auth/callback"
+    })
+    return RedirectResponse(f"{SUPABASE_URL}/auth/v1/authorize?{params}")
+
+@app.get("/auth/callback")
+async def auth_callback(request: Request, code: str = "", error: str = ""):
+    """Handle OAuth callback from Supabase"""
+    if error:
+        logger.error(f"OAuth error: {error}")
+        return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
+    if not code:
+        return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
+    try:
+        # Exchange code for session
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.post(
+                f"{SUPABASE_URL}/auth/v1/token?grant_type=pkce",
+                headers={
+                    "apikey": SUPABASE_KEY,
+                    "Content-Type": "application/json"
+                },
+                json={"auth_code": code, "code_verifier": ""}
+            )
+            data = r.json()
+
+        if "error" in data:
+            # Try alternative exchange
+            async with httpx.AsyncClient(timeout=15) as client:
+                r = await client.post(
+                    f"{SUPABASE_URL}/auth/v1/token?grant_type=authorization_code",
+                    headers={
+                        "apikey": SUPABASE_KEY,
+                        "Content-Type": "application/json"
+                    },
+                    json={"code": code}
+                )
+                data = r.json()
+
+        email = data.get("user", {}).get("email", "")
+        if not email:
+            logger.error(f"OAuth callback no email: {data}")
+            return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
+
+        # Upsert user in our users table
+        existing = await sb_get_user(email)
+        if not existing:
+            await sb_create_user(email)
+            logger.info(f"OAuth: new user created {email}")
+        else:
+            logger.info(f"OAuth: existing user logged in {email}")
+
+        # Clear plan cache
+        await redis_del(f"plan:{email}")
+
+        # Redirect to app with email as session param
+        import urllib.parse
+        return RedirectResponse(f"{APP_URL}/?login=1&email={urllib.parse.quote(email)}")
+
+    except Exception as e:
+        logger.error(f"OAuth callback error: {e}")
+        return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "thumbgenius", "version": "4.0"}
