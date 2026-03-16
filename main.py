@@ -2383,3 +2383,4 @@ async def send_login_link(request: Request):
     asyncio.create_task(send_login_link_email(email, token))
     return JSONResponse({"success": True, "message": "Login link sent! Check your email."})
 
+# OAuth fix Mon Mar 16 18:39:00 UTC 2026
