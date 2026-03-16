@@ -1482,6 +1482,7 @@ function showPage(p){
                 <div class="nav-plan-pill free" id="navPlanPill">FREE</div>
                 <span class="nav-user-email" id="navUserEmail"></span>
                 <span class="nav-gen-count" id="navGenCount"></span>
+                <button class="btn-logout" onclick="logout()" style="margin-left:8px">Sign Out</button>
             </div>
             <span class="nav-badge" id="navBadge">Packaging Intelligence Platform</span>
             <button class="btn-login-nav" id="navLoginBtn" onclick="openLoginModal()">Login</button>
@@ -4950,6 +4951,9 @@ function updateNavBar(data) {
     const cta   = document.getElementById('navCtaBtn');
 
     if (bar)   bar.style.display = 'flex';
+    // Hide login button, show sign out in nav
+    var loginBtn = document.getElementById('navLoginBtn');
+    if (loginBtn) loginBtn.style.display = 'none';
 
     const plan = data.plan || 'free';
     if (pill)  { pill.textContent = plan.toUpperCase(); pill.className = 'nav-plan-pill ' + plan; }
