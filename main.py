@@ -152,9 +152,12 @@ async def redis_get(key):
 
 async def redis_set(key, value, ex=None):
     try:
-        url = f"{UPSTASH_REDIS_REST_URL}/set/{key}/{value}"
-        if ex: url += f"/ex/{ex}"
-        await _http_redis.get(url, headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"})
+        cmd = ["SET", key, value]
+        if ex: cmd += ["EX", str(ex)]
+        await _http_redis.post(
+            f"{UPSTASH_REDIS_REST_URL}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"},
+            json=cmd)
     except Exception as e:
         logger.warning(f"Redis SET error: {e}")
 
