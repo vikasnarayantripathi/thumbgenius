@@ -1188,12 +1188,22 @@ function tg_updateActivity() {
 }
 
 function tg_initSession() {
-    // Fresh login — skip session check
+    // Fresh login — handle OAuth callback first before any session check
     const params = new URLSearchParams(window.location.search);
-    if(params.get('login') === '1'){
-        document.getElementById('appWrapper').style.display = 'block';
-        // Clean URL
+    if(params.get('login') === '1') {
+        const oauthEmail = params.get('email') || '';
+        if(oauthEmail) {
+            localStorage.setItem('tg_email', oauthEmail);
+            localStorage.setItem('tg_plan', 'free');
+            localStorage.setItem('tg_last_active', Date.now().toString());
+        }
         window.history.replaceState({}, '', '/');
+        document.getElementById('appWrapper').style.display = 'block';
+        setTimeout(function(){
+            var em = oauthEmail || localStorage.getItem('tg_email') || '';
+            if(typeof loadUserPlan === 'function' && em) loadUserPlan(em);
+            if(typeof showPage === 'function') showPage('home');
+        }, 400);
         return;
     }
     const email     = localStorage.getItem('tg_email') || '';
