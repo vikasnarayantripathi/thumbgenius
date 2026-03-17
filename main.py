@@ -696,6 +696,12 @@ async def auth_callback(request: Request, code: str = "", error: str = ""):
         logger.error(f"OAuth callback error: {e}")
         return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
 
+
+@app.get("/favicon.ico")
+async def favicon():
+    from fastapi.responses import FileResponse
+    return FileResponse("static/favicon.ico", media_type="image/x-icon")
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "thumbgenius", "version": "4.0"}
