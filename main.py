@@ -48,6 +48,8 @@ STRIPE_WEBHOOK_SECRET   = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_CREATOR_PRICE_ID = os.getenv("STRIPE_CREATOR_PRICE_ID", "")   # $19/mo
 STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")        # $39/mo
 
+YOUTUBE_API_KEY          = os.getenv("AIzaSyDJy_bON1erjhWpdk5M326q2Rt63Nphr_Y", "")
+
 PLAN_LIMITS = {
     "free":       {"generations": 3,    "images": 5,    "thumb_analysis": 1,   "reverse": 2,    "ctr_predict": 0,    "ab_tests": 3,    "blueprint": 1,    "watermark": True,  "hd_images": 0,   "team_seats": 1,  "api_access": False},
     "creator":    {"generations": 500,  "images": 50,   "thumb_analysis": 30,  "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 0,   "team_seats": 1,  "api_access": False},
@@ -87,10 +89,27 @@ def get_ip(request: Request) -> str:
 
 
 
+# ─── Intelligence Engine ──────────────────────────────────────────────────────
+try:
+    from intelligence_engine.admin.app import admin_app
+    from intelligence_engine.database import setup_tables
+    from intelligence_engine.crons.scheduler import start_scheduler
+    IE_ENABLED = True
+except Exception as _ie_err:
+    IE_ENABLED = False
+    print(f"[IE] Not loaded: {_ie_err}")
+
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("ThumbGenius v4.0 — Packaging Intelligence Platform starting...")
+    if IE_ENABLED:
+        try:
+            await setup_tables()
+            start_scheduler()
+            logger.info("[IE] Intelligence Engine started.")
+        except Exception as e:
+            logger.warning(f"[IE] Startup error (non-fatal): {e}")
     yield
     try:
         await _http_redis.aclose()
@@ -101,6 +120,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 import os as _os
 app.mount("/static", StaticFiles(directory=_os.path.join(_os.path.dirname(__file__), "static")), name="static")
+if IE_ENABLED:
+    app.mount("/ie", admin_app)
 
 # ─── CSP Middleware ───────────────────────────────────────────────────────────
 class CSPMiddleware(BaseHTTPMiddleware):
@@ -2392,5 +2413,140 @@ async def send_login_link(request: Request):
                 json={"email": email, "plan": "free", "login_token": token, "login_token_expires": token_expires})
     asyncio.create_task(send_login_link_email(email, token))
     return JSONResponse({"success": True, "message": "Login link sent! Check your email."})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# YOUTUBE API — Real Data Integration
+# ══════════════════════════════════════════════════════════════════════════════
+
+YT_API_BASE = "https://www.googleapis.com/youtube/v3"
+
+async def yt_get(endpoint: str, params: dict) -> dict:
+    params["key"] = YOUTUBE_API_KEY
+    async with httpx.AsyncClient(timeout=10.0) as h:
+        r = await h.get(f"{YT_API_BASE}/{endpoint}", params=params)
+        return r.json()
+
+@app.get("/yt/video")
+async def yt_video(url: str = ""):
+    if not url:
+        return JSONResponse({"error": "YouTube URL required"}, status_code=400)
+    video_id = extract_video_id(url)
+    if not video_id:
+        return JSONResponse({"error": "Invalid YouTube URL"}, status_code=400)
+    try:
+        data = await yt_get("videos", {"part": "snippet,statistics", "id": video_id})
+        items = data.get("items", [])
+        if not items:
+            return JSONResponse({"error": "Video not found"}, status_code=404)
+        item = items[0]
+        snippet = item.get("snippet", {})
+        stats   = item.get("statistics", {})
+        thumbs  = snippet.get("thumbnails", {})
+        thumb_url = (thumbs.get("maxres") or thumbs.get("high") or thumbs.get("medium") or {}).get("url", "")
+        return JSONResponse({
+            "video_id":      video_id,
+            "title":         snippet.get("title", ""),
+            "channel":       snippet.get("channelTitle", ""),
+            "published_at":  snippet.get("publishedAt", ""),
+            "description":   snippet.get("description", "")[:300],
+            "thumbnail_url": thumb_url,
+            "views":         int(stats.get("viewCount", 0)),
+            "likes":         int(stats.get("likeCount", 0)),
+            "comments":      int(stats.get("commentCount", 0)),
+        })
+    except Exception as e:
+        logger.error(f"/yt/video error: {e}")
+        return JSONResponse({"error": "Failed to fetch video data"}, status_code=500)
+
+@app.get("/yt/channel")
+async def yt_channel(handle: str = ""):
+    if not handle:
+        return JSONResponse({"error": "Channel handle required"}, status_code=400)
+    handle = handle.strip().rstrip("/")
+    handle = handle.split("@")[-1] if "@" in handle else handle.split("/")[-1]
+    try:
+        data = await yt_get("channels", {"part": "snippet,statistics", "forHandle": handle})
+        items = data.get("items", [])
+        if not items:
+            search = await yt_get("search", {"part": "snippet", "q": handle, "type": "channel", "maxResults": 1})
+            search_items = search.get("items", [])
+            if not search_items:
+                return JSONResponse({"error": "Channel not found"}, status_code=404)
+            channel_id = search_items[0]["id"]["channelId"]
+            data = await yt_get("channels", {"part": "snippet,statistics", "id": channel_id})
+            items = data.get("items", [])
+        if not items:
+            return JSONResponse({"error": "Channel not found"}, status_code=404)
+        item    = items[0]
+        snippet = item.get("snippet", {})
+        stats   = item.get("statistics", {})
+        thumbs  = snippet.get("thumbnails", {})
+        return JSONResponse({
+            "channel_id":  item.get("id", ""),
+            "name":        snippet.get("title", ""),
+            "description": snippet.get("description", "")[:300],
+            "country":     snippet.get("country", ""),
+            "avatar_url":  (thumbs.get("high") or thumbs.get("medium") or {}).get("url", ""),
+            "subscribers": int(stats.get("subscriberCount", 0)),
+            "total_views": int(stats.get("viewCount", 0)),
+            "video_count": int(stats.get("videoCount", 0)),
+        })
+    except Exception as e:
+        logger.error(f"/yt/channel error: {e}")
+        return JSONResponse({"error": "Failed to fetch channel data"}, status_code=500)
+
+NICHE_TO_YT_QUERY = {
+    "tech": "technology", "finance": "personal finance", "gaming": "gaming",
+    "fitness": "fitness workout", "food": "food recipes", "travel": "travel vlog",
+    "education": "educational", "motivation": "motivation", "beauty": "beauty makeup",
+    "entertainment": "entertainment", "business": "business", "productivity": "productivity",
+    "cricket": "cricket", "automobiles": "cars automobiles", "examprep": "exam preparation",
+    "health": "health tips", "music": "music", "stocks": "stock market",
+    "cooking": "cooking", "comedy": "comedy", "news": "news", "fashion": "fashion"
+}
+
+@app.get("/yt/trending")
+async def yt_trending(niche: str = "tech", max_results: int = 6):
+    query = NICHE_TO_YT_QUERY.get(niche.lower(), niche)
+    cache_key = f"yt_trending:{niche}"
+    cached = await redis_get(cache_key)
+    if cached:
+        try: return JSONResponse(json.loads(cached))
+        except: pass
+    try:
+        data = await yt_get("search", {
+            "part": "snippet",
+            "q": query,
+            "type": "video",
+            "order": "viewCount",
+            "maxResults": max_results,
+            "publishedAfter": (datetime.utcnow() - timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "relevanceLanguage": "en",
+            "videoDuration": "medium"
+        })
+        items = data.get("items", [])
+        if not items:
+            return JSONResponse({"error": "No trending videos found"}, status_code=404)
+        results = []
+        for item in items:
+            snippet  = item.get("snippet", {})
+            video_id = item.get("id", {}).get("videoId", "")
+            thumbs   = snippet.get("thumbnails", {})
+            thumb_url = (thumbs.get("high") or thumbs.get("medium") or {}).get("url", "")
+            results.append({
+                "video_id":      video_id,
+                "title":         snippet.get("title", ""),
+                "channel":       snippet.get("channelTitle", ""),
+                "published_at":  snippet.get("publishedAt", ""),
+                "thumbnail_url": thumb_url,
+                "video_url":     f"https://youtube.com/watch?v={video_id}",
+                "niche":         niche,
+            })
+        await redis_set(cache_key, json.dumps(results), ex=3600)
+        return JSONResponse(results)
+    except Exception as e:
+        logger.error(f"/yt/trending error: {e}")
+        return JSONResponse({"error": "Failed to fetch trending videos"}, status_code=500)
 
 # OAuth fix Mon Mar 16 18:39:00 UTC 2026
