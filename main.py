@@ -2507,13 +2507,14 @@ NICHE_TO_YT_QUERY = {
 }
 
 @app.get("/yt/trending")
-async def yt_trending(niche: str = "tech", max_results: int = 6):
+async def yt_trending(niche: str = "tech", max_results: int = 6, bust: int = 0):
     query = NICHE_TO_YT_QUERY.get(niche.lower(), niche)
     cache_key = f"yt_trending:{niche}"
-    cached = await redis_get(cache_key)
-    if cached:
-        try: return JSONResponse(json.loads(cached))
-        except: pass
+    if not bust:
+        cached = await redis_get(cache_key)
+        if cached:
+            try: return JSONResponse(json.loads(cached))
+            except: pass
     try:
         data = await yt_get("search", {
             "part": "snippet",
