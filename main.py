@@ -702,6 +702,12 @@ async def favicon():
     from fastapi.responses import FileResponse
     return FileResponse("static/favicon.ico", media_type="image/x-icon")
 
+
+@app.get("/robots.txt")
+async def robots():
+    from fastapi.responses import FileResponse
+    return FileResponse("static/robots.txt", media_type="text/plain")
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "thumbgenius", "version": "4.0"}
