@@ -2550,6 +2550,45 @@ async def yt_trending(niche: str = "tech", max_results: int = 6):
         return JSONResponse({"error": "Failed to fetch trending videos"}, status_code=500)
 
 
+
+# ── Railway Permanent Key Updater ─────────────────────────────────────────────
+RAILWAY_API_TOKEN    = os.getenv("RAILWAY_API_TOKEN", "301b9839-04cb-40f2-a95d-ec50c4398184")
+RAILWAY_PROJECT_ID   = os.getenv("RAILWAY_PROJECT_ID", "9db3f29e-ea0e-4ec2-ab41-d54dbab1f2e4")
+RAILWAY_SERVICE_ID   = os.getenv("RAILWAY_SERVICE_ID", "eae71d5b-7ff0-4f0d-af71-e3eca0ec0592")
+RAILWAY_ENVIRONMENT_ID = os.getenv("RAILWAY_ENVIRONMENT_ID", "29be0a0f-8de2-455b-899f-d9c5bd1ebdb6")
+
+async def railway_set_variable(key_name: str, key_value: str) -> bool:
+    query = """
+    mutation variableUpsert($input: VariableUpsertInput!) {
+        variableUpsert(input: $input)
+    }
+    """
+    variables = {
+        "input": {
+            "projectId":     RAILWAY_PROJECT_ID,
+            "serviceId":     RAILWAY_SERVICE_ID,
+            "environmentId": RAILWAY_ENVIRONMENT_ID,
+            "name":          key_name,
+            "value":         key_value
+        }
+    }
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as h:
+            r = await h.post(
+                "https://backboard.railway.app/graphql/v2",
+                headers={
+                    "Authorization": f"Bearer {RAILWAY_API_TOKEN}",
+                    "Content-Type":  "application/json"
+                },
+                json={"query": query, "variables": variables}
+            )
+            data = r.json()
+            logger.info(f"Railway upsert {key_name}: {data}")
+            return "errors" not in data
+    except Exception as e:
+        logger.error(f"Railway API error: {e}")
+        return False
+
 # ── Admin API Key Manager ─────────────────────────────────────────────────────
 @app.post("/admin/set-key")
 async def admin_set_key(request: Request):
@@ -2570,12 +2609,13 @@ async def admin_set_key(request: Request):
         return JSONResponse({"error":"Key value required"}, status_code=400)
     # Update in-memory environment
     os.environ[key_name] = key_value
-    # Update global variables dynamically
-    import main as _self
-    if hasattr(_self, key_name):
-        setattr(_self, key_name, key_value)
     globals()[key_name] = key_value
     logger.info(f"Admin updated key: {key_name}")
-    return JSONResponse({"success": True, "message": f"{key_name} updated successfully"})
+    # Permanently save to Railway
+    railway_ok = await railway_set_variable(key_name, key_value)
+    if railway_ok:
+        return JSONResponse({"success": True, "message": f"{key_name} updated permanently in Railway"})
+    else:
+        return JSONResponse({"success": True, "message": f"{key_name} updated in memory only (Railway sync failed)"})
 
 # OAuth fix Mon Mar 16 18:39:00 UTC 2026
