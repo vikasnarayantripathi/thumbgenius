@@ -5505,8 +5505,8 @@ async function loadDashboard() {
 
         updateNavBar(data);
 
-        // ── Enterprise panel ──
-        loadEnterprisePanel(plan);
+        // ── Enterprise panel — only for enterprise users ──
+        if (plan === 'enterprise') loadEnterprisePanel(plan);
 
         // ── Inject plan-specific welcome message ──
         dashRenderWelcome(plan, email, used, limits);
