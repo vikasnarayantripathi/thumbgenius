@@ -611,7 +611,7 @@
         .mod-upload-zone .uz-label { font-weight:700; color:var(--white); font-size:15px; margin-bottom:4px; }
         .mod-upload-zone .uz-sub { font-size:12px; color:var(--dim); }
         .mod-preview-img { display:none; max-width:100%; max-height:300px; border-radius:10px; border:1px solid var(--border); margin-bottom:16px; object-fit:contain; }
-        .mod-select { width:100%; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:14px 18px; color:var(--white); font-size:14px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; margin-bottom:14px; appearance:none; }
+        .mod-select { width:100%; min-width:180px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:12px 16px; color:var(--white); font-size:13px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; margin-bottom:14px; appearance:auto; }
         .mod-select:focus { outline:none; border-color:rgba(255,224,54,0.4); }
         .mod-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
         .mod-row .mod-select { margin-bottom:0; flex:1; min-width:160px; }
@@ -2382,7 +2382,7 @@ function showPage(p){
              oninput="bp_onUrlInput(this.value)" style="padding-left:52px" />
     </div>
     <div class="mod-row" style="align-items:center;gap:12px">
-      <select id="bpNiche" class="mod-select" style="margin-bottom:0;max-width:220px">
+      <select id="bpNiche" class="mod-select" style="margin-bottom:0;min-width:180px">
 <option value="tech">📱 Tech</option>
 <option value="finance">💰 Finance</option>
 <option value="gaming">🎮 Gaming</option>
