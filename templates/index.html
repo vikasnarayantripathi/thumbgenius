@@ -1362,7 +1362,7 @@ function showPage(p){
     if(tab)  tab.classList.add('active');
     if(p==='trending'  && typeof initTrending==='function')  initTrending();
     if(p==='history'   && typeof renderHistory==='function') renderHistory();
-    if(p==='dashboard' && typeof loadDashboard==='function') loadDashboard();
+    if(p==='dashboard' && typeof loadDashboard==='function') { loadDashboard(); window.scrollTo({top:0,behavior:'smooth'}); }
     if(p==='library'   && typeof lib_load==='function')      lib_load();
     if(p==='blueprint' && typeof initBlueprint==='function') initBlueprint();
     window.scrollTo(0,0);
