@@ -5770,7 +5770,9 @@ function initAllNicheDDs() {
         buildNicheDD(id, 'tech');
     });
 }
-document.addEventListener('DOMContentLoaded', initAllNicheDDs);
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(initAllNicheDDs, 500);
+});
 
 // ══════════════════════════════════════════════════════
 // ENTERPRISE PANEL FUNCTIONS
