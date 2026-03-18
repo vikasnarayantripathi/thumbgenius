@@ -642,6 +642,10 @@ async def refund(request: Request):
 async def landing_page(request: Request):
     return templates.TemplateResponse("landing.html", {"request": request})
 
+@app.get("/enterprise")
+async def enterprise_page(request: Request):
+    return templates.TemplateResponse("enterprise.html", {"request": request})
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # GOOGLE OAUTH
