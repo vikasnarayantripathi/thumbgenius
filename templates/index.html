@@ -1229,12 +1229,8 @@ function tg_initSession() {
     const now       = Date.now();
     const isPaid    = (plan==='creator'||plan==='pro'||plan==='enterprise');
 
-    // Admin always in
-    if (adminCode) {
-        tg_updateActivity();
-        document.getElementById('appWrapper').style.display = 'block';
-        return;
-    }
+    // Admin code does NOT auto-login — must enter each session
+    // Admin is only active when explicitly entered in current session
 
     // Logged in paid user
     if (email && isPaid) {
@@ -1258,19 +1254,9 @@ function tg_initSession() {
         document.getElementById('appWrapper').style.display = 'block';
         return;
     }
-
-    // Trial user — must have entered via landing page
-    if (entered && trialStart && (now - trialStart) < TG_TRIAL_TTL) {
-        tg_updateActivity();
-        document.getElementById('appWrapper').style.display = 'block';
-        return;
-    }
-
-    // Trial expired
-    if (entered && trialStart && (now - trialStart) >= TG_TRIAL_TTL) {
-        tg_logout('expired');
-        return;
-    }
+    // No valid session — must login
+    window.location.href = '/landing';
+}
 
     // No session at all — go to landing
     window.location.href = '/landing';
