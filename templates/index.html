@@ -1211,13 +1211,17 @@ function tg_initSession() {
             localStorage.setItem('tg_plan', 'free');
             localStorage.setItem('tg_last_active', Date.now().toString());
         }
+        // Always update last active on login
+        localStorage.setItem('tg_last_active', Date.now().toString());
         window.history.replaceState({}, '', '/');
         document.getElementById('appWrapper').style.display = 'block';
         setTimeout(function(){
             var em = oauthEmail || localStorage.getItem('tg_email') || '';
+            currentUserEmail = em;
             if(typeof loadUserPlan === 'function' && em) loadUserPlan(em);
             if(typeof showPage === 'function') showPage('home');
-        }, 400);
+            if(typeof updateNavBar === 'function') updateNavBar({plan: localStorage.getItem('tg_plan')||'free', email: em});
+        }, 800);
         return;
     }
     const email     = localStorage.getItem('tg_email') || '';
