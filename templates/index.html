@@ -2198,6 +2198,12 @@ function showPage(p){
   <div class="feature-page-title">Viral Reverse Engineering</div>
   <p class="feature-page-sub">Upload any high-performing thumbnail. Get a 9-layer psychological deconstruction and a step-by-step blueprint to replicate it in your niche.</p>
 
+  <!-- YouTube URL input -->
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <input type="text" id="revYtUrl" placeholder="Paste YouTube URL to auto-fetch thumbnail..." style="flex:1;min-width:200px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 16px;color:#fff;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none" onkeydown="if(event.key==='Enter')rev_fetchFromUrl()">
+    <button onclick="rev_fetchFromUrl()" style="background:rgba(255,100,100,0.15);border:1px solid rgba(255,100,100,0.3);border-radius:12px;padding:12px 20px;color:#ff8080;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif">🔗 Fetch from URL</button>
+  </div>
+  <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:12px">— or upload manually —</div>
   <div class="mod-upload-zone" id="revDropZone" onclick="document.getElementById('revFileIn').click()">
     <input type="file" id="revFileIn" accept="image/*" style="display:none" onchange="rev_loadFile(this)">
     <div class="uz-icon">🔬</div>
@@ -2205,6 +2211,10 @@ function showPage(p){
     <div class="uz-sub">Any high-performing YouTube thumbnail</div>
   </div>
   <img id="revPreview" class="mod-preview-img" />
+  <div id="revVideoInfo" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px" id="revVideoTitle"></div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4)" id="revVideoMeta"></div>
+  </div>
 
   <select id="revNiche" class="mod-select">
 <option value="tech">📱 Tech</option>
@@ -5784,6 +5794,43 @@ function initAllNicheDDs() {
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initAllNicheDDs, 500);
 });
+
+// ── Reverse Engineering — fetch from YouTube URL ─────────────
+async function rev_fetchFromUrl() {
+    const url = document.getElementById('revYtUrl').value.trim();
+    if (!url) { alert('Please enter a YouTube URL'); return; }
+    const btn = document.querySelector('[onclick="rev_fetchFromUrl()"]');
+    const orig = btn.textContent;
+    btn.textContent = 'Fetching...'; btn.disabled = true;
+    try {
+        const res = await fetch('/yt/video?url=' + encodeURIComponent(url));
+        const data = await res.json();
+        if (data.error) { alert('Could not fetch: ' + data.error); return; }
+        // Fetch thumbnail image
+        const thumbRes = await fetch('/blueprint/extract-thumb?url=' + encodeURIComponent(url));
+        const thumbData = await thumbRes.json();
+        if (thumbData.image_b64) {
+            const img = document.getElementById('revPreview');
+            img.src = 'data:image/jpeg;base64,' + thumbData.image_b64;
+            img.style.display = 'block';
+            // Store b64 for analysis
+            window._revB64 = thumbData.image_b64;
+            document.getElementById('revBtn').disabled = false;
+        }
+        // Show video info
+        const info = document.getElementById('revVideoInfo');
+        document.getElementById('revVideoTitle').textContent = data.title || '';
+        document.getElementById('revVideoMeta').textContent = 
+            (data.channel || '') + ' · ' + 
+            (data.views ? data.views.toLocaleString() + ' views' : '') +
+            (data.likes ? ' · ' + data.likes.toLocaleString() + ' likes' : '');
+        info.style.display = 'block';
+    } catch(e) {
+        alert('Error fetching video data');
+    } finally {
+        btn.textContent = orig; btn.disabled = false;
+    }
+}
 
 // ══════════════════════════════════════════════════════
 // ENTERPRISE PANEL FUNCTIONS
