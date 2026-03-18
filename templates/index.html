@@ -5531,7 +5531,6 @@ async function loadDashboard() {
         // ── Enterprise panel — only for enterprise users ──
         if (plan === 'enterprise') loadEnterprisePanel(plan);
 
-        // ── Inject plan-specific welcome message ──
         dashRenderWelcome(plan, email, used, limits);
 
     } catch(e) {
@@ -5544,20 +5543,6 @@ async function loadDashboard() {
     }
 
 // ── Welcome message per plan ──
-function dashRenderWelcome(plan, email, used, limits) {
-    var el = document.getElementById('dashWelcome');
-    if (!el) return;
-    const name = email ? email.split('@')[0] : 'there';
-    const messages = {
-        free: `👋 Hey ${name}! You're on the Free plan. Upgrade to unlock unlimited analyses and HD thumbnails.`,
-        creator: `⚡ Hey ${name}! You're on Creator plan. You have access to all core modules.`,
-        pro: `🚀 Hey ${name}! You're on Pro plan. Full access to everything — enjoy!`,
-        enterprise: `🏢 Hey ${name}! You're on Enterprise plan. Manage your team from the Enterprise tab.`
-    };
-    el.textContent = messages[plan] || messages.free;
-    el.style.display = 'block';
-}
-
 // ── Module usage cards ──
 function dashRenderModuleCards(used, limits, plan) {
     var el = document.getElementById('dashModuleCards');
