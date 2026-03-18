@@ -2247,6 +2247,7 @@ function showPage(p){
 <option value="relationship">❤️ Relationship</option>
 <option value="career">💼 Career</option>
 </select>
+  <div style="height:16px"></div>
   <button class="btn-gen" id="revBtn" onclick="rev_run()" disabled>🔬 Reverse Engineer</button>
 
   <div class="mod-loading" id="revLoading">
@@ -4382,6 +4383,13 @@ function ctr_render(d) {
 function rev_loadFile(input) { _loadPreview(input, 'revPreview', 'revBtn'); }
 
 async function rev_run() {
+    // If fetched from URL, use stored b64
+    if (window._revB64) {
+        const img = document.getElementById('revPreview');
+        if (!img.src || img.src === window.location.href) {
+            img.src = 'data:image/jpeg;base64,' + window._revB64;
+        }
+    }
     var b64 = _modImgB64['revPreview'];
     if(!b64) return;
     _showLoading('revLoading','revResult','revBtn');
