@@ -883,6 +883,19 @@
   border:none;border-radius:9px;padding:10px 20px;font-size:13px;
   font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 
+.dash-module-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.dash-module-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
 /* Plan badge in dashboard */
 .dash-plan-badge-free{background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);}
 .dash-plan-badge-creator{background:rgba(255,224,54,.12);color:#FFE036;}
@@ -2373,7 +2386,13 @@ function showPage(p){
   <!-- Main content -->
   <div id="dashContent" style="display:none">
 
-    <!-- ① Low credits alert -->
+    <!-- Welcome message -->
+    <div id="dashWelcome" style="display:none;padding:12px 18px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:16px;font-size:14px;color:rgba(255,255,255,0.8);border-left:3px solid #43E97B"></div>
+
+  <!-- Module usage cards -->
+    <div id="dashModuleCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px"></div>
+
+  <!-- ① Low credits alert -->
     <div class="dash-low-credits-banner" id="dashLowBanner">
       <div class="dash-low-text">
         <div class="dash-low-title">⚠️ You're running low on credits</div>
@@ -5416,32 +5435,32 @@ function dashUpdateImagesLeft(used, limits, topup) {
 async function loadDashboard() {
     var email = localStorage.getItem('tg_email') || '';
     var admin = localStorage.getItem('tg_admin_code') || '';
-    var noEmail   = document.getElementById('dashNoEmail');
-    var content   = document.getElementById('dashContent');
-    var loading   = document.getElementById('dashLoading');
+    var noEmail = document.getElementById('dashNoEmail');
+    var content = document.getElementById('dashContent');
+    var loading = document.getElementById('dashLoading');
 
     if (!email && !admin) {
         if (loading) loading.style.display = 'none';
         if (noEmail) noEmail.style.display = 'block';
         return;
     }
-    if (loading)  loading.style.display  = 'block';
-    if (content)  content.style.display  = 'none';
-    if (noEmail)  noEmail.style.display  = 'none';
+    if (loading) loading.style.display = 'block';
+    if (content) content.style.display = 'none';
+    if (noEmail) noEmail.style.display = 'none';
 
     try {
         var res  = await fetch('/user/usage', { method:'GET', headers: getHeaders() });
         var data = await res.json();
         if (data.error && !data.plan) throw new Error(data.error || 'Failed');
 
-        if (loading)  loading.style.display  = 'none';
-        if (content)  content.style.display  = 'block';
+        if (loading) loading.style.display = 'none';
+        if (content) content.style.display = 'block';
 
         var plan   = data.plan   || 'free';
         var used   = data.used   || {};
         var limits = data.limits || {};
 
-        // Plan badge
+        // ── Plan badge ──
         var planBadge = document.getElementById('dashPlanBadge');
         const planDisplay = {free:'Free',creator:'Creator',pro:'Pro',enterprise:'Enterprise'};
         const planBgClass = {free:'dash-plan-badge-free',creator:'dash-plan-badge-creator',pro:'dash-plan-badge-pro',enterprise:'dash-plan-badge-enterprise'};
@@ -5450,35 +5469,47 @@ async function loadDashboard() {
             planBadge.className   = planBgClass[plan] || 'dash-plan-badge-free';
         }
 
-        // Email
+        // ── Email ──
         var emailEl = document.getElementById('dashEmail');
         if (emailEl) emailEl.textContent = email || 'Admin';
-        // Fix plan label
         var planLabel = document.getElementById('dashPlanLabel');
-        if(planLabel){ planLabel.textContent = plan.toUpperCase(); planLabel.style.color = plan==='enterprise'?'#43E97B':plan==='pro'?'#FDE036':plan==='creator'?'#8B85FF':'rgba(255,255,255,0.4)'; }
+        if (planLabel) {
+            planLabel.textContent = plan.toUpperCase();
+            planLabel.style.color = plan==='enterprise'?'#43E97B':plan==='pro'?'#FDE036':plan==='creator'?'#8B85FF':'rgba(255,255,255,0.4)';
+        }
 
-        // Usage bars
+        // ── Hide upgrade button for pro/enterprise ──
+        var upgradeBtn = document.getElementById('dashUpgradeBtn');
+        if (upgradeBtn) {
+            upgradeBtn.style.display = (plan === 'pro' || plan === 'enterprise') ? 'none' : 'inline-block';
+        }
+
+        // ── Render new usage module cards ──
+        dashRenderModuleCards(used, limits, plan);
+
+        // ── Usage bars ──
         dashRenderUsageBars(used, limits);
 
-        // Credits bar
+        // ── Credits bar ──
         dashRenderCredits(data);
 
-        // Recent intelligence (history)
+        // ── Recent activity ──
         dashRenderRecentActivity();
 
-        // Intelligence tips
+        // ── Intelligence tips ──
         dashRenderIntelligence(data);
 
-        // Score from history
+        // ── Score ──
         dashRenderScore();
-
-        // Progress (score computed inside dashRenderScore via dashSaveScore)
         dashUpdateProgress(0);
 
         updateNavBar(data);
 
-        // Enterprise panel
+        // ── Enterprise panel ──
         loadEnterprisePanel(plan);
+
+        // ── Inject plan-specific welcome message ──
+        dashRenderWelcome(plan, email, used, limits);
 
     } catch(e) {
         if (loading) loading.style.display = 'none';
@@ -5488,6 +5519,55 @@ async function loadDashboard() {
             if (h3) h3.textContent = '⚠️ Could not load dashboard. Check your connection.';
         }
     }
+
+// ── Welcome message per plan ──
+function dashRenderWelcome(plan, email, used, limits) {
+    var el = document.getElementById('dashWelcome');
+    if (!el) return;
+    const name = email ? email.split('@')[0] : 'there';
+    const messages = {
+        free: `👋 Hey ${name}! You're on the Free plan. Upgrade to unlock unlimited analyses and HD thumbnails.`,
+        creator: `⚡ Hey ${name}! You're on Creator plan. You have access to all core modules.`,
+        pro: `🚀 Hey ${name}! You're on Pro plan. Full access to everything — enjoy!`,
+        enterprise: `🏢 Hey ${name}! You're on Enterprise plan. Manage your team from the Enterprise tab.`
+    };
+    el.textContent = messages[plan] || messages.free;
+    el.style.display = 'block';
+}
+
+// ── Module usage cards ──
+function dashRenderModuleCards(used, limits, plan) {
+    var el = document.getElementById('dashModuleCards');
+    if (!el) return;
+    const modules = [
+        { key:'generations', icon:'🎨', label:'Thumbnail Generator', page:'home' },
+        { key:'thumb_analysis', icon:'🔍', label:'Thumbnail Analyzer', page:'analyzer' },
+        { key:'blueprint', icon:'📐', label:'Viral Blueprint', page:'blueprint' },
+        { key:'reverse', icon:'🔬', label:'Reverse Engineering', page:'reverse' },
+        { key:'ab_tests', icon:'🆎', label:'A/B Testing', page:'abtest' },
+        { key:'images', icon:'🖼️', label:'Image Generation', page:'home' },
+    ];
+    el.innerHTML = modules.map(m => {
+        const u = used[m.key] || 0;
+        const l = limits[m.key] || 0;
+        const isUnlimited = l >= 999 || plan === 'pro' || plan === 'enterprise';
+        const pct = isUnlimited ? 30 : (l > 0 ? Math.min(100, Math.round((u/l)*100)) : 100);
+        const barColor = pct >= 90 ? '#ff6b6b' : pct >= 60 ? '#FFE036' : '#43E97B';
+        const displayLimit = isUnlimited ? '∞' : l;
+        const status = isUnlimited ? 'Unlimited' : `${u} / ${displayLimit} used`;
+        return `<div class="dash-module-card" onclick="showPage('${m.page}')">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span style="font-size:18px">${m.icon}</span>
+                <span style="font-size:10px;color:rgba(255,255,255,0.4)">${status}</span>
+            </div>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:8px">${m.label}</div>
+            <div style="background:rgba(255,255,255,0.08);border-radius:4px;height:4px;overflow:hidden">
+                <div style="width:${isUnlimited?30:pct}%;height:100%;background:${barColor};border-radius:4px;transition:width .5s"></div>
+            </div>
+        </div>`;
+    }).join('');
+}
+}
 }
 
 </script>
