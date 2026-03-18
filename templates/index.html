@@ -613,6 +613,21 @@
         .mod-preview-img { display:none; max-width:100%; max-height:300px; border-radius:10px; border:1px solid var(--border); margin-bottom:16px; object-fit:contain; }
         .mod-select { width:100%; min-width:180px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px; padding:12px 16px; color:var(--white); font-size:13px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; margin-bottom:14px; appearance:auto; }
         .mod-select:focus { outline:none; border-color:rgba(255,224,54,0.4); }
+
+/* ── Premium Custom Niche Dropdown ── */
+.niche-dd-wrap { position:relative; width:100%; }
+.niche-dd-btn { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:12px 16px; color:#fff; font-size:13px; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; text-align:left; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s; }
+.niche-dd-btn:hover { border-color:rgba(255,224,54,0.4); background:rgba(255,255,255,0.08); }
+.niche-dd-btn.open { border-color:rgba(255,224,54,0.5); }
+.niche-dd-list { display:none; position:absolute; top:calc(100% + 6px); left:0; right:0; background:#0d0d1a; border:1px solid rgba(255,255,255,0.12); border-radius:12px; z-index:9999; max-height:260px; overflow-y:auto; box-shadow:0 8px 32px rgba(0,0,0,0.7); }
+.niche-dd-list.open { display:block; }
+.niche-dd-item { padding:10px 16px; font-size:13px; font-weight:600; color:rgba(255,255,255,0.8); cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:8px; }
+.niche-dd-item:hover { background:rgba(255,224,54,0.08); color:#FFE036; }
+.niche-dd-item.selected { color:#FFE036; background:rgba(255,224,54,0.06); }
+.niche-dd-list::-webkit-scrollbar { width:4px; }
+.niche-dd-list::-webkit-scrollbar-track { background:transparent; }
+.niche-dd-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:2px; }
+
         .mod-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
         .mod-row .mod-select { margin-bottom:0; flex:1; min-width:160px; }
         .mod-row input[type="text"] { flex:2; min-width:200px; }
@@ -5695,6 +5710,67 @@ function dashRenderModuleCards(used, limits, plan) {
 }
 }
 
+
+
+// ── Premium Custom Niche Dropdown ──────────────────────────────
+const NICHE_LIST = [('tech', '📱 Tech'), ('finance', '💰 Finance'), ('gaming', '🎮 Gaming'), ('fitness', '💪 Fitness'), ('food', '🍕 Food'), ('travel', '✈️ Travel'), ('education', '📚 Education'), ('motivation', '🔥 Motivation'), ('beauty', '💄 Beauty'), ('entertainment', '🎬 Entertainment'), ('business', '📈 Business'), ('productivity', '🧠 Productivity'), ('cricket', '🏏 Cricket'), ('automobiles', '🚗 Automobiles'), ('examprep', '🎓 Exam Prep'), ('health', '💊 Health'), ('music', '🎵 Music'), ('realestate', '🏠 Real Estate'), ('spirituality', '🌿 Spirituality'), ('stocks', '📊 Stocks'), ('cooking', '👨\u200d🍳 Cooking'), ('comedy', '😂 Comedy'), ('news', '📰 News'), ('fashion', '👗 Fashion'), ('pets', '🐾 Pets'), ('astrology', '🔮 Astrology'), ('mythology', '🕉️ Mythology'), ('relationship', '❤️ Relationship'), ('career', '💼 Career')];
+
+function buildNicheDD(selectId, defaultVal) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const val = defaultVal || select.value || 'tech';
+    const label = NICHE_LIST.find(n => n[0] === val)?.[1] || '📱 Tech';
+    const wrap = document.createElement('div');
+    wrap.className = 'niche-dd-wrap';
+    wrap.id = selectId + '_wrap';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'niche-dd-btn';
+    btn.id = selectId + '_btn';
+    btn.innerHTML = '<span id="' + selectId + '_label">' + label + '</span><span>▾</span>';
+    const list = document.createElement('div');
+    list.className = 'niche-dd-list';
+    list.id = selectId + '_list';
+    NICHE_LIST.forEach(([v, l]) => {
+        const item = document.createElement('div');
+        item.className = 'niche-dd-item' + (v === val ? ' selected' : '');
+        item.textContent = l;
+        item.onclick = () => {
+            select.value = v;
+            document.getElementById(selectId + '_label').textContent = l;
+            list.classList.remove('open');
+            btn.classList.remove('open');
+            list.querySelectorAll('.niche-dd-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            select.dispatchEvent(new Event('change'));
+        };
+        list.appendChild(item);
+    });
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        const isOpen = list.classList.contains('open');
+        document.querySelectorAll('.niche-dd-list').forEach(l => l.classList.remove('open'));
+        document.querySelectorAll('.niche-dd-btn').forEach(b => b.classList.remove('open'));
+        if (!isOpen) { list.classList.add('open'); btn.classList.add('open'); }
+    };
+    select.style.display = 'none';
+    select.parentNode.insertBefore(wrap, select);
+    wrap.appendChild(btn);
+    wrap.appendChild(list);
+    wrap.appendChild(select);
+}
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.niche-dd-list').forEach(l => l.classList.remove('open'));
+    document.querySelectorAll('.niche-dd-btn').forEach(b => b.classList.remove('open'));
+});
+
+function initAllNicheDDs() {
+    ['taNiche','ctrNiche','revNiche','libNiche','brandNiche','bpNiche'].forEach(id => {
+        buildNicheDD(id, 'tech');
+    });
+}
+document.addEventListener('DOMContentLoaded', initAllNicheDDs);
 
 // ══════════════════════════════════════════════════════
 // ENTERPRISE PANEL FUNCTIONS
