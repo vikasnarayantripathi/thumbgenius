@@ -1148,8 +1148,8 @@ function tg_checkSession() {
     const TRIAL_TTL  = 24 * 60 * 60 * 1000; // 24 hours
     const IDLE_TTL   = TG_IDLE_TIMEOUT;      // 3 hours
 
-    // Admin always gets in
-    if (adminCode) return true;
+    // Admin code does NOT auto-login — must enter each session
+    // if (adminCode) return true;
 
     // Logged in user — check idle timeout
     if (email) {
@@ -1180,6 +1180,7 @@ function tg_logout(reason) {
     localStorage.removeItem('tg_entered_app');
     localStorage.removeItem('tg_trial_start');
     localStorage.removeItem('tg_last_active');
+    localStorage.removeItem('tg_admin_code');
     window.location.href = '/landing' + (reason ? '?msg=' + reason : '');
 }
 
