@@ -1919,7 +1919,10 @@ function showPage(p){
                         <div class="uz-label">Upload Thumbnail A</div>
                         <div class="uz-sub">Click to upload</div>
                     </div>
-                    <img id="abThumbPreviewA" style="display:none;width:100%;border-radius:12px;margin-top:10px">
+                    <div style="position:relative;display:none;margin-top:10px" id="abThumbPreviewWrapA">
+                        <img id="abThumbPreviewA" style="width:100%;border-radius:12px;cursor:pointer" onclick="document.getElementById('abThumbFileA').click()" title="Click to replace">
+                        <div onclick="document.getElementById('abThumbFileA').click()" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;color:#fff;cursor:pointer">🔄 Replace</div>
+                    </div>
                     <input type="text" id="abThumbTitleA" placeholder="Title for Thumbnail A (optional)" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#fff;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none">
                 </div>
                 <!-- Thumbnail B -->
@@ -1931,15 +1934,16 @@ function showPage(p){
                         <div class="uz-label">Upload Thumbnail B</div>
                         <div class="uz-sub">Click to upload</div>
                     </div>
-                    <img id="abThumbPreviewB" style="display:none;width:100%;border-radius:12px;margin-top:10px">
+                    <div style="position:relative;display:none;margin-top:10px" id="abThumbPreviewWrapB">
+                        <img id="abThumbPreviewB" style="width:100%;border-radius:12px;cursor:pointer" onclick="document.getElementById('abThumbFileB').click()" title="Click to replace">
+                        <div onclick="document.getElementById('abThumbFileB').click()" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;color:#fff;cursor:pointer">🔄 Replace</div>
+                    </div>
                     <input type="text" id="abThumbTitleB" placeholder="Title for Thumbnail B (optional)" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#fff;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none">
                 </div>
             </div>
 
-            <div style="margin-bottom:16px">
-                <select id="abThumbNiche" class="mod-select" style="max-width:300px">
-<option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="food">🍕 Food</option><option value="travel">✈️ Travel</option><option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option><option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option><option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option><option value="health">💊 Health</option><option value="music">🎵 Music</option><option value="comedy">😂 Comedy</option>
-                </select>
+            <div style="margin-bottom:16px;max-width:300px">
+                <select id="abThumbNiche" class="mod-select" style="display:none"></select>
             </div>
 
             <button class="btn-gen" id="abThumbBtn" onclick="abThumbRun()" disabled style="max-width:300px">🖼️ Run Thumbnail A/B Test</button>
@@ -4717,9 +4721,11 @@ function abThumbLoad(input, side) {
         const b64 = e.target.result;
         _abThumbB64[side] = b64.split(',')[1];
         const preview = document.getElementById('abThumbPreview' + side);
+        const previewWrap = document.getElementById('abThumbPreviewWrap' + side);
         const zone = document.getElementById('abThumbZone' + side);
         preview.src = b64;
-        preview.style.display = 'block';
+        if (previewWrap) previewWrap.style.display = 'block';
+        else preview.style.display = 'block';
         zone.style.display = 'none';
         // Enable button if both loaded
         if (_abThumbB64.A && _abThumbB64.B) {
@@ -5922,7 +5928,7 @@ document.addEventListener('click', () => {
 });
 
 function initAllNicheDDs() {
-    ['taNiche','ctrNiche','revNiche','libNiche','brandNiche','bpNiche'].forEach(id => {
+    ['taNiche','ctrNiche','revNiche','libNiche','brandNiche','bpNiche','abThumbNiche'].forEach(id => {
         buildNicheDD(id, 'tech');
     });
 }
