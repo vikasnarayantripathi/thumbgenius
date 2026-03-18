@@ -5713,7 +5713,18 @@ function dashRenderModuleCards(used, limits, plan) {
 
 
 // ── Premium Custom Niche Dropdown ──────────────────────────────
-const NICHE_LIST = [('tech', '📱 Tech'), ('finance', '💰 Finance'), ('gaming', '🎮 Gaming'), ('fitness', '💪 Fitness'), ('food', '🍕 Food'), ('travel', '✈️ Travel'), ('education', '📚 Education'), ('motivation', '🔥 Motivation'), ('beauty', '💄 Beauty'), ('entertainment', '🎬 Entertainment'), ('business', '📈 Business'), ('productivity', '🧠 Productivity'), ('cricket', '🏏 Cricket'), ('automobiles', '🚗 Automobiles'), ('examprep', '🎓 Exam Prep'), ('health', '💊 Health'), ('music', '🎵 Music'), ('realestate', '🏠 Real Estate'), ('spirituality', '🌿 Spirituality'), ('stocks', '📊 Stocks'), ('cooking', '👨\u200d🍳 Cooking'), ('comedy', '😂 Comedy'), ('news', '📰 News'), ('fashion', '👗 Fashion'), ('pets', '🐾 Pets'), ('astrology', '🔮 Astrology'), ('mythology', '🕉️ Mythology'), ('relationship', '❤️ Relationship'), ('career', '💼 Career')];
+const NICHE_LIST = [
+["tech","📱 Tech"],["finance","💰 Finance"],["gaming","🎮 Gaming"],
+["fitness","💪 Fitness"],["food","🍕 Food"],["travel","✈️ Travel"],
+["education","📚 Education"],["motivation","🔥 Motivation"],["beauty","💄 Beauty"],
+["entertainment","🎬 Entertainment"],["business","📈 Business"],["productivity","🧠 Productivity"],
+["cricket","🏏 Cricket"],["automobiles","🚗 Automobiles"],["examprep","🎓 Exam Prep"],
+["health","💊 Health"],["music","🎵 Music"],["realestate","🏠 Real Estate"],
+["spirituality","🌿 Spirituality"],["stocks","📊 Stocks"],["cooking","🍳 Cooking"],
+["comedy","😂 Comedy"],["news","📰 News"],["fashion","👗 Fashion"],
+["pets","🐾 Pets"],["astrology","🔮 Astrology"],["mythology","🕉 Mythology"],
+["relationship","❤️ Relationship"],["career","💼 Career"]
+];
 
 function buildNicheDD(selectId, defaultVal) {
     const select = document.getElementById(selectId);
@@ -5734,7 +5745,7 @@ function buildNicheDD(selectId, defaultVal) {
     NICHE_LIST.forEach(([v, l]) => {
         const item = document.createElement('div');
         item.className = 'niche-dd-item' + (v === val ? ' selected' : '');
-        item.textContent = l;
+        item.innerHTML = l;
         item.onclick = () => {
             select.value = v;
             document.getElementById(selectId + '_label').textContent = l;
