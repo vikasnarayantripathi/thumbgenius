@@ -883,6 +883,34 @@
   border:none;border-radius:9px;padding:10px 20px;font-size:13px;
   font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
 
+.dash-stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.dash-stat-card:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+}
+.dash-stat-icon { font-size: 22px; margin-bottom: 8px; }
+.dash-stat-val { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 4px; }
+.dash-stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+.dash-stat-sub { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 4px; }
+.dash-topup-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.dash-topup-card:hover { border-color: rgba(255,224,54,0.4); transform: translateY(-2px); }
 .dash-module-card {
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
@@ -2389,76 +2417,96 @@ function showPage(p){
 </div>
 
 <!-- ╔══════════════════════════════════════════════════════╗ -->
+<!-- ╔══════════════════════════════════════════════════════╗ -->
 <!-- ║  DASHBOARD                                           ║ -->
 <!-- ╚══════════════════════════════════════════════════════╝ -->
-
 <div class="page" id="page-dashboard">
-<div class="feature-page">
+<div class="feature-page" style="padding:0">
 
-  <!-- Not logged in -->
-
-  <!-- Loading -->
   <div id="dashLoading" style="text-align:center;padding:60px 20px;color:var(--dim)">
     <div class="loading-spinner" style="margin:0 auto 14px"></div>
     Loading your dashboard&hellip;
   </div>
 
-  <!-- Main content -->
   <div id="dashContent" style="display:none">
 
-    <!-- Welcome message -->
-    <div id="dashWelcome" style="display:none;padding:12px 18px;background:rgba(255,255,255,0.05);border-radius:12px;margin-bottom:16px;font-size:14px;color:rgba(255,255,255,0.8);border-left:3px solid #43E97B"></div>
-
-  <!-- Module usage cards -->
-    <div id="dashModuleCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px"></div>
-
-  <!-- ① Low credits alert -->
-    <div class="dash-low-credits-banner" id="dashLowBanner">
-      <div class="dash-low-text">
-        <div class="dash-low-title">⚠️ You're running low on credits</div>
-        <div class="dash-low-sub">Upgrade to Pro — 300 generations/month, unlimited analysis.</div>
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+      <div>
+        <div id="dashWelcome" style="font-size:20px;font-weight:800;color:#fff;margin-bottom:4px">Welcome back!</div>
+        <div id="dashSubtitle" style="font-size:13px;color:rgba(255,255,255,0.4)">Here's your ThumbGenius overview</div>
       </div>
-      <button class="dash-low-btn" onclick="openPaymentModal()">Upgrade to Pro &rarr;</button>
-    </div>
-
-    <!-- ② Credits bar -->
-    <div class="dash-credits-bar" id="dashCreditsBar">
-      <div class="dash-credits-left">
-        <div class="dash-credits-icon">⚡</div>
-        <div>
-          <div class="dash-credits-label">Credits Remaining</div>
-          <div class="dash-credits-count">
-            <span id="dashCreditsUsed">—</span>
-            <span style="font-size:14px;font-weight:400;color:var(--dim)"> / <span id="dashCreditsLimit">—</span></span>
-          </div>
-          <div class="dash-credits-sub" id="dashCreditsSubtext">generations this month</div>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-        <div class="dash-credits-bar-track">
-          <div class="dash-credits-bar-fill" id="dashCreditsFill" style="width:0%"></div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:var(--dim);margin-bottom:3px">PLAN</div>
-          <div id="dashPlanBadge" class="dash-plan-badge-free" style="font-size:12px;font-weight:700;padding:3px 12px;border-radius:99px;display:inline-block">FREE</div>
-        </div>
-        <button id="dashUpgradeBtn" class="btn-primary" style="padding:9px 20px;font-size:13px" onclick="openPaymentModal()">Upgrade &rarr;</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="dashPlanBadge" class="dash-plan-badge-free" style="font-size:11px;font-weight:800;padding:4px 14px;border-radius:99px;text-transform:uppercase;letter-spacing:1px">FREE</div>
+        <button id="dashUpgradeBtn" onclick="openPaymentModal()" class="btn-primary" style="padding:8px 18px;font-size:12px;display:none">Upgrade &rarr;</button>
       </div>
     </div>
 
-    <!-- ③ Quick Actions -->
-    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">⚡ Quick Actions</div>
-    <div class="dash-quick-grid">
+    <!-- Upgrade banner -->
+    <div id="dashUpgradeBanner" style="display:none;border:1px solid rgba(255,224,54,0.2);border-radius:16px;padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:3px" id="bannerTitle">Unlock unlimited power</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5)" id="bannerSub">Upgrade to Pro for unlimited analyses, HD thumbnails &amp; more</div>
+      </div>
+      <button onclick="openPaymentModal()" style="background:#FFE036;color:#02020A;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:800;cursor:pointer">Upgrade Now &rarr;</button>
+    </div>
 
+    <!-- Stat cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+      <div class="dash-stat-card" onclick="showPage('home')">
+        <div class="dash-stat-icon">🎨</div>
+        <div class="dash-stat-val" id="statGenerations">0</div>
+        <div class="dash-stat-label">Generated</div>
+        <div class="dash-stat-sub" id="statGenerationsSub"></div>
+      </div>
+      <div class="dash-stat-card" onclick="showPage('analyzer')">
+        <div class="dash-stat-icon">🔍</div>
+        <div class="dash-stat-val" id="statAnalyses">0</div>
+        <div class="dash-stat-label">Analyses</div>
+        <div class="dash-stat-sub" id="statAnalysesSub"></div>
+      </div>
+      <div class="dash-stat-card" onclick="showPage('blueprint')">
+        <div class="dash-stat-icon">📐</div>
+        <div class="dash-stat-val" id="statBlueprints">0</div>
+        <div class="dash-stat-label">Blueprints</div>
+        <div class="dash-stat-sub" id="statBlueprintsSub"></div>
+      </div>
+      <div class="dash-stat-card" onclick="showPage('abtest')">
+        <div class="dash-stat-icon">🆎</div>
+        <div class="dash-stat-val" id="statAbtests">0</div>
+        <div class="dash-stat-label">A/B Tests</div>
+        <div class="dash-stat-sub" id="statAbtestsSub"></div>
+      </div>
+      <div class="dash-stat-card" onclick="showPage('reverse')">
+        <div class="dash-stat-icon">🔬</div>
+        <div class="dash-stat-val" id="statReverse">0</div>
+        <div class="dash-stat-label">Reverse Eng.</div>
+        <div class="dash-stat-sub" id="statReverseSub"></div>
+      </div>
+      <div class="dash-stat-card" style="cursor:default">
+        <div class="dash-stat-icon">📊</div>
+        <div class="dash-stat-val" id="statAvgScore" style="color:#FFE036">—</div>
+        <div class="dash-stat-label">Avg Score</div>
+        <div class="dash-stat-sub">Last 5 analyses</div>
+      </div>
+    </div>
+
+    <!-- Module usage -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Module Usage This Month</div>
+      <div id="dashModuleCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">⚡ Quick Actions</div>
+    <div class="dash-quick-grid" style="margin-bottom:20px">
       <div class="dash-quick-card dash-quick-generate">
         <div class="dash-quick-icon">🎨</div>
         <div class="dash-quick-title">Generate Thumbnail</div>
         <div class="dash-quick-sub">AI titles + thumbnail concept for any topic</div>
-        <input id="dashQuickTopic" class="dash-quick-input" placeholder="Enter video topic or prompt…"
-               onkeydown="if(event.key==='Enter')dashQuickGenerate()"/>
+        <input id="dashQuickTopic" class="dash-quick-input" placeholder="Enter video topic or prompt&hellip;" onkeydown="if(event.key==='Enter')dashQuickGenerate()"/>
         <button class="dash-quick-btn" onclick="dashQuickGenerate()">⚡ Generate Now</button>
       </div>
-
       <div class="dash-quick-card dash-quick-analyze">
         <div class="dash-quick-icon">🔍</div>
         <div class="dash-quick-title">Analyze Thumbnail</div>
@@ -2468,19 +2516,16 @@ function showPage(p){
           <input type="file" accept="image/*" style="display:none" onchange="dashQuickAnalyze(this)"/>
         </label>
       </div>
-
       <div class="dash-quick-card dash-quick-blueprint">
         <div class="dash-quick-icon">📐</div>
         <div class="dash-quick-title">Viral Blueprint</div>
         <div class="dash-quick-sub">Decode any YouTube thumbnail in seconds</div>
-        <input id="dashQuickUrl" class="dash-quick-input" placeholder="https://youtube.com/watch?v=…"
-               onkeydown="if(event.key==='Enter')dashQuickBlueprint()"/>
+        <input id="dashQuickUrl" class="dash-quick-input" placeholder="https://youtube.com/watch?v=&hellip;" onkeydown="if(event.key==='Enter')dashQuickBlueprint()"/>
         <button class="dash-quick-btn" onclick="dashQuickBlueprint()">📐 Analyze</button>
       </div>
-
     </div>
 
-    <!-- ④ Thumbnail Performance Score -->
+    <!-- Score section -->
     <div class="dash-score-section">
       <div class="dash-section-hd">
         <div class="dash-section-label">📊 Last Thumbnail Score</div>
@@ -2495,7 +2540,7 @@ function showPage(p){
       </div>
     </div>
 
-    <!-- ⑤ Score Progress Meter -->
+    <!-- Score progress -->
     <div class="dash-progress-section">
       <div class="dash-section-hd">
         <div class="dash-section-label">🎯 Your Thumbnail Score Progress</div>
@@ -2506,7 +2551,7 @@ function showPage(p){
           <div class="dash-prog-num" id="dashProgCurrent">—</div>
           <div class="dash-prog-lbl">Current Score</div>
         </div>
-        <div class="dash-prog-arrow">→</div>
+        <div class="dash-prog-arrow">&rarr;</div>
         <div class="dash-prog-block">
           <div class="dash-prog-target-num">90</div>
           <div class="dash-prog-lbl">Target Score</div>
@@ -2518,7 +2563,7 @@ function showPage(p){
       <div class="dash-prog-msg" id="dashProgMsg">Run your first thumbnail analysis to start tracking progress.</div>
     </div>
 
-    <!-- ⑥ Recent Activity -->
+    <!-- Recent Activity -->
     <div class="dash-recent-grid">
       <div class="dash-recent-card">
         <div class="dash-section-hd">
@@ -2539,7 +2584,7 @@ function showPage(p){
       </div>
     </div>
 
-    <!-- ⑦ Creator Intelligence -->
+    <!-- Creator Intelligence -->
     <div class="dash-intel-card-outer">
       <div class="dash-section-hd">
         <div class="dash-section-label">🧠 Creator Intelligence</div>
@@ -2568,138 +2613,57 @@ function showPage(p){
       </div>
     </div>
 
-    <!-- ⑧ Trending Styles -->
+    <!-- Trending -->
     <div class="dash-trending-section">
       <div class="dash-section-hd">
         <div class="dash-section-label">🔥 Trending Thumbnail Styles Worldwide</div>
         <button class="dash-section-link" onclick="showPage('trending')">See all trends &rarr;</button>
       </div>
       <div style="display:flex;flex-wrap:wrap;margin-top:4px">
-        <div class="dash-trend-pill">🎮 Gaming &mdash; <span class="dash-trend-val">Red + Yellow · Shock</span></div>
-        <div class="dash-trend-pill">💰 Finance &mdash; <span class="dash-trend-val">Green + Black · FOMO</span></div>
-        <div class="dash-trend-pill">📱 Tech &mdash; <span class="dash-trend-val">Blue + White · Curiosity</span></div>
-        <div class="dash-trend-pill">🔥 Motivation &mdash; <span class="dash-trend-val">Orange · Urgency</span></div>
-        <div class="dash-trend-pill">💪 Fitness &mdash; <span class="dash-trend-val">Yellow · Before/After</span></div>
-        <div class="dash-trend-pill">🏏 Cricket &mdash; <span class="dash-trend-val">Blue + Green · Pride</span></div>
+        <div class="dash-trend-pill">🎮 Gaming &mdash; <span class="dash-trend-val">Red + Yellow &middot; Shock</span></div>
+        <div class="dash-trend-pill">💰 Finance &mdash; <span class="dash-trend-val">Green + Black &middot; FOMO</span></div>
+        <div class="dash-trend-pill">📱 Tech &mdash; <span class="dash-trend-val">Blue + White &middot; Curiosity</span></div>
+        <div class="dash-trend-pill">🔥 Motivation &mdash; <span class="dash-trend-val">Orange &middot; Urgency</span></div>
+        <div class="dash-trend-pill">💪 Fitness &mdash; <span class="dash-trend-val">Yellow &middot; Before/After</span></div>
+        <div class="dash-trend-pill">🏏 Cricket &mdash; <span class="dash-trend-val">Blue + Green &middot; Pride</span></div>
       </div>
-      <div style="font-size:12px;color:var(--dim);margin-top:12px">Inspired by top YouTube creators globally. Use these as starting points for your next thumbnail style.</div>
     </div>
 
-    <!-- ⑧b TOP-UP SECTION -->
+    <!-- Top-up -->
     <div class="dash-section" id="dashTopupSection" style="background:rgba(255,224,54,0.03);border:1px solid rgba(255,224,54,0.15);border-radius:20px;padding:24px;margin-bottom:20px">
-        <div class="dash-section-hd" style="margin-bottom:16px">
-            <div class="dash-section-label" style="color:var(--yellow)">⚡ Image Top-Up Packages</div>
-            <span id="dashImagesLeft" style="font-size:12px;color:rgba(255,255,255,0.4)"></span>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="dashTopupGrid">
-            <div onclick="buyTopup('topup_10')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
-                <div style="font-size:22px;font-weight:900;color:var(--yellow)">+10</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
-                <div style="font-size:14px;font-weight:700;color:#fff">₹49</div>
-            </div>
-            <div onclick="buyTopup('topup_30')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
-                <div style="font-size:22px;font-weight:900;color:var(--yellow)">+30</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
-                <div style="font-size:14px;font-weight:700;color:#fff">₹99</div>
-            </div>
-            <div onclick="buyTopup('topup_100')" style="background:rgba(139,133,255,0.08);border:1px solid rgba(139,133,255,0.25);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='#8B85FF'" onmouseout="this.style.borderColor='rgba(139,133,255,0.25)'">
-                <div style="font-size:22px;font-weight:900;color:#8B85FF">+100</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
-                <div style="font-size:14px;font-weight:700;color:#fff">₹249</div>
-                <div style="font-size:10px;color:#8B85FF;margin-top:4px">POPULAR</div>
-            </div>
-            <div onclick="buyTopup('topup_300')" style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.25);border-radius:12px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.borderColor='var(--yellow)'" onmouseout="this.style.borderColor='rgba(255,224,54,0.25)'">
-                <div style="font-size:22px;font-weight:900;color:var(--yellow)">+300</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>
-                <div style="font-size:14px;font-weight:700;color:#fff">₹599</div>
-                <div style="font-size:10px;color:var(--yellow);margin-top:4px">BEST VALUE</div>
-            </div>
-        </div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.3)">💡 Top-up credits never expire. Use anytime.</div>
-    </div>
-
-    <!-- ⑧c AFFILIATE SECTION -->
-    <div class="dash-section" id="dashAffiliateSection" style="background:linear-gradient(135deg,rgba(67,233,123,0.05),rgba(139,133,255,0.05));border:1px solid rgba(67,233,123,0.2);border-radius:20px;padding:24px;margin-bottom:20px">
-        <div class="dash-section-hd" style="margin-bottom:16px">
-            <div class="dash-section-label" style="color:#43E97B">🤝 Affiliate Program</div>
-            <span id="dashAffBadge" style="font-size:11px;font-weight:700;background:rgba(67,233,123,0.1);color:#43E97B;border-radius:6px;padding:3px 8px"></span>
-        </div>
-        <!-- Commission rate -->
-        <div id="dashAffRate" style="background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.15);border-radius:12px;padding:14px 18px;margin-bottom:16px">
-            <div style="font-size:12px;color:rgba(67,233,123,0.7);font-weight:700;margin-bottom:4px">YOUR COMMISSION RATE</div>
-            <div id="dashAffRateLabel" style="font-size:18px;font-weight:900;color:#43E97B">—</div>
-        </div>
-        <!-- Referral link -->
-        <div style="margin-bottom:16px">
-            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:0.5px">YOUR REFERRAL LINK</div>
-            <div style="display:flex;gap:8px;align-items:center">
-                <div id="dashAffLink" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;font-size:13px;color:rgba(255,255,255,0.7);word-break:break-all">Loading...</div>
-                <button onclick="copyAffLink()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">📋 Copy</button>
-                <button onclick="shareAffLink()" style="background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);border-radius:10px;padding:10px 16px;color:#8B85FF;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">📤 Share</button>
-            </div>
-        </div>
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px">
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
-                <div id="dashAffClicks" style="font-size:24px;font-weight:900;color:#fff">0</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Link Clicks</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
-                <div id="dashAffReferrals" style="font-size:24px;font-weight:900;color:#43E97B">0</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Paid Referrals</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
-                <div id="dashAffEarnings" style="font-size:24px;font-weight:900;color:var(--yellow)">₹0</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Total Earned</div>
-            </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;text-align:center">
-                <div id="dashAffPending" style="font-size:24px;font-weight:900;color:#8B85FF">₹0</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Pending Payout</div>
-            </div>
-        </div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.3)">💸 Payouts processed monthly via bank transfer/UPI. Minimum ₹500.</div>
-        <!-- Upgrade prompt for free users -->
-        <div id="dashAffUpgrade" style="display:none;margin-top:12px;background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.15);border-radius:10px;padding:12px 16px;text-align:center">
-            <p style="color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:8px">🔒 Upgrade to <strong style="color:#8B85FF">Creator</strong> for 20% recurring commissions</p>
-            <button class="btn-pay" style="padding:8px 20px;font-size:12px" onclick="openPaymentModal()">Upgrade Now →</button>
-        </div>
-    </div>
-
-    <!-- ⑨ Usage breakdown (collapsible) -->
-    <div class="dash-usage-section">
-      <div class="dash-section-hd" style="cursor:pointer;user-select:none"
-           onclick="var d=document.getElementById('dashUsageRows');d.style.display=d.style.display==='none'?'block':'none'">
-        <div class="dash-section-label">📈 Full Usage Breakdown</div>
-        <span style="font-size:12px;color:var(--dim)">tap to expand ↕</span>
+      <div class="dash-section-hd" style="margin-bottom:16px">
+        <div class="dash-section-label" style="color:var(--yellow)">⚡ Image Top-Up Packages</div>
+        <span id="dashImagesLeft" style="font-size:12px;color:rgba(255,255,255,0.4)"></span>
       </div>
-      <div id="dashUsageRows" style="display:none;padding-top:8px"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px" id="dashTopupGrid">
+        <div onclick="buyTopup('topup_10')" class="dash-topup-card"><div style="font-size:22px;font-weight:900;color:var(--yellow)">+10</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div><div style="font-size:14px;font-weight:700;color:#fff">&#x20B9;49</div></div>
+        <div onclick="buyTopup('topup_30')" class="dash-topup-card"><div style="font-size:22px;font-weight:900;color:var(--yellow)">+30</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div><div style="font-size:14px;font-weight:700;color:#fff">&#x20B9;99</div></div>
+        <div onclick="buyTopup('topup_100')" class="dash-topup-card" style="border-color:rgba(139,133,255,0.25)"><div style="font-size:22px;font-weight:900;color:#8B85FF">+100</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div><div style="font-size:14px;font-weight:700;color:#fff">&#x20B9;249</div><div style="font-size:10px;color:#8B85FF;margin-top:4px">POPULAR</div></div>
+        <div onclick="buyTopup('topup_300')" class="dash-topup-card" style="border-color:rgba(255,224,54,0.25)"><div style="font-size:22px;font-weight:900;color:var(--yellow)">+300</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div><div style="font-size:14px;font-weight:700;color:#fff">&#x20B9;599</div><div style="font-size:10px;color:var(--yellow);margin-top:4px">BEST VALUE</div></div>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.3)">&#x1F4A1; Top-up credits never expire. Use anytime.</div>
     </div>
 
-
-    <!-- ⑩ Enterprise Panel — only shown for enterprise users -->
+    <!-- Enterprise Panel -->
     <div class="dash-section" id="enterprisePanel" style="display:none;border-color:rgba(67,233,123,0.2)">
       <div class="dash-section-hd" style="margin-bottom:20px">
         <div class="dash-section-label" style="color:#43E97B">🏢 Enterprise Dashboard</div>
       </div>
-
-      <!-- API Key -->
       <div style="margin-bottom:28px">
         <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🔑 Your API Key</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <div id="entApiKeyBox" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:12px 16px;font-family:monospace;font-size:13px;color:#43E97B;min-width:200px;word-break:break-all">Loading...</div>
-          <button onclick="entCopyApiKey()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">📋 Copy</button>
-          <button onclick="entRegenApiKey()" style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.2);border-radius:10px;padding:10px 16px;color:#ff6464;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;white-space:nowrap">🔄 Regenerate</button>
+          <button onclick="entCopyApiKey()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-size:13px;font-weight:700">📋 Copy</button>
+          <button onclick="entRegenApiKey()" style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.2);border-radius:10px;padding:10px 16px;color:#ff6464;cursor:pointer;font-size:13px;font-weight:700">🔄 Regenerate</button>
         </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px">Use this key in the Authorization header: <code style="color:rgba(67,233,123,0.6)">X-API-Key: your-key</code></div>
       </div>
-
-      <!-- Team Members -->
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
           <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">👥 Team Members <span id="entSeatsLabel" style="color:rgba(67,233,123,0.7);font-weight:400"></span></div>
           <div style="display:flex;gap:8px">
-            <input id="entInviteEmail" type="email" placeholder="colleague@email.com" style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:8px 14px;color:#fff;font-family:inherit;font-size:13px;width:200px;outline:none">
-            <button onclick="entInviteMember()" style="background:#43E97B;border:none;border-radius:10px;padding:8px 16px;color:#02020A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">+ Invite</button>
+            <input id="entInviteEmail" type="email" placeholder="colleague@email.com" style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:8px 14px;color:#fff;font-size:13px;width:200px;outline:none">
+            <button onclick="entInviteMember()" style="background:#43E97B;border:none;border-radius:10px;padding:8px 16px;color:#02020A;cursor:pointer;font-size:13px;font-weight:700">+ Invite</button>
           </div>
         </div>
         <div id="entMembersList" style="display:flex;flex-direction:column;gap:8px">
@@ -2709,6 +2673,7 @@ function showPage(p){
     </div>
 
   </div><!-- /dashContent -->
+</div>
 </div>
 </div>
 
@@ -5499,13 +5464,50 @@ async function loadDashboard() {
             planLabel.style.color = plan==='enterprise'?'#43E97B':plan==='pro'?'#FDE036':plan==='creator'?'#8B85FF':'rgba(255,255,255,0.4)';
         }
 
-        // ── Hide upgrade button for pro/enterprise ──
-        var upgradeBtn = document.getElementById('dashUpgradeBtn');
-        if (upgradeBtn) {
-            upgradeBtn.style.display = (plan === 'pro' || plan === 'enterprise') ? 'none' : 'inline-block';
+        // ── Stat cards ──
+        var isPaidPlan = (plan === 'pro' || plan === 'enterprise');
+        document.getElementById('statGenerations').textContent = used.generations || 0;
+        document.getElementById('statGenerationsSub').textContent = isPaidPlan ? 'Unlimited' : ((limits.generations||0) - (used.generations||0)) + ' left';
+        document.getElementById('statAnalyses').textContent = used.thumb_analysis || 0;
+        document.getElementById('statAnalysesSub').textContent = isPaidPlan ? 'Unlimited' : ((limits.thumb_analysis||0) - (used.thumb_analysis||0)) + ' left';
+        document.getElementById('statBlueprints').textContent = used.blueprint || 0;
+        document.getElementById('statBlueprintsSub').textContent = isPaidPlan ? 'Unlimited' : ((limits.blueprint||0) - (used.blueprint||0)) + ' left';
+        document.getElementById('statAbtests').textContent = used.ab_tests || 0;
+        document.getElementById('statAbtestsSub').textContent = isPaidPlan ? 'Unlimited' : ((limits.ab_tests||0) - (used.ab_tests||0)) + ' left';
+        document.getElementById('statReverse').textContent = used.reverse || 0;
+        document.getElementById('statReverseSub').textContent = isPaidPlan ? 'Unlimited' : ((limits.reverse||0) - (used.reverse||0)) + ' left';
+
+        // ── Total analyses ──
+        var total = (used.generations||0)+(used.thumb_analysis||0)+(used.blueprint||0)+(used.ab_tests||0)+(used.reverse||0);
+        var avgEl = document.getElementById('statAvgScore');
+        if (avgEl) avgEl.textContent = total > 0 ? total : '—';
+
+        // ── Welcome + subtitle ──
+        var welcomeEl = document.getElementById('dashWelcome');
+        var subtitleEl = document.getElementById('dashSubtitle');
+        var name = email ? email.split('@')[0] : 'there';
+        var greetings = ['Good morning', 'Good afternoon', 'Good evening'];
+        var h = new Date().getHours();
+        var greet = h < 12 ? greetings[0] : h < 17 ? greetings[1] : greetings[2];
+        if (welcomeEl) welcomeEl.textContent = greet + ', ' + name + '!';
+        if (subtitleEl) {
+            var planNames = {free:'Free',creator:'Creator',pro:'Pro',enterprise:'Enterprise'};
+            subtitleEl.textContent = (planNames[plan]||plan) + ' plan · ' + total + ' actions this month';
         }
 
-        // ── Render new usage module cards ──
+        // ── Upgrade banner ──
+        var banner = document.getElementById('dashUpgradeBanner');
+        var upgradeBtn = document.getElementById('dashUpgradeBtn');
+        if (banner) banner.style.display = (plan === 'free' || plan === 'creator') ? 'flex' : 'none';
+        if (upgradeBtn) upgradeBtn.style.display = (plan === 'free') ? 'inline-block' : 'none';
+        if (plan === 'creator') {
+            var bt = document.getElementById('bannerTitle');
+            var bs = document.getElementById('bannerSub');
+            if (bt) bt.textContent = 'Unlock Pro features';
+            if (bs) bs.textContent = 'Upgrade to Pro for unlimited access + HD thumbnails';
+        }
+
+        // ── Render module cards ──
         dashRenderModuleCards(used, limits, plan);
 
         // ── Usage bars ──
