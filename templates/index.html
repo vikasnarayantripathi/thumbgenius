@@ -1903,6 +1903,52 @@ function showPage(p){
             </div>
             <div class="ab-reasoning" id="abReasoning"></div>
         </div>
+
+        <!-- ── THUMBNAIL A/B TEST ── -->
+        <div style="margin-top:48px;border-top:1px solid rgba(255,255,255,0.08);padding-top:40px">
+            <div class="feature-page-title" style="font-size:clamp(20px,3vw,32px);margin-bottom:8px">🖼️ Thumbnail A/B Tester</div>
+            <p class="feature-page-sub">Upload two thumbnails. AI predicts which one gets more clicks — with win probability, CTR advantage and detailed breakdown.</p>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+                <!-- Thumbnail A -->
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Thumbnail A</div>
+                    <div class="mod-upload-zone" id="abThumbZoneA" onclick="document.getElementById('abThumbFileA').click()" style="min-height:160px;cursor:pointer">
+                        <input type="file" id="abThumbFileA" accept="image/*" style="display:none" onchange="abThumbLoad(this,'A')">
+                        <div class="uz-icon">🅰️</div>
+                        <div class="uz-label">Upload Thumbnail A</div>
+                        <div class="uz-sub">Click to upload</div>
+                    </div>
+                    <img id="abThumbPreviewA" style="display:none;width:100%;border-radius:12px;margin-top:10px">
+                    <input type="text" id="abThumbTitleA" placeholder="Title for Thumbnail A (optional)" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#fff;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none">
+                </div>
+                <!-- Thumbnail B -->
+                <div>
+                    <div style="font-size:12px;font-weight:700;color:#8B85FF;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Thumbnail B</div>
+                    <div class="mod-upload-zone" id="abThumbZoneB" onclick="document.getElementById('abThumbFileB').click()" style="min-height:160px;cursor:pointer">
+                        <input type="file" id="abThumbFileB" accept="image/*" style="display:none" onchange="abThumbLoad(this,'B')">
+                        <div class="uz-icon">🅱️</div>
+                        <div class="uz-label">Upload Thumbnail B</div>
+                        <div class="uz-sub">Click to upload</div>
+                    </div>
+                    <img id="abThumbPreviewB" style="display:none;width:100%;border-radius:12px;margin-top:10px">
+                    <input type="text" id="abThumbTitleB" placeholder="Title for Thumbnail B (optional)" style="width:100%;margin-top:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:#fff;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none">
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px">
+                <select id="abThumbNiche" class="mod-select" style="max-width:300px">
+<option value="tech">📱 Tech</option><option value="finance">💰 Finance</option><option value="gaming">🎮 Gaming</option><option value="fitness">💪 Fitness</option><option value="food">🍕 Food</option><option value="travel">✈️ Travel</option><option value="education">📚 Education</option><option value="motivation">🔥 Motivation</option><option value="beauty">💄 Beauty</option><option value="entertainment">🎬 Entertainment</option><option value="business">📈 Business</option><option value="cricket">🏏 Cricket</option><option value="health">💊 Health</option><option value="music">🎵 Music</option><option value="comedy">😂 Comedy</option>
+                </select>
+            </div>
+
+            <button class="btn-gen" id="abThumbBtn" onclick="abThumbRun()" disabled style="max-width:300px">🖼️ Run Thumbnail A/B Test</button>
+            <div class="mod-loading" id="abThumbLoading" style="display:none">
+                <div class="loading-spinner"></div>
+                <p>AI is analyzing both thumbnails with GPT-4o Vision…</p>
+            </div>
+            <div id="abThumbResult" style="margin-top:24px"></div>
+        </div>
     </div>
 </div>
 
@@ -4659,6 +4705,93 @@ function ab_render(data, titleA, titleB) {
         '<div class="res-card"><div class="res-label">REASONING</div>' +
         '<div class="res-text">' + escapeHtml(data.reasoning||'') + '</div></div>'
     );
+}
+
+// ── Thumbnail A/B Test ────────────────────────────────────────
+var _abThumbB64 = {A: null, B: null};
+
+function abThumbLoad(input, side) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const b64 = e.target.result;
+        _abThumbB64[side] = b64.split(',')[1];
+        const preview = document.getElementById('abThumbPreview' + side);
+        const zone = document.getElementById('abThumbZone' + side);
+        preview.src = b64;
+        preview.style.display = 'block';
+        zone.style.display = 'none';
+        // Enable button if both loaded
+        if (_abThumbB64.A && _abThumbB64.B) {
+            document.getElementById('abThumbBtn').disabled = false;
+        }
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+async function abThumbRun() {
+    if (!_abThumbB64.A || !_abThumbB64.B) { alert('Please upload both thumbnails'); return; }
+    const btn = document.getElementById('abThumbBtn');
+    const loading = document.getElementById('abThumbLoading');
+    const result = document.getElementById('abThumbResult');
+    btn.disabled = true;
+    loading.style.display = 'block';
+    result.innerHTML = '';
+    const titleA = document.getElementById('abThumbTitleA').value.trim();
+    const titleB = document.getElementById('abThumbTitleB').value.trim();
+    const niche  = document.getElementById('abThumbNiche').value;
+    try {
+        const res = await fetch('/ab-test-thumbnails', {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({
+                image_a_b64: _abThumbB64.A,
+                image_b_b64: _abThumbB64.B,
+                title_a: titleA,
+                title_b: titleB,
+                niche: niche
+            })
+        });
+        const data = await res.json();
+        loading.style.display = 'none';
+        if (data.error) { alert(data.error); btn.disabled = false; return; }
+        
+        const winner = data.winner || 'A';
+        const winnerColor = winner === 'A' ? '#43E97B' : '#8B85FF';
+        const scores = data.scores || {};
+        const sa = scores.a || {};
+        const sb = scores.b || {};
+        
+        result.innerHTML = `
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px">
+            <div style="text-align:center;margin-bottom:24px">
+                <div style="font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Winner</div>
+                <div style="font-size:32px;font-weight:900;color:${winnerColor}">Thumbnail ${winner} Wins</div>
+                <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-top:6px">Win probability: ${data.win_probability||'—'}% · CTR advantage: ${data.ctr_advantage||'—'}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+                <div style="background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.2);border-radius:12px;padding:16px">
+                    <div style="font-size:11px;font-weight:700;color:#43E97B;text-transform:uppercase;margin-bottom:8px">Thumbnail A</div>
+                    <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:4px">${sa.overall||'—'}<span style="font-size:14px;color:rgba(255,255,255,0.4)">/10</span></div>
+                    ${(data.winner_strengths||[]).map(s=>`<div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px">✓ ${s}</div>`).join('')}
+                </div>
+                <div style="background:rgba(139,133,255,0.05);border:1px solid rgba(139,133,255,0.2);border-radius:12px;padding:16px">
+                    <div style="font-size:11px;font-weight:700;color:#8B85FF;text-transform:uppercase;margin-bottom:8px">Thumbnail B</div>
+                    <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:4px">${sb.overall||'—'}<span style="font-size:14px;color:rgba(255,255,255,0.4)">/10</span></div>
+                    ${(data.loser_weaknesses||[]).map(w=>`<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px">✗ ${w}</div>`).join('')}
+                </div>
+            </div>
+            ${data.v3_suggestion ? `<div style="background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:16px;margin-top:16px">
+                <div style="font-size:11px;font-weight:700;color:#FFE036;text-transform:uppercase;margin-bottom:8px">💡 Version 3 Suggestion</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6">${data.v3_suggestion}</div>
+            </div>` : ''}
+        </div>`;
+        btn.disabled = false;
+    } catch(e) {
+        loading.style.display = 'none';
+        alert('Test failed. Please try again.');
+        btn.disabled = false;
+    }
 }
 
 async function ab_runThumbs() {
