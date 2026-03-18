@@ -4383,14 +4383,8 @@ function ctr_render(d) {
 function rev_loadFile(input) { _loadPreview(input, 'revPreview', 'revBtn'); }
 
 async function rev_run() {
-    // If fetched from URL, use stored b64
-    if (window._revB64) {
-        const img = document.getElementById('revPreview');
-        if (!img.src || img.src === window.location.href) {
-            img.src = 'data:image/jpeg;base64,' + window._revB64;
-        }
-    }
-    var b64 = _modImgB64['revPreview'];
+    // Use URL-fetched b64 or uploaded file b64
+    var b64 = window._revB64 || _modImgB64['revPreview'];
     if(!b64) return;
     _showLoading('revLoading','revResult','revBtn');
     var raw = b64.indexOf(',')>-1 ? b64.split(',')[1] : b64;
