@@ -48,7 +48,7 @@ STRIPE_WEBHOOK_SECRET   = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_CREATOR_PRICE_ID = os.getenv("STRIPE_CREATOR_PRICE_ID", "")   # $19/mo
 STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")        # $39/mo
 
-YOUTUBE_API_KEY          = os.getenv("YOUTUBE_API_KEY", "AIzaSyDJy_bON1erjhWpdk5M326q2Rt63Nphr_Y", "")
+YOUTUBE_API_KEY          = os.getenv("YOUTUBE_API_KEY", "AIzaSyDJy_bON1erjhWpdk5M326q2Rt63Nphr_Y")
 
 PLAN_LIMITS = {
     "free":       {"generations": 3,    "images": 5,    "thumb_analysis": 1,   "reverse": 2,    "ctr_predict": 0,    "ab_tests": 3,    "blueprint": 1,    "watermark": True,  "hd_images": 0,   "team_seats": 1,  "api_access": False},
