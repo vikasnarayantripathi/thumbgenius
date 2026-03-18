@@ -1472,6 +1472,40 @@ function showPage(p){
             <div id="adminKeyMsg" style="margin-top:10px;font-size:12px;color:#43E97B;display:none"></div>
         </div>
 
+
+        <!-- ── Admin API Keys Manager ─────────────────────────────── -->
+        <div id="adminApiKeysPanel" style="display:none;padding:16px 40px;border-top:1px solid rgba(255,255,255,0.08);margin-top:16px">
+            <p style="font-size:12px;color:rgba(255,100,100,0.9);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">🔑 API Keys Manager</p>
+            <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">YOUTUBE_API_KEY</span>
+                    <input id="adminKey_YOUTUBE_API_KEY" type="password" placeholder="Enter YouTube API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
+                    <button onclick="adminSaveKey('YOUTUBE_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">OPENAI_API_KEY</span>
+                    <input id="adminKey_OPENAI_API_KEY" type="password" placeholder="Enter OpenAI API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
+                    <button onclick="adminSaveKey('OPENAI_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">GEMINI_API_KEY</span>
+                    <input id="adminKey_GEMINI_API_KEY" type="password" placeholder="Enter Gemini API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
+                    <button onclick="adminSaveKey('GEMINI_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">RAZORPAY_KEY_ID</span>
+                    <input id="adminKey_RAZORPAY_KEY_ID" type="password" placeholder="Enter Razorpay Key ID" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
+                    <button onclick="adminSaveKey('RAZORPAY_KEY_ID')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">STRIPE_SECRET_KEY</span>
+                    <input id="adminKey_STRIPE_SECRET_KEY" type="password" placeholder="Enter Stripe Secret Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
+                    <button onclick="adminSaveKey('STRIPE_SECRET_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
+                </div>
+            </div>
+            <div id="adminKeyMsg" style="margin-top:10px;font-size:12px;color:#43E97B;display:none"></div>
+        </div>
+
             </div>
         </div>
 
@@ -2975,6 +3009,7 @@ function applyPromoCode(){
     // Show plan picker
     payFooter.style.display = 'none';
     document.getElementById('adminPlanPicker').style.display = 'block';
+    document.getElementById('adminApiKeysPanel').style.display = 'block';
     document.getElementById('adminApiKeysPanel').style.display = 'block';
 }
 

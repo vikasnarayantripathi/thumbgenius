@@ -618,10 +618,9 @@ TRENDING_TTL   = 6 * 3600
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # If login param present, serve app
-    login = request.query_params.get("login")
-    activate = request.query_params.get("login_token")
-    if login or activate:
+    # Serve app if any login/session params present
+    params = request.query_params
+    if params.get("login") or params.get("login_token") or params.get("token"):
         return templates.TemplateResponse("index.html", {"request": request})
     # Otherwise redirect to landing
     return RedirectResponse("/landing")
@@ -2624,5 +2623,34 @@ async def admin_set_key(request: Request):
         return JSONResponse({"success": True, "message": f"{key_name} updated permanently in Railway"})
     else:
         return JSONResponse({"success": True, "message": f"{key_name} updated in memory only (Railway sync failed)"})
+
+
+# ── Admin API Key Manager ─────────────────────────────────────────────────────
+@app.post("/admin/set-key")
+async def admin_set_key(request: Request):
+    admin_code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(admin_code):
+        return JSONResponse({"error":"Unauthorized"}, status_code=403)
+    try:
+        data = await request.json()
+        key_name  = data.get("key_name","").strip()
+        key_value = data.get("key_value","").strip()
+    except:
+        return JSONResponse({"error":"Invalid request"}, status_code=400)
+    ALLOWED_KEYS = ["YOUTUBE_API_KEY","OPENAI_API_KEY","GEMINI_API_KEY",
+                    "RAZORPAY_KEY_ID","RAZORPAY_KEY_SECRET","STRIPE_SECRET_KEY"]
+    if key_name not in ALLOWED_KEYS:
+        return JSONResponse({"error":"Key not allowed"}, status_code=400)
+    if not key_value:
+        return JSONResponse({"error":"Key value required"}, status_code=400)
+    # Update in-memory environment
+    os.environ[key_name] = key_value
+    # Update global variables dynamically
+    import main as _self
+    if hasattr(_self, key_name):
+        setattr(_self, key_name, key_value)
+    globals()[key_name] = key_value
+    logger.info(f"Admin updated key: {key_name}")
+    return JSONResponse({"success": True, "message": f"{key_name} updated successfully"})
 
 # OAuth fix Mon Mar 16 18:39:00 UTC 2026
