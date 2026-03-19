@@ -730,7 +730,7 @@ async def auth_callback(request: Request, code: str = "", error: str = ""):
             r = await client.post(
                 f"{SUPABASE_URL}/auth/v1/token?grant_type=pkce",
                 headers={
-                    "apikey": SUPABASE_KEY,
+                    "apikey": SUPABASE_ANON_KEY,
                     "Content-Type": "application/json"
                 },
                 json={"auth_code": code, "code_verifier": ""}
@@ -743,7 +743,7 @@ async def auth_callback(request: Request, code: str = "", error: str = ""):
                 r = await client.post(
                     f"{SUPABASE_URL}/auth/v1/token?grant_type=authorization_code",
                     headers={
-                        "apikey": SUPABASE_KEY,
+                        "apikey": SUPABASE_ANON_KEY,
                         "Content-Type": "application/json"
                     },
                     json={"code": code}
@@ -895,6 +895,23 @@ async def activate(request: Request, token: str = "", login_token: str = ""):
 # ══════════════════════════════════════════════════════
 # BILLING ENDPOINTS
 # ══════════════════════════════════════════════════════
+
+async def detect_region(request: Request) -> str:
+    """Detect user region from IP — returns IN for India, GLOBAL otherwise"""
+    try:
+        # Check X-Forwarded-For header first
+        ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+        if not ip:
+            ip = request.headers.get("X-Real-IP", "")
+        if not ip or ip in ("127.0.0.1", "::1", "localhost"):
+            return "IN"  # default to India for local
+        async with httpx.AsyncClient(timeout=5) as client:
+            r = await client.get(f"https://ipapi.co/{ip}/country/")
+            country = r.text.strip()
+            return "IN" if country == "IN" else "GLOBAL"
+    except Exception as e:
+        logger.warning(f"Region detect failed: {e}")
+        return "IN"  # default to India on error
 
 @app.get("/billing/region")
 async def billing_region(request: Request):
