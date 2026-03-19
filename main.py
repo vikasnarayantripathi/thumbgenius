@@ -33,28 +33,48 @@ SUPABASE_URL             = os.getenv("SUPABASE_URL")
 SUPABASE_ANON_KEY        = os.getenv("SUPABASE_ANON_KEY")
 UPSTASH_REDIS_REST_URL   = os.getenv("UPSTASH_REDIS_REST_URL")
 UPSTASH_REDIS_REST_TOKEN = os.getenv("UPSTASH_REDIS_REST_TOKEN")
-RAZORPAY_KEY_ID          = os.getenv("RAZORPAY_KEY_ID")
-RAZORPAY_KEY_SECRET      = os.getenv("RAZORPAY_KEY_SECRET")
-RAZORPAY_WEBHOOK_SECRET  = os.getenv("RAZORPAY_WEBHOOK_SECRET")
-RAZORPAY_CREATOR_PLAN_ID = os.getenv("RAZORPAY_CREATOR_PLAN_ID")
-RAZORPAY_PRO_PLAN_ID     = os.getenv("RAZORPAY_PRO_PLAN_ID")
+RAZORPAY_KEY_ID               = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET           = os.getenv("RAZORPAY_KEY_SECRET")
+RAZORPAY_WEBHOOK_SECRET       = os.getenv("RAZORPAY_WEBHOOK_SECRET")
+RAZORPAY_CREATOR_MONTHLY      = os.getenv("RAZORPAY_CREATOR_MONTHLY", "")
+RAZORPAY_CREATOR_ANNUAL       = os.getenv("RAZORPAY_CREATOR_ANNUAL", "")
+RAZORPAY_PRO_MONTHLY          = os.getenv("RAZORPAY_PRO_MONTHLY", "")
+RAZORPAY_PRO_ANNUAL           = os.getenv("RAZORPAY_PRO_ANNUAL", "")
+RAZORPAY_AGENCY_MONTHLY       = os.getenv("RAZORPAY_AGENCY_MONTHLY", "")
+RAZORPAY_AGENCY_ANNUAL        = os.getenv("RAZORPAY_AGENCY_ANNUAL", "")
+RAZORPAY_ENTERPRISE_MONTHLY   = os.getenv("RAZORPAY_ENTERPRISE_MONTHLY", "")
+RAZORPAY_ENTERPRISE_ANNUAL    = os.getenv("RAZORPAY_ENTERPRISE_ANNUAL", "")
+# Legacy aliases
+RAZORPAY_CREATOR_PLAN_ID      = os.getenv("RAZORPAY_CREATOR_MONTHLY", "")
+RAZORPAY_PRO_PLAN_ID          = os.getenv("RAZORPAY_PRO_MONTHLY", "")
 RESEND_API_KEY           = os.getenv("RESEND_API_KEY")
 APP_URL                  = os.getenv("APP_URL", "https://thumbgenius.in")
 FROM_EMAIL               = os.getenv("FROM_EMAIL", "hello@thumbgenius.in")
 
 # ── Stripe (global payments) ───────────────────────────────────────────────
-STRIPE_SECRET_KEY       = os.getenv("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET   = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-STRIPE_CREATOR_PRICE_ID = os.getenv("STRIPE_CREATOR_PRICE_ID", "")   # $19/mo
-STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")        # $39/mo
+STRIPE_SECRET_KEY              = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_WEBHOOK_SECRET          = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_CREATOR_MONTHLY         = os.getenv("STRIPE_CREATOR_MONTHLY", "")   # $9.99/mo
+STRIPE_CREATOR_ANNUAL          = os.getenv("STRIPE_CREATOR_ANNUAL", "")    # $7.99/mo
+STRIPE_PRO_MONTHLY             = os.getenv("STRIPE_PRO_MONTHLY", "")       # $19.99/mo
+STRIPE_PRO_ANNUAL              = os.getenv("STRIPE_PRO_ANNUAL", "")        # $15.99/mo
+STRIPE_AGENCY_MONTHLY          = os.getenv("STRIPE_AGENCY_MONTHLY", "")    # $49.99/mo
+STRIPE_AGENCY_ANNUAL           = os.getenv("STRIPE_AGENCY_ANNUAL", "")     # $39.99/mo
+STRIPE_ENTERPRISE_MONTHLY      = os.getenv("STRIPE_ENTERPRISE_MONTHLY", "") # $249/mo
+STRIPE_ENTERPRISE_ANNUAL       = os.getenv("STRIPE_ENTERPRISE_ANNUAL", "")  # $199/mo
+# Legacy aliases
+STRIPE_CREATOR_PRICE_ID        = os.getenv("STRIPE_CREATOR_MONTHLY", "")
+STRIPE_PRO_PRICE_ID            = os.getenv("STRIPE_PRO_MONTHLY", "")
+SUPABASE_SERVICE_KEY           = os.getenv("SUPABASE_SERVICE_KEY", os.getenv("SUPABASE_ANON_KEY"))
 
 YOUTUBE_API_KEY          = os.getenv("YOUTUBE_API_KEY", "AIzaSyDJy_bON1erjhWpdk5M326q2Rt63Nphr_Y")
 
 PLAN_LIMITS = {
-    "free":       {"generations": 3,    "images": 5,    "thumb_analysis": 1,   "reverse": 2,    "ctr_predict": 0,    "ab_tests": 3,    "blueprint": 1,    "watermark": True,  "hd_images": 0,   "team_seats": 1,  "api_access": False},
-    "creator":    {"generations": 500,  "images": 50,   "thumb_analysis": 30,  "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 0,   "team_seats": 1,  "api_access": False},
-    "pro":        {"generations": 2000, "images": 150,  "thumb_analysis": 100, "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 10,  "team_seats": 3,  "api_access": False},
-    "enterprise": {"generations": 9999, "images": 500,  "thumb_analysis": 500, "reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999, "blueprint": 9999, "watermark": False, "hd_images": 100, "team_seats": 10, "api_access": True},
+    "free":       {"generations": 3,    "images": 1,    "thumb_analysis": 1,   "reverse": 2,    "ctr_predict": 0,    "ab_tests": 3,   "ab_thumbs": 0,  "blueprint": 1,    "channel": 2,    "trending": 2,    "watermark": True,  "hd_images": 0,   "team_seats": 1,   "api_access": False, "brand_kits": 0},
+    "creator":    {"generations": 30,   "images": 10,   "thumb_analysis": 15,  "reverse": 10,   "ctr_predict": 0,    "ab_tests": 20,  "ab_thumbs": 5,  "blueprint": 10,   "channel": 10,   "trending": 9999, "watermark": False, "hd_images": 0,   "team_seats": 1,   "api_access": False, "brand_kits": 0},
+    "pro":        {"generations": 100,  "images": 30,   "thumb_analysis": 50,  "reverse": 30,   "ctr_predict": 50,   "ab_tests": 9999,"ab_thumbs": 20, "blueprint": 30,   "channel": 30,   "trending": 9999, "watermark": False, "hd_images": 10,  "team_seats": 1,   "api_access": False, "brand_kits": 1},
+    "agency":     {"generations": 300,  "images": 100,  "thumb_analysis": 150, "reverse": 100,  "ctr_predict": 150,  "ab_tests": 9999,"ab_thumbs": 75, "blueprint": 100,  "channel": 100,  "trending": 9999, "watermark": False, "hd_images": 50,  "team_seats": 3,   "api_access": True,  "brand_kits": 5},
+    "enterprise": {"generations": 9999, "images": 9999, "thumb_analysis": 9999,"reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999,"ab_thumbs": 9999,"blueprint": 9999, "channel": 9999, "trending": 9999, "watermark": False, "hd_images": 9999,"team_seats": 10,  "api_access": True,  "brand_kits": 999},
 }
 
 # Top-up packages (images)
@@ -378,7 +398,21 @@ async def send_magic_link(email, token, plan):
         logger.error(f"Email send error: {e}")
 
 async def create_razorpay_subscription(plan, email):
-    plan_id = RAZORPAY_CREATOR_PLAN_ID if plan == "creator" else RAZORPAY_PRO_PLAN_ID
+    # Map plan + interval to Razorpay plan ID
+    rzp_plan_map = {
+        ("creator",    "monthly"): RAZORPAY_CREATOR_MONTHLY,
+        ("creator",    "annual"):  RAZORPAY_CREATOR_ANNUAL,
+        ("pro",        "monthly"): RAZORPAY_PRO_MONTHLY,
+        ("pro",        "annual"):  RAZORPAY_PRO_ANNUAL,
+        ("agency",     "monthly"): RAZORPAY_AGENCY_MONTHLY,
+        ("agency",     "annual"):  RAZORPAY_AGENCY_ANNUAL,
+        ("enterprise", "monthly"): RAZORPAY_ENTERPRISE_MONTHLY,
+        ("enterprise", "annual"):  RAZORPAY_ENTERPRISE_ANNUAL,
+    }
+    interval = body.get("interval", "monthly")
+    plan_id = rzp_plan_map.get((plan, interval), "")
+    if not plan_id:
+        return JSONResponse({"error": f"Plan {plan}/{interval} not configured yet"}, status_code=400)
     try:
         async with httpx.AsyncClient(timeout=15.0) as h:
             r = await h.post("https://api.razorpay.com/v1/subscriptions",
@@ -394,7 +428,21 @@ async def create_stripe_session(plan: str, email: str) -> dict:
     """Create a Stripe Checkout session for global users."""
     if not STRIPE_SECRET_KEY:
         return {"error": "Stripe not configured"}
-    price_id = STRIPE_CREATOR_PRICE_ID if plan == "creator" else STRIPE_PRO_PRICE_ID
+    # Map plan + interval to Stripe price ID
+    stripe_price_map = {
+        ("creator",    "monthly"): STRIPE_CREATOR_MONTHLY,
+        ("creator",    "annual"):  STRIPE_CREATOR_ANNUAL,
+        ("pro",        "monthly"): STRIPE_PRO_MONTHLY,
+        ("pro",        "annual"):  STRIPE_PRO_ANNUAL,
+        ("agency",     "monthly"): STRIPE_AGENCY_MONTHLY,
+        ("agency",     "annual"):  STRIPE_AGENCY_ANNUAL,
+        ("enterprise", "monthly"): STRIPE_ENTERPRISE_MONTHLY,
+        ("enterprise", "annual"):  STRIPE_ENTERPRISE_ANNUAL,
+    }
+    interval = body.get("interval", "monthly")
+    price_id = stripe_price_map.get((plan, interval), "")
+    if not price_id:
+        return JSONResponse({"error": f"Stripe plan {plan}/{interval} not configured yet"}, status_code=400)
     if not price_id:
         return {"error": "Stripe price not configured"}
     try:
