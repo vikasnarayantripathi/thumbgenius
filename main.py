@@ -891,6 +891,141 @@ async def activate(request: Request, token: str = "", login_token: str = ""):
     </body></html>""")
 
 # ─── Razorpay Webhook ─────────────────────────────────────────────────────────
+
+# ══════════════════════════════════════════════════════
+# BILLING ENDPOINTS
+# ══════════════════════════════════════════════════════
+
+@app.get("/billing/region")
+async def billing_region(request: Request):
+    region = await detect_region(request)
+    return {"region": region}
+
+@app.post("/billing/razorpay/checkout")
+async def razorpay_checkout(request: Request):
+    try:
+        user = await get_current_user(request)
+    except:
+        return JSONResponse({"error": "Please login first"}, status_code=401)
+    body = await request.json()
+    plan = body.get("plan", "creator")
+    interval = body.get("interval", "monthly")
+
+    rzp_plan_map = {
+        ("creator",    "monthly"): RAZORPAY_CREATOR_MONTHLY,
+        ("creator",    "annual"):  RAZORPAY_CREATOR_ANNUAL,
+        ("pro",        "monthly"): RAZORPAY_PRO_MONTHLY,
+        ("pro",        "annual"):  RAZORPAY_PRO_ANNUAL,
+        ("agency",     "monthly"): RAZORPAY_AGENCY_MONTHLY,
+        ("agency",     "annual"):  RAZORPAY_AGENCY_ANNUAL,
+        ("enterprise", "monthly"): RAZORPAY_ENTERPRISE_MONTHLY,
+        ("enterprise", "annual"):  RAZORPAY_ENTERPRISE_ANNUAL,
+    }
+    plan_id = rzp_plan_map.get((plan, interval), "")
+    if not plan_id:
+        return JSONResponse({"error": f"Plan {plan}/{interval} not configured"}, status_code=400)
+
+    try:
+        import razorpay as rzp_sdk
+        rzp_client = rzp_sdk.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        subscription = rzp_client.subscription.create({
+            "plan_id": plan_id,
+            "total_count": 12 if interval == "monthly" else 1,
+            "quantity": 1,
+            "customer_notify": 1,
+            "notes": {"email": user["email"], "plan": plan, "interval": interval}
+        })
+        return {"subscription_id": subscription["id"], "razorpay_key": RAZORPAY_KEY_ID, "plan": plan, "interval": interval}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.post("/billing/razorpay/verify")
+async def razorpay_verify(request: Request):
+    try:
+        user = await get_current_user(request)
+    except:
+        return JSONResponse({"error": "Please login first"}, status_code=401)
+    body = await request.json()
+    payment_id   = body.get("razorpay_payment_id")
+    sub_id       = body.get("razorpay_subscription_id")
+    signature    = body.get("razorpay_signature")
+    plan         = body.get("plan", "creator")
+    interval     = body.get("interval", "monthly")
+
+    # Verify signature
+    import hmac, hashlib
+    msg = f"{payment_id}|{sub_id}"
+    expected = hmac.new(RAZORPAY_KEY_SECRET.encode(), msg.encode(), hashlib.sha256).hexdigest()
+    if expected != signature:
+        return JSONResponse({"error": "Invalid signature"}, status_code=400)
+
+    # Update user plan in Supabase
+    from datetime import datetime, timedelta
+    expires = (datetime.utcnow() + timedelta(days=365 if interval=="annual" else 31)).isoformat()
+    await _http_sb.patch(
+        f"{SUPABASE_URL}/rest/v1/users?email=eq.{user['email']}",
+        headers={**SB_HEADERS, "Content-Type": "application/json", "Prefer": "return=minimal"},
+        json={"plan": plan, "plan_interval": interval, "plan_expires_at": expires,
+              "razorpay_subscription_id": sub_id,
+              "credits_remaining": PLAN_LIMITS.get(plan, {}).get("generations", 10)}
+    )
+    # Save subscription record
+    await _http_sb.post(
+        f"{SUPABASE_URL}/rest/v1/subscriptions",
+        headers={**SB_HEADERS, "Content-Type": "application/json", "Prefer": "return=minimal"},
+        json={"user_id": user.get("id"), "plan": plan, "plan_interval": interval,
+              "status": "active", "gateway": "razorpay",
+              "gateway_subscription_id": sub_id, "currency": "INR",
+              "current_period_end": expires}
+    )
+    return {"success": True, "plan": plan, "redirect": "/?login=1&msg=upgrade_success"}
+
+@app.post("/billing/stripe/checkout")
+async def stripe_checkout(request: Request):
+    try:
+        user = await get_current_user(request)
+    except:
+        return JSONResponse({"error": "Please login first"}, status_code=401)
+    if not STRIPE_SECRET_KEY:
+        return JSONResponse({"error": "Stripe not configured yet. Please use Razorpay."}, status_code=400)
+    body = await request.json()
+    plan     = body.get("plan", "pro")
+    interval = body.get("interval", "monthly")
+
+    stripe_price_map = {
+        ("creator",    "monthly"): STRIPE_CREATOR_MONTHLY,
+        ("creator",    "annual"):  STRIPE_CREATOR_ANNUAL,
+        ("pro",        "monthly"): STRIPE_PRO_MONTHLY,
+        ("pro",        "annual"):  STRIPE_PRO_ANNUAL,
+        ("agency",     "monthly"): STRIPE_AGENCY_MONTHLY,
+        ("agency",     "annual"):  STRIPE_AGENCY_ANNUAL,
+        ("enterprise", "monthly"): STRIPE_ENTERPRISE_MONTHLY,
+        ("enterprise", "annual"):  STRIPE_ENTERPRISE_ANNUAL,
+    }
+    price_id = stripe_price_map.get((plan, interval), "")
+    if not price_id:
+        return JSONResponse({"error": f"Stripe plan {plan}/{interval} not configured"}, status_code=400)
+
+    try:
+        import stripe as stripe_sdk
+        stripe_sdk.api_key = STRIPE_SECRET_KEY
+        session = stripe_sdk.checkout.Session.create(
+            payment_method_types=["card"],
+            mode="subscription",
+            line_items=[{"price": price_id, "quantity": 1}],
+            customer_email=user["email"],
+            success_url=f"{APP_URL}/?login=1&msg=upgrade_success",
+            cancel_url=f"{APP_URL}/landing?msg=cancelled",
+            metadata={"email": user["email"], "plan": plan, "interval": interval}
+        )
+        return {"checkout_url": session.url}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/billing/success")
+async def billing_success(request: Request):
+    return RedirectResponse(url="/?login=1&msg=upgrade_success")
+
 @app.post("/webhook/razorpay")
 async def razorpay_webhook(request: Request):
     try:
