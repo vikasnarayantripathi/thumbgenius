@@ -2660,7 +2660,17 @@ async def admin_set_key(request: Request):
     except:
         return JSONResponse({"error":"Invalid request"}, status_code=400)
     ALLOWED_KEYS = ["YOUTUBE_API_KEY","OPENAI_API_KEY","GEMINI_API_KEY",
-                    "RAZORPAY_KEY_ID","RAZORPAY_KEY_SECRET","STRIPE_SECRET_KEY"]
+                    "RAZORPAY_KEY_ID","RAZORPAY_KEY_SECRET","STRIPE_SECRET_KEY",
+                    "RAZORPAY_CREATOR_MONTHLY","RAZORPAY_CREATOR_ANNUAL",
+                    "RAZORPAY_PRO_MONTHLY","RAZORPAY_PRO_ANNUAL",
+                    "RAZORPAY_AGENCY_MONTHLY","RAZORPAY_AGENCY_ANNUAL",
+                    "RAZORPAY_ENTERPRISE_MONTHLY","RAZORPAY_ENTERPRISE_ANNUAL",
+                    "STRIPE_CREATOR_MONTHLY","STRIPE_CREATOR_ANNUAL",
+                    "STRIPE_PRO_MONTHLY","STRIPE_PRO_ANNUAL",
+                    "STRIPE_AGENCY_MONTHLY","STRIPE_AGENCY_ANNUAL",
+                    "STRIPE_ENTERPRISE_MONTHLY","STRIPE_ENTERPRISE_ANNUAL",
+                    "RAZORPAY_WEBHOOK_SECRET","STRIPE_WEBHOOK_SECRET",
+                    "SUPABASE_SERVICE_KEY","APP_URL"]
     if key_name not in ALLOWED_KEYS:
         return JSONResponse({"error":"Key not allowed"}, status_code=400)
     if not key_value:
@@ -2690,7 +2700,17 @@ async def admin_set_key(request: Request):
     except:
         return JSONResponse({"error":"Invalid request"}, status_code=400)
     ALLOWED_KEYS = ["YOUTUBE_API_KEY","OPENAI_API_KEY","GEMINI_API_KEY",
-                    "RAZORPAY_KEY_ID","RAZORPAY_KEY_SECRET","STRIPE_SECRET_KEY"]
+                    "RAZORPAY_KEY_ID","RAZORPAY_KEY_SECRET","STRIPE_SECRET_KEY",
+                    "RAZORPAY_CREATOR_MONTHLY","RAZORPAY_CREATOR_ANNUAL",
+                    "RAZORPAY_PRO_MONTHLY","RAZORPAY_PRO_ANNUAL",
+                    "RAZORPAY_AGENCY_MONTHLY","RAZORPAY_AGENCY_ANNUAL",
+                    "RAZORPAY_ENTERPRISE_MONTHLY","RAZORPAY_ENTERPRISE_ANNUAL",
+                    "STRIPE_CREATOR_MONTHLY","STRIPE_CREATOR_ANNUAL",
+                    "STRIPE_PRO_MONTHLY","STRIPE_PRO_ANNUAL",
+                    "STRIPE_AGENCY_MONTHLY","STRIPE_AGENCY_ANNUAL",
+                    "STRIPE_ENTERPRISE_MONTHLY","STRIPE_ENTERPRISE_ANNUAL",
+                    "RAZORPAY_WEBHOOK_SECRET","STRIPE_WEBHOOK_SECRET",
+                    "SUPABASE_SERVICE_KEY","APP_URL"]
     if key_name not in ALLOWED_KEYS:
         return JSONResponse({"error":"Key not allowed"}, status_code=400)
     if not key_value:
