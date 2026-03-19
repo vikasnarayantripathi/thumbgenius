@@ -529,6 +529,7 @@ footer{padding:38px 56px;border-top:1px solid var(--border);display:flex;align-i
     <div class="stag">Pricing</div>
     <div class="stitle">Start free. Scale smart.</div>
     <div class="ssub" style="margin:0 auto">Annual plans save 20%. Boost packs never expire and stack with your plan.</div>
+    <div style="margin-top:12px"><span id="currency-badge" style="display:inline-block;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--dim)">🇮🇳 ₹ INR</span></div>
   </div>
   <div class="ptoggle">
     <button class="ptog on" id="ptm" onclick="setP('m')">Monthly</button>
@@ -760,23 +761,80 @@ function cnt(id,end,sfx){
 }
 cnt('s1',500,'+');cnt('s2',50000,'+');cnt('s3',47,'%');
 
-// LIVE SCORE ANIM
+// LIVE SCORE ANIM + ROTATING DEMO THUMBNAILS
+const demoThumbs=[
+  {ico:'💰',txt:'How I Made<br>₹10 LAKHS with AI',niche:'Finance'},
+  {ico:'🎮',txt:'Secret Ending<br>Nobody Knows!',niche:'Gaming'},
+  {ico:'📱',txt:'5 AI Apps That<br>Changed My Life',niche:'Tech'},
+  {ico:'🔥',txt:'I Tried This for<br>30 Days — SHOCKING',niche:'Motivation'},
+  {ico:'💪',txt:'Lose 10kg in<br>30 Days — Proven',niche:'Fitness'},
+  {ico:'📈',txt:'₹1 Lakh/Month<br>Passive Income',niche:'Business'},
+  {ico:'🍕',txt:'Perfect Biryani<br>Secret Revealed!',niche:'Food'},
+  {ico:'✈️',txt:'Travel India for<br>₹500 Per Day',niche:'Travel'},
+];
+let demoIdx=0;
+function rotateDemoThumb(){
+  demoIdx=(demoIdx+1)%demoThumbs.length;
+  const d=demoThumbs[demoIdx];
+  const ico=document.querySelector('.tf-ico');
+  const txt=document.querySelector('.tf-txt');
+  if(ico)ico.textContent=d.ico;
+  if(txt)txt.innerHTML=d.txt;
+}
+
 setInterval(()=>{
   const s=(Math.random()*1.8+7.2).toFixed(1);
   const p=document.getElementById('live-pill');const g=document.getElementById('grade-v');
   if(p)p.textContent=s;if(g)g.textContent=s+'/10';
   document.getElementById('fv1').textContent=s+'/10';
   document.getElementById('fv2').textContent=(s*.65).toFixed(1)+'%–'+(s*.98).toFixed(1)+'%';
+  // Rotate thumbnail every 2 intervals (6 seconds)
+  if(Math.random()>.5)rotateDemoThumb();
 },3000);
 
-// PRICING TOGGLE
-const PD={m:{c:'₹749',p:'₹1,499',ag:'₹3,499',e:'₹16,999',cy:'/month'},a:{c:'₹599',p:'₹1,199',ag:'₹2,799',e:'₹13,599',cy:'/mo (annual)'}};
+// PRICING TOGGLE — region aware
+const PD={
+  IN:{m:{c:'₹749',p:'₹1,499',ag:'₹3,499',e:'₹16,999',cy:'/month'},a:{c:'₹599',p:'₹1,199',ag:'₹2,799',e:'₹13,599',cy:'/mo (annual)'}},
+  US:{m:{c:'$9.99',p:'$19.99',ag:'$49.99',e:'$249',cy:'/month'},a:{c:'$7.99',p:'$15.99',ag:'$39.99',e:'$199',cy:'/mo (annual)'}}
+};
+let userRegion='IN';
+let pricingMode='m';
+
+async function detectRegion(){
+  try{
+    const r=await fetch('/billing/region');
+    const d=await r.json();
+    userRegion=d.region==='IN'?'IN':'US';
+  }catch(e){userRegion='IN';}
+  updatePricing();
+  // Update boost packs too
+  if(userRegion==='US'){
+    const boosts=[['$3','$6','$18','$59'],['bq0','bq1','bq2','bq3']];
+    document.querySelectorAll('.bst-price').forEach((el,i)=>{
+      const prices=['$3','$6','$18','$59'];
+      if(prices[i])el.textContent=prices[i];
+    });
+  }
+}
+
+function updatePricing(){
+  const d=PD[userRegion][pricingMode];
+  ['c','p','ag','e'].forEach(k=>{
+    document.getElementById('pp'+k).textContent=d[k];
+    document.getElementById('py'+k).textContent=d.cy;
+  });
+  // Update currency badge in nav area
+  const cb=document.getElementById('currency-badge');
+  if(cb)cb.textContent=userRegion==='IN'?'🇮🇳 ₹ INR':'🌍 $ USD';
+}
+
 function setP(m){
+  pricingMode=m;
   document.getElementById('ptm').classList.toggle('on',m==='m');
   document.getElementById('pta').classList.toggle('on',m==='a');
-  const d=PD[m];
-  ['c','p','ag','e'].forEach(k=>{document.getElementById('pp'+k).textContent=d[k];document.getElementById('py'+k).textContent=d.cy;});
+  updatePricing();
 }
+detectRegion();
 
 // SCROLL REVEAL
 const obs=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.07});
