@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="ThumbGenius — AI-powered YouTube packaging platform for Indian creators. Generate viral titles, thumbnail blueprints, hook scripts, SEO tags and AI thumbnail images in Hindi, English & Hinglish.">
+    <meta name="keywords" content="YouTube thumbnail generator, Hindi YouTube titles, AI thumbnail maker, YouTube CTR booster, Indian YouTube creator tools">
+    <meta property="og:title" content="ThumbGenius — Double Your YouTube CTR with AI">
+    <meta property="og:description" content="Generate viral titles, AI thumbnails, hook scripts and SEO tags for your YouTube channel. Built for Indian creators.">
+    <meta property="og:url" content="https://www.thumbgenius.in">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.thumbgenius.in">
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico">
+    <title>ThumbGenius — Double Your YouTube CTR with AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#02020A;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5}
+        @media(max-width:600px){
+            #landingPage section{padding:40px 16px !important}
+            #landingPage h1{font-size:32px !important;line-height:1.2 !important}
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- Landing Nav -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,rgba(2,2,10,0.95) 0%,transparent 100%);backdrop-filter:blur(8px)">
+    <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px">Thumb<span style="color:#FFE036">Genius</span></div>
+    <div style="display:flex;align-items:center;gap:12px">
+        <button onclick="openLoginModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 18px;color:rgba(255,255,255,0.7);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.4)';this.style.color='#FFE036'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='rgba(255,255,255,0.7)'">Login</button>
+        <button onclick="enterApp()" style="background:#FFE036;border:none;border-radius:8px;padding:8px 20px;color:#02020A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">Upgrade &rarr;</button>
+    </div>
+</div>
+
+<!-- Hero Section -->
+<section style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:clamp(80px,15vw,120px) 16px 60px;position:relative;overflow:hidden">
+    <!-- Background glow -->
+    <div style="position:absolute;top:20%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(255,224,54,0.08) 0%,transparent 70%);pointer-events:none"></div>
+
+    <!-- Badge -->
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.2);border-radius:99px;padding:6px 16px;font-size:12px;font-weight:700;color:rgba(255,224,54,0.8);letter-spacing:1px;text-transform:uppercase;margin-bottom:28px">
+        <span style="width:6px;height:6px;background:#FFE036;border-radius:50%;display:inline-block"></span>
+        YouTube Packaging Intelligence Platform
+    </div>
+
+    <!-- Headline -->
+    <h1 style="font-size:clamp(40px,7vw,80px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin:0 0 24px;max-width:900px">
+        Double Your YouTube<br><span style="color:#FFE036">CTR.</span> <span style="color:rgba(255,255,255,0.4)">In Minutes.</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p style="font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.5);max-width:580px;line-height:1.6;margin:0 0 40px">
+        ThumbGenius analyzes your topic, engineers viral titles, designs thumbnail blueprints, and generates AI images — in every Indian language.
+    </p>
+
+    <!-- CTA Buttons -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:48px;width:100%;max-width:400px">
+        <button onclick="enterApp()" style="background:#FFE036;border:none;border-radius:12px;padding:16px 36px;color:#02020A;cursor:pointer;font-family:inherit;font-size:16px;font-weight:800;letter-spacing:-0.3px;transition:all 0.2s;box-shadow:0 0 40px rgba(255,224,54,0.3)" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 40px rgba(255,224,54,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow='0 0 40px rgba(255,224,54,0.3)'">
+            &#x26A1; Try Free — No Signup
+        </button>
+        <button onclick="openPaymentModal()" style="background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:16px 32px;color:#fff;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.4)';this.style.color='#FFE036'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.color='#fff'">
+            View Plans &rarr;
+        </button>
+    </div>
+
+    <!-- Stats Strip -->
+    <div style="display:flex;gap:clamp(16px,4vw,40px);flex-wrap:wrap;justify-content:center">
+        <div style="text-align:center">
+            <div style="font-size:32px;font-weight:800;color:#FFE036">2x</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px">Avg CTR Boost</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="text-align:center">
+            <div style="font-size:32px;font-weight:800;color:#FFE036">24</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px">Niches Covered</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="text-align:center">
+            <div style="font-size:32px;font-weight:800;color:#FFE036">3</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px">Languages</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.08)"></div>
+        <div style="text-align:center">
+            <div style="font-size:32px;font-weight:800;color:#FFE036">8</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px">AI Modules</div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section style="padding:80px 24px;max-width:1100px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:60px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Everything You Need</div>
+        <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-1px;margin:0">8 AI Modules. One Platform.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">⚡</div>
+            <div style="font-weight:700;margin-bottom:6px">Title + Package Generator</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">5 viral titles, thumbnail blueprint, hook script, and SEO description — instantly.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">🖼️</div>
+            <div style="font-weight:700;margin-bottom:6px">AI Thumbnail Image</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Generate publish-ready thumbnails with Gemini Imagen. With or without text overlay.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">🎯</div>
+            <div style="font-weight:700;margin-bottom:6px">Thumbnail Analyzer</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Upload any thumbnail — get CTR score, emotion analysis, and improvement tips.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">📊</div>
+            <div style="font-weight:700;margin-bottom:6px">CTR Predictor</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Predict click-through rate before publishing. Compare multiple title variants.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">🔬</div>
+            <div style="font-weight:700;margin-bottom:6px">Reverse Engineer</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Paste any YouTube link — decode exactly why it went viral.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">📐</div>
+            <div style="font-weight:700;margin-bottom:6px">Viral Blueprint</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Score any thumbnail + generate AI variations using the winning formula.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">🌐</div>
+            <div style="font-weight:700;margin-bottom:6px">3 Languages</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">English, Hindi & Hinglish. Full output in your language.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px;transition:all 0.2s" onmouseover="this.style.borderColor='rgba(255,224,54,0.2)';this.style.background='rgba(255,224,54,0.03)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+            <div style="font-size:28px;margin-bottom:12px">🏢</div>
+            <div style="font-weight:700;margin-bottom:6px">Enterprise + API</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Team seats, API access, dedicated support. Built for agencies and media houses.</div>
+        </div>
+    </div>
+</section>
+
+<!-- Viral Blueprint Feature -->
+<section style="padding:60px 24px;max-width:900px;margin:0 auto;text-align:center" id="viral-blueprint">
+    <div style="background:linear-gradient(135deg,rgba(255,224,54,0.08) 0%,rgba(255,100,50,0.05) 100%);border:1px solid rgba(255,224,54,0.2);border-radius:24px;padding:48px 32px">
+        <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,100,50,0.1);border:1px solid rgba(255,100,50,0.3);border-radius:99px;padding:6px 16px;font-size:12px;font-weight:700;color:rgba(255,150,50,0.9);margin-bottom:20px">🔥 Most Powerful Feature</div>
+        <h2 style="font-size:clamp(24px,4vw,42px);font-weight:800;letter-spacing:-1px;margin:0 0 16px">Paste any YouTube link →<br><span style="color:#FFE036">Instantly clone & improve its thumbnail</span></h2>
+        <p style="font-size:15px;color:rgba(255,255,255,0.5);max-width:600px;margin:0 auto 32px;line-height:1.7">The Viral Blueprint reverse-engineers any top-performing thumbnail — breaking down emotion, composition, color contrast, and text hook — then generates improved variations for your own video.</p>
+        <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:32px">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 20px;font-size:13px"><span style="color:#FFE036;font-weight:700">1</span> Paste a YouTube URL</div>
+            <div style="color:rgba(255,255,255,0.3);display:flex;align-items:center">→</div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 20px;font-size:13px"><span style="color:#FFE036;font-weight:700">2</span> Get a 7-dimension score</div>
+            <div style="color:rgba(255,255,255,0.3);display:flex;align-items:center">→</div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 20px;font-size:13px"><span style="color:#FFE036;font-weight:700">3</span> Generate improved variants</div>
+        </div>
+        <button onclick="enterApp()" style="background:#FFE036;border:none;border-radius:12px;padding:14px 32px;color:#02020A;cursor:pointer;font-family:inherit;font-size:15px;font-weight:800">Try Viral Blueprint Free →</button>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section style="padding:80px 24px;max-width:1100px;margin:0 auto" id="landingPricing">
+    <div style="text-align:center;margin-bottom:60px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Simple Pricing</div>
+        <h2 style="font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-1px;margin:0">Start Free. Scale When Ready.</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1100px;margin:0 auto">
+        <!-- Free -->
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px 24px">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Free</div>
+            <div style="font-size:36px;font-weight:800;margin-bottom:4px">₹0</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:20px">forever</div>
+            <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px">
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 3 generations/day</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 5 AI images</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 1 thumbnail analysis</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ Watermarked images</li>
+            </ul>
+            <button onclick="enterApp()" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600">Try Free &rarr;</button>
+        </div>
+        <!-- Creator -->
+        <div style="background:rgba(255,224,54,0.04);border:2px solid rgba(255,224,54,0.3);border-radius:20px;padding:28px 24px;position:relative">
+            <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFE036;color:#02020A;font-size:11px;font-weight:800;padding:4px 14px;border-radius:99px;text-transform:uppercase;letter-spacing:1px;white-space:nowrap">Most Popular</div>
+            <div style="font-size:12px;font-weight:700;color:#FFE036;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Creator</div>
+            <div style="font-size:36px;font-weight:800;color:#FFE036;margin-bottom:4px">₹749</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:20px">per month</div>
+            <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px">
+                <li style="font-size:13px;color:rgba(255,255,255,0.7)">✓ 50 AI images/month</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.7)">✓ Unlimited text gen</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.7)">✓ 30 analyses</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.7)">✓ No watermark</li>
+            </ul>
+            <button onclick="openPaymentModal('creator')" style="width:100%;background:#FFE036;border:none;border-radius:10px;padding:12px;color:#02020A;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800">Get Creator &rarr;</button>
+        </div>
+        <!-- Pro -->
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:28px 24px">
+            <div style="font-size:12px;font-weight:700;color:rgba(139,133,255,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pro</div>
+            <div style="font-size:36px;font-weight:800;margin-bottom:4px">₹1,449</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:20px">per month</div>
+            <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px">
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 150 AI images/month</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 100 analyses</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ Custom image upload</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ Priority support</li>
+            </ul>
+            <button onclick="openPaymentModal('pro')" style="width:100%;background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);border-radius:10px;padding:12px;color:#8B85FF;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">Get Pro &rarr;</button>
+        </div>
+        <!-- Enterprise -->
+        <div style="background:rgba(67,233,123,0.02);border:1px solid rgba(67,233,123,0.15);border-radius:20px;padding:28px 24px">
+            <div style="font-size:12px;font-weight:700;color:rgba(67,233,123,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Enterprise</div>
+            <div style="font-size:36px;font-weight:800;margin-bottom:4px">₹25,000</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.3);margin-bottom:20px">per month</div>
+            <ul style="list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:8px">
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 1000 AI images</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ Team seats + API</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ 500 analyses</li>
+                <li style="font-size:13px;color:rgba(255,255,255,0.5)">✓ Dedicated support</li>
+            </ul>
+            <button onclick="openPaymentModal('enterprise')" style="width:100%;background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:12px;color:#43E97B;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700">Get Enterprise &rarr;</button>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════ HOW IT WORKS ═══════════════════════════════ -->
+<section style="padding:80px 24px;max-width:900px;margin:0 auto" id="how-it-works">
+    <div style="text-align:center;margin-bottom:60px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Simple 3-Step Process</div>
+        <h2 style="font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;margin:0">How ThumbGenius Works</h2>
+        <p style="color:rgba(255,255,255,0.4);margin-top:12px;font-size:15px">From topic to publish-ready thumbnail in under 60 seconds</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px 24px;text-align:center;position:relative">
+            <div style="width:48px;height:48px;background:rgba(255,224,54,0.1);border:1px solid rgba(255,224,54,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#FFE036;margin:0 auto 20px">1</div>
+            <div style="font-size:22px;margin-bottom:10px">✍️</div>
+            <div style="font-weight:700;font-size:16px;margin-bottom:8px">Enter Your Topic</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Type your video topic, select your niche and language. Takes 10 seconds.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px 24px;text-align:center">
+            <div style="width:48px;height:48px;background:rgba(255,224,54,0.1);border:1px solid rgba(255,224,54,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#FFE036;margin:0 auto 20px">2</div>
+            <div style="font-size:22px;margin-bottom:10px">🤖</div>
+            <div style="font-weight:700;font-size:16px;margin-bottom:8px">AI Generates Everything</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">5 viral titles, thumbnail blueprint, hook script, SEO tags — all in one click.</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:32px 24px;text-align:center">
+            <div style="width:48px;height:48px;background:rgba(255,224,54,0.1);border:1px solid rgba(255,224,54,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#FFE036;margin:0 auto 20px">3</div>
+            <div style="font-size:22px;margin-bottom:10px">🚀</div>
+            <div style="font-weight:700;font-size:16px;margin-bottom:8px">Publish & Get More Clicks</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.4);line-height:1.6">Download your AI thumbnail, copy your title and description. Upload to YouTube.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════ BEFORE / AFTER ═══════════════════════════════ -->
+<section style="padding:80px 24px;max-width:1000px;margin:0 auto" id="before-after">
+    <div style="text-align:center;margin-bottom:60px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Real Results</div>
+        <h2 style="font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;margin:0">Before vs After ThumbGenius</h2>
+        <p style="color:rgba(255,255,255,0.4);margin-top:12px;font-size:15px">See how creators transformed their channel packaging</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px">
+        <!-- Example 1 -->
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden">
+            <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
+                <span style="font-size:12px;font-weight:700;color:rgba(255,100,100,0.8);text-transform:uppercase;letter-spacing:1px">❌ Before</span>
+            </div>
+            <div style="padding:20px">
+                <div style="background:rgba(255,100,100,0.05);border:1px solid rgba(255,100,100,0.15);border-radius:12px;padding:16px;margin-bottom:12px">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5">"My Book Summary Video #12"</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <span style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.15);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,100,100,0.7)">CTR: 1.2%</span>
+                    <span style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.15);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,100,100,0.7)">Views: 340</span>
+                </div>
+            </div>
+        </div>
+        <div style="background:rgba(255,224,54,0.02);border:1px solid rgba(255,224,54,0.15);border-radius:20px;overflow:hidden">
+            <div style="padding:16px 20px;border-bottom:1px solid rgba(255,224,54,0.08)">
+                <span style="font-size:12px;font-weight:700;color:rgba(255,224,54,0.8);text-transform:uppercase;letter-spacing:1px">✅ After ThumbGenius</span>
+            </div>
+            <div style="padding:20px">
+                <div style="background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.2);border-radius:12px;padding:16px;margin-bottom:12px">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;font-weight:600">"Rich Dad Poor Dad की वो बात जो आपको कोई नहीं बताता! 🔥"</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <span style="background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,224,54,0.8)">CTR: 6.8%</span>
+                    <span style="background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,224,54,0.8)">Views: 24K</span>
+                </div>
+            </div>
+        </div>
+        <!-- Example 2 -->
+        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden">
+            <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.06)">
+                <span style="font-size:12px;font-weight:700;color:rgba(255,100,100,0.8);text-transform:uppercase;letter-spacing:1px">❌ Before</span>
+            </div>
+            <div style="padding:20px">
+                <div style="background:rgba(255,100,100,0.05);border:1px solid rgba(255,100,100,0.15);border-radius:12px;padding:16px;margin-bottom:12px">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5">"Best Budget Phones 2024"</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <span style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.15);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,100,100,0.7)">CTR: 1.8%</span>
+                    <span style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.15);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,100,100,0.7)">Views: 890</span>
+                </div>
+            </div>
+        </div>
+        <div style="background:rgba(255,224,54,0.02);border:1px solid rgba(255,224,54,0.15);border-radius:20px;overflow:hidden">
+            <div style="padding:16px 20px;border-bottom:1px solid rgba(255,224,54,0.08)">
+                <span style="font-size:12px;font-weight:700;color:rgba(255,224,54,0.8);text-transform:uppercase;letter-spacing:1px">✅ After ThumbGenius</span>
+            </div>
+            <div style="padding:20px">
+                <div style="background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.2);border-radius:12px;padding:16px;margin-bottom:12px">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.8);line-height:1.5;font-weight:600">"₹15,000 में Best Phone? ये 3 Phones देखो पहले! 😱"</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <span style="background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,224,54,0.8)">CTR: 8.2%</span>
+                    <span style="background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.2);border-radius:6px;padding:4px 10px;font-size:11px;color:rgba(255,224,54,0.8)">Views: 87K</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════ QUICK DEMO ═══════════════════════════════ -->
+<section style="padding:80px 24px;max-width:800px;margin:0 auto;text-align:center" id="demo">
+    <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Live Demo</div>
+    <h2 style="font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;margin:0 0 16px">Try It Right Now — Free</h2>
+    <p style="color:rgba(255,255,255,0.4);font-size:15px;margin-bottom:40px">No signup required. Enter any topic and see ThumbGenius in action.</p>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,224,54,0.15);border-radius:20px;padding:32px;text-align:left">
+        <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px">📝 Enter a YouTube topic:</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <input id="demoTopicInput" type="text" placeholder="e.g. Rich Dad Poor Dad book summary" style="flex:1;min-width:200px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;color:#fff;font-family:inherit;font-size:14px;outline:none" />
+            <button onclick="enterApp();setTimeout(()=>{var t=document.getElementById('topic');var v=document.getElementById('demoTopicInput').value;if(t&&v){t.value=v;}},500)" style="background:#FFE036;border:none;border-radius:12px;padding:14px 28px;color:#02020A;cursor:pointer;font-family:inherit;font-size:14px;font-weight:800;white-space:nowrap">⚡ Generate Free</button>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+            <span style="font-size:12px;color:rgba(255,255,255,0.3)">Try:</span>
+            <button onclick="document.getElementById('demoTopicInput').value=this.textContent" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:inherit;font-size:12px">Atomic Habits summary</button>
+            <button onclick="document.getElementById('demoTopicInput').value=this.textContent" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:inherit;font-size:12px">Best budget phones 2025</button>
+            <button onclick="document.getElementById('demoTopicInput').value=this.textContent" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:inherit;font-size:12px">How to earn money online</button>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════ SOCIAL PROOF ═══════════════════════════════ -->
+<section style="padding:80px 24px;max-width:1000px;margin:0 auto" id="testimonials">
+    <div style="text-align:center;margin-bottom:60px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">Creator Love</div>
+        <h2 style="font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;margin:0">What YouTubers Are Saying</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px">
+            <div style="color:#FFE036;font-size:16px;margin-bottom:12px">★★★★★</div>
+            <p style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;margin:0 0 16px">"ThumbGenius doubled my CTR in the first week. The Hindi title suggestions are incredibly accurate — feels like it was made for Indian creators."</p>
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;background:rgba(255,224,54,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px">👨</div>
+                <div>
+                    <div style="font-size:13px;font-weight:700">Rahul S.</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.3)">Finance Creator • 45K subscribers</div>
+                </div>
+            </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px">
+            <div style="color:#FFE036;font-size:16px;margin-bottom:12px">★★★★★</div>
+            <p style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;margin:0 0 16px">"The AI thumbnail image + title overlay feature is a game changer. I used to spend 2 hours per thumbnail. Now it's 5 minutes."</p>
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;background:rgba(139,133,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px">👩</div>
+                <div>
+                    <div style="font-size:13px;font-weight:700">Priya M.</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.3)">Tech Reviewer • 12K subscribers</div>
+                </div>
+            </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px">
+            <div style="color:#FFE036;font-size:16px;margin-bottom:12px">★★★★★</div>
+            <p style="font-size:14px;color:rgba(255,255,255,0.7);line-height:1.7;margin:0 0 16px">"Best tool for Hindi YouTubers. The Hinglish titles are perfect — my audience loves them. CTR went from 2% to 7% in 3 weeks."</p>
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;background:rgba(67,233,123,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px">👨</div>
+                <div>
+                    <div style="font-size:13px;font-weight:700">Amit K.</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.3)">Motivation Creator • 88K subscribers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════ FAQ ═══════════════════════════════ -->
+<section style="padding:80px 24px;max-width:700px;margin:0 auto" id="faq">
+    <div style="text-align:center;margin-bottom:48px">
+        <div style="font-size:11px;font-weight:700;color:rgba(255,224,54,0.6);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px">FAQ</div>
+        <h2 style="font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1px;margin:0">Frequently Asked Questions</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <details style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;cursor:pointer">
+            <summary style="font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center">Is ThumbGenius free to use? <span style="color:#FFE036">+</span></summary>
+            <p style="margin:12px 0 0;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7">Yes! ThumbGenius has a free plan that includes 3 generations per day and 1 AI thumbnail image. No credit card or signup required to try.</p>
+        </details>
+        <details style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;cursor:pointer">
+            <summary style="font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center">Which languages are supported? <span style="color:#FFE036">+</span></summary>
+            <p style="margin:12px 0 0;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7">ThumbGenius supports English, Hindi, and Hinglish. All outputs including titles, hook scripts, SEO descriptions, and tags are generated in your selected language.</p>
+        </details>
+        <details style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;cursor:pointer">
+            <summary style="font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center">How is the AI thumbnail generated? <span style="color:#FFE036">+</span></summary>
+            <p style="margin:12px 0 0;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7">We use DALL-E 3 to generate photorealistic YouTube thumbnails based on your topic's visual blueprint. You can add title overlays and download in full resolution.</p>
+        </details>
+        <details style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;cursor:pointer">
+            <summary style="font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center">Can I cancel my subscription anytime? <span style="color:#FFE036">+</span></summary>
+            <p style="margin:12px 0 0;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7">Yes, all plans can be cancelled anytime. Contact us at support@thumbgenius.in and we'll process it within 24 hours.</p>
+        </details>
+        <details style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px 24px;cursor:pointer">
+            <summary style="font-weight:700;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center">Is my data safe? <span style="color:#FFE036">+</span></summary>
+            <p style="margin:12px 0 0;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7">Yes. We never share or sell your data. Topics and generated content are only used to serve your requests. See our Privacy Policy below for full details.</p>
+        </details>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+<footer style="padding:60px 24px 40px;border-top:1px solid rgba(255,255,255,0.06);margin-top:40px">
+    <div style="max-width:1100px;margin:0 auto">
+        <!-- Top row -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;margin-bottom:48px;text-align:left">
+            <div>
+                <div style="font-size:22px;font-weight:800;margin-bottom:12px">Thumb<span style="color:#FFE036">Genius</span></div>
+                <p style="font-size:13px;color:rgba(255,255,255,0.35);line-height:1.7;max-width:240px">YouTube Packaging Intelligence Platform for Indian creators. Double your CTR with AI.</p>
+            </div>
+            <div>
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Product</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <a href="#how-it-works" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">How It Works</a>
+                    <a href="#before-after" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Before & After</a>
+                    <a href="#demo" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Live Demo</a>
+                    <a href="#landingPricing" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Pricing</a>
+                    <a href="#faq" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">FAQ</a>
+                </div>
+            </div>
+            <div>
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Legal</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <a href="/privacy" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Privacy Policy</a>
+                    <a href="/terms" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Terms of Service</a>
+                    <a href="/refund" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Refund Policy</a>
+                </div>
+            </div>
+            <div>
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">Support</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <a href="mailto:support@thumbgenius.in" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">support@thumbgenius.in</a>
+                    <a href="#faq" style="font-size:13px;color:rgba(255,255,255,0.5);text-decoration:none">Help Center</a>
+                    <span style="font-size:13px;color:rgba(255,255,255,0.5)">Response within 24hrs</span>
+                </div>
+            </div>
+        </div>
+        <!-- Bottom row -->
+        <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div style="font-size:12px;color:rgba(255,255,255,0.25)">© 2025 ThumbGenius · Made in India 🇮🇳 · YouTube Packaging Intelligence Platform</div>
+            <div style="display:flex;gap:16px">
+                <a href="/privacy" style="font-size:12px;color:rgba(255,255,255,0.25);text-decoration:none">Privacy</a>
+                <a href="/terms" style="font-size:12px;color:rgba(255,255,255,0.25);text-decoration:none">Terms</a>
+                <a href="/refund" style="font-size:12px;color:rgba(255,255,255,0.25);text-decoration:none">Refund</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+<script>
+function enterApp() {
+    const now = Date.now();
+    localStorage.setItem("tg_trial_start", now.toString());
+    localStorage.setItem("tg_entered_app", "1");
+    localStorage.setItem("tg_app_version", "6");
+    window.location.href = '/';
+}
+
+// Show trial expired message if redirected here
+(function(){
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('expired') === '1'){
+        const banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#FF6584;color:#fff;text-align:center;padding:12px;font-size:14px;font-weight:700;z-index:25000';
+        banner.textContent = '⏰ Your free trial has expired. Login or upgrade to continue.';
+        document.body.prepend(banner);
+    }
+})();
+function openPaymentModal(plan) { window.location.href = '/?upgrade=' + (plan||'creator'); }
+function openLoginModal() {
+    document.getElementById('landingLoginModal').style.display = 'flex';
+    setTimeout(function(){ document.getElementById('landingLoginEmail').focus(); }, 100);
+}
+function closeLandingLoginModal() {
+    document.getElementById('landingLoginModal').style.display = 'none';
+}
+async function sendLandingLoginLink() {
+    var email = document.getElementById('landingLoginEmail').value.trim();
+    var msg = document.getElementById('landingLoginMsg');
+    if(!email){ msg.style.color='#f87171'; msg.textContent='Please enter your email.'; return; }
+    var btn = document.getElementById('landingLoginBtn');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+        var res = await fetch('/send-login-link', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({email: email})
+        });
+        var data = await res.json();
+        if(data.ok) {
+            msg.style.color='#4ade80';
+            msg.textContent='✅ Check your email for the login link!';
+            btn.textContent = 'Sent!';
+        } else {
+            msg.style.color='#f87171';
+            msg.textContent = data.error || 'Something went wrong.';
+            btn.disabled = false; btn.textContent = 'Send Login Link →';
+        }
+    } catch(e) {
+        msg.style.color='#f87171'; msg.textContent='Network error. Try again.';
+        btn.disabled = false; btn.textContent = 'Send Login Link →';
+    }
+}
+function loginWithGoogle() { window.location.href = '/auth/google'; }
+</script>
+
+<!-- Login Modal -->
+<div id="landingLoginModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:#0D0D1A;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:40px;width:100%;max-width:420px;position:relative;text-align:center">
+        <button onclick="closeLandingLoginModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.3);font-size:20px;cursor:pointer">&#x2715;</button>
+        <div style="font-size:36px;margin-bottom:12px">🔑</div>
+        <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px">Log In to ThumbGenius</h2>
+        <p style="color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:24px">Sign in to access your account.</p>
+        <button onclick="loginWithGoogle()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a1a1a;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;margin-bottom:16px">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Continue with Google
+        </button>
+        <div style="margin:16px 0;color:rgba(255,255,255,0.2);font-size:12px;display:flex;align-items:center;gap:10px">
+            <span style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></span>or use email<span style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></span>
+        </div>
+        <input type="email" id="landingLoginEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')sendLandingLoginLink()" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 18px;font-size:15px;color:#fff;outline:none;box-sizing:border-box"/>
+        <button id="landingLoginBtn" onclick="sendLandingLoginLink()" style="width:100%;margin-top:14px;background:#FFE036;color:#02020A;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:800;cursor:pointer">Send Magic Link →</button>
+        <div id="landingLoginMsg" style="margin-top:14px;font-size:13px;min-height:20px"></div>
+    </div>
+</div>
+
+<script>
+// Handle Supabase OAuth implicit flow - token comes in URL fragment
+(function() {
+    var hash = window.location.hash;
+    if(hash && hash.includes('access_token=')) {
+        var params = new URLSearchParams(hash.substring(1));
+        var accessToken = params.get('access_token');
+        if(accessToken) {
+            // Decode JWT to get email
+            try {
+                var payload = JSON.parse(atob(accessToken.split('.')[1]));
+                var email = payload.email || '';
+                if(email) {
+                    localStorage.setItem('tg_email', email);
+                    localStorage.setItem('tg_plan', 'free');
+                    localStorage.setItem('tg_last_active', Date.now().toString());
+                    // Redirect to app
+                    window.location.href = '/?login=1&email=' + encodeURIComponent(email);
+                    return;
+                }
+            } catch(e) {
+                console.error('Token parse error:', e);
+            }
+        }
+    }
+})();
+</script>
+</body>
+</html>
