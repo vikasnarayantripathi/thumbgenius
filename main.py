@@ -668,7 +668,7 @@ TRENDING_TTL   = 6 * 3600
 async def home(request: Request):
     # Serve app if any login/session params present
     params = request.query_params
-    if params.get("login") or params.get("login_token") or params.get("token"):
+    if params.get("login") or params.get("login_token") or params.get("token") or params.get("email"):
         return templates.TemplateResponse("index.html", {"request": request})
     # Otherwise redirect to landing
     return RedirectResponse("/landing")
