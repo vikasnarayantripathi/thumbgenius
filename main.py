@@ -725,6 +725,7 @@ async def auth_callback(request: Request, code: str = "", error: str = ""):
     if not code:
         return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
     try:
+        logger.info(f"OAuth callback: code={code[:20]}...")
         # Exchange code for session
         async with httpx.AsyncClient(timeout=15) as client:
             r = await client.post(
@@ -736,6 +737,7 @@ async def auth_callback(request: Request, code: str = "", error: str = ""):
                 json={"auth_code": code, "code_verifier": ""}
             )
             data = r.json()
+            logger.info(f"OAuth PKCE response: {str(data)[:200]}")
 
         if "error" in data:
             # Try alternative exchange
