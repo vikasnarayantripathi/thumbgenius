@@ -2412,7 +2412,7 @@ async def send_login_link(request: Request):
     user = await sb_get_user(email)
     from datetime import timezone as _tz
     token = secrets.token_urlsafe(32)
-    token_expires = (datetime.now(_tz.utc) + timedelta(minutes=15)).isoformat()
+    token_expires = (datetime.now(_tz.utc) + timedelta(minutes=30)).isoformat()
     if user:
         await sb_update_user(email, {"login_token": token, "login_token_expires": token_expires})
     else:
