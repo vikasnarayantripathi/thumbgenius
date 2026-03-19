@@ -707,7 +707,7 @@ async def auth_google(request: Request):
             return JSONResponse({"error": "SUPABASE_URL not set"}, status_code=500)
         params = urlencode({
             "provider": "google",
-            "redirect_to": f"{APP_URL}/auth/callback"
+            "redirect_to": "https://www.thumbgenius.in/auth/callback"
         })
         supabase_oauth_url = f"{SUPABASE_URL}/auth/v1/authorize?{params}"
         logger.info(f"OAuth redirect to: {supabase_oauth_url}")
