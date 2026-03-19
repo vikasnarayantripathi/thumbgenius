@@ -3205,35 +3205,73 @@ function activateAdminPlan(plan){
 const _origGetHeaders = getHeaders;
 
 async function startCheckout(){
-    const email=document.getElementById('paymentEmail').value.trim().toLowerCase();
+    const email = currentUserEmail || document.getElementById('paymentEmail')?.value.trim().toLowerCase();
     if(!email||!email.includes('@')){
         const el=document.getElementById('paymentEmail');
-        el.style.borderColor='rgba(255,92,0,0.6)';setTimeout(()=>el.style.borderColor='',2000);el.focus();return;
+        if(el){el.style.borderColor='rgba(255,92,0,0.6)';setTimeout(()=>el.style.borderColor='',2000);el.focus();}
+        return;
     }
     const btn=document.getElementById('checkoutBtn');
-    btn.disabled=true;btn.textContent='⏳ Setting up payment…';
+    const interval = window.selectedInterval || 'monthly';
+    const planNames = {creator:'Creator',pro:'Pro',agency:'Agency',enterprise:'Enterprise'};
+    const planPrices = {
+        creator:{monthly:'₹749',annual:'₹599'},
+        pro:{monthly:'₹1,499',annual:'₹1,199'},
+        agency:{monthly:'₹3,499',annual:'₹2,799'},
+        enterprise:{monthly:'₹16,999',annual:'₹13,599'}
+    };
+    const priceLabel = (planPrices[selectedPlan]||{})[interval] || '₹749';
+    if(btn){btn.disabled=true;btn.textContent='⏳ Setting up payment…';}
+
+    // Detect region and route to correct gateway
     try{
-        const res=await fetch('/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,plan:selectedPlan,payment_method:'razorpay'})});
-        const data=await res.json();
-        if(data.error){alert(data.error);btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';return;}
-        const rzp=new Razorpay({
-            key:data.razorpay_key,subscription_id:data.subscription_id,
-            name:'ThumbGenius',description:selectedPlan.charAt(0).toUpperCase()+selectedPlan.slice(1)+' Plan',
-            prefill:{email},theme:{color:'#FFE036'},
-            handler:function(){
-                currentUserEmail=email;
-                localStorage.setItem('tg_email',email);localStorage.setItem('tg_plan',selectedPlan);
-                closePaymentModal();
-                const div=document.createElement('div');
-                div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d1a;border:1px solid rgba(255,224,54,0.3);border-radius:20px;padding:40px;text-align:center;z-index:2000;max-width:400px;width:90%';
-                div.innerHTML='<div style="font-size:48px;margin-bottom:16px">🎉</div><h2 style="font-size:24px;font-weight:800;color:#FFE036;margin-bottom:8px">Payment Successful!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6">Check <strong style="color:#fff">'+email+'</strong> for your magic link to activate your account!</p><button onclick="this.parentElement.remove()" style="margin-top:20px;background:#FFE036;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Got it →</button>';
-                document.body.appendChild(div);
-                setTimeout(loadUserStatus,4000);
-            },
-            modal:{ondismiss:function(){btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}}
-        });
-        rzp.open();
-    }catch(e){alert('Payment setup failed. Please try again.');btn.disabled=false;btn.textContent='⚡ Pay '+(selectedPlan==='creator'?'₹749':'₹1,449')+'/month with Razorpay';}
+        const regionRes = await fetch('/billing/region');
+        const {region} = await regionRes.json();
+
+        if(region === 'IN'){
+            // Razorpay flow
+            const res=await fetch('/billing/razorpay/checkout',{method:'POST',headers:getHeaders(),body:JSON.stringify({plan:selectedPlan,interval})});
+            const data=await res.json();
+            if(data.error){alert(data.error);if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel+'/'+interval+' with Razorpay';}return;}
+            const rzp=new Razorpay({
+                key:data.razorpay_key,
+                subscription_id:data.subscription_id,
+                name:'ThumbGenius',
+                description:planNames[selectedPlan]+' Plan · '+interval,
+                prefill:{email},
+                theme:{color:'#FFE036'},
+                handler:async function(response){
+                    // Verify payment
+                    const vres = await fetch('/billing/razorpay/verify',{
+                        method:'POST',headers:getHeaders(),
+                        body:JSON.stringify({...response,plan:selectedPlan,interval})
+                    });
+                    const vdata = await vres.json();
+                    closePaymentModal();
+                    showSuccessPopup(email, selectedPlan, priceLabel);
+                    setTimeout(()=>window.location.reload(),2000);
+                },
+                modal:{ondismiss:function(){if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel+' with Razorpay';}}}
+            });
+            rzp.open();
+        } else {
+            // Stripe flow
+            const res=await fetch('/billing/stripe/checkout',{method:'POST',headers:getHeaders(),body:JSON.stringify({plan:selectedPlan,interval})});
+            const data=await res.json();
+            if(data.error){alert(data.error);if(btn){btn.disabled=false;btn.textContent='⚡ Pay with Card';}return;}
+            window.location.href = data.checkout_url;
+        }
+    }catch(e){
+        alert('Payment setup failed. Please try again.');
+        if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel;}
+    }
+}
+
+function showSuccessPopup(email, plan, price){
+    const div=document.createElement('div');
+    div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d1a;border:1px solid rgba(255,224,54,0.3);border-radius:20px;padding:40px;text-align:center;z-index:2000;max-width:400px;width:90%';
+    div.innerHTML='<div style="font-size:48px;margin-bottom:16px">🎉</div><h2 style="font-size:24px;font-weight:800;color:#FFE036;margin-bottom:8px">Payment Successful!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6">Welcome to <strong style="color:#fff">'+plan.charAt(0).toUpperCase()+plan.slice(1)+'</strong> plan! Your account is now upgraded.</p><button onclick="this.parentElement.remove();window.location.reload()" style="margin-top:20px;background:#FFE036;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Start Using ThumbGenius →</button>';
+    document.body.appendChild(div);
 }
 
 // showPage defined in <head> early script
