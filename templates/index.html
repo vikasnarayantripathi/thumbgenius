@@ -3222,8 +3222,9 @@ async function startCheckout(){
     if(!email||!email.includes('@')){
         const el=document.getElementById('paymentEmail');
         if(el){el.style.borderColor='rgba(255,92,0,0.6)';setTimeout(()=>el.style.borderColor='',2000);el.focus();}
-        // If not logged in, redirect to login first
+        // If not logged in, save plan and redirect to login first
         if(!currentUserEmail && !localStorage.getItem('tg_email')){
+            localStorage.setItem('tg_pending_plan', selectedPlan || 'creator');
             closePaymentModal();
             openLoginModal();
             return;
