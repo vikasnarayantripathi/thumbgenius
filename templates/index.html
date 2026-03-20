@@ -3205,12 +3205,22 @@ function activateAdminPlan(plan){
 const _origGetHeaders = getHeaders;
 
 async function startCheckout(){
-    const email = currentUserEmail || document.getElementById('paymentEmail')?.value.trim().toLowerCase();
+    // Get email from logged-in user or input
+    const email = currentUserEmail || localStorage.getItem('tg_email') || document.getElementById('paymentEmail')?.value.trim().toLowerCase();
     if(!email||!email.includes('@')){
         const el=document.getElementById('paymentEmail');
         if(el){el.style.borderColor='rgba(255,92,0,0.6)';setTimeout(()=>el.style.borderColor='',2000);el.focus();}
+        // If not logged in, redirect to login first
+        if(!currentUserEmail && !localStorage.getItem('tg_email')){
+            closePaymentModal();
+            openLoginModal();
+            return;
+        }
         return;
     }
+    // Ensure email is shown in modal
+    const emailEl = document.getElementById('paymentEmail');
+    if(emailEl && !emailEl.value) emailEl.value = email;
     const btn=document.getElementById('checkoutBtn');
     const interval = window.selectedInterval || 'monthly';
     const planNames = {creator:'Creator',pro:'Pro',agency:'Agency',enterprise:'Enterprise'};
