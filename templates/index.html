@@ -1799,6 +1799,24 @@ function showPage(p){
                 <button class="btn-download" id="downloadBtn" onclick="downloadWithTitle()">&#x2B07;&#xFE0F; Download Thumbnail</button>
                 <button class="btn-regen" onclick="generateImage()">&#x1F504; Regenerate</button>
             </div>
+            <!-- Download in all sizes -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+                <button onclick="downloadSize(1280,720,'YouTube')" style="background:rgba(255,0,0,0.1);border:1px solid rgba(255,0,0,0.3);border-radius:8px;padding:5px 12px;color:#ff6b6b;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📺 YouTube 1280×720</button>
+                <button onclick="downloadSize(1080,1920,'Shorts')" style="background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);border-radius:8px;padding:5px 12px;color:#8B85FF;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📱 Shorts 1080×1920</button>
+                <button onclick="downloadSize(1080,1080,'Instagram')" style="background:rgba(255,100,130,0.1);border:1px solid rgba(255,100,130,0.3);border-radius:8px;padding:5px 12px;color:#ff6482;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📸 Instagram 1:1</button>
+                <button onclick="downloadSize(1200,628,'Twitter')" style="background:rgba(29,161,242,0.1);border:1px solid rgba(29,161,242,0.3);border-radius:8px;padding:5px 12px;color:#1da1f2;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🐦 Twitter</button>
+            </div>
+            <!-- One-click variations -->
+            <div style="margin-top:10px">
+                <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">⚡ One-Click Variations</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <button onclick="regenWithStyle('viral')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🔥 Viral</button>
+                    <button onclick="regenWithStyle('clean')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">✨ Clean</button>
+                    <button onclick="regenWithStyle('cinematic')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🎬 Cinematic</button>
+                    <button onclick="regenWithStyle('mrbeast')" style="background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.2);border-radius:8px;padding:5px 12px;color:#FFE036;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💛 MrBeast</button>
+                    <button onclick="regenWithStyle('minimal')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 12px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">⚡ Minimal</button>
+                </div>
+            </div>
         </div>
         <div class="img-upgrade" id="imgUpgrade">
             <p>&#x1F680; Free image used!</p>
@@ -4233,7 +4251,32 @@ function copyAllTags(){
     }).catch(()=>alert(all.join(', ')));
 }
 
-async function downloadWithTitle(){
+async 
+// ── Download in all sizes ──────────────────────────────────────
+function downloadSize(w, h, label) {
+    const img = document.getElementById('generatedImage');
+    if (!img || !img.src) { alert('Generate a thumbnail first!'); return; }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/jpeg', 0.95);
+    a.download = 'thumbgenius-' + label.toLowerCase() + '-' + w + 'x' + h + '.jpg';
+    a.click();
+}
+
+// ── One-click style variations ─────────────────────────────────
+function regenWithStyle(style) {
+    // Set style and regenerate image
+    _selectedStyle = style;
+    document.querySelectorAll('.style-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.style === style);
+    });
+    generateImage();
+}
+
+function downloadWithTitle(){
     const btn = document.getElementById('downloadBtn');
     if(btn){ btn.textContent='⏳ Preparing…'; btn.disabled=true; }
 

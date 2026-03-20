@@ -1451,6 +1451,7 @@ async def generate_image(request: Request):
             f"colored accent light matching niche palette, no flat lighting. "
             f"QUALITY: MrBeast/PewDiePie/CarryMinati thumbnail quality, "
             f"oversaturated vibrant colors, ultra-high contrast, scroll-stopping visual. "
+            f"STYLE MODIFIER: {style_mod}. "
             f"CRITICAL RULES: ZERO text, ZERO words, ZERO letters, ZERO watermarks, ZERO logos anywhere. "
             f"Make this the most clickable thumbnail ever created for {niche} niche."
         )
