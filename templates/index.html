@@ -4276,7 +4276,7 @@ function regenWithStyle(style) {
     generateImage();
 }
 
-function downloadWithTitle(){
+async function downloadWithTitle(){
     const btn = document.getElementById('downloadBtn');
     if(btn){ btn.textContent='⏳ Preparing…'; btn.disabled=true; }
 
