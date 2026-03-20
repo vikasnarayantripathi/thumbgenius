@@ -412,11 +412,13 @@ async def create_razorpay_subscription(plan, email, interval="monthly"):
     if not plan_id:
         return None
     try:
+        logger.info(f"Razorpay: plan={plan} interval={interval} plan_id={plan_id} key={RAZORPAY_KEY_ID[:8] if RAZORPAY_KEY_ID else 'MISSING'}")
         async with httpx.AsyncClient(timeout=15.0) as h:
             r = await h.post("https://api.razorpay.com/v1/subscriptions",
                 auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET),
                 json={"plan_id": plan_id, "total_count": 12, "quantity": 1,
                       "notify_info": {"notify_phone": None, "notify_email": email}})
+            logger.info(f"Razorpay response: {r.status_code} {r.text[:200]}")
             return r.json()
     except Exception as e:
         logger.error(f"Razorpay error: {e}"); return None
