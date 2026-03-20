@@ -1382,6 +1382,12 @@ async def generate_image(request: Request):
     try:
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         niche = str(data.get("niche","")).strip()
+        # Default style_mod in case not set
+        style_mod = "ultra-vibrant oversaturated colors, dramatic cinematic lighting, MrBeast quality"
+        title = str(data.get("title","")).strip()
+        # Default style_mod in case not set
+        style_mod = "ultra-vibrant oversaturated colors, dramatic cinematic lighting, MrBeast quality"
+        title = str(data.get("title","")).strip()
         # Niche-specific CTR-optimized prompt templates
         NICHE_STYLES = {
             "tech":         "sleek dark background with glowing blue/cyan tech elements, holographic displays, circuit patterns, futuristic UI overlays, dramatic side lighting",
