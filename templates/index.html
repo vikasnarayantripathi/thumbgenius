@@ -3211,6 +3211,52 @@ function activateAdminPlan(plan){
 const _origGetHeaders = getHeaders;
 
 async function startCheckout(){
+    const email = currentUserEmail || localStorage.getItem('tg_email') || '';
+    if(!email){
+        localStorage.setItem('tg_pending_plan', _selPlan || selectedPlan || 'pro');
+        closePaymentModal();
+        openLoginModal();
+        return;
+    }
+    const plan = _selPlan || selectedPlan || 'pro';
+    const interval = _selInterval || window.selectedInterval || 'monthly';
+    const btn = document.getElementById('mainPayBtn') || document.getElementById('checkoutBtn');
+    if(btn){btn.disabled=true;btn.textContent='⏳ Setting up payment...';}
+    try{
+        const res = await fetch('/billing/razorpay/checkout', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-User-Email': email},
+            body: JSON.stringify({plan, interval, email})
+        });
+        const data = await res.json();
+        if(data.error){alert(data.error);if(btn){btn.disabled=false;}return;}
+        const rzp = new Razorpay({
+            key: data.razorpay_key,
+            subscription_id: data.subscription_id,
+            name: 'ThumbGenius',
+            description: plan.charAt(0).toUpperCase()+plan.slice(1)+' Plan · '+interval,
+            prefill: {email},
+            theme: {color:'#FFD700'},
+            handler: async function(response){
+                const vres = await fetch('/billing/razorpay/verify',{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json','X-User-Email':email},
+                    body: JSON.stringify({...response, plan, interval, email})
+                });
+                closePaymentModal();
+                const div=document.createElement('div');
+                div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d1a;border:1px solid rgba(255,215,0,0.3);border-radius:20px;padding:40px;text-align:center;z-index:9999;max-width:400px;width:90%';
+                div.innerHTML='<div style="font-size:48px;margin-bottom:16px">🎉</div><h2 style="font-size:24px;font-weight:800;color:#FFD700;margin-bottom:8px">Payment Successful!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px">Welcome to <strong style="color:#fff">'+plan.charAt(0).toUpperCase()+plan.slice(1)+'</strong> plan!</p><button onclick="this.parentElement.remove();window.location.reload()" style="margin-top:20px;background:#FFD700;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer">Start Using ThumbGenius →</button>';
+                document.body.appendChild(div);
+            },
+            modal:{ondismiss:function(){if(btn){btn.disabled=false;btn.textContent='⚡ Pay with Razorpay';}}}
+        });
+        rzp.open();
+    }catch(e){
+        alert('Payment setup failed. Please try again.');
+        if(btn){btn.disabled=false;btn.textContent='⚡ Pay with Razorpay';}
+    }
+}
     // Get email from logged-in user or input
     const email = currentUserEmail || localStorage.getItem('tg_email') || document.getElementById('paymentEmail')?.value.trim().toLowerCase();
     if(!email||!email.includes('@')){

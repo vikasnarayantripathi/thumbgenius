@@ -988,7 +988,18 @@ async def razorpay_checkout(request: Request):
     try:
         user = await get_current_user(request)
     except:
-        return JSONResponse({"error": "Please login first"}, status_code=401)
+        # Try email from header or body
+        try:
+            body = await request.json()
+            email = request.headers.get("X-User-Email") or body.get("email","")
+            if email:
+                user = await sb_get_user(email)
+                if not user:
+                    return JSONResponse({"error": "Please login first"}, status_code=401)
+            else:
+                return JSONResponse({"error": "Please login first"}, status_code=401)
+        except:
+            return JSONResponse({"error": "Please login first"}, status_code=401)
     body = await request.json()
     plan = body.get("plan", "creator")
     interval = body.get("interval", "monthly")
@@ -1026,7 +1037,17 @@ async def razorpay_verify(request: Request):
     try:
         user = await get_current_user(request)
     except:
-        return JSONResponse({"error": "Please login first"}, status_code=401)
+        try:
+            body_data = await request.json()
+            email = request.headers.get("X-User-Email") or body_data.get("email","")
+            if email:
+                user = await sb_get_user(email)
+                if not user:
+                    return JSONResponse({"error": "Please login first"}, status_code=401)
+            else:
+                return JSONResponse({"error": "Please login first"}, status_code=401)
+        except:
+            return JSONResponse({"error": "Please login first"}, status_code=401)
     body = await request.json()
     payment_id   = body.get("razorpay_payment_id")
     sub_id       = body.get("razorpay_subscription_id")
