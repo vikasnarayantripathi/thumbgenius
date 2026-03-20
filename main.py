@@ -397,8 +397,7 @@ async def send_magic_link(email, token, plan):
     except Exception as e:
         logger.error(f"Email send error: {e}")
 
-async def create_razorpay_subscription(plan, email):
-    # Map plan + interval to Razorpay plan ID
+async def create_razorpay_subscription(plan, email, interval="monthly"):
     rzp_plan_map = {
         ("creator",    "monthly"): RAZORPAY_CREATOR_MONTHLY,
         ("creator",    "annual"):  RAZORPAY_CREATOR_ANNUAL,
@@ -409,10 +408,9 @@ async def create_razorpay_subscription(plan, email):
         ("enterprise", "monthly"): RAZORPAY_ENTERPRISE_MONTHLY,
         ("enterprise", "annual"):  RAZORPAY_ENTERPRISE_ANNUAL,
     }
-    interval = body.get("interval", "monthly")
     plan_id = rzp_plan_map.get((plan, interval), "")
     if not plan_id:
-        return JSONResponse({"error": f"Plan {plan}/{interval} not configured yet"}, status_code=400)
+        return None
     try:
         async with httpx.AsyncClient(timeout=15.0) as h:
             r = await h.post("https://api.razorpay.com/v1/subscriptions",
@@ -892,7 +890,7 @@ async def subscribe(request: Request):
                              "plan": plan, "email": email})
 
     # ── Razorpay (India users) ─────────────────────────────────────────────
-    sub = await create_razorpay_subscription(plan, email)
+    sub = await create_razorpay_subscription(plan, email, data.get("interval","monthly"))
     if not sub or "id" not in sub:
         return JSONResponse({"error": "Payment setup failed."}, status_code=500)
     token = secrets.token_urlsafe(32)
