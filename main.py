@@ -717,13 +717,42 @@ async def auth_google(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/auth/callback")
-async def auth_callback(request: Request, code: str = "", error: str = ""):
-    """Handle OAuth callback from Supabase"""
+async def auth_callback(request: Request, code: str = "", error: str = "", access_token: str = "", error_description: str = ""):
+    """Handle OAuth callback from Supabase — supports both PKCE and implicit flow"""
     if error:
-        logger.error(f"OAuth error: {error}")
-        return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
-    if not code:
-        return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
+        logger.error(f"OAuth error: {error} - {error_description}")
+        return RedirectResponse(f"https://www.thumbgenius.in/landing?msg=oauth_error")
+    
+    # If no code, serve a page that reads the hash fragment and extracts the token
+    if not code and not access_token:
+        # Return HTML that reads hash fragment and redirects properly
+        return HTMLResponse("""<!DOCTYPE html>
+<html><head><script>
+(function(){
+    var hash = window.location.hash.substring(1);
+    var params = new URLSearchParams(hash);
+    var token = params.get('access_token');
+    var type = params.get('type');
+    if(token){
+        // Send token to our endpoint
+        fetch('/auth/token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({access_token: token, type: type})
+        }).then(r => r.json()).then(d => {
+            if(d.email){
+                window.location.href = 'https://www.thumbgenius.in/?login=1&email=' + encodeURIComponent(d.email);
+            } else {
+                window.location.href = 'https://www.thumbgenius.in/landing?msg=oauth_error';
+            }
+        }).catch(() => {
+            window.location.href = 'https://www.thumbgenius.in/landing?msg=oauth_error';
+        });
+    } else {
+        window.location.href = 'https://www.thumbgenius.in/landing?msg=oauth_error';
+    }
+})();
+</script><body style="background:#000;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><p>Completing login...</p></body></html>""")
     try:
         logger.info(f"OAuth callback: code={code[:20]}...")
         # Exchange code for session
@@ -776,6 +805,40 @@ async def auth_callback(request: Request, code: str = "", error: str = ""):
         logger.error(f"OAuth callback error: {e}")
         return RedirectResponse(f"{APP_URL}/landing?msg=oauth_error")
 
+
+
+@app.post("/auth/token")
+async def auth_token(request: Request):
+    """Handle implicit flow token from hash fragment"""
+    try:
+        body = await request.json()
+        access_token = body.get("access_token", "")
+        if not access_token:
+            return JSONResponse({"error": "No token"}, status_code=400)
+        # Get user info from Supabase using the token
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(
+                f"{SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization": f"Bearer {access_token}"
+                }
+            )
+            data = r.json()
+        email = data.get("email", "")
+        if not email:
+            return JSONResponse({"error": "No email"}, status_code=400)
+        # Upsert user
+        existing = await sb_get_user(email)
+        if not existing:
+            await sb_create_user(email)
+            logger.info(f"OAuth token: new user {email}")
+        else:
+            logger.info(f"OAuth token: existing user {email}")
+        return {"email": email, "success": True}
+    except Exception as e:
+        logger.error(f"Auth token error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.get("/favicon.ico")
 async def favicon():
