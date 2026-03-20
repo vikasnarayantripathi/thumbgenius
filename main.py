@@ -603,46 +603,99 @@ NICHE_CONTEXT_HN = {
 NICHE_CONTEXT = NICHE_CONTEXT_EN
 
 def get_generate_prompt(topic, niche, language="english"):
-    # Pick language-specific niche context
     ctx_map = {"hindi": NICHE_CONTEXT_HI, "hinglish": NICHE_CONTEXT_HN, "telugu": NICHE_CONTEXT_HI, "tamil": NICHE_CONTEXT_HI, "bengali": NICHE_CONTEXT_HI, "marathi": NICHE_CONTEXT_HI}
     ctx  = ctx_map.get(language, NICHE_CONTEXT_EN)
     tip  = ctx.get(niche, ctx.get("tech", ""))
     lang = LANGUAGE_PROMPTS.get(language, LANGUAGE_PROMPTS["english"])
-    return f"""You are a world-class YouTube growth strategist with expertise across global markets.
 
-Video Topic: "{topic}"
-Niche: {niche}
-Niche Strategy: {tip}
+    # 10X Niche-specific CTR psychology
+    NICHE_CTR_PSYCHOLOGY = {
+        "tech":         {"hook": "curiosity gap + fear of missing out on tech", "emotion": "amazement + FOMO", "title_pattern": "[Number] [Device/Tech] That [Surprising Outcome]", "overlay_style": "SHORT SHOCKING CLAIM"},
+        "finance":      {"hook": "money anxiety + aspiration", "emotion": "greed + fear + hope", "title_pattern": "How I [Made/Saved] ₹[Amount] With [Simple Method]", "overlay_style": "₹ AMOUNT REVEALED"},
+        "gaming":       {"hook": "challenge + status + skill flex", "emotion": "excitement + competition", "title_pattern": "[Game] [Challenge/Record] That Nobody Has Done", "overlay_style": "IMPOSSIBLE ACHIEVED"},
+        "fitness":      {"hook": "transformation desire + time promise", "emotion": "hope + motivation + envy", "title_pattern": "[Result] In [Time] — [Method Nobody Talks About]", "overlay_style": "BEFORE → AFTER"},
+        "food":         {"hook": "sensory desire + discovery", "emotion": "craving + curiosity", "title_pattern": "I Tried [Food Item] Every Day For [Period] — [Result]", "overlay_style": "MUST TRY THIS"},
+        "travel":       {"hook": "wanderlust + budget unlock", "emotion": "adventure + FOMO + aspiration", "title_pattern": "[Hidden/Secret] [Place] That [Tourists/People] Don't Know", "overlay_style": "HIDDEN GEM FOUND"},
+        "education":    {"hook": "career anxiety + skill gap + opportunity", "emotion": "urgency + hope", "title_pattern": "[Skill] That Will [Career Outcome] In [Year]", "overlay_style": "LEARN THIS NOW"},
+        "motivation":   {"hook": "pain point + transformation promise", "emotion": "hope + inspiration + relatability", "title_pattern": "If You Feel [Negative State], Watch This [Outcome Promise]", "overlay_style": "THIS WILL CHANGE YOU"},
+        "beauty":       {"hook": "transformation + affordable revelation", "emotion": "aspiration + envy + curiosity", "title_pattern": "[Expensive Product] Dupe That [Shocking Result]", "overlay_style": "GLOW UP SECRET"},
+        "entertainment":{"hook": "drama + controversy + prediction", "emotion": "shock + curiosity + FOMO", "title_pattern": "[Celebrity/Show] [Shocking Revelation] That [Consequence]", "overlay_style": "SHOCKING TRUTH"},
+        "business":     {"hook": "income revelation + insider knowledge", "emotion": "aspiration + urgency + FOMO", "title_pattern": "How [Person] Built [Income] With [Simple System]", "overlay_style": "₹ INCOME REVEALED"},
+        "cricket":      {"hook": "match drama + player stats + controversy", "emotion": "pride + excitement + shock", "title_pattern": "[Player] Did [Impossible Thing] Against [Team]", "overlay_style": "HISTORY MADE"},
+        "health":       {"hook": "health fear + natural solution", "emotion": "fear + relief + trust", "title_pattern": "[Doctor/Expert] Reveals [Health Secret] That [Outcome]", "overlay_style": "DOCTORS DON'T TELL"},
+        "automobiles":  {"hook": "value reveal + performance comparison", "emotion": "desire + smart-buyer satisfaction", "title_pattern": "I Drove [Car] For [Period] — Honest [Shocking] Review", "overlay_style": "HONEST TRUTH"},
+        "cooking":      {"hook": "quick solution + taste revelation", "emotion": "craving + surprise + pride", "title_pattern": "[Time] [Dish] Recipe That [Restaurant/Chef] Won't Share", "overlay_style": "SECRET RECIPE"},
+        "spirituality": {"hook": "inner peace + ancient wisdom + life solution", "emotion": "peace + hope + curiosity", "title_pattern": "[Ancient Practice] That [Modern Problem] In [Time]", "overlay_style": "ANCIENT SECRET"},
+        "stocks":       {"hook": "market fear + profit opportunity", "emotion": "greed + fear + urgency", "title_pattern": "[Stock/Sector] That Will [Return] In [Timeframe] — Analysis", "overlay_style": "BUY THIS NOW"},
+        "productivity": {"hook": "time scarcity + efficiency promise", "emotion": "frustration + hope + envy", "title_pattern": "[Billionaire/Expert] Method That [Result] In [Time]", "overlay_style": "WORK SMARTER"},
+        "examprep":     {"hook": "exam fear + rank achievement + shortcut", "emotion": "anxiety + hope + competitive drive", "title_pattern": "How I Cracked [Exam] In [Time] Without [Common Method]", "overlay_style": "RANK STRATEGY"},
+        "music":        {"hook": "talent reveal + behind-scenes + emotion", "emotion": "admiration + nostalgia + joy", "title_pattern": "[Artist] [Song] But [Unexpected Twist] That [Reaction]", "overlay_style": "MIND BLOWN"},
+        "realestate":   {"hook": "price shock + investment opportunity", "emotion": "urgency + aspiration + fear of missing", "title_pattern": "[Property Type] In [Location] For ₹[Price] — Is It Worth It?", "overlay_style": "PRICE REVEALED"},
+        "fashion":      {"hook": "trend revelation + budget unlock", "emotion": "aspiration + envy + curiosity", "title_pattern": "[Expensive Brand] Look For ₹[Budget] — Complete [Occasion] Outfit", "overlay_style": "BUDGET FASHION"},
+        "comedy":       {"hook": "relatable situation + exaggeration + surprise", "emotion": "joy + relatability + surprise", "title_pattern": "When [Relatable Situation] Goes [Unexpected Direction]", "overlay_style": "WAIT FOR IT"},
+        "news":         {"hook": "urgency + impact + insider angle", "emotion": "concern + curiosity + importance", "title_pattern": "[Breaking] [Event] — What Nobody Is Telling You", "overlay_style": "BREAKING NEWS"},
+        "pets":         {"hook": "cuteness overload + emotional story", "emotion": "joy + love + heartwarming", "title_pattern": "My [Pet] Did [Unexpected Thing] And [Heartwarming Outcome]", "overlay_style": "TOO CUTE"},
+        "astrology":    {"hook": "future reveal + cosmic guidance", "emotion": "curiosity + hope + mystery", "title_pattern": "[Zodiac Sign] — [Month/Year] Will [Life-Changing Prediction]", "overlay_style": "YOUR FUTURE REVEALED"},
+        "mythology":    {"hook": "divine story + hidden meaning + modern relevance", "emotion": "devotion + curiosity + pride", "title_pattern": "The Hidden Story Of [God/Story] That Will [Transform/Shock] You", "overlay_style": "DIVINE SECRET"},
+        "career":       {"hook": "job market fear + salary unlock + insider tip", "emotion": "anxiety + hope + ambition", "title_pattern": "The [Job/Skill] That Pays ₹[Amount] That Nobody Applies For", "overlay_style": "APPLY NOW"},
+        "relationship": {"hook": "emotional pain + solution + validation", "emotion": "empathy + hope + recognition", "title_pattern": "[Relationship Situation] — What [Expert/Experience] Taught Me", "overlay_style": "YOU NEED THIS"},
+    }
 
+    psych = NICHE_CTR_PSYCHOLOGY.get(niche, NICHE_CTR_PSYCHOLOGY.get("tech", {}))
+
+    return f"""You are the world's #1 YouTube growth strategist who has helped 10,000+ creators go viral.
+You understand deep viewer psychology, platform algorithms, and what makes people click.
+
+VIDEO TOPIC: "{topic}"
+NICHE: {niche}
 LANGUAGE: {language.upper()}
-Language Instruction: {lang["instruction"]}
+
+NICHE CTR PSYCHOLOGY:
+- Hook Strategy: {psych.get("hook", "curiosity and FOMO")}
+- Target Emotion: {psych.get("emotion", "excitement")}
+- Proven Title Pattern: {psych.get("title_pattern", "[Topic] That [Surprising Outcome]")}
+- Overlay Style: {psych.get("overlay_style", "SHOCKING TRUTH")}
+- Cultural Strategy: {tip}
+
+LANGUAGE RULES: {lang["instruction"]}
 Title Style: {lang["title_style"]}
-Text Overlay Style: {lang["overlay_style"]}
-Tag Note: {lang["tag_note"]}
+Overlay Style: {lang["overlay_style"]}
+Tag Strategy: {lang["tag_note"]}
 
-Generate a complete viral content package. Respond ONLY in valid JSON.
+YOUR TASK: Generate a complete viral YouTube content package that will achieve 6-10% CTR.
+Each title must use a DIFFERENT psychological trigger (curiosity gap, FOMO, shock, aspiration, fear, social proof).
+The thumbnail concept must be visually striking and communicate the hook instantly.
 
+Return ONLY valid JSON — no markdown, no explanation:
 {{
-  "titles": ["title1","title2","title3","title4","title5"],
+  "titles": [
+    "title using curiosity gap",
+    "title using shock/surprise",
+    "title using FOMO or urgency",
+    "title using aspiration/transformation",
+    "title using controversy or challenge"
+  ],
   "thumbnail": {{
-    "background": "describe background scene",
-    "face_expression": "exact expression",
-    "text_overlay": "3-5 WORD BOLD TEXT",
-    "emotion_trigger": "primary emotion",
-    "ctr_score": 8.5,
-    "why_it_works": "psychological hook explanation"
+    "background": "specific vivid background scene description",
+    "face_expression": "exact expression matching niche emotion trigger",
+    "text_overlay": "3-5 WORD POWER PHRASE",
+    "emotion_trigger": "primary psychological trigger",
+    "ctr_score": 8.7,
+    "why_it_works": "specific psychological reason this thumbnail gets clicked",
+    "scroll_stop_element": "the one visual element that stops the scroll"
   }},
-  "hook_script": "First 15 seconds script starting with pattern interrupt.",
-  "niche_tip": "One tactical tip for this niche on YouTube right now.",
-  "seo_description": "150-200 word YouTube description. Start with the primary keyword. Include 3-5 natural keyword variations. Add value with what viewers will learn. End with call-to-action and 3 relevant hashtags. Write in the selected language.",
+  "hook_script": "First 15 seconds — start with pattern interrupt, then curiosity gap, then promise. Make viewer unable to click away.",
+  "niche_tip": "One specific tactical tip for {niche} niche that top creators use right now in {language}.",
+  "seo_description": "150-200 word YouTube description optimized for {language}. Primary keyword first sentence. 3-5 keyword variations. Clear value proposition. Strong CTA. 3 hashtags.",
   "tags": {{
-    "primary": ["t1","t2","t3","t4","t5"],
-    "secondary": ["t6","t7","t8","t9","t10"],
-    "longtail": ["phrase1","phrase2","phrase3","phrase4","phrase5"],
-    "hindi_mix": ["h1","h2","h3","h4","h5"]
+    "primary": ["5 exact match high volume tags"],
+    "secondary": ["5 medium competition tags"],
+    "longtail": ["5 specific long-tail phrases viewers search"],
+    "hindi_mix": ["5 Hindi/regional language tags for India reach"]
   }}
 }}
-Rules: Titles 60-70 chars max. Text overlay 3-5 words. Return ONLY JSON."""
+
+RULES: Titles 55-70 chars. Overlay max 5 words. JSON only. Make every title feel URGENT and UNMISSABLE."""
 
 # Generation cache
 async def get_generation_cache(topic, niche):
@@ -1329,14 +1382,77 @@ async def generate_image(request: Request):
     try:
         overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
         niche = str(data.get("niche","")).strip()
+        # Niche-specific CTR-optimized prompt templates
+        NICHE_STYLES = {
+            "tech":         "sleek dark background with glowing blue/cyan tech elements, holographic displays, circuit patterns, futuristic UI overlays, dramatic side lighting",
+            "finance":      "gold and dark green premium aesthetic, stock charts/money visuals in background, luxury feel, sharp contrast, wealth-signaling environment",
+            "gaming":       "ultra-vibrant neon colors, dark background, explosive particle effects, game UI elements, dramatic volumetric lighting, epic battle atmosphere",
+            "fitness":      "high contrast gym environment, dramatic muscle definition lighting, motivational energy, sweat glistening, powerful pose, bold warm colors",
+            "food":         "mouth-watering close-up, steam rising, rich saturated colors, dark moody background, professional food photography lighting, appetizing",
+            "travel":       "breathtaking landscape, golden hour lighting, vibrant natural colors, sense of adventure, wide establishing shot with human scale",
+            "education":    "clean bright background, knowledge symbols, books/lightbulb/graduation elements, professional yet approachable, trust-building colors",
+            "motivation":   "dramatic sunrise/sunset backdrop, powerful silhouette or expressive face, bold warm orange/yellow tones, inspirational energy",
+            "beauty":       "soft glam lighting, pastel or bold contrasting colors, makeup/beauty elements, clean aesthetic, glamorous studio feel",
+            "entertainment":"bright vivid colors, surprised/shocked expression, multiple characters, chaos energy, pop art style, entertainment show aesthetic",
+            "business":     "premium dark suit environment, boardroom or city skyline, gold accents, authority and success visual language, Forbes magazine style",
+            "cricket":      "stadium atmosphere, green pitch, dramatic action shot, blue/orange team colors, crowd energy, broadcast quality lighting",
+            "health":       "clean white/teal medical aesthetic, wellness symbols, natural elements, trust and authority, before/after potential, warm healing tones",
+            "automobiles":  "dramatic low angle car shot, speed blur, showroom or track environment, reflective surfaces, masculine dark tones with accent lighting",
+            "cooking":      "warm kitchen lighting, fresh colorful ingredients, rustic wooden surfaces, steam and sizzle, home cooking warmth, appetizing close-up",
+            "spirituality": "golden divine light rays, temple/nature backdrop, serene peaceful atmosphere, warm amber tones, ethereal glow, lotus/mandala elements",
+            "stocks":       "financial data visualization, bull/bear market energy, red-green contrast, trading terminal aesthetic, urgency and opportunity feeling",
+            "comedy":       "exaggerated shocked expression, bright primary colors, cartoon-like energy, multiple reaction faces, meme-worthy composition",
+            "productivity": "clean minimal workspace, organized elements, time/clock motifs, efficiency aesthetic, cool blue-white tones, achievement energy",
+            "examprep":     "books and study materials, academic achievement symbols, student environment, hope and success energy, blue/yellow motivational colors",
+            "music":        "concert stage lighting, musical instruments, sound wave visualizations, spotlight effect, performance energy, rich dark background",
+            "realestate":   "premium property exterior/interior, luxury lifestyle cues, architectural beauty, aspirational living, clean professional photography",
+            "fashion":      "high fashion editorial style, bold outfit colors, studio lighting, trendy aesthetic, magazine cover quality, style-forward composition",
+            "relationship": "warm emotional connection, soft bokeh background, genuine expressions, intimate yet tasteful, warm golden tones, heart/connection symbols",
+            "career":       "professional office/interview setting, confidence and success energy, business casual, achievement symbols, opportunity and growth feeling",
+            "news":         "breaking news urgency, high contrast dramatic lighting, serious authoritative tone, Indian news channel aesthetic, bold graphic elements",
+            "pets":         "adorable close-up animal face, bright cheerful background, playful energy, warm natural lighting, cute expressive animal emotions",
+            "astrology":    "mystical starry night sky, zodiac symbols, cosmic purple/gold palette, divine feminine energy, celestial charts, mysterious atmosphere",
+            "mythology":    "epic divine scene, golden celestial light, ancient Indian temple aesthetic, gods/goddesses, dramatic clouds, devotional grandeur",
+        }
+        
+        niche_style = NICHE_STYLES.get(niche.lower(), "ultra-vibrant colors, dramatic cinematic lighting, professional photography quality")
+        
+        # Emotion mapping for face expression
+        EMOTION_MAP = {
+            "shocking": "jaw-drop shocked expression, wide eyes, hand on mouth",
+            "amazing": "extremely excited euphoric expression, arms raised in celebration",
+            "secret": "conspiratorial whisper expression, finger on lips, raised eyebrow",
+            "money": "eyes wide with excitement at money/wealth, greedy excited look",
+            "angry": "intense frustrated angry expression, furrowed brows, pointing finger",
+            "happy": "genuine beaming smile, eyes crinkled with joy, energetic positive",
+            "scared": "terrified shocked expression, covering mouth, backing away",
+            "confused": "puzzled confused expression, tilted head, questioning look",
+            "proud": "confident proud smiling expression, chest out, accomplished look",
+            "serious": "intense serious focused expression, direct eye contact, authoritative",
+        }
+        
+        # Detect emotion from concept
+        detected_emotion = "extremely surprised shocked expression with wide eyes and open mouth"
+        for emotion, expr in EMOTION_MAP.items():
+            if emotion in concept.lower() or emotion in (title or "").lower():
+                detected_emotion = expr
+                break
+        
+        # Build 10X CTR-optimized prompt
         img_prompt = (
-            f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
-            f"EXACT SCENE TO RECREATE: {concept}. "
-            f"Do NOT add random props. Only show what is described in the scene above. "
-            f"Person: Indian/South Asian, highly expressive face matching the emotion in the scene. "
-            f"Style: ultra-vibrant oversaturated colors, dramatic cinematic lighting, MrBeast quality. "
-            f"Composition: person face prominent on one side, background scene clearly visible. "
-            f"CRITICAL: zero text, zero letters, zero words, zero watermarks, zero logos. No exceptions."
+            f"Ultra-viral YouTube thumbnail, 16:9 widescreen format, photorealistic 8K hyperdetailed. "
+            f"SCENE: {concept}. "
+            f"NICHE STYLE: {niche_style}. "
+            f"PERSON: Indian/South Asian creator, {detected_emotion}, face occupying 35-45% of frame on left or right third, "
+            f"sharp focus on face with slight background blur. "
+            f"COMPOSITION: Rule of thirds — person on one side, key visual element on other side, "
+            f"strong foreground-background separation, eye-level or slight low angle for authority. "
+            f"LIGHTING: Dramatic 3-point lighting, rim light creating separation, "
+            f"colored accent light matching niche palette, no flat lighting. "
+            f"QUALITY: MrBeast/PewDiePie/CarryMinati thumbnail quality, "
+            f"oversaturated vibrant colors, ultra-high contrast, scroll-stopping visual. "
+            f"CRITICAL RULES: ZERO text, ZERO words, ZERO letters, ZERO watermarks, ZERO logos anywhere. "
+            f"Make this the most clickable thumbnail ever created for {niche} niche."
         )
 
         # If custom image provided — use Gemini Vision to generate around it
