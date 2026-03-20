@@ -1267,7 +1267,11 @@ function tg_initSession() {
             var pendingPlan = localStorage.getItem('tg_pending_plan');
             if(pendingPlan) {
                 localStorage.removeItem('tg_pending_plan');
-                setTimeout(function(){ openPaymentModal(pendingPlan); }, 1200);
+                setTimeout(function(){
+                    if(typeof openPaymentModal === 'function'){
+                        openPaymentModal(pendingPlan);
+                    }
+                }, 2000);
             }
             // Show upgrade success message
             var msg = new URLSearchParams(window.location.search).get('msg');
@@ -1411,167 +1415,83 @@ function showPage(p){
 </div>
 
 <div class="modal-overlay" id="paymentModal">
-    <div class="modal">
-        <button class="modal-close" onclick="closePaymentModal()">&#x2715;</button>
-        <div class="modal-header">
-            <h2>Upgrade ThumbGenius</h2>
-            <p>Unlock unlimited YouTube growth tools — for every creator, every language</p>
-        </div>
-
-        <!-- Region selector -->
-        <div class="region-tabs" id="regionTabs">
-            <button class="region-tab active" id="regionIndia" onclick="setRegion('india')">&#x1F1EE;&#x1F1F3; India (₹ INR)</button>
-            <button class="region-tab" id="regionGlobal" onclick="setRegion('global')">&#x1F310; Global ($ USD)</button>
-        </div>
-
-        <!-- Plans -->
-        <div class="plan-tabs" id="planTabsWrap">
-            <div class="plan-tab selected" id="planTabCreator" onclick="selectPlan('creator')">
-                <div class="plan-tab-name">CREATOR</div>
-                <div class="plan-tab-price plan-tab-price-inr">&#x20B9;749<span>/mo</span></div>
-                <div class="plan-tab-price plan-tab-price-usd">$19<span>/mo</span></div>
-                <ul class="plan-tab-feats">
-                    <li>50 AI image credits/month</li>
-                    <li>Unlimited text generations</li>
-                    <li>30 thumbnail analyses</li>
-                    <li>All languages supported</li>
-                </ul>
-            </div>
-            <div class="plan-tab" id="planTabPro" onclick="selectPlan('pro')">
-                <div class="plan-tab-name">PRO</div>
-                <div class="plan-tab-price plan-tab-price-inr">&#x20B9;1,449<span>/mo</span></div>
-                <div class="plan-tab-price plan-tab-price-usd">$39<span>/mo</span></div>
-                <ul class="plan-tab-feats">
-                    <li>150 AI image credits/month</li>
-                    <li>Unlimited text generations</li>
-                    <li>100 thumbnail analyses</li>
-                    <li>Priority support</li>
-                </ul>
-            </div>
-            <div class="plan-tab" id="planTabEnterprise" onclick="selectPlan('enterprise')">
-                <div class="plan-tab-name" style="color:#43E97B">ENTERPRISE</div>
-                <div class="plan-tab-price plan-tab-price-inr">&#x20B9;25,000<span>/mo</span></div>
-                <div class="plan-tab-price plan-tab-price-usd">$299<span>/mo</span></div>
-                <ul class="plan-tab-feats">
-                    <li>500 AI image credits/month</li>
-                    <li>500 thumbnail analyses</li>
-                    <li>API access included</li>
-                    <li>Dedicated support</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="modal-email-section">
-            <label>Your Email Address</label>
-            <input type="text" class="modal-email-input" id="paymentEmail" placeholder="hello&#64;example.com" />
-        </div>
-
-        <!-- Promo code -->
-        <div class="modal-promo-section">
-            <div class="modal-promo-toggle" onclick="togglePromoField()">
-                <span>&#x1F511; Have an access code?</span>
-                <span id="promoArrow">&#x25BC;</span>
-            </div>
-            <div id="promoField" style="display:none;margin-top:10px">
-                <input type="text" class="modal-email-input" id="promoCode" placeholder="Enter access code" style="letter-spacing:2px;text-transform:uppercase" />
-                <button class="btn-promo-apply" onclick="applyPromoCode()">&#x2713; Apply Code</button>
-            </div>
-        </div>
-
-        <div id="promoSuccessBox" class="promo-success">
-            
-
-            <p>&#x1F389; Access Code Activated!</p>
-            <p id="promoSuccessMsg">You now have Creator Plan access</p>
-        </div>
-        <div id="promoErrorBox" class="promo-error">&#x274C; Invalid code. Please try again.</div>
-
-        <div id="adminPlanPicker" style="display:none;padding:16px 40px">
-            <p style="font-size:12px;color:rgba(255,224,54,0.7);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">&#x1F451; Choose your plan</p>
-            <div style="display:flex;gap:12px">
-                <button onclick="activateAdminPlan('creator')" style="flex:1;background:rgba(255,224,54,0.08);border:1px solid rgba(255,224,54,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:var(--yellow);font-weight:700">&#x26A1; Creator</button>
-                <button onclick="activateAdminPlan('pro')" style="flex:1;background:rgba(139,133,255,0.08);border:1px solid rgba(139,133,255,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:#8B85FF;font-weight:700">&#x1F680; Pro</button>
-                <button onclick="activateAdminPlan('enterprise')" style="flex:1;background:rgba(67,233,123,0.08);border:1px solid rgba(67,233,123,0.3);border-radius:14px;padding:18px 10px;cursor:pointer;font-family:inherit;color:#43E97B;font-weight:700">&#x1F3E2; Enterprise</button>
-
-        <!-- ── Admin API Keys Manager ─────────────────────────────── -->
-        <div id="adminApiKeysPanel" style="display:none;padding:16px 40px;border-top:1px solid rgba(255,255,255,0.08);margin-top:16px">
-            <p style="font-size:12px;color:rgba(255,100,100,0.9);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">🔑 API Keys Manager</p>
-            <div style="display:flex;flex-direction:column;gap:10px">
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">YOUTUBE_API_KEY</span>
-                    <input id="adminKey_YOUTUBE_API_KEY" type="password" placeholder="Enter YouTube API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('YOUTUBE_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">OPENAI_API_KEY</span>
-                    <input id="adminKey_OPENAI_API_KEY" type="password" placeholder="Enter OpenAI API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('OPENAI_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">GEMINI_API_KEY</span>
-                    <input id="adminKey_GEMINI_API_KEY" type="password" placeholder="Enter Gemini API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('GEMINI_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">RAZORPAY_KEY_ID</span>
-                    <input id="adminKey_RAZORPAY_KEY_ID" type="password" placeholder="Enter Razorpay Key ID" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('RAZORPAY_KEY_ID')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">STRIPE_SECRET_KEY</span>
-                    <input id="adminKey_STRIPE_SECRET_KEY" type="password" placeholder="Enter Stripe Secret Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('STRIPE_SECRET_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-            </div>
-            <div id="adminKeyMsg" style="margin-top:10px;font-size:12px;color:#43E97B;display:none"></div>
-        </div>
-
-
-        <!-- ── Admin API Keys Manager ─────────────────────────────── -->
-        <div id="adminApiKeysPanel" style="display:none;padding:16px 40px;border-top:1px solid rgba(255,255,255,0.08);margin-top:16px">
-            <p style="font-size:12px;color:rgba(255,100,100,0.9);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">🔑 API Keys Manager</p>
-            <div style="display:flex;flex-direction:column;gap:10px">
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">YOUTUBE_API_KEY</span>
-                    <input id="adminKey_YOUTUBE_API_KEY" type="password" placeholder="Enter YouTube API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('YOUTUBE_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">OPENAI_API_KEY</span>
-                    <input id="adminKey_OPENAI_API_KEY" type="password" placeholder="Enter OpenAI API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('OPENAI_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">GEMINI_API_KEY</span>
-                    <input id="adminKey_GEMINI_API_KEY" type="password" placeholder="Enter Gemini API Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('GEMINI_API_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">RAZORPAY_KEY_ID</span>
-                    <input id="adminKey_RAZORPAY_KEY_ID" type="password" placeholder="Enter Razorpay Key ID" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('RAZORPAY_KEY_ID')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-                <div style="display:flex;gap:8px;align-items:center">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.5);width:160px;flex-shrink:0">STRIPE_SECRET_KEY</span>
-                    <input id="adminKey_STRIPE_SECRET_KEY" type="password" placeholder="Enter Stripe Secret Key" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;font-family:monospace"/>
-                    <button onclick="adminSaveKey('STRIPE_SECRET_KEY')" style="background:rgba(255,224,54,0.15);border:1px solid rgba(255,224,54,0.4);border-radius:8px;padding:8px 14px;color:#FFE036;font-size:11px;font-weight:700;cursor:pointer">Save</button>
-                </div>
-            </div>
-            <div id="adminKeyMsg" style="margin-top:10px;font-size:12px;color:#43E97B;display:none"></div>
-        </div>
-
-            </div>
-        </div>
-
-        <div id="modalPayFooter">
-            <!-- Razorpay (India) -->
-            <button class="btn-primary btn-razorpay" id="checkoutBtn" onclick="startCheckout()">&#x26A1; Pay &#x20B9;749/month with Razorpay</button>
-            <!-- Stripe (Global) -->
-            <button class="btn-stripe" id="stripeBtn" onclick="startStripeCheckout()">&#x26A1; Pay $19/month with Stripe</button>
-            <div class="stripe-note" id="stripeNote">Secure payment via Stripe &middot; Cards, Apple Pay, Google Pay &middot; Cancel anytime</div>
-            <div class="modal-footer-note" id="rzpNote">Razorpay &middot; UPI / Cards / NetBanking &middot; Cancel anytime</div>
-        </div>
+  <div style="background:#08081A;border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:36px;width:100%;max-width:860px;position:relative;max-height:90vh;overflow-y:auto">
+    <button onclick="closePaymentModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer">✕</button>
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:11px;font-weight:700;color:#FFD700;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px">Choose Your Plan</div>
+      <div style="font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:6px">Upgrade ThumbGenius</div>
+      <div style="font-size:14px;color:rgba(255,255,255,0.45)">Cancel anytime · No contracts · Boost packs available</div>
     </div>
+
+    <!-- Interval Toggle -->
+    <div style="display:flex;gap:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:3px;width:fit-content;margin:0 auto 24px">
+      <button id="intM" onclick="setInterval2('monthly')" style="padding:7px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#FFD700;color:#000">Monthly</button>
+      <button id="intA" onclick="setInterval2('annual')" style="padding:7px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none;background:transparent;color:rgba(255,255,255,0.5)">Annual <span style="color:#00FF88;font-size:10px">–20%</span></button>
+    </div>
+
+    <!-- Plans Grid -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px" id="plansGrid">
+      <!-- Creator -->
+      <div class="plan-card" id="pc-creator" onclick="selectPlan2('creator')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Creator</div>
+        <div style="font-size:24px;font-weight:900;margin-bottom:2px" id="price-creator">₹749</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-creator">/month</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>30 generations/mo</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>15 analyses/mo</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>10 blueprints/mo</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.3);display:flex;gap:5px"><span>—</span>CTR prediction</li>
+        </ul>
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#FFD700;opacity:0" id="sel-creator">✓ Selected</div>
+      </div>
+      <!-- Pro -->
+      <div class="plan-card" id="pc-pro" onclick="selectPlan2('pro')" style="background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s;position:relative">
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#FFD700;color:#000;font-size:9px;font-weight:900;padding:3px 12px;border-radius:99px;white-space:nowrap">MOST POPULAR</div>
+        <div style="font-size:10px;font-weight:700;color:#FFD700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pro</div>
+        <div style="font-size:24px;font-weight:900;color:#FFD700;margin-bottom:2px" id="price-pro">₹1,499</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-pro">/month</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>100 generations/mo</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>50 analyses/mo</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>50 CTR predictions</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>Unlimited A/B tests</li>
+        </ul>
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#FFD700;opacity:0" id="sel-pro">✓ Selected</div>
+      </div>
+      <!-- Agency -->
+      <div class="plan-card" id="pc-agency" onclick="selectPlan2('agency')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Agency</div>
+        <div style="font-size:24px;font-weight:900;margin-bottom:2px" id="price-agency">₹3,499</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-agency">/month</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>300 generations/mo</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>3 team seats</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>API access</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>White-label reports</li>
+        </ul>
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#FFD700;opacity:0" id="sel-agency">✓ Selected</div>
+      </div>
+      <!-- Enterprise -->
+      <div class="plan-card" id="pc-enterprise" onclick="selectPlan2('enterprise')" style="background:rgba(0,255,136,0.02);border:1px solid rgba(0,255,136,0.2);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s">
+        <div style="font-size:10px;font-weight:700;color:#00FF88;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Enterprise</div>
+        <div style="font-size:22px;font-weight:900;color:#00FF88;margin-bottom:2px" id="price-enterprise">₹16,999</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-enterprise">/month</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>Unlimited everything</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>10 team seats</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>White-label API</li>
+          <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>Dedicated support</li>
+        </ul>
+        <div style="text-align:center;font-size:11px;font-weight:700;color:#00FF88;opacity:0" id="sel-enterprise">✓ Selected</div>
+      </div>
+    </div>
+
+    <!-- Pay Button -->
+    <button id="mainPayBtn" onclick="startCheckout()" style="width:100%;padding:16px;background:#FFD700;color:#000;border:none;border-radius:14px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:10px">
+      ⚡ Pay ₹749/month with Razorpay
+    </button>
+    <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.3)">Razorpay · UPI / Cards / NetBanking · Cancel anytime</div>
+  </div>
 </div>
 <!-- ── Login Modal ──────────────────────────────────────────────────────── -->
 <div class="login-modal-overlay" id="loginModal">
@@ -3061,6 +2981,80 @@ function openPaymentModal(plan){
     if(currentUserEmail)document.getElementById('paymentEmail').value=currentUserEmail;
     detectUserRegion();
 }
+
+// ── Clean Plans System ─────────────────────────────────────
+var _selPlan = 'pro';
+var _selInterval = 'monthly';
+var _planPrices = {
+    IN: {
+        monthly: {creator:'₹749',pro:'₹1,499',agency:'₹3,499',enterprise:'₹16,999'},
+        annual:  {creator:'₹599',pro:'₹1,199',agency:'₹2,799',enterprise:'₹13,599'}
+    },
+    US: {
+        monthly: {creator:'$9.99',pro:'$19.99',agency:'$49.99',enterprise:'$249'},
+        annual:  {creator:'$7.99',pro:'$15.99',agency:'$39.99',enterprise:'$199'}
+    }
+};
+var _userRegion = 'IN';
+
+function selectPlan2(plan) {
+    _selPlan = plan;
+    selectedPlan = plan;
+    ['creator','pro','agency','enterprise'].forEach(p => {
+        const card = document.getElementById('pc-'+p);
+        const sel = document.getElementById('sel-'+p);
+        if(card) card.style.transform = p===plan ? 'translateY(-4px)' : '';
+        if(card) card.style.boxShadow = p===plan ? '0 8px 24px rgba(255,215,0,0.15)' : '';
+        if(sel) sel.style.opacity = p===plan ? '1' : '0';
+    });
+    updatePayBtn();
+}
+
+function setInterval2(interval) {
+    _selInterval = interval;
+    window.selectedInterval = interval;
+    document.getElementById('intM').style.background = interval==='monthly' ? '#FFD700' : 'transparent';
+    document.getElementById('intM').style.color = interval==='monthly' ? '#000' : 'rgba(255,255,255,0.5)';
+    document.getElementById('intA').style.background = interval==='annual' ? '#FFD700' : 'transparent';
+    document.getElementById('intA').style.color = interval==='annual' ? '#000' : 'rgba(255,255,255,0.5)';
+    updatePlanPrices();
+}
+
+function updatePlanPrices() {
+    var prices = (_planPrices[_userRegion] || _planPrices.IN)[_selInterval];
+    var cycle = _selInterval === 'annual' ? '/mo (annual)' : '/month';
+    ['creator','pro','agency','enterprise'].forEach(p => {
+        var pel = document.getElementById('price-'+p);
+        var cel = document.getElementById('cycle-'+p);
+        if(pel) pel.textContent = prices[p] || '';
+        if(cel) cel.textContent = cycle;
+    });
+    updatePayBtn();
+}
+
+function updatePayBtn() {
+    var prices = (_planPrices[_userRegion] || _planPrices.IN)[_selInterval];
+    var price = prices[_selPlan] || '';
+    var gateway = _userRegion === 'IN' ? 'Razorpay' : 'Card';
+    var btn = document.getElementById('mainPayBtn');
+    if(btn) btn.textContent = '⚡ Pay ' + price + '/' + (_selInterval==='annual'?'yr':'mo') + ' with ' + gateway;
+}
+
+function openPaymentModal(plan) {
+    if(plan) { _selPlan = plan; selectedPlan = plan; }
+    // Detect region
+    fetch('/billing/region').then(r=>r.json()).then(d=>{
+        _userRegion = d.region === 'IN' ? 'IN' : 'US';
+        updatePlanPrices();
+        selectPlan2(_selPlan);
+    }).catch(()=>{ updatePlanPrices(); selectPlan2(_selPlan); });
+    document.getElementById('paymentModal').classList.add('open');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').classList.remove('open');
+}
+
 function closePaymentModal(){document.getElementById('paymentModal').classList.remove('open');}
 function selectPlan(plan){
     selectedPlan=plan;
