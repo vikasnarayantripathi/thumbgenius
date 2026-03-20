@@ -3219,42 +3219,45 @@ async function startCheckout(){
         return;
     }
     const plan = _selPlan || selectedPlan || 'pro';
-    const interval = _selInterval || window.selectedInterval || 'monthly';
+    const interval = _selInterval || 'monthly';
     const btn = document.getElementById('mainPayBtn') || document.getElementById('checkoutBtn');
-    if(btn){btn.disabled=true;btn.textContent='⏳ Setting up payment...';}
+    const planPrices = {
+        creator:{monthly:'₹749',annual:'₹599'},
+        pro:{monthly:'₹1,499',annual:'₹1,199'},
+        agency:{monthly:'₹3,499',annual:'₹2,799'},
+        enterprise:{monthly:'₹16,999',annual:'₹13,599'}
+    };
+    const priceLabel = (planPrices[plan]||{})[interval] || '₹749';
+    if(btn){btn.disabled=true;btn.textContent='⏳ Setting up...';}
     try{
-        const res = await fetch('/billing/razorpay/checkout', {
+        const res = await fetch('/subscribe', {
             method:'POST',
-            headers:{'Content-Type':'application/json','X-User-Email': email},
-            body: JSON.stringify({plan, interval, email})
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({email, plan, interval, payment_method:'razorpay'})
         });
         const data = await res.json();
-        if(data.error){alert(data.error);if(btn){btn.disabled=false;}return;}
+        if(data.error){alert(data.error);if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel+' with Razorpay';}return;}
         const rzp = new Razorpay({
             key: data.razorpay_key,
             subscription_id: data.subscription_id,
             name: 'ThumbGenius',
-            description: plan.charAt(0).toUpperCase()+plan.slice(1)+' Plan · '+interval,
+            description: plan.charAt(0).toUpperCase()+plan.slice(1)+' · '+interval,
             prefill: {email},
             theme: {color:'#FFD700'},
-            handler: async function(response){
-                const vres = await fetch('/billing/razorpay/verify',{
-                    method:'POST',
-                    headers:{'Content-Type':'application/json','X-User-Email':email},
-                    body: JSON.stringify({...response, plan, interval, email})
-                });
+            handler: function(response){
                 closePaymentModal();
                 const div=document.createElement('div');
                 div.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d1a;border:1px solid rgba(255,215,0,0.3);border-radius:20px;padding:40px;text-align:center;z-index:9999;max-width:400px;width:90%';
-                div.innerHTML='<div style="font-size:48px;margin-bottom:16px">🎉</div><h2 style="font-size:24px;font-weight:800;color:#FFD700;margin-bottom:8px">Payment Successful!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px">Welcome to <strong style="color:#fff">'+plan.charAt(0).toUpperCase()+plan.slice(1)+'</strong> plan!</p><button onclick="this.parentElement.remove();window.location.reload()" style="margin-top:20px;background:#FFD700;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer">Start Using ThumbGenius →</button>';
+                div.innerHTML='<div style="font-size:48px;margin-bottom:16px">🎉</div><h2 style="font-size:24px;font-weight:800;color:#FFD700;margin-bottom:8px">Payment Successful!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px">Welcome to <strong style="color:#fff">'+plan.charAt(0).toUpperCase()+plan.slice(1)+'</strong> plan!</p><button onclick="this.parentElement.remove();window.location.reload()" style="margin-top:20px;background:#FFD700;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer">Start Using →</button>';
                 document.body.appendChild(div);
+                setTimeout(()=>window.location.reload(),3000);
             },
-            modal:{ondismiss:function(){if(btn){btn.disabled=false;btn.textContent='⚡ Pay with Razorpay';}}}
+            modal:{ondismiss:function(){if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel+' with Razorpay';}}}
         });
         rzp.open();
     }catch(e){
-        alert('Payment setup failed. Please try again.');
-        if(btn){btn.disabled=false;btn.textContent='⚡ Pay with Razorpay';}
+        alert('Payment setup failed: '+e.message);
+        if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel+' with Razorpay';}
     }
 }
     // Get email from logged-in user or input
