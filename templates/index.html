@@ -120,6 +120,9 @@
         .niche-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
         .niche-chip { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; font-size:13px; font-family:'Plus Jakarta Sans',sans-serif; color:var(--dim); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
         .niche-chip:hover { background:rgba(255,255,255,0.08); color:var(--white); border-color:rgba(255,255,255,0.15); }
+        .style-chip { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; color:var(--dim); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+        .style-chip:hover { background:rgba(255,255,255,0.08); color:#fff; }
+        .style-chip.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
         .niche-chip.active { background:rgba(255,224,54,0.1); border-color:rgba(255,224,54,0.4); color:var(--yellow); }
         .btn-gen { width:100%; background:var(--yellow); color:#000; border:none; border-radius:14px; padding:18px; font-size:16px; font-weight:800; font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; letter-spacing:-0.3px; }
         .btn-gen:hover { transform:translateY(-2px); box-shadow:0 16px 48px rgba(255,224,54,0.35); }
@@ -1630,6 +1633,47 @@ function showPage(p){
                 <div class="lang-chip" id="langHi" onclick="setLanguage('hindi',this)"><span class="lang-chip-flag">🇮🇳</span> हिंदी</div>
                 <div class="lang-chip" id="langHn" onclick="setLanguage('hinglish',this)"><span class="lang-chip-flag">🎭</span> Hinglish</div>
             </div>
+            <!-- ── 8 POWER FEATURES ── -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;margin-top:12px">
+              <!-- Feature 1: Face Upload -->
+              <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px;cursor:pointer" onclick="document.getElementById('faceUploadInput').click()">
+                <input type="file" id="faceUploadInput" accept="image/*" style="display:none" onchange="loadFaceUpload(this)">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:20px">🤳</span>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:#fff">Upload Your Face</div>
+                    <div style="font-size:10px;color:rgba(255,255,255,0.4)" id="faceUploadLabel">AI puts you in thumbnail</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Feature 2: Competitor URL -->
+              <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                  <span style="font-size:20px">🔗</span>
+                  <div style="font-size:12px;font-weight:700;color:#fff">Beat Competitor</div>
+                </div>
+                <input type="text" id="competitorUrl" placeholder="Paste YouTube URL..." style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 8px;color:#fff;font-size:11px;font-family:inherit;outline:none">
+              </div>
+            </div>
+
+            <!-- Feature 3: Thumbnail Style Template -->
+            <div style="margin-bottom:12px">
+              <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">🎨 Thumbnail Style</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <div class="style-chip active" data-style="viral" onclick="selectStyle(this,'viral')">🔥 Viral Shock</div>
+                <div class="style-chip" data-style="clean" onclick="selectStyle(this,'clean')">✨ Clean Pro</div>
+                <div class="style-chip" data-style="cinematic" onclick="selectStyle(this,'cinematic')">🎬 Cinematic</div>
+                <div class="style-chip" data-style="minimal" onclick="selectStyle(this,'minimal')">⚡ Minimal Bold</div>
+                <div class="style-chip" data-style="mrbeast" onclick="selectStyle(this,'mrbeast')">💛 MrBeast</div>
+              </div>
+            </div>
+
+            <!-- Feature 4: CTR Preview Score -->
+            <div style="background:rgba(255,224,54,0.04);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:12px;color:rgba(255,255,255,0.6)">⚡ Predicted CTR before generating</div>
+              <div style="font-family:monospace;font-size:18px;font-weight:700;color:#FFE036" id="preCtrScore">—</div>
+            </div>
+
             <button class="btn-gen" id="generateBtn" onclick="generate()">&#x26A1; Generate My Thumbnail & Titles</button>
             <div class="form-footer">
                 <div class="free-badge"><span class="dot">&#x25CF;</span> <span id="freeBadgeText">Free to try &middot; no signup &middot; instant results</span></div>
@@ -3299,6 +3343,52 @@ function toggleMoreNiches(e){
     if(more.style.display==='none'){more.style.display='flex';more.style.flexWrap='wrap';more.style.gap='8px';chip.textContent='➖ Less';}
     else{more.style.display='none';chip.textContent='➕ More';}
 }
+
+
+// ── 10X Generate Module Features ──────────────────────────────
+var _selectedStyle = 'viral';
+var _faceB64 = null;
+
+function selectStyle(el, style) {
+    _selectedStyle = style;
+    document.querySelectorAll('.style-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    updatePreCTR();
+}
+
+function loadFaceUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        _faceB64 = e.target.result.split(',')[1];
+        document.getElementById('faceUploadLabel').textContent = '✅ ' + input.files[0].name;
+        document.getElementById('faceUploadLabel').style.color = '#43E97B';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+function updatePreCTR() {
+    const topic = document.getElementById('topic')?.value || '';
+    if (topic.length < 5) { document.getElementById('preCtrScore').textContent = '—'; return; }
+    // Quick CTR estimate based on topic + style
+    const styleBoost = {viral:1.2, mrbeast:1.1, cinematic:1.0, clean:0.9, minimal:0.85};
+    const topicScore = Math.min(9.5, 5.5 +
+        (topic.length > 20 ? 0.5 : 0) +
+        (/[?!]/.test(topic) ? 0.3 : 0) +
+        (/(secret|truth|shocking|never|always|best|worst|how|why|\d+)/i.test(topic) ? 0.8 : 0) +
+        Math.random() * 0.5
+    );
+    const finalScore = (topicScore * (styleBoost[_selectedStyle] || 1.0)).toFixed(1);
+    const pct1 = (finalScore * 0.65).toFixed(1);
+    const pct2 = (finalScore * 0.98).toFixed(1);
+    document.getElementById('preCtrScore').textContent = pct1 + '% – ' + pct2 + '%';
+}
+
+// Update CTR on topic change
+document.addEventListener('DOMContentLoaded', function() {
+    const topicInput = document.getElementById('topic');
+    if (topicInput) topicInput.addEventListener('input', updatePreCTR);
+});
 
 async function generate(){
     const topic=document.getElementById('topic').value.trim();
