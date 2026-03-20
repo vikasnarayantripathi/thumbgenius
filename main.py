@@ -1434,7 +1434,8 @@ async def generate_image(request: Request):
         # Detect emotion from concept
         detected_emotion = "extremely surprised shocked expression with wide eyes and open mouth"
         for emotion, expr in EMOTION_MAP.items():
-            if emotion in concept.lower() or emotion in (title or "").lower():
+            title_text = str(data.get("title","")).strip()
+            if emotion in concept.lower() or emotion in title_text.lower():
                 detected_emotion = expr
                 break
         
