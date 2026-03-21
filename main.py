@@ -1376,7 +1376,7 @@ async def generate_image(request: Request):
     overlay = str(data.get("text_overlay","")).strip()
     language = str(data.get("language","english")).strip().lower()
     no_baked_text = bool(data.get("no_baked_text", False))
-        clean_mode = bool(data.get("clean_mode", False))
+    clean_mode = bool(data.get("clean_mode", False))
     custom_image_b64 = data.get("custom_image_b64", None)
     custom_image_mode = str(data.get("custom_image_mode", "")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
