@@ -928,7 +928,7 @@ async def subscribe(request: Request):
     payment_method = str(data.get("payment_method", "razorpay")).strip().lower()
     if not email or "@" not in email:
         return JSONResponse({"error": "Valid email required"}, status_code=400)
-    if plan not in ["creator", "pro", "enterprise"]:
+    if plan not in ["creator", "pro", "agency", "enterprise"]:
         return JSONResponse({"error": "Invalid plan"}, status_code=400)
 
     # ── Stripe (global users) ──────────────────────────────────────────────
