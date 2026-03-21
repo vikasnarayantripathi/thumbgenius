@@ -3284,6 +3284,13 @@ async function startCheckout(){
     };
     const priceLabel = (planPrices[plan]||{})[interval] || '₹749';
     if(btn){btn.disabled=true;btn.textContent='⏳ Setting up...';}
+    // Route based on region
+    const isGlobal = _userRegion !== 'IN';
+    if(isGlobal){
+        if(btn){btn.disabled=false;btn.textContent='⚡ Pay with Card';}
+        alert('Global payments via Stripe are coming very soon!\n\nFor immediate access, email us at hello@thumbgenius.in and we will manually activate your account within 24 hours.');
+        return;
+    }
     try{
         const res = await fetch('/subscribe', {
             method:'POST',
