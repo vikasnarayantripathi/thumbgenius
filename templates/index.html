@@ -3581,13 +3581,17 @@ async function generateImage(){
                 // Always generate clean image — text is drawn on canvas by JS
                 // Build payload based on selected mode
                 const mode = _imgMode || 'clean';
+                // Build payload based on mode
+                const isClean = mode === 'clean';
+                const isBaked = mode === 'baked';
                 let imgPayload = {
                     concept: lastConcept,
                     niche: selectedNiche,
                     thumbnail_style: _selectedStyle || 'viral',
-                    text_overlay: mode === 'baked' ? (lastTextOverlay || '') : '',
-                    no_baked_text: mode !== 'baked',
-                    language: selectedLanguage || 'english'
+                    text_overlay: isBaked ? (lastTextOverlay || '') : '',
+                    no_baked_text: !isBaked,
+                    language: selectedLanguage || 'english',
+                    clean_mode: isClean
                 };
                 // Face upload
                 if (_faceB64) {
@@ -4358,8 +4362,8 @@ function drawCanvasOverlayStyled(text, font, color) {
 
 // ── Download in all sizes ──────────────────────────────────────
 function downloadSize(w, h, label) {
-    const img = document.getElementById('generatedImage');
-    if (!img || !img.src) { alert('Generate a thumbnail first!'); return; }
+    const img = document.getElementById('thumbnailImg');
+    if (!img || !img.src || img.src === window.location.href || img.src.endsWith('undefined')) { alert('Generate a thumbnail first!'); return; }
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
