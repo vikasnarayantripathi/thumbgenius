@@ -538,7 +538,7 @@ footer{padding:38px 56px;border-top:1px solid var(--border);display:flex;align-i
   <div class="plans">
     <div class="plan">
       <div class="plan-tier">Free</div>
-      <div class="plan-price">₹0</div>
+      <div class="plan-price" id="ppf">₹0</div>
       <div class="plan-cyc">forever</div>
       <div class="plan-sep"></div>
       <ul class="plan-feats">
@@ -823,6 +823,9 @@ function updatePricing(){
     document.getElementById('pp'+k).textContent=d[k];
     document.getElementById('py'+k).textContent=d.cy;
   });
+  // Update free plan price based on region
+  const fp = document.getElementById('ppf');
+  if(fp) fp.textContent = userRegion==='IN' ? '₹0' : '$0';
   // Update currency badge in nav area
   const cb=document.getElementById('currency-badge');
   if(cb)cb.textContent=userRegion==='IN'?'🇮🇳 ₹ INR':'🌍 $ USD';
