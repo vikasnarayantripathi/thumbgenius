@@ -1719,55 +1719,48 @@ function showPage(p){
     <div class="rblock" id="imgBlock"><div class="rblock-head">&#x1F3A8; Thumbnail Blueprint</div><div class="tgrid" id="thumbnail"></div></div>
     <div class="image-rblock">
         <div class="rblock-head">&#x1F5BC;&#xFE0F; AI Thumbnail Image — Ready to Publish</div>
-        <p class="img-desc" id="imgDesc">Turn your thumbnail blueprint into a publish-ready image. Add your selected title as a styled overlay, then download. <strong>1 free image included.</strong> Powered by Imagen 4 + DALL-E 3.</p>
-        <!-- Custom Image Upload — Pro/Enterprise only -->
-        <div id="customImgPanel" style="display:none;margin-bottom:18px;background:rgba(139,133,255,0.05);border:1px solid rgba(139,133,255,0.2);border-radius:14px;padding:16px">
-            <div style="font-size:12px;font-weight:700;color:rgba(139,133,255,0.8);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">📸 Custom Photo Input</div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-                <label id="customImgUploadBtn" style="display:flex;align-items:center;gap:8px;background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);border-radius:10px;padding:10px 16px;cursor:pointer;font-size:13px;font-weight:600;color:#8B85FF">
-                    <input type="file" id="customImgFile" accept="image/*" style="display:none" onchange="handleCustomImgUpload(this)">
-                    📁 Upload Photo
-                </label>
-                <button id="customImgClearBtn" onclick="clearCustomImg()" style="display:none;background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.2);border-radius:10px;padding:10px 16px;color:#ff6464;cursor:pointer;font-family:inherit;font-size:13px">✕ Clear</button>
+        <p class="img-desc" id="imgDesc">Generate a publish-ready YouTube thumbnail. Choose your style below.</p>
+
+        <!-- 3 Clear Image Mode Options -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px" id="imgModeSelector">
+            <div class="img-mode-card active" id="mode-clean" onclick="setImgMode('clean')" style="background:rgba(255,255,255,0.04);border:2px solid rgba(255,224,54,0.4);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s">
+                <div style="font-size:24px;margin-bottom:6px">🖼️</div>
+                <div style="font-size:12px;font-weight:700;color:#FFE036">Clean Image</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px">No text — pure visual</div>
             </div>
-            <img id="customImgPreview" style="display:none;max-width:100%;max-height:120px;border-radius:8px;margin-bottom:12px;object-fit:cover" />
-            <div style="display:flex;gap:8px;flex-wrap:wrap" id="customImgModeWrap" style="display:none">
-                <button id="modeGenAround" onclick="setCustomImgMode('generate')" style="flex:1;background:rgba(139,133,255,0.15);border:2px solid rgba(139,133,255,0.5);border-radius:10px;padding:10px;color:#8B85FF;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700">🤖 Generate Around Photo</button>
-                <button id="modeUseAsBg" onclick="setCustomImgMode('background')" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600">🖼️ Use as Background</button>
+            <div class="img-mode-card" id="mode-baked" onclick="setImgMode('baked')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s">
+                <div style="font-size:24px;margin-bottom:6px">✍️</div>
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Text in Image</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px">AI bakes text inside</div>
             </div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:8px" id="customImgModeDesc">Upload a photo to enable custom thumbnail generation</div>
+            <div class="img-mode-card" id="mode-overlay" onclick="setImgMode('overlay')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s">
+                <div style="font-size:24px;margin-bottom:6px">🔤</div>
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Text Overlay</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px">Drawn on top after gen</div>
+            </div>
         </div>
 
-        <!-- Locked state for free/creator -->
-        <div id="customImgLocked" style="display:none;margin-bottom:18px;background:rgba(255,255,255,0.02);border:1px dashed rgba(255,255,255,0.1);border-radius:14px;padding:14px;text-align:center">
-            <div style="font-size:13px;color:rgba(255,255,255,0.3)">🔒 Custom Photo Upload — <span style="color:#8B85FF">Pro & Enterprise only</span></div>
-            <button onclick="openPaymentModal('pro')" style="margin-top:8px;background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);border-radius:8px;padding:6px 14px;color:#8B85FF;cursor:pointer;font-family:inherit;font-size:12px">Upgrade to Pro &rarr;</button>
+        <!-- Text overlay customizer (only shown in overlay mode) -->
+        <div id="overlayCustomizer" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Customize Text Overlay</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px" id="imgFontChipsNew">
+                <span class="font-chip-new active" data-font="Impact" onclick="selectFontNew(this,'Impact')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(255,224,54,0.1);border:1px solid rgba(255,224,54,0.3);color:#FFE036;cursor:pointer">Impact</span>
+                <span class="font-chip-new" data-font="Bebas Neue" onclick="selectFontNew(this,'Bebas Neue')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);cursor:pointer">Bebas</span>
+                <span class="font-chip-new" data-font="Montserrat" onclick="selectFontNew(this,'Montserrat')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);cursor:pointer">Montserrat</span>
+                <span class="font-chip-new" data-font="Russo One" onclick="selectFontNew(this,'Russo One')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);cursor:pointer">Russo</span>
+                <span class="font-chip-new" data-font="Arial Black" onclick="selectFontNew(this,'Arial Black')" style="padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);cursor:pointer">Arial Bold</span>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap" id="imgColorChipsNew">
+                <span class="color-chip-new active" data-color="#FFE036" onclick="selectColorNew(this,'#FFE036')" style="width:24px;height:24px;border-radius:50%;background:#FFE036;cursor:pointer;border:2px solid #fff"></span>
+                <span class="color-chip-new" data-color="#FFFFFF" onclick="selectColorNew(this,'#FFFFFF')" style="width:24px;height:24px;border-radius:50%;background:#FFFFFF;cursor:pointer;border:2px solid transparent"></span>
+                <span class="color-chip-new" data-color="#FF4444" onclick="selectColorNew(this,'#FF4444')" style="width:24px;height:24px;border-radius:50%;background:#FF4444;cursor:pointer;border:2px solid transparent"></span>
+                <span class="color-chip-new" data-color="#00FF88" onclick="selectColorNew(this,'#00FF88')" style="width:24px;height:24px;border-radius:50%;background:#00FF88;cursor:pointer;border:2px solid transparent"></span>
+                <span class="color-chip-new" data-color="#00CFFF" onclick="selectColorNew(this,'#00CFFF')" style="width:24px;height:24px;border-radius:50%;background:#00CFFF;cursor:pointer;border:2px solid transparent"></span>
+                <span class="color-chip-new" data-color="#FF8C00" onclick="selectColorNew(this,'#FF8C00')" style="width:24px;height:24px;border-radius:50%;background:#FF8C00;cursor:pointer;border:2px solid transparent"></span>
+                <span class="color-chip-new" data-color="#000000" onclick="selectColorNew(this,'#000000')" style="width:24px;height:24px;border-radius:50%;background:#000000;cursor:pointer;border:2px solid transparent"></span>
+            </div>
         </div>
 
-        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleImgOption('bakedText')">
-                <div style="position:relative;width:44px;height:24px;flex-shrink:0">
-                    <span id="bakedTextSlider" style="position:absolute;inset:0;background:rgba(255,224,54,0.3);border:1px solid rgba(255,224,54,0.6);border-radius:99px;transition:0.2s">
-                        <span id="bakedTextKnob" style="position:absolute;left:3px;top:3px;width:16px;height:16px;background:#FFE036;border-radius:50%;transition:0.2s;transform:translateX(20px)"></span>
-                    </span>
-                </div>
-                <div>
-                    <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Baked-in Text</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35)">Text inside AI image</div>
-                </div>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" onclick="toggleImgOption('titleOverlay')">
-                <div style="position:relative;width:44px;height:24px;flex-shrink:0">
-                    <span id="titleOverlaySlider" style="position:absolute;inset:0;background:rgba(255,224,54,0.3);border:1px solid rgba(255,224,54,0.6);border-radius:99px;transition:0.2s">
-                        <span id="titleOverlayKnob" style="position:absolute;left:3px;top:3px;width:16px;height:16px;background:#FFE036;border-radius:50%;transition:0.2s;transform:translateX(20px)"></span>
-                    </span>
-                </div>
-                <div>
-                    <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Title Overlay</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35)">Drawn on top after gen</div>
-                </div>
-            </label>
-        </div>
         <button class="btn-img" id="imageBtn" onclick="generateImage()">&#x1F3A8; Generate Thumbnail Image</button>
         <p id="imgUsesLeft" style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:10px">1 free image generation remaining</p>
         <div class="img-loading" id="imgLoading"><div class="loading-spinner"></div><p>Creating your thumbnail image&hellip; (~15 seconds)</p></div>
@@ -3523,7 +3516,61 @@ async function generate(){
 var _customImgB64 = null;
 var _customImgMode = 'generate';
 
-async function generateImage(){
+async 
+// ── 10X Image Mode System ──────────────────────────────────────
+var _imgMode = 'clean'; // clean | baked | overlay
+var _overlayFont = 'Impact';
+var _overlayColor = '#FFE036';
+
+function setImgMode(mode) {
+    _imgMode = mode;
+    // Update card styles
+    ['clean','baked','overlay'].forEach(m => {
+        const card = document.getElementById('mode-'+m);
+        if (!card) return;
+        if (m === mode) {
+            card.style.border = '2px solid rgba(255,224,54,0.5)';
+            card.style.background = 'rgba(255,224,54,0.06)';
+            card.querySelector('div:nth-child(2)').style.color = '#FFE036';
+        } else {
+            card.style.border = '1px solid rgba(255,255,255,0.08)';
+            card.style.background = 'rgba(255,255,255,0.04)';
+            card.querySelector('div:nth-child(2)').style.color = 'rgba(255,255,255,0.8)';
+        }
+    });
+    // Show/hide customizer
+    const cust = document.getElementById('overlayCustomizer');
+    if (cust) cust.style.display = mode === 'overlay' ? 'block' : 'none';
+    // Update backend flags
+    window._imgModeBaked = mode === 'baked';
+    window._imgModeOverlay = mode === 'overlay';
+    window._imgModeClean = mode === 'clean';
+}
+
+function selectFontNew(el, font) {
+    _overlayFont = font;
+    document.querySelectorAll('.font-chip-new').forEach(c => {
+        c.style.background = 'rgba(255,255,255,0.04)';
+        c.style.borderColor = 'rgba(255,255,255,0.1)';
+        c.style.color = 'rgba(255,255,255,0.6)';
+    });
+    el.style.background = 'rgba(255,224,54,0.1)';
+    el.style.borderColor = 'rgba(255,224,54,0.3)';
+    el.style.color = '#FFE036';
+}
+
+function selectColorNew(el, color) {
+    _overlayColor = color;
+    document.querySelectorAll('.color-chip-new').forEach(c => c.style.border = '2px solid transparent');
+    el.style.border = '2px solid #fff';
+}
+
+// Initialize mode on load
+document.addEventListener('DOMContentLoaded', function() {
+    setImgMode('clean');
+});
+
+function generateImage(){
     if(!lastConcept){alert('Please generate a content package first!');return;}
     document.getElementById('imgLoading').style.display='block';
     document.getElementById('imgResult').style.display='none';
@@ -3532,12 +3579,24 @@ async function generateImage(){
     try{
                 // Use custom image if uploaded
                 // Always generate clean image — text is drawn on canvas by JS
-                let imgPayload = {concept:lastConcept, text_overlay:'', niche:selectedNiche};
-                if (_customImgB64 && _customImgMode === 'generate') {
+                // Build payload based on selected mode
+                const mode = _imgMode || 'clean';
+                let imgPayload = {
+                    concept: lastConcept,
+                    niche: selectedNiche,
+                    thumbnail_style: _selectedStyle || 'viral',
+                    text_overlay: mode === 'baked' ? (lastTextOverlay || '') : '',
+                    no_baked_text: mode !== 'baked',
+                    language: selectedLanguage || 'english'
+                };
+                // Face upload
+                if (_faceB64) {
+                    imgPayload.custom_image_b64 = _faceB64;
+                    imgPayload.custom_image_mode = 'generate';
+                } else if (_customImgB64 && _customImgMode === 'generate') {
                     imgPayload.custom_image_b64 = _customImgB64;
                     imgPayload.custom_image_mode = 'generate';
                 } else if (_customImgB64 && _customImgMode === 'background') {
-                    // Use as background directly on canvas — no API call needed
                     const bgImg = 'data:image/jpeg;base64,' + _customImgB64;
                     document.getElementById('thumbnailImg').src = bgImg;
                     document.getElementById('imgResult').style.display = 'block';
@@ -3555,9 +3614,11 @@ async function generateImage(){
         const dlBtn=document.getElementById('downloadBtn'); if(dlBtn) dlBtn.href = imgUrl;
         document.getElementById('imgResult').style.display='block';
         renderImgTitleChips();
-        // If bakedText ON — auto-draw AI text overlay on image
-        if (_imgOptions.bakedText && lastTextOverlay) {
-            drawCanvasOverlay(lastTextOverlay);
+        // Handle overlay mode — draw text on top of generated image
+        if ((_imgMode === 'overlay') && lastTextOverlay) {
+            setTimeout(() => {
+                drawCanvasOverlayStyled(lastTextOverlay, _overlayFont, _overlayColor);
+            }, 500);
         }
         if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
     }catch(e){
@@ -4251,6 +4312,49 @@ function copyAllTags(){
     }).catch(()=>alert(all.join(', ')));
 }
 
+
+
+// ── Styled Canvas Overlay ──────────────────────────────────────
+function drawCanvasOverlayStyled(text, font, color) {
+    if (!text) return;
+    const img = document.getElementById('thumbnailImg');
+    if (!img || !img.src) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || 1280;
+    canvas.height = img.naturalHeight || 720;
+    const ctx = canvas.getContext('2d');
+    const tmpImg = new Image();
+    tmpImg.crossOrigin = 'anonymous';
+    tmpImg.onload = function() {
+        ctx.drawImage(tmpImg, 0, 0, canvas.width, canvas.height);
+        // Draw gradient overlay at bottom
+        const grad = ctx.createLinearGradient(0, canvas.height*0.6, 0, canvas.height);
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, 'rgba(0,0,0,0.82)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw text
+        const fontSize = Math.floor(canvas.width / 10);
+        ctx.font = `900 ${fontSize}px "${font || 'Impact'}", Impact, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        // Shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.9)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 3;
+        // Stroke
+        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+        ctx.lineWidth = fontSize / 8;
+        ctx.strokeText(text.toUpperCase(), canvas.width/2, canvas.height - 40);
+        // Fill
+        ctx.fillStyle = color || '#FFE036';
+        ctx.fillText(text.toUpperCase(), canvas.width/2, canvas.height - 40);
+        // Update image
+        img.src = canvas.toDataURL('image/jpeg', 0.95);
+    };
+    tmpImg.src = img.src;
+}
 
 // ── Download in all sizes ──────────────────────────────────────
 function downloadSize(w, h, label) {
