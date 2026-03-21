@@ -4398,21 +4398,29 @@ function downloadSize(w, h, label) {
 
 // ── One-click style variations ─────────────────────────────────
 function regenWithStyle(style) {
-    _selectedStyle = style;
-    // Update style chip UI
-    document.querySelectorAll('.style-chip').forEach(c => {
-        c.classList.toggle('active', c.dataset.style === style);
-    });
+    // Map variation style to thumbnail_style
+    const styleMap = {
+        'viral': 'viral',
+        'clean': 'clean', 
+        'cinematic': 'cinematic',
+        'mrbeast': 'mrbeast',
+        'minimal': 'minimal'
+    };
+    _selectedStyle = styleMap[style] || style;
+    
     // Update variation button UI
     document.querySelectorAll('[onclick^="regenWithStyle"]').forEach(b => {
         b.style.background = 'rgba(255,255,255,0.04)';
         b.style.borderColor = 'rgba(255,255,255,0.1)';
         b.style.color = 'rgba(255,255,255,0.7)';
     });
-    event.target.style.background = 'rgba(255,224,54,0.1)';
-    event.target.style.borderColor = 'rgba(255,224,54,0.3)';
-    event.target.style.color = '#FFE036';
-    // Keep current mode and regenerate
+    if(event && event.target) {
+        event.target.style.background = 'rgba(255,224,54,0.1)';
+        event.target.style.borderColor = 'rgba(255,224,54,0.3)';
+        event.target.style.color = '#FFE036';
+    }
+    // IMPORTANT: Keep current image mode (clean/baked/overlay)
+    // _imgMode is preserved — only visual style changes
     generateImage();
 }
 
