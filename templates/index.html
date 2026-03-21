@@ -4397,11 +4397,21 @@ function downloadSize(w, h, label) {
 
 // ── One-click style variations ─────────────────────────────────
 function regenWithStyle(style) {
-    // Set style and regenerate image
     _selectedStyle = style;
+    // Update style chip UI
     document.querySelectorAll('.style-chip').forEach(c => {
         c.classList.toggle('active', c.dataset.style === style);
     });
+    // Update variation button UI
+    document.querySelectorAll('[onclick^="regenWithStyle"]').forEach(b => {
+        b.style.background = 'rgba(255,255,255,0.04)';
+        b.style.borderColor = 'rgba(255,255,255,0.1)';
+        b.style.color = 'rgba(255,255,255,0.7)';
+    });
+    event.target.style.background = 'rgba(255,224,54,0.1)';
+    event.target.style.borderColor = 'rgba(255,224,54,0.3)';
+    event.target.style.color = '#FFE036';
+    // Keep current mode and regenerate
     generateImage();
 }
 
