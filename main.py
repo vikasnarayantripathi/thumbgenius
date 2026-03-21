@@ -1182,6 +1182,84 @@ async def stripe_checkout(request: Request):
 async def billing_success(request: Request):
     return RedirectResponse(url="/?login=1&msg=upgrade_success")
 
+
+# ══════════════════════════════════════════════════════
+# TOP-UP BOOST PACKS
+# ══════════════════════════════════════════════════════
+
+TOPUP_PACKS = {
+    "topup_20":  {"images": 20,  "price_inr": 24900,  "price_usd": 299,  "label": "+20 Images"},
+    "topup_50":  {"images": 50,  "price_inr": 49900,  "price_usd": 499,  "label": "+50 Images"},
+    "topup_150": {"images": 150, "price_inr": 149900, "price_usd": 1499, "label": "+150 Images"},
+    "topup_500": {"images": 500, "price_inr": 499900, "price_usd": 4999, "label": "+500 Images"},
+}
+
+@app.post("/topup/checkout")
+async def topup_checkout(request: Request):
+    try:
+        data = await request.json()
+        email = data.get("email","").strip().lower()
+        pack_id = data.get("pack_id","").strip()
+        if not email or "@" not in email:
+            return JSONResponse({"error": "Valid email required"}, status_code=400)
+        pack = TOPUP_PACKS.get(pack_id)
+        if not pack:
+            return JSONResponse({"error": "Invalid pack"}, status_code=400)
+        # Create Razorpay order (one-time payment)
+        async with httpx.AsyncClient(timeout=15) as h:
+            r = await h.post("https://api.razorpay.com/v1/orders",
+                auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET),
+                json={
+                    "amount": pack["price_inr"],
+                    "currency": "INR",
+                    "receipt": f"topup_{email[:20]}_{pack_id}",
+                    "notes": {"email": email, "pack_id": pack_id, "images": pack["images"]}
+                })
+        order = r.json()
+        if "id" not in order:
+            logger.error(f"Razorpay order error: {order}")
+            return JSONResponse({"error": "Payment setup failed"}, status_code=500)
+        return JSONResponse({
+            "order_id": order["id"],
+            "razorpay_key": RAZORPAY_KEY_ID,
+            "amount": pack["price_inr"],
+            "pack_id": pack_id,
+            "label": pack["label"],
+            "email": email
+        })
+    except Exception as e:
+        logger.error(f"Topup checkout error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.post("/topup/verify")
+async def topup_verify(request: Request):
+    try:
+        data = await request.json()
+        payment_id = data.get("razorpay_payment_id","")
+        order_id   = data.get("razorpay_order_id","")
+        signature  = data.get("razorpay_signature","")
+        email      = data.get("email","").strip().lower()
+        pack_id    = data.get("pack_id","").strip()
+        # Verify signature
+        msg = f"{order_id}|{payment_id}"
+        expected = hmac.new(RAZORPAY_KEY_SECRET.encode(), msg.encode(), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, signature):
+            return JSONResponse({"error": "Invalid signature"}, status_code=400)
+        pack = TOPUP_PACKS.get(pack_id)
+        if not pack:
+            return JSONResponse({"error": "Invalid pack"}, status_code=400)
+        # Add images to user account
+        pd = await get_user_plan(email)
+        current_topup = pd.get("topup_images", 0)
+        new_topup = current_topup + pack["images"]
+        await sb_update_user(email, {"topup_images": new_topup})
+        await invalidate_plan_cache(email)
+        logger.info(f"Topup: {email} bought {pack_id} ({pack['images']} images)")
+        return JSONResponse({"success": True, "images_added": pack["images"], "total_topup": new_topup})
+    except Exception as e:
+        logger.error(f"Topup verify error: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 @app.post("/webhook/razorpay")
 async def razorpay_webhook(request: Request):
     try:

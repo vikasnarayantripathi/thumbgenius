@@ -5928,41 +5928,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── TOP-UP FUNCTIONS ──
 async function buyTopup(packageId) {
-    const email = localStorage.getItem('tg_email') || '';
-    const plan  = localStorage.getItem('tg_plan')  || 'free';
+    const email = currentUserEmail || localStorage.getItem('tg_email') || '';
+    const plan  = localStorage.getItem('tg_plan') || 'free';
     if(!email){ alert('Please login to purchase top-up'); openLoginModal(); return; }
-    if(plan === 'free'){ alert('Top-ups are available for Creator, Pro and Enterprise plans. Please upgrade first.'); openPaymentModal(); return; }
-    // Open Razorpay for top-up payment
-    const packages = {'topup_10':{price:4900,label:'+10 Images'},'topup_30':{price:9900,label:'+30 Images'},'topup_100':{price:24900,label:'+100 Images'},'topup_300':{price:59900,label:'+300 Images'}};
-    const pkg = packages[packageId];
-    if(!pkg) return;
-    const options = {
-        key: window.RAZORPAY_KEY || '',
-        amount: pkg.price,
-        currency: 'INR',
-        name: 'ThumbGenius',
-        description: 'Image Top-Up: ' + pkg.label,
-        prefill: { email: email },
-        theme: { color: '#FFE036' },
-        handler: async function(response) {
-            const res = await fetch('/topup/apply', {
-                method:'POST', headers: _hdrs(),
-                body: JSON.stringify({package_id: packageId, payment_id: response.razorpay_payment_id})
-            });
-            const data = await res.json();
-            if(data.success){
-                alert('✅ ' + data.images_added + ' images added to your account!');
-                loadDashboard();
-            } else {
-                alert('Payment received but top-up failed. Contact support.');
-            }
-        }
-    };
-    if(typeof Razorpay !== 'undefined'){
-        const rzp = new Razorpay(options);
+    if(plan === 'free'){ alert('Top-ups are for paid plans. Please upgrade first.'); openPaymentModal(); return; }
+
+    try {
+        // Create Razorpay order
+        const res = await fetch('/topup/checkout', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, pack_id: packageId})
+        });
+        const data = await res.json();
+        if(data.error){ alert(data.error); return; }
+
+        const rzp = new Razorpay({
+            key: data.razorpay_key,
+            amount: data.amount,
+            currency: 'INR',
+            order_id: data.order_id,
+            name: 'ThumbGenius',
+            description: 'Boost Pack: ' + data.label,
+            prefill: {email},
+            theme: {color: '#FFE036'},
+            handler: async function(response) {
+                const vres = await fetch('/topup/verify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        email, pack_id: packageId
+                    })
+                });
+                const vdata = await vres.json();
+                if(vdata.success){
+                    const div = document.createElement('div');
+                    div.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0d0d1a;border:1px solid rgba(255,215,0,0.3);border-radius:20px;padding:40px;text-align:center;z-index:9999;max-width:380px;width:90%';
+                    div.innerHTML = '<div style="font-size:48px;margin-bottom:16px">🚀</div><h2 style="font-size:22px;font-weight:800;color:#FFD700;margin-bottom:8px">Boost Pack Activated!</h2><p style="color:rgba(255,255,255,0.6);font-size:14px">'+vdata.images_added+' images added to your account!</p><button onclick="this.parentElement.remove();loadDashboard()" style="margin-top:20px;background:#FFD700;color:#000;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer">Start Generating →</button>';
+                    document.body.appendChild(div);
+                } else {
+                    alert('Payment received. Contact hello@thumbgenius.in if images not added.');
+                }
+            },
+            modal: {ondismiss: function(){ console.log('Topup dismissed'); }}
+        });
         rzp.open();
-    } else {
-        alert('Payment gateway loading... Please try again in a moment.');
+    } catch(e) {
+        alert('Payment setup failed: ' + e.message);
     }
 }
 
