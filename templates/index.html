@@ -3585,10 +3585,7 @@ async function generateImage(){
     document.getElementById('imageBtn').disabled=true;
     try{
                 // Use custom image if uploaded
-                // Always generate clean image — text is drawn on canvas by JS
-                // Build payload based on selected mode
                 const mode = _imgMode || 'clean';
-                // Build payload based on mode
                 const isClean = mode === 'clean';
                 const isBaked = mode === 'baked';
                 let imgPayload = {
@@ -3598,8 +3595,7 @@ async function generateImage(){
                     text_overlay: isBaked ? (lastTextOverlay || '') : '',
                     no_baked_text: !isBaked,
                     clean_mode: isClean,
-                    language: selectedLanguage || 'english',
-                    clean_mode: isClean
+                    language: selectedLanguage || 'english'
                 };
                 // Face upload
                 if (_faceB64) {
