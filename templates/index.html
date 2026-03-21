@@ -2826,30 +2826,137 @@ function showPage(p){
       <div style="font-size:12px;color:rgba(255,255,255,0.3)">&#x1F4A1; Top-up credits never expire. Use anytime.</div>
     </div>
 
-    <!-- Enterprise Panel -->
-    <div class="dash-section" id="enterprisePanel" style="display:none;border-color:rgba(67,233,123,0.2)">
-      <div class="dash-section-hd" style="margin-bottom:20px">
-        <div class="dash-section-label" style="color:#43E97B">🏢 Enterprise Dashboard</div>
-      </div>
-      <div style="margin-bottom:28px">
-        <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">🔑 Your API Key</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <div id="entApiKeyBox" style="flex:1;background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:12px 16px;font-family:monospace;font-size:13px;color:#43E97B;min-width:200px;word-break:break-all">Loading...</div>
-          <button onclick="entCopyApiKey()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-size:13px;font-weight:700">📋 Copy</button>
-          <button onclick="entRegenApiKey()" style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.2);border-radius:10px;padding:10px 16px;color:#ff6464;cursor:pointer;font-size:13px;font-weight:700">🔄 Regenerate</button>
+    <!-- ═══ ENTERPRISE PREMIUM DASHBOARD ═══ -->
+    <div id="enterprisePanel" style="display:none">
+      <!-- Enterprise Hero Banner -->
+      <div style="background:linear-gradient(135deg,rgba(67,233,123,0.08),rgba(0,0,0,0));border:1px solid rgba(67,233,123,0.25);border-radius:20px;padding:28px;margin-bottom:20px;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(67,233,123,0.15),transparent);border-radius:50%"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Enterprise Plan</div>
+            <div style="font-size:24px;font-weight:900;color:#fff;margin-bottom:4px">Welcome to ThumbGenius Enterprise</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.5)">Unlimited everything · Priority support · White-label API</div>
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:12px;padding:14px 20px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:#43E97B">∞</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">Generations</div>
+            </div>
+            <div style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:12px;padding:14px 20px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:#43E97B" id="entTeamCount">10</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">Team Seats</div>
+            </div>
+            <div style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:12px;padding:14px 20px;text-align:center">
+              <div style="font-size:22px;font-weight:900;color:#43E97B">✓</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">API Access</div>
+            </div>
+          </div>
         </div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:8px">Use this key in the Authorization header: <code style="color:rgba(67,233,123,0.6)">X-API-Key: your-key</code></div>
       </div>
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
-          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px">👥 Team Members <span id="entSeatsLabel" style="color:rgba(67,233,123,0.7);font-weight:400"></span></div>
+
+      <!-- API Key Section -->
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.15);border-radius:16px;padding:22px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">🔑 API Key</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+          <div id="entApiKeyBox" style="flex:1;background:rgba(0,0,0,0.4);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:12px 16px;font-family:monospace;font-size:13px;color:#43E97B;min-width:200px;word-break:break-all">Loading...</div>
+          <button onclick="entCopyApiKey()" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);border-radius:10px;padding:10px 16px;color:#43E97B;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">📋 Copy</button>
+          <button onclick="entRegenApiKey()" style="background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.2);border-radius:10px;padding:10px 16px;color:#ff6464;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">🔄 Regen</button>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3)">Use in header: <code style="color:rgba(67,233,123,0.6)">X-API-Key: your-key</code> · <a href="/docs" style="color:rgba(67,233,123,0.6)">API Docs →</a></div>
+      </div>
+
+      <!-- Team Management -->
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.15);border-radius:16px;padding:22px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div style="font-size:11px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:1px">👥 Team Members <span id="entSeatsLabel" style="color:rgba(67,233,123,0.6);font-weight:400;text-transform:none;letter-spacing:0"></span></div>
           <div style="display:flex;gap:8px">
-            <input id="entInviteEmail" type="email" placeholder="colleague@email.com" style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:8px 14px;color:#fff;font-size:13px;width:200px;outline:none">
-            <button onclick="entInviteMember()" style="background:#43E97B;border:none;border-radius:10px;padding:8px 16px;color:#02020A;cursor:pointer;font-size:13px;font-weight:700">+ Invite</button>
+            <input id="entInviteEmail" type="email" placeholder="colleague@email.com" style="background:rgba(0,0,0,0.4);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:8px 14px;color:#fff;font-size:13px;width:180px;outline:none;font-family:inherit">
+            <button onclick="entInviteMember()" style="background:#43E97B;border:none;border-radius:10px;padding:8px 16px;color:#02020A;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">+ Invite</button>
           </div>
         </div>
         <div id="entMembersList" style="display:flex;flex-direction:column;gap:8px">
-          <div style="color:rgba(255,255,255,0.3);font-size:13px">Loading team...</div>
+          <div style="color:rgba(255,255,255,0.3);font-size:13px;text-align:center;padding:20px">Loading team...</div>
+        </div>
+      </div>
+
+      <!-- Usage Analytics -->
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(67,233,123,0.15);border-radius:16px;padding:22px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">📊 Usage Analytics</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
+          <div style="background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.1);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:#43E97B" id="entTotalGen">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Total Generations</div>
+          </div>
+          <div style="background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.1);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:#43E97B" id="entTotalAna">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Analyses Done</div>
+          </div>
+          <div style="background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.1);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:#43E97B" id="entAvgCtr">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">Avg CTR Score</div>
+          </div>
+          <div style="background:rgba(67,233,123,0.05);border:1px solid rgba(67,233,123,0.1);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:900;color:#43E97B" id="entApiCalls">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">API Calls</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Support -->
+      <div style="background:linear-gradient(135deg,rgba(67,233,123,0.05),rgba(0,0,0,0));border:1px solid rgba(67,233,123,0.15);border-radius:16px;padding:22px">
+        <div style="font-size:11px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">🎯 Priority Support</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <a href="mailto:enterprise@thumbgenius.in" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:10px 18px;color:#43E97B;text-decoration:none;font-size:13px;font-weight:700">📧 Email Support</a>
+          <a href="https://wa.me/91XXXXXXXXXX" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:10px 18px;color:#43E97B;text-decoration:none;font-size:13px;font-weight:700">💬 WhatsApp</a>
+          <button onclick="window.open('/enterprise','_blank')" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:10px 18px;color:#43E97B;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">📋 Enterprise Portal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ ADMIN CONTROL PANEL ═══ -->
+    <div id="adminControlPanel" style="display:none;margin-top:20px">
+      <div style="background:linear-gradient(135deg,rgba(255,92,0,0.08),rgba(0,0,0,0));border:1px solid rgba(255,92,0,0.3);border-radius:20px;padding:28px">
+        <div style="font-size:11px;font-weight:700;color:#FF5C00;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px">👑 Admin Control Panel</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+          <div style="background:rgba(255,92,0,0.06);border:1px solid rgba(255,92,0,0.15);border-radius:12px;padding:16px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">Total Users</div>
+            <div style="font-size:28px;font-weight:900;color:#FF5C00" id="adminTotalUsers">—</div>
+          </div>
+          <div style="background:rgba(255,92,0,0.06);border:1px solid rgba(255,92,0,0.15);border-radius:12px;padding:16px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">Paid Users</div>
+            <div style="font-size:28px;font-weight:900;color:#FF5C00" id="adminPaidUsers">—</div>
+          </div>
+          <div style="background:rgba(255,92,0,0.06);border:1px solid rgba(255,92,0,0.15);border-radius:12px;padding:16px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">Revenue (MRR)</div>
+            <div style="font-size:28px;font-weight:900;color:#FF5C00" id="adminMRR">—</div>
+          </div>
+          <div style="background:rgba(255,92,0,0.06);border:1px solid rgba(255,92,0,0.15);border-radius:12px;padding:16px">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px">Today's Signups</div>
+            <div style="font-size:28px;font-weight:900;color:#FF5C00" id="adminTodaySignups">—</div>
+          </div>
+        </div>
+        <!-- Admin Actions -->
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Quick Actions</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">
+          <button onclick="adminSetUserPlan()" style="background:rgba(255,92,0,0.1);border:1px solid rgba(255,92,0,0.3);border-radius:10px;padding:10px 16px;color:#FF5C00;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">👤 Set User Plan</button>
+          <button onclick="adminResetUser()" style="background:rgba(255,92,0,0.1);border:1px solid rgba(255,92,0,0.3);border-radius:10px;padding:10px 16px;color:#FF5C00;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">🔄 Reset Credits</button>
+          <button onclick="showPage('home')" style="background:rgba(255,92,0,0.1);border:1px solid rgba(255,92,0,0.3);border-radius:10px;padding:10px 16px;color:#FF5C00;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">🎨 Test Generate</button>
+          <button onclick="window.open('/health','_blank')" style="background:rgba(255,92,0,0.1);border:1px solid rgba(255,92,0,0.3);border-radius:10px;padding:10px 16px;color:#FF5C00;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">🔧 System Health</button>
+        </div>
+        <!-- Set User Plan Tool -->
+        <div id="adminSetPlanTool" style="display:none;background:rgba(0,0,0,0.3);border:1px solid rgba(255,92,0,0.15);border-radius:12px;padding:16px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:10px">Set User Plan</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input id="adminEmailInput" type="email" placeholder="user@email.com" style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,92,0,0.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;width:200px;outline:none;font-family:inherit">
+            <select id="adminPlanSelect" style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,92,0,0.2);border-radius:8px;padding:8px 12px;color:#fff;font-size:13px;outline:none;font-family:inherit">
+              <option value="free">Free</option>
+              <option value="creator">Creator</option>
+              <option value="pro">Pro</option>
+              <option value="agency">Agency</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+            <button onclick="adminApplyPlan()" style="background:#FF5C00;border:none;border-radius:8px;padding:8px 16px;color:#fff;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">Apply</button>
+          </div>
         </div>
       </div>
     </div>
@@ -6345,6 +6452,78 @@ async function entLoadApiKey() {
         if (data.api_key) { _entApiKey = data.api_key; box.textContent = _entApiKey; }
         else box.textContent = 'Could not load API key';
     } catch(e) { box.textContent = 'Error loading key'; }
+}
+
+
+// ── Admin Control Panel Functions ─────────────────────────────
+function adminSetUserPlan() {
+    const tool = document.getElementById('adminSetPlanTool');
+    if(tool) tool.style.display = tool.style.display === 'none' ? 'block' : 'none';
+}
+
+async function adminApplyPlan() {
+    const email = document.getElementById('adminEmailInput').value.trim();
+    const plan = document.getElementById('adminPlanSelect').value;
+    if(!email){ alert('Enter email'); return; }
+    try {
+        const res = await fetch('/admin/set-plan-user', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Code':'VIKAS2025'},
+            body: JSON.stringify({email, plan})
+        });
+        const data = await res.json();
+        if(data.success){ alert('✅ Plan updated: ' + email + ' → ' + plan); }
+        else { alert('Error: ' + (data.error || 'Failed')); }
+    } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function adminResetUser() {
+    const email = prompt('Enter user email to reset credits:');
+    if(!email) return;
+    try {
+        const res = await fetch('/admin/reset-credits', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-Admin-Code':'VIKAS2025'},
+            body: JSON.stringify({email})
+        });
+        const data = await res.json();
+        alert(data.success ? '✅ Credits reset for: ' + email : 'Error: ' + data.error);
+    } catch(e) { alert('Error: ' + e.message); }
+}
+
+// Show admin panel if admin
+function checkAndShowAdminPanel(plan, isAdmin) {
+    const adminPanel = document.getElementById('adminControlPanel');
+    if(adminPanel && isAdmin) {
+        adminPanel.style.display = 'block';
+        // Load admin stats
+        loadAdminStats();
+    }
+}
+
+async function loadAdminStats() {
+    try {
+        const res = await fetch('/admin/stats', {
+            headers:{'X-Admin-Code':'VIKAS2025'}
+        });
+        const data = await res.json();
+        if(data.total_users !== undefined) {
+            document.getElementById('adminTotalUsers').textContent = data.total_users || 0;
+            document.getElementById('adminPaidUsers').textContent = data.paid_users || 0;
+            document.getElementById('adminMRR').textContent = '₹' + (data.mrr || 0);
+            document.getElementById('adminTodaySignups').textContent = data.today_signups || 0;
+        }
+    } catch(e) { console.log('Admin stats error:', e); }
+}
+
+// Show enterprise panel stats
+function loadEnterpriseStats(planData) {
+    const entTotalGen = document.getElementById('entTotalGen');
+    const entTotalAna = document.getElementById('entTotalAna');
+    const entAvgCtr = document.getElementById('entAvgCtr');
+    if(entTotalGen) entTotalGen.textContent = planData.generations_used || 0;
+    if(entTotalAna) entTotalAna.textContent = planData.thumb_analysis_used || 0;
+    if(entAvgCtr) entAvgCtr.textContent = planData.avg_score ? planData.avg_score.toFixed(1) : '—';
 }
 
 function entCopyApiKey() {

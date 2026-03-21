@@ -1031,6 +1031,58 @@ async def detect_region(request: Request) -> str:
         logger.warning(f"Region detect failed: {e}")
         return "IN"  # default to India on error
 
+
+@app.get("/admin/stats")
+async def admin_stats(request: Request):
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(code):
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    try:
+        # Get all users
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?select=plan,created_at",
+            headers=SB_HEADERS
+        )
+        users = r.json() if r.status_code == 200 else []
+        total = len(users)
+        paid = len([u for u in users if u.get("plan","free") != "free"])
+        from datetime import datetime, date
+        today = date.today().isoformat()
+        today_signups = len([u for u in users if str(u.get("created_at","")).startswith(today)])
+        # MRR calculation
+        plan_prices = {"creator":749,"pro":1499,"agency":3499,"enterprise":16999}
+        mrr = sum(plan_prices.get(u.get("plan","free"),0) for u in users)
+        return {"total_users":total,"paid_users":paid,"today_signups":today_signups,"mrr":mrr}
+    except Exception as e:
+        return JSONResponse({"error":str(e)}, status_code=500)
+
+@app.post("/admin/set-plan-user")
+async def admin_set_plan_user(request: Request):
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(code):
+        return JSONResponse({"error":"Unauthorized"}, status_code=401)
+    data = await request.json()
+    email = data.get("email","").strip().lower()
+    plan  = data.get("plan","free").strip().lower()
+    if not email:
+        return JSONResponse({"error":"Email required"}, status_code=400)
+    await sb_upsert_user(email, {"plan": plan, "generations_used": 0, "images_used": 0})
+    await invalidate_plan_cache(email)
+    return {"success": True, "email": email, "plan": plan}
+
+@app.post("/admin/reset-credits")
+async def admin_reset_credits(request: Request):
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(code):
+        return JSONResponse({"error":"Unauthorized"}, status_code=401)
+    data = await request.json()
+    email = data.get("email","").strip().lower()
+    if not email:
+        return JSONResponse({"error":"Email required"}, status_code=400)
+    await sb_update_user(email, {"generations_used": 0, "images_used": 0})
+    await invalidate_plan_cache(email)
+    return {"success": True, "email": email}
+
 @app.get("/billing/region")
 async def billing_region(request: Request):
     region = await detect_region(request)
