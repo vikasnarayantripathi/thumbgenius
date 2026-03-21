@@ -3617,12 +3617,23 @@ async function generateImage(){
         document.getElementById('thumbnailImg').src = imgUrl;
         const dlBtn=document.getElementById('downloadBtn'); if(dlBtn) dlBtn.href = imgUrl;
         document.getElementById('imgResult').style.display='block';
-        renderImgTitleChips();
-        // Handle overlay mode — draw text on top of generated image
-        if ((_imgMode === 'overlay') && lastTextOverlay) {
-            setTimeout(() => {
-                drawCanvasOverlayStyled(lastTextOverlay, _overlayFont, _overlayColor);
-            }, 500);
+
+        // Hide all overlays first
+        const bakedOverlay = document.getElementById('imgBakedOverlay');
+        const titleOverlay = document.getElementById('imgTitleOverlay');
+        if(bakedOverlay) bakedOverlay.style.display = 'none';
+        if(titleOverlay) titleOverlay.style.display = 'none';
+
+        // Handle modes
+        if(_imgMode === 'overlay') {
+            // Show title selector for user to pick which title to overlay
+            renderImgTitleChips();
+            const sel = document.getElementById('imgTitleSelector');
+            if(sel) sel.style.display = 'block';
+        } else {
+            // Clean or baked — hide title selector
+            const sel = document.getElementById('imgTitleSelector');
+            if(sel) sel.style.display = 'none';
         }
         if(data.images_remaining!==undefined){const n=data.images_remaining;document.getElementById('imgUsesLeft').textContent=n+' image'+(n===1?'':'s')+' remaining';}
     }catch(e){
@@ -4223,9 +4234,14 @@ function renderImgTitleChips(){
     if(!lastGeneratedData||!lastGeneratedData.titles)return;
     const wrap=document.getElementById('imgTitleChips');
     const selector=document.getElementById('imgTitleSelector');
-    // Only show selector if titleOverlay toggle is ON
-    selector.style.display = _imgOptions.titleOverlay ? 'block' : 'none';
-    const noneBtn='<button class="img-title-chip-none" onclick="clearImgTitle()">&#x2715; No title</button>';
+    const isOverlayMode = _imgMode === 'overlay';
+
+    // Only show selector in overlay mode
+    if(!isOverlayMode){ selector.style.display='none'; return; }
+    selector.style.display = 'block';
+
+    // No title selected by default — user must choose
+    const noneBtn='<button class="img-title-chip-none active" id="noneTitleBtn" onclick="clearImgTitle()">✕ No title (clean)</button>';
     wrap.innerHTML=noneBtn+lastGeneratedData.titles.map((t,i)=>{
         const short=t.length>55?t.substring(0,55)+'...':t;
         const safe=t.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
@@ -4233,17 +4249,14 @@ function renderImgTitleChips(){
     }).join('');
     renderFontChips();
     renderColorChips();
-    // Only auto-select title if titleOverlay toggle is ON
-    if(_imgOptions.titleOverlay){
-        const firstChip = wrap.querySelector('.img-title-chip');
-        if(firstChip) selectImgTitle(firstChip);
-    } else {
-        // Make sure overlay is hidden
-        const ov = document.getElementById('imgTitleOverlay');
-        if(ov) ov.style.display = 'none';
-        const ot = document.getElementById('imgOverlayText');
-        if(ot) ot.textContent = '';
-    }
+
+    // Default: NO title overlay — user picks
+    const ov = document.getElementById('imgTitleOverlay');
+    if(ov) ov.style.display = 'none';
+    const ot = document.getElementById('imgOverlayText');
+    if(ot) ot.textContent = '';
+    const fc = document.getElementById('imgFontColorWrap');
+    if(fc) fc.style.display = 'none';
 }
 
 function renderFontChips(){
@@ -4300,8 +4313,16 @@ function selectImgTitle(el){
 
 function clearImgTitle(){
     document.querySelectorAll('.img-title-chip').forEach(c=>c.classList.remove('active'));
+    document.querySelectorAll('.img-title-chip-none').forEach(c=>c.classList.add('active'));
     document.getElementById('imgTitleOverlay').style.display='none';
     document.getElementById('imgFontColorWrap').style.display='none';
+}
+
+function selectImgTitleAndDraw(el){
+    selectImgTitle(el);
+    // Also draw on canvas for download
+    const title = el.dataset.title || '';
+    if(title) drawCanvasOverlayStyled(title, _overlayFont || 'Impact', _overlayColor || '#FFE036');
 }
 
 function copyAllTags(){
