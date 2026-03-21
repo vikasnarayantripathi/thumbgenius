@@ -1460,8 +1460,7 @@ async def generate_image(request: Request):
             f"QUALITY: MrBeast/PewDiePie/CarryMinati thumbnail quality, "
             f"oversaturated vibrant colors, ultra-high contrast, scroll-stopping visual. "
             f"STYLE MODIFIER: {style_mod}. "
-            f"CRITICAL RULES: ABSOLUTELY ZERO text, ZERO words, ZERO letters, ZERO numbers, ZERO watermarks, ZERO logos anywhere in the image. "
-            f"{'CLEAN MODE: This is a text-free thumbnail. Do NOT include ANY text whatsoever. Pure visual only.' if clean_mode or no_baked_text else ''}"
+            f"CRITICAL RULES: ABSOLUTELY NO TEXT of any kind. Zero words. Zero letters. Zero numbers. Zero watermarks. Zero logos. Zero signs. Zero subtitles. NOTHING written anywhere. Pure visual image only. Any text in output = FAILURE."
             f"Make this the most clickable thumbnail ever created for {niche} niche."
         )
 
