@@ -3570,7 +3570,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setImgMode('clean');
 });
 
-function generateImage(){
+async function generateImage(){
     if(!lastConcept){alert('Please generate a content package first!');return;}
     document.getElementById('imgLoading').style.display='block';
     document.getElementById('imgResult').style.display='none';
