@@ -1381,88 +1381,70 @@ async def generate_image(request: Request):
     custom_image_mode = str(data.get("custom_image_mode", "")).strip()
     if not concept: return JSONResponse({"error":"No concept provided"},status_code=400)
     try:
-        overlay_spelled = " ".join(list(overlay.upper())) if overlay else ""
-        niche = str(data.get("niche","")).strip()
-        # Default style_mod in case not set
-        style_mod = "ultra-vibrant oversaturated colors, dramatic cinematic lighting, MrBeast quality"
+        niche = str(data.get("niche","tech")).strip()
         title = str(data.get("title","")).strip()
-        # Default style_mod in case not set
-        style_mod = "ultra-vibrant oversaturated colors, dramatic cinematic lighting, MrBeast quality"
-        title = str(data.get("title","")).strip()
-        # Niche-specific CTR-optimized prompt templates
+        thumbnail_style = str(data.get("thumbnail_style","viral")).strip()
+
+        # Style modifiers
+        STYLE_MODS = {
+            "viral":     "jaw-dropping shocked expression, ultra-saturated neon colors, maximum contrast, MrBeast energy",
+            "clean":     "professional clean aesthetic, soft natural colors, minimalist composition, premium brand feel",
+            "cinematic": "dramatic film-quality lighting, dark moody atmosphere, cinematic color grading, epic scale",
+            "minimal":   "bold simple composition, high contrast with one accent color, typographic focus",
+            "mrbeast":   "MrBeast signature style, yellow/blue palette, huge excited expression, prize visual elements",
+        }
+        style_mod = STYLE_MODS.get(thumbnail_style, STYLE_MODS["viral"])
+
+        # Niche styles
         NICHE_STYLES = {
-            "tech":         "sleek dark background with glowing blue/cyan tech elements, holographic displays, circuit patterns, futuristic UI overlays, dramatic side lighting",
-            "finance":      "gold and dark green premium aesthetic, stock charts/money visuals in background, luxury feel, sharp contrast, wealth-signaling environment",
-            "gaming":       "ultra-vibrant neon colors, dark background, explosive particle effects, game UI elements, dramatic volumetric lighting, epic battle atmosphere",
-            "fitness":      "high contrast gym environment, dramatic muscle definition lighting, motivational energy, sweat glistening, powerful pose, bold warm colors",
-            "food":         "mouth-watering close-up, steam rising, rich saturated colors, dark moody background, professional food photography lighting, appetizing",
-            "travel":       "breathtaking landscape, golden hour lighting, vibrant natural colors, sense of adventure, wide establishing shot with human scale",
-            "education":    "clean bright background, knowledge symbols, books/lightbulb/graduation elements, professional yet approachable, trust-building colors",
-            "motivation":   "dramatic sunrise/sunset backdrop, powerful silhouette or expressive face, bold warm orange/yellow tones, inspirational energy",
-            "beauty":       "soft glam lighting, pastel or bold contrasting colors, makeup/beauty elements, clean aesthetic, glamorous studio feel",
-            "entertainment":"bright vivid colors, surprised/shocked expression, multiple characters, chaos energy, pop art style, entertainment show aesthetic",
-            "business":     "premium dark suit environment, boardroom or city skyline, gold accents, authority and success visual language, Forbes magazine style",
-            "cricket":      "stadium atmosphere, green pitch, dramatic action shot, blue/orange team colors, crowd energy, broadcast quality lighting",
-            "health":       "clean white/teal medical aesthetic, wellness symbols, natural elements, trust and authority, before/after potential, warm healing tones",
-            "automobiles":  "dramatic low angle car shot, speed blur, showroom or track environment, reflective surfaces, masculine dark tones with accent lighting",
-            "cooking":      "warm kitchen lighting, fresh colorful ingredients, rustic wooden surfaces, steam and sizzle, home cooking warmth, appetizing close-up",
-            "spirituality": "golden divine light rays, temple/nature backdrop, serene peaceful atmosphere, warm amber tones, ethereal glow, lotus/mandala elements",
-            "stocks":       "financial data visualization, bull/bear market energy, red-green contrast, trading terminal aesthetic, urgency and opportunity feeling",
-            "comedy":       "exaggerated shocked expression, bright primary colors, cartoon-like energy, multiple reaction faces, meme-worthy composition",
-            "productivity": "clean minimal workspace, organized elements, time/clock motifs, efficiency aesthetic, cool blue-white tones, achievement energy",
-            "examprep":     "books and study materials, academic achievement symbols, student environment, hope and success energy, blue/yellow motivational colors",
-            "music":        "concert stage lighting, musical instruments, sound wave visualizations, spotlight effect, performance energy, rich dark background",
-            "realestate":   "premium property exterior/interior, luxury lifestyle cues, architectural beauty, aspirational living, clean professional photography",
-            "fashion":      "high fashion editorial style, bold outfit colors, studio lighting, trendy aesthetic, magazine cover quality, style-forward composition",
-            "relationship": "warm emotional connection, soft bokeh background, genuine expressions, intimate yet tasteful, warm golden tones, heart/connection symbols",
-            "career":       "professional office/interview setting, confidence and success energy, business casual, achievement symbols, opportunity and growth feeling",
-            "news":         "breaking news urgency, high contrast dramatic lighting, serious authoritative tone, Indian news channel aesthetic, bold graphic elements",
-            "pets":         "adorable close-up animal face, bright cheerful background, playful energy, warm natural lighting, cute expressive animal emotions",
-            "astrology":    "mystical starry night sky, zodiac symbols, cosmic purple/gold palette, divine feminine energy, celestial charts, mysterious atmosphere",
-            "mythology":    "epic divine scene, golden celestial light, ancient Indian temple aesthetic, gods/goddesses, dramatic clouds, devotional grandeur",
+            "tech":"sleek dark background with glowing blue/cyan tech elements, futuristic UI overlays",
+            "finance":"gold and dark green premium aesthetic, stock charts in background, luxury feel",
+            "gaming":"ultra-vibrant neon colors, dark background, explosive particle effects, epic atmosphere",
+            "fitness":"high contrast gym environment, dramatic muscle definition lighting, motivational energy",
+            "food":"mouth-watering close-up, steam rising, rich saturated colors, professional food photography",
+            "travel":"breathtaking landscape, golden hour lighting, vibrant natural colors, sense of adventure",
+            "education":"clean bright background, knowledge symbols, professional yet approachable",
+            "motivation":"dramatic sunrise backdrop, powerful silhouette, bold warm orange/yellow tones",
+            "beauty":"soft glam lighting, pastel colors, makeup elements, clean aesthetic, glamorous studio",
+            "entertainment":"bright vivid colors, surprised expression, chaos energy, pop art style",
+            "business":"premium dark environment, boardroom or city skyline, gold accents, Forbes style",
+            "cricket":"stadium atmosphere, green pitch, dramatic action shot, crowd energy",
+            "health":"clean white/teal medical aesthetic, wellness symbols, natural elements, trust-building",
+            "automobiles":"dramatic low angle car shot, speed blur, showroom environment, reflective surfaces",
+            "cooking":"warm kitchen lighting, fresh colorful ingredients, rustic wooden surfaces, appetizing",
+            "spirituality":"golden divine light rays, temple backdrop, serene atmosphere, warm amber tones",
+            "stocks":"financial data visualization, bull market energy, red-green contrast, trading terminal",
+            "comedy":"exaggerated shocked expression, bright primary colors, cartoon-like energy",
+            "music":"concert stage lighting, musical instruments, spotlight effect, performance energy",
         }
-        
-        niche_style = NICHE_STYLES.get(niche.lower(), "ultra-vibrant colors, dramatic cinematic lighting, professional photography quality")
-        
-        # Emotion mapping for face expression
-        EMOTION_MAP = {
-            "shocking": "jaw-drop shocked expression, wide eyes, hand on mouth",
-            "amazing": "extremely excited euphoric expression, arms raised in celebration",
-            "secret": "conspiratorial whisper expression, finger on lips, raised eyebrow",
-            "money": "eyes wide with excitement at money/wealth, greedy excited look",
-            "angry": "intense frustrated angry expression, furrowed brows, pointing finger",
-            "happy": "genuine beaming smile, eyes crinkled with joy, energetic positive",
-            "scared": "terrified shocked expression, covering mouth, backing away",
-            "confused": "puzzled confused expression, tilted head, questioning look",
-            "proud": "confident proud smiling expression, chest out, accomplished look",
-            "serious": "intense serious focused expression, direct eye contact, authoritative",
-        }
-        
-        # Detect emotion from concept
-        detected_emotion = "extremely surprised shocked expression with wide eyes and open mouth"
-        for emotion, expr in EMOTION_MAP.items():
-            title_text = str(data.get("title","")).strip()
-            if emotion in concept.lower() or emotion in title_text.lower():
-                detected_emotion = expr
-                break
-        
-        # Build 10X CTR-optimized prompt
-        img_prompt = (
-            f"Ultra-viral YouTube thumbnail, 16:9 widescreen format, photorealistic 8K hyperdetailed. "
-            f"SCENE: {concept}. "
-            f"NICHE STYLE: {niche_style}. "
-            f"PERSON: Indian/South Asian creator, {detected_emotion}, face occupying 35-45% of frame on left or right third, "
-            f"sharp focus on face with slight background blur. "
-            f"COMPOSITION: Rule of thirds — person on one side, key visual element on other side, "
-            f"strong foreground-background separation, eye-level or slight low angle for authority. "
-            f"LIGHTING: Dramatic 3-point lighting, rim light creating separation, "
-            f"colored accent light matching niche palette, no flat lighting. "
-            f"QUALITY: MrBeast/PewDiePie/CarryMinati thumbnail quality, "
-            f"oversaturated vibrant colors, ultra-high contrast, scroll-stopping visual. "
-            f"STYLE MODIFIER: {style_mod}. "
-            f"CRITICAL RULES: ABSOLUTELY NO TEXT of any kind. Zero words. Zero letters. Zero numbers. Zero watermarks. Zero logos. Zero signs. Zero subtitles. NOTHING written anywhere. Pure visual image only. Any text in output = FAILURE."
-            f"Make this the most clickable thumbnail ever created for {niche} niche."
-        )
+        niche_style = NICHE_STYLES.get(niche.lower(), "ultra-vibrant colors, dramatic cinematic lighting")
+
+        # Build prompt based on mode
+        if clean_mode or no_baked_text:
+            # CLEAN MODE - absolutely no text
+            img_prompt = (
+                f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
+                f"SCENE: {concept}. "
+                f"STYLE: {niche_style}. {style_mod}. "
+                f"PERSON: Indian/South Asian creator with highly expressive face, "
+                f"face on one side of frame, background scene on other side. "
+                f"LIGHTING: Dramatic 3-point lighting, rim light, colored accent matching niche. "
+                f"STRICT RULE: NO TEXT. NO WORDS. NO LETTERS. NO NUMBERS. NO SIGNS. "
+                f"NO WATERMARKS. NO LOGOS. Absolutely nothing written anywhere. Pure visual only."
+            )
+        else:
+            # BAKED TEXT MODE - AI includes text in image
+            text_to_bake = overlay if overlay else title[:30] if title else concept[:30]
+            img_prompt = (
+                f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
+                f"SCENE: {concept}. "
+                f"STYLE: {niche_style}. {style_mod}. "
+                f"PERSON: Indian/South Asian creator with highly expressive face on left third. "
+                f"TEXT: Include bold readable text saying exactly '{text_to_bake}' "
+                f"in large Impact or Bebas font on the right side, "
+                f"white or yellow color with dark shadow for readability. "
+                f"LIGHTING: Dramatic cinematic lighting."
+            )
 
         # If custom image provided — use Gemini Vision to generate around it
         if custom_image_b64 and custom_image_mode == "generate":
