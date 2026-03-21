@@ -1375,7 +1375,7 @@ async def generate_image(request: Request):
     concept = str(data.get("concept","")).strip()
     overlay = str(data.get("text_overlay","")).strip()
     language = str(data.get("language","english")).strip().lower()
-    no_baked_text = bool(data.get("no_baked_text", False))
+    no_baked_text = bool(data.get("no_baked_text", True))  # Default TRUE = no text
     clean_mode = bool(data.get("clean_mode", False))
     custom_image_b64 = data.get("custom_image_b64", None)
     custom_image_mode = str(data.get("custom_image_mode", "")).strip()
