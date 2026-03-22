@@ -135,17 +135,19 @@ def get_ip(request: Request) -> str:
 
 
 # ─── Intelligence Engine ──────────────────────────────────────────────────────
+_ie_err = None
 try:
     from intelligence_engine.admin.app import admin_app
     from intelligence_engine.database import setup_tables
     from intelligence_engine.crons.scheduler import start_scheduler
     IE_ENABLED = True
-except Exception as _ie_err:
+    print("[IE] Loaded successfully")
+except Exception as _ie_err_caught:
+    _ie_err = _ie_err_caught
     IE_ENABLED = False
     import traceback
-    _ie_traceback = traceback.format_exc()
-    print(f"[IE] Not loaded: {_ie_err}")
-    print(f"[IE] Traceback: {_ie_traceback}")
+    print(f"[IE] Not loaded: {_ie_err_caught}")
+    print(f"[IE] Traceback: {traceback.format_exc()}")
 
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
 @asynccontextmanager
