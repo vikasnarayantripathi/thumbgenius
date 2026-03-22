@@ -1728,7 +1728,7 @@ loadPayouts('pending', null);
 
 @app.get("/debug/ie")
 async def debug_ie():
-    return {"ie_enabled": IE_ENABLED, "ie_error": str(_ie_err) if not IE_ENABLED else None}
+    return {"ie_enabled": IE_ENABLED, "ie_error": str(globals().get("_ie_err","none"))}
 
 @app.get("/billing/region")
 async def billing_region(request: Request):
