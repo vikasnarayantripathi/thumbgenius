@@ -2679,33 +2679,7 @@ function showPage(p){
       <div id="dashModuleCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
     </div>
 
-    <!-- Quick Actions -->
-    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">⚡ Quick Actions</div>
-    <div class="dash-quick-grid" style="margin-bottom:20px">
-      <div class="dash-quick-card dash-quick-generate">
-        <div class="dash-quick-icon">🎨</div>
-        <div class="dash-quick-title">Generate Thumbnail</div>
-        <div class="dash-quick-sub">AI titles + thumbnail concept for any topic</div>
-        <input id="dashQuickTopic" class="dash-quick-input" placeholder="Enter video topic or prompt&hellip;" onkeydown="if(event.key==='Enter')dashQuickGenerate()"/>
-        <button class="dash-quick-btn" onclick="dashQuickGenerate()">⚡ Generate Now</button>
-      </div>
-      <div class="dash-quick-card dash-quick-analyze">
-        <div class="dash-quick-icon">🔍</div>
-        <div class="dash-quick-title">Analyze Thumbnail</div>
-        <div class="dash-quick-sub">Upload any thumbnail for an instant CTR score</div>
-        <label style="width:100%;cursor:pointer;display:block">
-          <div class="dash-quick-btn" style="text-align:center">📁 Upload &amp; Analyze</div>
-          <input type="file" accept="image/*" style="display:none" onchange="dashQuickAnalyze(this)"/>
-        </label>
-      </div>
-      <div class="dash-quick-card dash-quick-blueprint">
-        <div class="dash-quick-icon">📐</div>
-        <div class="dash-quick-title">Viral Blueprint</div>
-        <div class="dash-quick-sub">Decode any YouTube thumbnail in seconds</div>
-        <input id="dashQuickUrl" class="dash-quick-input" placeholder="https://youtube.com/watch?v=&hellip;" onkeydown="if(event.key==='Enter')dashQuickBlueprint()"/>
-        <button class="dash-quick-btn" onclick="dashQuickBlueprint()">📐 Analyze</button>
-      </div>
-    </div>
+
 
     <!-- Score section -->
     <div class="dash-score-section">
@@ -2844,26 +2818,34 @@ function showPage(p){
         </div>
 
         <!-- Commission tiers -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;text-align:center">
-            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:6px">FREE</div>
-            <div style="font-size:18px;font-weight:900;color:#fff">₹100</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px">flat per referral</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
+          <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4)">FREE</div>
+              <div style="font-size:18px;font-weight:900;color:#fff">₹100</div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3)">Flat per paid referral</div>
           </div>
-          <div style="background:rgba(139,133,255,0.06);border:1px solid rgba(139,133,255,0.2);border-radius:12px;padding:14px;text-align:center">
-            <div style="font-size:11px;font-weight:700;color:#8B85FF;margin-bottom:6px">CREATOR</div>
-            <div style="font-size:18px;font-weight:900;color:#8B85FF">25%</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px">for 6 months</div>
+          <div style="background:rgba(139,133,255,0.06);border:1px solid rgba(139,133,255,0.2);border-radius:12px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:#8B85FF">CREATOR</div>
+              <div style="font-size:18px;font-weight:900;color:#8B85FF">25%</div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3)">6 months + <span style="color:#8B85FF;font-weight:700">15% lifetime</span> on renewals</div>
           </div>
-          <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.2);border-radius:12px;padding:14px;text-align:center">
-            <div style="font-size:11px;font-weight:700;color:#FFE036;margin-bottom:6px">PRO</div>
-            <div style="font-size:18px;font-weight:900;color:#FFE036">30%</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px">for 12 months</div>
+          <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.2);border-radius:12px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:#FFE036">PRO</div>
+              <div style="font-size:18px;font-weight:900;color:#FFE036">30%</div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3)">12 months + <span style="color:#FFE036;font-weight:700">15% lifetime</span> on renewals</div>
           </div>
-          <div style="background:rgba(67,233,123,0.06);border:1px solid rgba(67,233,123,0.2);border-radius:12px;padding:14px;text-align:center">
-            <div style="font-size:11px;font-weight:700;color:#43E97B;margin-bottom:6px">AGENCY/ENT</div>
-            <div style="font-size:18px;font-weight:900;color:#43E97B">40%</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px">lifetime recurring</div>
+          <div style="background:rgba(67,233,123,0.06);border:1px solid rgba(67,233,123,0.2);border-radius:12px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <div style="font-size:11px;font-weight:700;color:#43E97B">AGENCY / ENTERPRISE</div>
+              <div style="font-size:18px;font-weight:900;color:#43E97B">35%</div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3)">Lifetime + <span style="color:#43E97B;font-weight:700">15% forever</span> on all renewals</div>
           </div>
         </div>
 

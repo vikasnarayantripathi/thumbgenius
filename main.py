@@ -87,11 +87,11 @@ TOPUP_PACKAGES = {
 
 # Affiliate commission rates
 AFFILIATE_RATES = {
-    "free":       {"rate": 0.00, "duration_months": 0,   "label": "₹100 flat per paid referral"},
-    "creator":    {"rate": 0.25, "duration_months": 6,   "label": "25% recurring for 6 months"},
-    "pro":        {"rate": 0.30, "duration_months": 12,  "label": "30% recurring for 12 months"},
-    "agency":     {"rate": 0.35, "duration_months": 999, "label": "35% lifetime recurring"},
-    "enterprise": {"rate": 0.40, "duration_months": 999, "label": "40% lifetime recurring"},
+    "free":       {"rate": 0.00, "initial_months": 0,   "lifetime_rate": 0.00, "label": "₹100 flat per paid referral"},
+    "creator":    {"rate": 0.25, "initial_months": 6,   "lifetime_rate": 0.15, "label": "25% for 6 months + 15% lifetime on renewals"},
+    "pro":        {"rate": 0.30, "initial_months": 12,  "lifetime_rate": 0.15, "label": "30% for 12 months + 15% lifetime on renewals"},
+    "agency":     {"rate": 0.30, "initial_months": 999, "lifetime_rate": 0.15, "label": "30% lifetime + 15% on all renewals"},
+    "enterprise": {"rate": 0.35, "initial_months": 999, "lifetime_rate": 0.15, "label": "35% lifetime + 15% on all renewals"},
 }
 ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro", "enterprise"]}}
 
@@ -1384,10 +1384,11 @@ async def billing_success(request: Request):
 # ══════════════════════════════════════════════════════
 
 TOPUP_PACKS = {
-    "topup_20":  {"images": 20,  "price_inr": 24900,  "price_usd": 299,  "label": "+20 Images"},
-    "topup_50":  {"images": 50,  "price_inr": 49900,  "price_usd": 499,  "label": "+50 Images"},
-    "topup_150": {"images": 150, "price_inr": 149900, "price_usd": 1499, "label": "+150 Images"},
-    "topup_500": {"images": 500, "price_inr": 499900, "price_usd": 4999, "label": "+500 Images"},
+    "topup_20":   {"images": 20,   "price_inr": 24900,  "price_usd": 299,  "label": "+20 Images"},
+    "topup_50":   {"images": 50,   "price_inr": 49900,  "price_usd": 499,  "label": "+50 Images"},
+    "topup_150":  {"images": 150,  "price_inr": 149900, "price_usd": 1499, "label": "+150 Images"},
+    "topup_500":  {"images": 500,  "price_inr": 499900, "price_usd": 4999, "label": "+500 Images"},
+    "topup_1000": {"images": 1000, "price_inr": 249900, "price_usd": 2999, "label": "+1000 Images"},
 }
 
 @app.post("/topup/checkout")
