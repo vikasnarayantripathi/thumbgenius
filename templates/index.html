@@ -2145,18 +2145,28 @@ function showPage(p){
 </div>
 
 <div class="page" id="page-trending">
-    <div class="feature-page">
-        <div class="feature-page-title">What's Trending on YouTube 🌍</div>
-        <p class="feature-page-sub">Select categories below and click <strong>Get Trending Topics</strong> to fetch live topic intelligence for your niche.</p>
-
-        <div class="trending-cat-section">
-            <div class="res-label" style="margin-bottom:14px">SELECT YOUR NICHES (pick one or more)</div>
-            <div class="trending-inline-grid" id="trendingCatGrid"></div>
-            <button class="btn-gen" id="btnFetchTrending" onclick="forceFetchTrending()" style="margin-top:24px;max-width:280px">&#x1F525; Get Trending Topics</button>
-        </div>
-
-        <div id="trendingCategoryBlocks" style="margin-top:32px"></div>
+<div class="feature-page" style="max-width:1100px">
+  <!-- Hero -->
+  <div style="background:linear-gradient(135deg,rgba(255,92,0,0.08),rgba(0,0,0,0));border:1px solid rgba(255,92,0,0.2);border-radius:20px;padding:28px;margin-bottom:28px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:#FF5C00;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">🔥 Live Intelligence</div>
+        <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:6px">What's Trending on YouTube</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5)">Real-time topic intelligence across 29 niches · Updated every 6 hours</div>
+      </div>
+      <button class="btn-gen" id="btnFetchTrending" onclick="forceFetchTrending()" style="padding:14px 28px;min-width:180px">🔥 Fetch Live Trends</button>
     </div>
+  </div>
+
+  <!-- Niche selector -->
+  <div style="margin-bottom:24px">
+    <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Select Niches</div>
+    <div class="trending-inline-grid" id="trendingCatGrid"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="trendingCategoryBlocks" style="margin-top:8px"></div>
+</div>
 </div>
 
 
@@ -2300,60 +2310,69 @@ function showPage(p){
 <!-- ╚══════════════════════════════════════════════════════╝ -->
 <div class="page" id="page-library">
 <div class="feature-page" style="max-width:1100px">
-  <div class="feature-page-title">Viral Thumbnail Inspiration Library</div>
-  <p class="feature-page-sub">Browse high-performing thumbnail concepts tagged by technique. Save to your personal swipe file.</p>
 
-  <div class="mod-row" style="margin-bottom:16px;align-items:center">
-    <select id="libNiche" class="mod-select">
-<option value="tech">📱 Tech</option>
-<option value="finance">💰 Finance</option>
-<option value="gaming">🎮 Gaming</option>
-<option value="fitness">💪 Fitness</option>
-<option value="food">🍕 Food</option>
-<option value="travel">✈️ Travel</option>
-<option value="education">📚 Education</option>
-<option value="motivation">🔥 Motivation</option>
-<option value="beauty">💄 Beauty</option>
-<option value="entertainment">🎬 Entertainment</option>
-<option value="business">📈 Business</option>
-<option value="productivity">🧠 Productivity</option>
-<option value="cricket">🏏 Cricket</option>
-<option value="automobiles">🚗 Automobiles</option>
-<option value="examprep">🎓 Exam Prep</option>
-<option value="health">💊 Health</option>
-<option value="music">🎵 Music</option>
-<option value="realestate">🏠 Real Estate</option>
-<option value="spirituality">🌿 Spirituality</option>
-<option value="stocks">📊 Stocks</option>
-<option value="cooking">👨‍🍳 Cooking</option>
-<option value="comedy">😂 Comedy</option>
-<option value="news">📰 News</option>
-<option value="fashion">👗 Fashion</option>
-<option value="pets">🐾 Pets</option>
-<option value="astrology">🔮 Astrology</option>
-<option value="mythology">🕉️ Mythology</option>
-<option value="relationship">❤️ Relationship</option>
-<option value="career">💼 Career</option>
-</select>
-    <select id="libTrigger" class="mod-select">
-      <option value="">All Techniques</option>
-      <option value="Curiosity Gap">Curiosity Gap</option>
-      <option value="Shock Factor">Shock Factor</option>
-      <option value="Social Proof">Social Proof</option>
-      <option value="FOMO">FOMO</option>
-      <option value="Before-After">Before-After</option>
-      <option value="Authority">Authority</option>
-    </select>
-    <button class="btn-gen" onclick="lib_load()" style="flex:0;min-width:140px;padding:14px 20px">🔄 Load Library</button>
+  <!-- Hero -->
+  <div style="background:linear-gradient(135deg,rgba(139,133,255,0.08),rgba(0,0,0,0));border:1px solid rgba(139,133,255,0.2);border-radius:20px;padding:28px;margin-bottom:28px">
+    <div style="font-size:11px;font-weight:700;color:#8B85FF;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">💡 Swipe File</div>
+    <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:6px">Viral Thumbnail Inspiration Library</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5)">Curated high-CTR concepts tagged by psychological technique · Save to your personal swipe file</div>
   </div>
 
-  <div style="display:flex;gap:8px;margin-bottom:20px">
-    <button id="libTabBrowse" class="lib-tab active" onclick="lib_setTab('browse')">Browse</button>
-    <button id="libTabSaved"  class="lib-tab"        onclick="lib_setTab('saved')">⭐ Swipe File</button>
+  <!-- Filters -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px">
+    <select id="libNiche" class="mod-select" style="flex:1;min-width:160px">
+      <option value="tech">📱 Tech</option>
+      <option value="finance">💰 Finance</option>
+      <option value="gaming">🎮 Gaming</option>
+      <option value="fitness">💪 Fitness</option>
+      <option value="food">🍕 Food</option>
+      <option value="travel">✈️ Travel</option>
+      <option value="education">📚 Education</option>
+      <option value="motivation">🔥 Motivation</option>
+      <option value="beauty">💄 Beauty</option>
+      <option value="entertainment">🎬 Entertainment</option>
+      <option value="business">📈 Business</option>
+      <option value="productivity">🧠 Productivity</option>
+      <option value="cricket">🏏 Cricket</option>
+      <option value="automobiles">🚗 Automobiles</option>
+      <option value="examprep">🎓 Exam Prep</option>
+      <option value="health">💊 Health</option>
+      <option value="music">🎵 Music</option>
+      <option value="realestate">🏠 Real Estate</option>
+      <option value="spirituality">🌿 Spirituality</option>
+      <option value="stocks">📊 Stocks</option>
+      <option value="cooking">👨‍🍳 Cooking</option>
+      <option value="comedy">😂 Comedy</option>
+      <option value="news">📰 News</option>
+      <option value="fashion">👗 Fashion</option>
+      <option value="pets">🐾 Pets</option>
+      <option value="astrology">🔮 Astrology</option>
+      <option value="mythology">🕉️ Mythology</option>
+      <option value="relationship">❤️ Relationship</option>
+      <option value="career">💼 Career</option>
+    </select>
+    <select id="libTrigger" class="mod-select" style="flex:1;min-width:160px">
+      <option value="">🧠 All Techniques</option>
+      <option value="Curiosity Gap">🤔 Curiosity Gap</option>
+      <option value="Shock Factor">😱 Shock Factor</option>
+      <option value="Social Proof">👥 Social Proof</option>
+      <option value="FOMO">⚡ FOMO</option>
+      <option value="Before-After">🔄 Before-After</option>
+      <option value="Authority">🏆 Authority</option>
+      <option value="Controversy">🔥 Controversy</option>
+      <option value="Aspiration">✨ Aspiration</option>
+    </select>
+    <button class="btn-gen" onclick="lib_load()" style="flex:0;min-width:160px;padding:14px 20px">💡 Load Inspiration</button>
+  </div>
+
+  <!-- Tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:12px">
+    <button id="libTabBrowse" class="lib-tab active" onclick="lib_setTab('browse')" style="padding:8px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:rgba(139,133,255,0.1);border:1px solid rgba(139,133,255,0.3);color:#8B85FF">💡 Browse Library</button>
+    <button id="libTabSaved" class="lib-tab" onclick="lib_setTab('saved')" style="padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5)">⭐ My Swipe File</button>
   </div>
 
   <div class="mod-loading" id="libLoading"><div class="loading-spinner"></div><p>Loading inspiration library…</p></div>
-  <div id="libGrid"      class="lib-grid"></div>
+  <div id="libGrid" class="lib-grid"></div>
   <div id="libSavedGrid" class="lib-grid" style="display:none"></div>
 </div>
 </div>
@@ -2362,9 +2381,22 @@ function showPage(p){
 <!-- ║  MODULE 6 — CREATOR BRANDING SYSTEM                 ║ -->
 <!-- ╚══════════════════════════════════════════════════════╝ -->
 <div class="page" id="page-branding">
-<div class="feature-page">
-  <div class="feature-page-title">Creator Branding System</div>
-  <p class="feature-page-sub">Upload 3–5 of your thumbnails. AI extracts your visual brand DNA and generates a full Brand Kit. <em style="color:var(--yellow)">Creator / Pro only.</em></p>
+<div class="feature-page" style="max-width:1100px">
+
+  <!-- Hero -->
+  <div style="background:linear-gradient(135deg,rgba(255,224,54,0.06),rgba(0,0,0,0));border:1px solid rgba(255,224,54,0.2);border-radius:20px;padding:28px;margin-bottom:28px">
+    <div style="font-size:11px;font-weight:700;color:#FFE036;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">🎨 Brand Intelligence</div>
+    <div style="font-size:28px;font-weight:900;color:#fff;margin-bottom:6px">Creator Brand Kit</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5)">Upload your thumbnails → AI extracts your visual DNA → Get a complete Brand Kit with colors, fonts, style guide</div>
+    <div style="display:flex;gap:16px;margin-top:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5)"><span style="color:#FFE036">✓</span> Color palette extraction</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5)"><span style="color:#FFE036">✓</span> Font style detection</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5)"><span style="color:#FFE036">✓</span> Emotion pattern analysis</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5)"><span style="color:#FFE036">✓</span> CTR improvement tips</div>
+    </div>
+  </div>
+
+  <p class="feature-page-sub" style="display:none">Upload 3–5 of your thumbnails. AI extracts your visual brand DNA and generates a full Brand Kit. <em style="color:var(--yellow)">Creator / Pro only.</em></p>
 
   <div id="brandSavedKit" style="display:none;margin-bottom:28px"></div>
 
