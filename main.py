@@ -1879,12 +1879,6 @@ async def billing_success(request: Request):
 # TOP-UP BOOST PACKS
 # ══════════════════════════════════════════════════════
 
-TOPUP_PACKS = TOPUP_PACKAGES  # aliased to canonical def,
-    "topup_50":   {"images": 50,   "price_inr": 49900,  "price_usd": 499,  "label": "+50 Images"},
-    "topup_150":  {"images": 150,  "price_inr": 149900, "price_usd": 1499, "label": "+150 Images"},
-    "topup_500":  {"images": 500,  "price_inr": 499900, "price_usd": 4999, "label": "+500 Images"},
-    "topup_1000": {"images": 1000, "price_inr": 249900, "price_usd": 2999, "label": "+1000 Images"},
-}
 
 @app.post("/topup/checkout")
 async def topup_checkout(request: Request):
