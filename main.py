@@ -1063,6 +1063,7 @@ async def validate_api_key(request: Request):
     return None
 
 @app.get("/api/v1")
+@app.get("/api-docs")
 async def api_docs(request: Request):
     """Enterprise API documentation — full HTML page"""
     html = """<!DOCTYPE html>
