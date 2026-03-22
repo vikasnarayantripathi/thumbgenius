@@ -1439,6 +1439,9 @@ function showPage(p){
       <div class="plan-card" id="pc-creator" onclick="selectPlan2('creator')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s">
         <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Creator</div>
         <div style="font-size:24px;font-weight:900;margin-bottom:2px" id="price-creator">₹749</div>
+            <div id="save-creator" style="font-size:11px;color:#4ade80;font-weight:600;margin-top:3px;display:none">
+                Billed <span class="save-inr">₹7,190</span><span class="save-usd" style="display:none">$95.90</span>/yr · <span style="background:rgba(74,222,128,0.15);padding:2px 6px;border-radius:4px">Save 20%</span>
+            </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-creator">/month</div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
           <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>30 generations/mo</li>
@@ -1453,6 +1456,9 @@ function showPage(p){
         <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#FFD700;color:#000;font-size:9px;font-weight:900;padding:3px 12px;border-radius:99px;white-space:nowrap">MOST POPULAR</div>
         <div style="font-size:10px;font-weight:700;color:#FFD700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Pro</div>
         <div style="font-size:24px;font-weight:900;color:#FFD700;margin-bottom:2px" id="price-pro">₹1,499</div>
+            <div id="save-pro" style="font-size:11px;color:#4ade80;font-weight:600;margin-top:3px;display:none">
+                Billed <span class="save-inr">₹14,390</span><span class="save-usd" style="display:none">$191.90</span>/yr · <span style="background:rgba(74,222,128,0.15);padding:2px 6px;border-radius:4px">Save 20%</span>
+            </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-pro">/month</div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
           <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>100 generations/mo</li>
@@ -1466,6 +1472,9 @@ function showPage(p){
       <div class="plan-card" id="pc-agency" onclick="selectPlan2('agency')" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s">
         <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Agency</div>
         <div style="font-size:24px;font-weight:900;margin-bottom:2px" id="price-agency">₹3,499</div>
+            <div id="save-agency" style="font-size:11px;color:#4ade80;font-weight:600;margin-top:3px;display:none">
+                Billed <span class="save-inr">₹33,590</span><span class="save-usd" style="display:none">$479.90</span>/yr · <span style="background:rgba(74,222,128,0.15);padding:2px 6px;border-radius:4px">Save 20%</span>
+            </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-agency">/month</div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
           <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>300 generations/mo</li>
@@ -1479,6 +1488,9 @@ function showPage(p){
       <div class="plan-card" id="pc-enterprise" onclick="selectPlan2('enterprise')" style="background:rgba(0,255,136,0.02);border:1px solid rgba(0,255,136,0.2);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s">
         <div style="font-size:10px;font-weight:700;color:#00FF88;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Enterprise</div>
         <div style="font-size:22px;font-weight:900;color:#00FF88;margin-bottom:2px" id="price-enterprise">₹16,999</div>
+            <div id="save-enterprise" style="font-size:11px;color:#4ade80;font-weight:600;margin-top:3px;display:none">
+                Billed <span class="save-inr">₹1,63,190</span><span class="save-usd" style="display:none">$2,390</span>/yr · <span style="background:rgba(74,222,128,0.15);padding:2px 6px;border-radius:4px">Save 20%</span>
+            </div>
         <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:14px" id="cycle-enterprise">/month</div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;min-height:100px">
           <li style="font-size:11px;color:rgba(255,255,255,0.6);display:flex;gap:5px"><span style="color:#00FF88;font-weight:900">✓</span>Unlimited everything</li>
@@ -3291,15 +3303,17 @@ function setInterval2(interval) {
 function updatePlanPrices() {
     var prices = (_planPrices[_userRegion] || _planPrices.IN)[_selInterval];
     var cycle = _selInterval === 'annual' ? '/mo · billed annually' : '/month';
-    // Show annual total and savings badge
-    var annualTotals = (_planAnnualTotal[_userRegion] || _planAnnualTotal.IN);
-    document.querySelectorAll('.annual-total-display').forEach(function(el) {
-        var plan = el.getAttribute('data-plan');
-        if (_selInterval === 'annual' && annualTotals[plan]) {
-            el.textContent = 'Billed ' + annualTotals[plan] + '/yr · Save 20%';
-            el.style.display = 'block';
-        } else {
-            el.style.display = 'none';
+    // Show/hide annual savings badges
+    var isAnnual = _selInterval === 'annual';
+    var isGlobal = (_userRegion !== 'IN');
+    ['creator','pro','agency','enterprise'].forEach(function(p) {
+        var el = document.getElementById('save-' + p);
+        if (el) {
+            el.style.display = isAnnual ? 'block' : 'none';
+            var inrEl = el.querySelector('.save-inr');
+            var usdEl = el.querySelector('.save-usd');
+            if (inrEl) inrEl.style.display = isGlobal ? 'none' : 'inline';
+            if (usdEl) usdEl.style.display = isGlobal ? 'inline' : 'none';
         }
     });
     ['creator','pro','agency','enterprise'].forEach(p => {
