@@ -118,7 +118,9 @@ try:
     IE_ENABLED = True
 except Exception as _ie_err:
     IE_ENABLED = False
+    import traceback
     print(f"[IE] Not loaded: {_ie_err}")
+    print(f"[IE] Traceback: {traceback.format_exc()}")
 
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
 @asynccontextmanager
