@@ -1318,6 +1318,7 @@ function tg_initSession() {
         }, 100);
         return;
     }
+    console.log('tg_initSession: email='+email+' plan='+plan+' entered='+entered);
     // No valid session — must login
     window.location.href = '/landing';
 }
