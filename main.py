@@ -87,10 +87,11 @@ TOPUP_PACKAGES = {
 
 # Affiliate commission rates
 AFFILIATE_RATES = {
-    "free":       {"rate": 0.00, "duration_months": 0,  "label": "₹100 flat per paid referral"},
-    "creator":    {"rate": 0.20, "duration_months": 6,  "label": "20% recurring for 6 months"},
-    "pro":        {"rate": 0.30, "duration_months": 12, "label": "30% recurring for 12 months"},
-    "enterprise": {"rate": 0.40, "duration_months": 999,"label": "40% lifetime recurring"},
+    "free":       {"rate": 0.00, "duration_months": 0,   "label": "₹100 flat per paid referral"},
+    "creator":    {"rate": 0.25, "duration_months": 6,   "label": "25% recurring for 6 months"},
+    "pro":        {"rate": 0.30, "duration_months": 12,  "label": "30% recurring for 12 months"},
+    "agency":     {"rate": 0.35, "duration_months": 999, "label": "35% lifetime recurring"},
+    "enterprise": {"rate": 0.40, "duration_months": 999, "label": "40% lifetime recurring"},
 }
 ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro", "enterprise"]}}
 
