@@ -1010,6 +1010,149 @@ async def activate(request: Request, token: str = "", login_token: str = ""):
 
 # ─── Razorpay Webhook ─────────────────────────────────────────────────────────
 
+
+# ══════════════════════════════════════════════════════
+# ENTERPRISE PUBLIC API (v1)
+# ══════════════════════════════════════════════════════
+
+async def validate_api_key(request: Request):
+    """Validate X-API-Key header for enterprise API access"""
+    api_key = request.headers.get("X-API-Key", "").strip()
+    if not api_key:
+        return None
+    # Find user by API key
+    try:
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?api_key=eq.{api_key}&select=*&limit=1",
+            headers=SB_HEADERS
+        )
+        users = r.json()
+        if users and len(users) > 0:
+            user = users[0]
+            plan = user.get("plan","free")
+            if PLAN_LIMITS.get(plan,{}).get("api_access", False):
+                return user
+    except Exception as e:
+        logger.error(f"API key validation error: {e}")
+    return None
+
+@app.get("/api/v1")
+async def api_docs(request: Request):
+    """Enterprise API documentation"""
+    return JSONResponse({
+        "name": "ThumbGenius Enterprise API",
+        "version": "1.0",
+        "base_url": "https://www.thumbgenius.in/api/v1",
+        "authentication": "Pass your API key in the X-API-Key header",
+        "endpoints": {
+            "POST /api/v1/generate": "Generate titles + thumbnail blueprint",
+            "POST /api/v1/generate-image": "Generate thumbnail image",
+            "POST /api/v1/analyze": "Analyze thumbnail CTR score",
+            "POST /api/v1/blueprint": "Reverse engineer a YouTube URL",
+            "GET /api/v1/trending": "Get trending thumbnail styles",
+            "GET /api/v1/usage": "Get your API usage stats"
+        },
+        "docs": "https://www.thumbgenius.in/enterprise"
+    })
+
+@app.post("/api/v1/generate")
+async def api_generate(request: Request):
+    """Enterprise API — Generate titles + thumbnail blueprint"""
+    user = await validate_api_key(request)
+    if not user:
+        return JSONResponse({"error": "Invalid or missing API key", "docs": "/api/v1"}, status_code=401)
+    try:
+        data = await request.json()
+        topic    = str(data.get("topic","")).strip()
+        niche    = str(data.get("niche","tech")).strip()
+        language = str(data.get("language","english")).strip()
+        if not topic:
+            return JSONResponse({"error": "topic is required"}, status_code=400)
+        # Use existing generation logic
+        prompt = get_generate_prompt(topic, niche, language)
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role":"system","content":"You are a YouTube growth expert. Return ONLY valid JSON."},
+                {"role":"user","content":prompt}
+            ],
+            temperature=0.8, max_tokens=1800
+        )
+        result = parse_json_safe(response.choices[0].message.content)
+        # Track usage
+        await sb_update_user(user["email"], {"generations_used": user.get("generations_used",0)+1})
+        return JSONResponse({"success": True, "data": result, "topic": topic, "niche": niche})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.post("/api/v1/analyze")
+async def api_analyze(request: Request):
+    """Enterprise API — Analyze thumbnail"""
+    user = await validate_api_key(request)
+    if not user:
+        return JSONResponse({"error": "Invalid or missing API key"}, status_code=401)
+    try:
+        data = await request.json()
+        image_b64 = data.get("image_b64","").strip()
+        niche     = str(data.get("niche","tech")).strip()
+        title     = str(data.get("title","")).strip()
+        if not image_b64:
+            return JSONResponse({"error": "image_b64 is required"}, status_code=400)
+        if "," in image_b64:
+            image_b64 = image_b64.split(",",1)[1]
+        prompt = f"""Analyze this YouTube thumbnail for a {niche} channel.
+{f'Video title: "{title}"' if title else ''}
+Score on 6 dimensions (0-10): emotional_impact, text_clarity, face_power, color_contrast, curiosity_gap, niche_fit.
+Return JSON: {{"scores":{{"emotional_impact":8,"text_clarity":7,"face_power":9,"color_contrast":8,"curiosity_gap":7,"niche_fit":8}},"overall":7.8,"grade":"B+","fix_instructions":["tip1","tip2"],"ctr_estimate":"4-6%"}}"""
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role":"user","content":[
+                {"type":"text","text":prompt},
+                {"type":"image_url","image_url":{"url":f"data:image/jpeg;base64,{image_b64}"}}
+            ]}],
+            max_tokens=800
+        )
+        result = parse_json_safe(response.choices[0].message.content)
+        return JSONResponse({"success": True, "data": result})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/api/v1/trending")
+async def api_trending(request: Request):
+    """Enterprise API — Get trending styles"""
+    user = await validate_api_key(request)
+    if not user:
+        return JSONResponse({"error": "Invalid or missing API key"}, status_code=401)
+    niche = request.query_params.get("niche","tech")
+    cached = await redis_get(f"trending:{niche}")
+    if cached:
+        return JSONResponse({"success": True, "data": json.loads(cached), "niche": niche})
+    return JSONResponse({"success": True, "data": [], "niche": niche, "note": "No cached data"})
+
+@app.get("/api/v1/usage")
+async def api_usage(request: Request):
+    """Enterprise API — Get usage stats"""
+    user = await validate_api_key(request)
+    if not user:
+        return JSONResponse({"error": "Invalid or missing API key"}, status_code=401)
+    plan = user.get("plan","free")
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
+    return JSONResponse({
+        "success": True,
+        "email": user.get("email"),
+        "plan": plan,
+        "usage": {
+            "generations_used": user.get("generations_used",0),
+            "images_used": user.get("images_used",0),
+            "thumb_analysis_used": user.get("thumb_analysis_used",0)
+        },
+        "limits": {
+            "generations": limits["generations"],
+            "images": limits["images"],
+            "analyses": limits["thumb_analysis"]
+        }
+    })
+
 # ══════════════════════════════════════════════════════
 # BILLING ENDPOINTS
 # ══════════════════════════════════════════════════════
