@@ -3796,46 +3796,6 @@ async def admin_set_key(request: Request):
         return JSONResponse({"success": True, "message": f"{key_name} updated in memory only (Railway sync failed)"})
 
 
-# ── Admin API Key Manager ─────────────────────────────────────────────────────
-@app.post("/admin/set-key")
-async def admin_set_key(request: Request):
-    admin_code = request.headers.get("X-Admin-Code","").strip().upper()
-    if not is_admin(admin_code):
-        return JSONResponse({"error":"Unauthorized"}, status_code=403)
-    try:
-        data = await request.json()
-        key_name  = data.get("key_name","").strip()
-        key_value = data.get("key_value","").strip()
-    except:
-        return JSONResponse({"error":"Invalid request"}, status_code=400)
-    ALLOWED_KEYS = ["YOUTUBE_API_KEY","OPENAI_API_KEY","GEMINI_API_KEY",
-                    "RAZORPAY_KEY_ID","RAZORPAY_KEY_SECRET","STRIPE_SECRET_KEY",
-                    "RAZORPAY_CREATOR_MONTHLY","RAZORPAY_CREATOR_ANNUAL",
-                    "RAZORPAY_PRO_MONTHLY","RAZORPAY_PRO_ANNUAL",
-                    "RAZORPAY_AGENCY_MONTHLY","RAZORPAY_AGENCY_ANNUAL",
-                    "RAZORPAY_ENTERPRISE_MONTHLY","RAZORPAY_ENTERPRISE_ANNUAL",
-                    "STRIPE_CREATOR_MONTHLY","STRIPE_CREATOR_ANNUAL",
-                    "STRIPE_PRO_MONTHLY","STRIPE_PRO_ANNUAL",
-                    "STRIPE_AGENCY_MONTHLY","STRIPE_AGENCY_ANNUAL",
-                    "STRIPE_ENTERPRISE_MONTHLY","STRIPE_ENTERPRISE_ANNUAL",
-                    "RAZORPAY_WEBHOOK_SECRET","STRIPE_WEBHOOK_SECRET",
-                    "SUPABASE_SERVICE_KEY","APP_URL"]
-    if key_name not in ALLOWED_KEYS:
-        return JSONResponse({"error":"Key not allowed"}, status_code=400)
-    if not key_value:
-        return JSONResponse({"error":"Key value required"}, status_code=400)
-    # Update in-memory environment
-    os.environ[key_name] = key_value
-    # Update global variables dynamically
-    import main as _self
-    if hasattr(_self, key_name):
-        setattr(_self, key_name, key_value)
-    globals()[key_name] = key_value
-    logger.info(f"Admin updated key: {key_name}")
-    return JSONResponse({"success": True, "message": f"{key_name} updated successfully"})
-
-# OAuth fix Mon Mar 16 18:39:00 UTC 2026
-
 # ══ AFFILIATE ENDPOINTS ══
 @app.get("/affiliate/info")
 async def affiliate_info(request: Request):
