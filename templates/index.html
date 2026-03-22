@@ -2974,7 +2974,7 @@ function showPage(p){
         <div style="font-size:11px;font-weight:700;color:#43E97B;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">🎯 Priority Support</div>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <a href="mailto:enterprise@thumbgenius.in" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:10px 18px;color:#43E97B;text-decoration:none;font-size:13px;font-weight:700">📧 Email Support</a>
-          <a href="https://wa.me/91XXXXXXXXXX" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:10px 18px;color:#43E97B;text-decoration:none;font-size:13px;font-weight:700">💬 WhatsApp</a>
+
           <button onclick="window.open('/enterprise','_blank')" style="background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.2);border-radius:10px;padding:10px 18px;color:#43E97B;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">📋 Enterprise Portal</button>
         </div>
       </div>
@@ -5891,6 +5891,8 @@ function dashRenderScore(data) {
     });
     dashSaveScore(score100, data.verdict ? data.verdict.slice(0,40) : 'Thumbnail');
     dashUpdateProgress(score100);
+    // Save score for dashboard
+    localStorage.setItem('tg_last_score', score100);
 }
 function dashUpdateProgress(currentScore) {
     var bar = document.getElementById('dashProgBar');
@@ -6338,9 +6340,10 @@ async function loadDashboard() {
         // ── Intelligence tips ──
         dashRenderIntelligence(data);
 
-        // ── Score ──
+        // ── Score — use real data from last analysis ──
         dashRenderScore();
-        dashUpdateProgress(0);
+        var lastScore = parseFloat(localStorage.getItem('tg_last_score') || '0');
+        dashUpdateProgress(lastScore);
 
         updateNavBar(data);
 
