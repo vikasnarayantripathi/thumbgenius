@@ -3247,6 +3247,12 @@ function openPaymentModal(plan){
 // ── Clean Plans System ─────────────────────────────────────
 var _selPlan = 'pro';
 var _selInterval = 'monthly';
+// Monthly prices | Annual = monthly × 0.80 (20% off) shown per month
+// Annual total = annual_per_mo × 12 (shown in UI as "billed ₹X/yr")
+var _planAnnualTotal = {
+    IN: {creator:'₹7,190',pro:'₹14,390',agency:'₹33,590',enterprise:'₹1,63,190'},
+    GLOBAL: {creator:'$95.90',pro:'$191.90',agency:'$479.90',enterprise:'$2,390'}
+};
 var _planPrices = {
     IN: {
         monthly: {creator:'₹749',pro:'₹1,499',agency:'₹3,499',enterprise:'₹16,999'},
@@ -3284,7 +3290,18 @@ function setInterval2(interval) {
 
 function updatePlanPrices() {
     var prices = (_planPrices[_userRegion] || _planPrices.IN)[_selInterval];
-    var cycle = _selInterval === 'annual' ? '/mo (annual)' : '/month';
+    var cycle = _selInterval === 'annual' ? '/mo · billed annually' : '/month';
+    // Show annual total and savings badge
+    var annualTotals = (_planAnnualTotal[_userRegion] || _planAnnualTotal.IN);
+    document.querySelectorAll('.annual-total-display').forEach(function(el) {
+        var plan = el.getAttribute('data-plan');
+        if (_selInterval === 'annual' && annualTotals[plan]) {
+            el.textContent = 'Billed ' + annualTotals[plan] + '/yr · Save 20%';
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    });
     ['creator','pro','agency','enterprise'].forEach(p => {
         var pel = document.getElementById('price-'+p);
         var cel = document.getElementById('cycle-'+p);

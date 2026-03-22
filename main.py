@@ -1838,6 +1838,19 @@ async def razorpay_verify(request: Request):
               "gateway_subscription_id": sub_id, "currency": "INR",
               "current_period_end": expires}
     )
+    # ── Affiliate commission — credit referrer if this user came via affiliate link
+    try:
+        buyer_email = user.get("email","")
+        is_renewal  = user.get("plan") == plan  # already on this plan = renewal
+        amount_inr  = PLAN_ANNUAL_INR.get(plan, PLAN_PRICES_INR.get(plan, 0)) if interval == "annual" else PLAN_PRICES_INR.get(plan, 0)
+        await _http_sb.post(
+            f"{APP_URL}/affiliate/convert",
+            headers={"Content-Type": "application/json"},
+            json={"buyer_email": buyer_email, "plan": plan, "interval": interval,
+                  "amount_paid_inr": amount_inr, "currency": "INR", "is_renewal": is_renewal}
+        )
+    except Exception as _aff_e:
+        logger.warning(f"[affiliate] convert failed (non-fatal): {_aff_e}")
     return {"success": True, "plan": plan, "redirect": "/?login=1&msg=upgrade_success"}
 
 @app.post("/billing/stripe/checkout")
@@ -1981,6 +1994,21 @@ async def razorpay_webhook(request: Request):
                         token = secrets.token_urlsafe(32)
                         await sb_update_user(user["email"], {"activation_token": token})
                         asyncio.create_task(send_magic_link(user["email"], token, user["plan"]))
+                    # ── Affiliate commission on every charge ──
+                    try:
+                        u_plan     = user.get("plan", "free")
+                        u_interval = user.get("plan_interval", "monthly")
+                        is_renewal = event_type == "subscription.charged"
+                        amount_inr = PLAN_ANNUAL_INR.get(u_plan, PLAN_PRICES_INR.get(u_plan, 0)) if u_interval == "annual" else PLAN_PRICES_INR.get(u_plan, 0)
+                        await _http_sb.post(
+                            f"{APP_URL}/affiliate/convert",
+                            headers={"Content-Type": "application/json"},
+                            json={"buyer_email": user["email"], "plan": u_plan,
+                                  "interval": u_interval, "amount_paid_inr": amount_inr,
+                                  "currency": "INR", "is_renewal": is_renewal}
+                        )
+                    except Exception as _aff_e:
+                        logger.warning(f"[affiliate] webhook convert failed: {_aff_e}")
         elif event_type == "subscription.cancelled":
             sub = event.get("payload", {}).get("subscription", {}).get("entity", {})
             sub_id = sub.get("id")
@@ -2029,6 +2057,19 @@ async def stripe_webhook(request: Request):
                     token = secrets.token_urlsafe(32)
                     await sb_update_user(email, {"activation_token": token})
                     asyncio.create_task(send_magic_link(email, token, plan))
+                # ── Affiliate commission ──
+                try:
+                    is_renewal = event_type == "invoice.payment_succeeded"
+                    interval   = obj.get("metadata",{}).get("interval","monthly")
+                    amount_usd = round((obj.get("amount_paid") or obj.get("plan",{}).get("amount") or 0) / 100, 2)
+                    await _http_sb.post(
+                        f"{APP_URL}/affiliate/convert",
+                        headers={"Content-Type":"application/json"},
+                        json={"buyer_email": email, "plan": plan, "interval": interval,
+                              "amount_paid_usd": amount_usd, "currency": "USD", "is_renewal": is_renewal}
+                    )
+                except Exception as _aff_e:
+                    logger.warning(f"[affiliate] stripe convert failed: {_aff_e}")
 
         elif event_type == "customer.subscription.deleted":
             obj   = event.get("data",{}).get("object",{})
