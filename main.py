@@ -746,13 +746,10 @@ TRENDING_TTL   = 6 * 3600
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    try:
-        return templates.TemplateResponse("index.html", {"request": request})
-    except Exception as e:
-        import traceback
-        tb = traceback.format_exc()
-        logger.error(f"[HOME] Template error: {e}\n{tb}")
-        return HTMLResponse(f"<pre>ERROR: {e}\n\n{tb}</pre>", status_code=500)
+    import os as _os2
+    _tpl_path = _os2.path.join(_os2.path.dirname(__file__), "templates", "index.html")
+    with open(_tpl_path, "r", encoding="utf-8") as _f:
+        return HTMLResponse(_f.read())
 
 
 @app.get("/privacy", response_class=HTMLResponse)
