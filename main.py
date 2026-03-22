@@ -85,7 +85,8 @@ TOPUP_PACKAGES = {
     "topup_30":  {"images": 30,  "price_inr": 99,   "price_usd": 1.99, "price_inr_paise": 9900,   "price_usd_cents": 199,  "label": "+30 Images",  "badge": "Popular"},
     "topup_100": {"images": 100, "price_inr": 249,  "price_usd": 2.99, "price_inr_paise": 24900,  "price_usd_cents": 299,  "label": "+100 Images", "badge": "Best Value"},
     "topup_300": {"images": 300, "price_inr": 599,  "price_usd": 7.99, "price_inr_paise": 59900,  "price_usd_cents": 799,  "label": "+300 Images", "badge": "Pro Pack"},
-    "topup_500": {"images": 500, "price_inr": 999,  "price_usd": 11.99,"price_inr_paise": 99900,  "price_usd_cents": 1199, "label": "+500 Images", "badge": "Agency Pack"},
+    "topup_500":  {"images": 500,  "price_inr": 2499, "price_inr_paise": 249900, "price_usd": 29.99, "price_usd_cents": 2999, "label": "+500 Images",  "badge": "Best Value"},
+    "topup_1000": {"images": 1000, "price_inr": 4999, "price_inr_paise": 499900, "price_usd": 59.99, "price_usd_cents": 5999, "label": "+1000 Images", "badge": "Pro Pack"},
 }
 
 # Affiliate commission rates
