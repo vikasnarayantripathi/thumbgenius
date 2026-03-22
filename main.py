@@ -1521,7 +1521,7 @@ async def admin_dashboard(request: Request):
     if not is_auth:
         return RedirectResponse("/admin/login")
 
-    html = """<!DOCTYPE html>
+    html = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
