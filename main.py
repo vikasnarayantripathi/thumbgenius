@@ -143,8 +143,9 @@ try:
 except Exception as _ie_err:
     IE_ENABLED = False
     import traceback
+    _ie_traceback = traceback.format_exc()
     print(f"[IE] Not loaded: {_ie_err}")
-    print(f"[IE] Traceback: {traceback.format_exc()}")
+    print(f"[IE] Traceback: {_ie_traceback}")
 
 # ─── Lifespan ─────────────────────────────────────────────────────────────────
 @asynccontextmanager
@@ -1724,6 +1725,10 @@ loadPayouts('pending', null);
 </html>"""
     return HTMLResponse(content=html)
 
+
+@app.get("/debug/ie")
+async def debug_ie():
+    return {"ie_enabled": IE_ENABLED, "ie_error": str(_ie_err) if not IE_ENABLED else None}
 
 @app.get("/billing/region")
 async def billing_region(request: Request):
