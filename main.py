@@ -78,22 +78,46 @@ PLAN_LIMITS = {
 }
 
 # Top-up packages (images)
+# Canonical top-up packages — INR in rupees, USD in dollars
+# price_inr_paise / price_usd_cents used for payment gateways
 TOPUP_PACKAGES = {
-    "topup_10":  {"images": 10,  "price_inr": 49,   "price_usd": 1,  "label": "+10 Images"},
-    "topup_30":  {"images": 30,  "price_inr": 99,   "price_usd": 2,  "label": "+30 Images"},
-    "topup_100": {"images": 100, "price_inr": 249,  "price_usd": 4,  "label": "+100 Images"},
-    "topup_300": {"images": 300, "price_inr": 599,  "price_usd": 8,  "label": "+300 Images"},
+    "topup_10":  {"images": 10,  "price_inr": 49,   "price_usd": 0.99, "price_inr_paise": 4900,   "price_usd_cents": 99,   "label": "+10 Images",  "badge": "Starter"},
+    "topup_30":  {"images": 30,  "price_inr": 99,   "price_usd": 1.99, "price_inr_paise": 9900,   "price_usd_cents": 199,  "label": "+30 Images",  "badge": "Popular"},
+    "topup_100": {"images": 100, "price_inr": 249,  "price_usd": 2.99, "price_inr_paise": 24900,  "price_usd_cents": 299,  "label": "+100 Images", "badge": "Best Value"},
+    "topup_300": {"images": 300, "price_inr": 599,  "price_usd": 7.99, "price_inr_paise": 59900,  "price_usd_cents": 799,  "label": "+300 Images", "badge": "Pro Pack"},
+    "topup_500": {"images": 500, "price_inr": 999,  "price_usd": 11.99,"price_inr_paise": 99900,  "price_usd_cents": 1199, "label": "+500 Images", "badge": "Agency Pack"},
 }
 
 # Affiliate commission rates
+# Structure: month_1_rate (one-time on first payment)
+#            recurring_rate (from month 2 onwards, monthly)
+#            annual_rate (one-time % of actual annual amount charged after 20% discount)
+#            annual_renewal_rate (each subsequent annual renewal)
 AFFILIATE_RATES = {
-    "free":       {"rate": 0.00, "initial_months": 0,   "lifetime_rate": 0.00, "label": "₹100 flat per paid referral"},
-    "creator":    {"rate": 0.25, "initial_months": 6,   "lifetime_rate": 0.15, "label": "25% for 6 months + 15% lifetime on renewals"},
-    "pro":        {"rate": 0.30, "initial_months": 12,  "lifetime_rate": 0.15, "label": "30% for 12 months + 15% lifetime on renewals"},
-    "agency":     {"rate": 0.30, "initial_months": 999, "lifetime_rate": 0.15, "label": "30% lifetime + 15% on all renewals"},
-    "enterprise": {"rate": 0.35, "initial_months": 999, "lifetime_rate": 0.15, "label": "35% lifetime + 15% on all renewals"},
+    "free":       {"month1": 0.00, "recurring": 0.00, "annual": 0.00, "annual_renewal": 0.00,
+                   "flat_inr": 100, "flat_usd": 2,
+                   "label": "₹100 flat per paid conversion"},
+    "creator":    {"month1": 0.20, "recurring": 0.10, "annual": 0.20, "annual_renewal": 0.10,
+                   "flat_inr": 0,  "flat_usd": 0,
+                   "label": "20% on first payment · 10% recurring · 20% on annual"},
+    "pro":        {"month1": 0.20, "recurring": 0.10, "annual": 0.20, "annual_renewal": 0.10,
+                   "flat_inr": 0,  "flat_usd": 0,
+                   "label": "20% on first payment · 10% recurring · 20% on annual"},
+    "agency":     {"month1": 0.20, "recurring": 0.10, "annual": 0.20, "annual_renewal": 0.10,
+                   "flat_inr": 0,  "flat_usd": 0,
+                   "label": "20% on first payment · 10% recurring · 20% on annual"},
+    "enterprise": {"month1": 0.20, "recurring": 0.10, "annual": 0.20, "annual_renewal": 0.10,
+                   "flat_inr": 0,  "flat_usd": 0,
+                   "label": "20% on first payment · 10% recurring · 20% on annual"},
 }
-ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro", "enterprise"]}}
+
+# Plan prices for commission calculation (in paise for INR, cents for USD)
+PLAN_PRICES_INR = {"creator": 749, "pro": 1499, "agency": 3499, "enterprise": 16999}
+PLAN_PRICES_USD = {"creator": 9.99, "pro": 19.99, "agency": 49.99, "enterprise": 249.00}
+# Annual = monthly × 12 × 0.80 (20% discount applied)
+PLAN_ANNUAL_INR = {k: round(v * 12 * 0.80) for k, v in PLAN_PRICES_INR.items()}
+PLAN_ANNUAL_USD = {k: round(v * 12 * 0.80, 2) for k, v in PLAN_PRICES_USD.items()}
+ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro", "agency", "enterprise"]}}
 
 def is_admin(code: str) -> bool:
     return code.upper() in ADMIN_CODES
@@ -1037,22 +1061,171 @@ async def validate_api_key(request: Request):
 
 @app.get("/api/v1")
 async def api_docs(request: Request):
-    """Enterprise API documentation"""
-    return JSONResponse({
-        "name": "ThumbGenius Enterprise API",
-        "version": "1.0",
-        "base_url": "https://www.thumbgenius.in/api/v1",
-        "authentication": "Pass your API key in the X-API-Key header",
-        "endpoints": {
-            "POST /api/v1/generate": "Generate titles + thumbnail blueprint",
-            "POST /api/v1/generate-image": "Generate thumbnail image",
-            "POST /api/v1/analyze": "Analyze thumbnail CTR score",
-            "POST /api/v1/blueprint": "Reverse engineer a YouTube URL",
-            "GET /api/v1/trending": "Get trending thumbnail styles",
-            "GET /api/v1/usage": "Get your API usage stats"
-        },
-        "docs": "https://www.thumbgenius.in/enterprise"
-    })
+    """Enterprise API documentation — full HTML page"""
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ThumbGenius API Docs</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f13;color:#e2e8f0;line-height:1.6}
+.header{background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:48px 40px 36px;text-align:center}
+.header h1{font-size:2.2rem;font-weight:800;color:#fff;margin-bottom:8px}
+.header p{color:rgba(255,255,255,0.85);font-size:1.1rem}
+.badge{display:inline-block;background:rgba(255,255,255,0.2);color:#fff;padding:4px 14px;border-radius:20px;font-size:0.8rem;margin-top:12px;letter-spacing:1px}
+.container{max-width:900px;margin:0 auto;padding:40px 24px}
+.section{margin-bottom:40px}
+.section h2{font-size:1.3rem;font-weight:700;color:#a78bfa;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #2d2d3d}
+.card{background:#1a1a2e;border:1px solid #2d2d3d;border-radius:12px;padding:24px;margin-bottom:16px}
+.endpoint{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid #2d2d3d}
+.endpoint:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.method{font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:6px;white-space:nowrap;min-width:52px;text-align:center}
+.get{background:#065f46;color:#6ee7b7}.post{background:#1e3a5f;color:#93c5fd}
+.path{font-family:'Courier New',monospace;color:#f1f5f9;font-size:0.95rem;font-weight:600}
+.desc{color:#94a3b8;font-size:0.9rem;margin-top:4px}
+.param-table{width:100%;border-collapse:collapse;font-size:0.88rem;margin-top:12px}
+.param-table th{text-align:left;color:#64748b;padding:6px 12px;border-bottom:1px solid #2d2d3d;font-weight:600}
+.param-table td{padding:8px 12px;border-bottom:1px solid #1e1e2e;color:#cbd5e1}
+.param-table td:first-child{font-family:monospace;color:#a78bfa}
+code{background:#0f0f1a;border:1px solid #2d2d3d;padding:2px 8px;border-radius:4px;font-family:monospace;color:#f472b6;font-size:0.85rem}
+.auth-box{background:#1a1a2e;border:1px solid #6366f1;border-radius:10px;padding:20px 24px}
+.auth-box code{background:#0a0a14;display:block;padding:12px 16px;margin-top:10px;border-radius:8px;color:#a78bfa}
+.plan-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:0.75rem;font-weight:700;margin-left:8px}
+.pro-badge{background:#1e3a5f;color:#93c5fd}.ent-badge{background:#2d1b4e;color:#c4b5fd}
+.note{background:#1a1207;border:1px solid #78350f;border-radius:8px;padding:14px 18px;color:#fbbf24;font-size:0.88rem;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>ThumbGenius API</h1>
+  <p>AI-powered YouTube thumbnail intelligence for your apps</p>
+  <span class="badge">v1.0 · REST API</span>
+</div>
+<div class="container">
+
+  <div class="section">
+    <h2>🔐 Authentication</h2>
+    <div class="auth-box">
+      <p>All API requests require your API key in the request header. Get your key from the <strong>Dashboard → Enterprise Panel</strong>.</p>
+      <code>X-API-Key: tg_live_xxxxxxxxxxxxxxxxxxxxxxxx</code>
+      <p style="margin-top:12px;color:#64748b;font-size:0.88rem">Your key grants access based on your plan. Keep it secret — never expose it in frontend code.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📡 Endpoints</h2>
+    <div class="card">
+
+      <div class="endpoint">
+        <div><span class="method post">POST</span></div>
+        <div>
+          <div class="path">/api/v1/generate <span class="plan-badge pro-badge">Pro+</span></div>
+          <div class="desc">Generate YouTube title suggestions + thumbnail blueprint for a topic or video idea.</div>
+          <table class="param-table">
+            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td>topic</td><td>string</td><td>✅</td><td>Your video topic or idea</td></tr>
+            <tr><td>niche</td><td>string</td><td>—</td><td>Channel niche (tech, finance, gaming…)</td></tr>
+            <tr><td>language</td><td>string</td><td>—</td><td>Output language. Default: en</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method post">POST</span></div>
+        <div>
+          <div class="path">/api/v1/generate-image <span class="plan-badge ent-badge">Enterprise</span></div>
+          <div class="desc">Generate a thumbnail image using AI. Returns base64 PNG.</div>
+          <table class="param-table">
+            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td>prompt</td><td>string</td><td>✅</td><td>Image description / blueprint</td></tr>
+            <tr><td>style</td><td>string</td><td>—</td><td>bold, minimal, cinematic, neon</td></tr>
+            <tr><td>aspect_ratio</td><td>string</td><td>—</td><td>16:9 (default), 1:1</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method post">POST</span></div>
+        <div>
+          <div class="path">/api/v1/analyze <span class="plan-badge pro-badge">Pro+</span></div>
+          <div class="desc">Analyze a thumbnail image for CTR score, emotional triggers, and improvement suggestions.</div>
+          <table class="param-table">
+            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td>image_url</td><td>string</td><td>✅*</td><td>Public URL of thumbnail image</td></tr>
+            <tr><td>image_base64</td><td>string</td><td>✅*</td><td>Base64 encoded image (alternative to URL)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method post">POST</span></div>
+        <div>
+          <div class="path">/api/v1/blueprint <span class="plan-badge pro-badge">Pro+</span></div>
+          <div class="desc">Reverse engineer any YouTube video URL — extract thumbnail strategy, hooks, and packaging formula.</div>
+          <table class="param-table">
+            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td>youtube_url</td><td>string</td><td>✅</td><td>Full YouTube video URL</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method get">GET</span></div>
+        <div>
+          <div class="path">/api/v1/trending <span class="plan-badge pro-badge">Pro+</span></div>
+          <div class="desc">Get currently trending thumbnail styles and title patterns by niche.</div>
+          <table class="param-table">
+            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+            <tr><td>niche</td><td>string</td><td>—</td><td>Filter by niche. Default: all</td></tr>
+            <tr><td>limit</td><td>int</td><td>—</td><td>Max results. Default: 10, max: 50</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <div><span class="method get">GET</span></div>
+        <div>
+          <div class="path">/api/v1/usage <span class="plan-badge pro-badge">Pro+</span></div>
+          <div class="desc">Get your current API usage, limits, and remaining quota for this billing period.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📦 Example Request</h2>
+    <div class="card">
+      <p style="color:#64748b;font-size:0.88rem;margin-bottom:12px">Generate titles for a video topic:</p>
+      <code style="display:block;padding:16px;white-space:pre-wrap;line-height:1.8">curl -X POST https://www.thumbgenius.in/api/v1/generate \
+  -H "X-API-Key: tg_live_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"topic": "How I saved ₹1 lakh in 6 months", "niche": "finance"}'</code>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📊 Rate Limits</h2>
+    <div class="card">
+      <table class="param-table">
+        <tr><th>Plan</th><th>Requests/min</th><th>Requests/day</th><th>Image Generation</th></tr>
+        <tr><td>Pro</td><td>20</td><td>500</td><td>Not included</td></tr>
+        <tr><td>Agency</td><td>60</td><td>2,000</td><td>Not included</td></tr>
+        <tr><td>Enterprise</td><td>120</td><td>10,000</td><td>✅ Included</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="note">
+    💡 <strong>API access</strong> is available on Pro, Agency, and Enterprise plans. 
+    <a href="/" style="color:#f59e0b">Upgrade your plan →</a>
+  </div>
+
+</div>
+</body>
+</html>"""
+    return HTMLResponse(content=html, status_code=200)
 
 @app.post("/api/v1/generate")
 async def api_generate(request: Request):
@@ -1224,6 +1397,331 @@ async def admin_reset_credits(request: Request):
     await sb_update_user(email, {"generations_used": 0, "images_used": 0})
     await invalidate_plan_cache(email)
     return {"success": True, "email": email}
+
+
+# ─── Admin Login (separate from user VIKAS2025 code) ─────────────────────────
+import secrets as _secrets
+_ADMIN_SESSIONS: dict = {}   # token → expiry (in-memory, resets on deploy)
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "vikas")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "TG@Admin2025!")  # override in Railway env
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page(request: Request):
+    """Serve admin login page"""
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ThumbGenius Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,sans-serif}
+.card{background:#13131f;border:1px solid #2d2d3d;border-radius:16px;padding:40px;width:100%;max-width:400px}
+h1{color:#fff;font-size:1.5rem;font-weight:700;margin-bottom:4px;text-align:center}
+p{color:#64748b;font-size:0.88rem;text-align:center;margin-bottom:28px}
+label{display:block;color:#94a3b8;font-size:0.82rem;font-weight:600;margin-bottom:6px;letter-spacing:0.5px}
+input{width:100%;background:#1a1a2e;border:1px solid #2d2d3d;border-radius:8px;padding:12px 14px;color:#f1f5f9;font-size:0.95rem;margin-bottom:18px;outline:none}
+input:focus{border-color:#6366f1}
+button{width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:8px;padding:13px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px}
+button:hover{opacity:0.9}
+.err{background:#2d1b1b;border:1px solid #991b1b;color:#fca5a5;padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:16px;display:none}
+.logo{text-align:center;font-size:2rem;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🎯</div>
+  <h1>ThumbGenius Admin</h1>
+  <p>Restricted access — authorised personnel only</p>
+  <div class="err" id="errBox"></div>
+  <form id="loginForm">
+    <label>USERNAME</label>
+    <input type="text" id="username" placeholder="Enter username" autocomplete="username">
+    <label>PASSWORD</label>
+    <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+    <button type="submit" id="btn">Sign In →</button>
+  </form>
+</div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btn');
+  const err = document.getElementById('errBox');
+  btn.textContent = 'Signing in...'; btn.disabled = true; err.style.display='none';
+  try {
+    const res = await fetch('/admin/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value
+      })
+    });
+    const data = await res.json();
+    if (data.token) {
+      localStorage.setItem('tg_admin_token', data.token);
+      localStorage.setItem('tg_admin_code', 'VIKAS2025');
+      window.location.href = '/admin/dashboard';
+    } else {
+      err.textContent = data.error || 'Invalid credentials';
+      err.style.display = 'block';
+    }
+  } catch(ex) {
+    err.textContent = 'Network error — try again'; err.style.display='block';
+  }
+  btn.textContent = 'Sign In →'; btn.disabled = false;
+});
+</script>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
+@app.post("/admin/login")
+async def admin_login_post(request: Request):
+    """Validate admin credentials, return session token"""
+    try:
+        data = await request.json()
+        username = (data.get("username") or "").strip().lower()
+        password = (data.get("password") or "").strip()
+        if username == ADMIN_USERNAME.lower() and password == ADMIN_PASSWORD:
+            token = _secrets.token_hex(32)
+            expiry = datetime.utcnow() + timedelta(hours=12)
+            _ADMIN_SESSIONS[token] = expiry
+            return JSONResponse({"token": token, "expires": expiry.isoformat()})
+        return JSONResponse({"error": "Invalid username or password"}, status_code=401)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/admin/logout")
+async def admin_logout(request: Request):
+    token = request.headers.get("X-Admin-Token","")
+    _ADMIN_SESSIONS.pop(token, None)
+    return RedirectResponse("/admin/login")
+
+def is_admin_session(request: Request) -> bool:
+    """Check either legacy X-Admin-Code header OR new session token"""
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if code in ADMIN_CODES:
+        return True
+    token = request.headers.get("X-Admin-Token","").strip()
+    if not token:
+        token = request.cookies.get("tg_admin_token","").strip()
+    if token and token in _ADMIN_SESSIONS:
+        if _ADMIN_SESSIONS[token] > datetime.utcnow():
+            return True
+        _ADMIN_SESSIONS.pop(token, None)
+    return False
+
+@app.get("/admin/dashboard", response_class=HTMLResponse)
+async def admin_dashboard(request: Request):
+    """Admin dashboard — full payout management UI"""
+    token = request.cookies.get("tg_admin_token","") or request.headers.get("X-Admin-Token","")
+    stored_token = token.strip() if token else ""
+    is_auth = (stored_token in _ADMIN_SESSIONS and _ADMIN_SESSIONS.get(stored_token, datetime.min) > datetime.utcnow()) or               request.headers.get("X-Admin-Code","").strip().upper() in ADMIN_CODES
+    if not is_auth:
+        return RedirectResponse("/admin/login")
+
+    html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — ThumbGenius</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.topbar{background:#13131f;border-bottom:1px solid #2d2d3d;padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+.topbar h1{font-size:1.1rem;font-weight:700;color:#fff}span.version{color:#6366f1;font-size:0.8rem;margin-left:8px}
+.logout{color:#64748b;font-size:0.85rem;cursor:pointer;text-decoration:none}
+.logout:hover{color:#f87171}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat{background:#13131f;border:1px solid #2d2d3d;border-radius:12px;padding:20px 24px}
+.stat .label{color:#64748b;font-size:0.8rem;font-weight:600;letter-spacing:0.5px;margin-bottom:6px}
+.stat .value{font-size:1.8rem;font-weight:800;color:#fff}
+.stat .sub{color:#64748b;font-size:0.78rem;margin-top:4px}
+.section{background:#13131f;border:1px solid #2d2d3d;border-radius:12px;padding:24px;margin-bottom:24px}
+.section h2{font-size:1rem;font-weight:700;color:#a78bfa;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.tab-row{display:flex;gap:8px;margin-bottom:20px}
+.tab{padding:7px 18px;border-radius:20px;cursor:pointer;font-size:0.85rem;font-weight:600;border:1px solid #2d2d3d;background:transparent;color:#64748b}
+.tab.active{background:#6366f1;color:#fff;border-color:#6366f1}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+th{text-align:left;color:#64748b;padding:10px 12px;border-bottom:1px solid #2d2d3d;font-weight:600;font-size:0.8rem}
+td{padding:12px;border-bottom:1px solid #1e1e2e;color:#cbd5e1}
+td:first-child{color:#f1f5f9;font-weight:500}
+.badge{padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:700}
+.pending{background:#1a1a07;color:#fbbf24;border:1px solid #78350f}
+.released{background:#0a1f0a;color:#4ade80;border:1px solid #166534}
+.btn-release{background:#6366f1;color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-size:0.8rem;font-weight:600}
+.btn-release:hover{background:#4f46e5}
+.btn-release:disabled{opacity:0.4;cursor:not-allowed}
+.empty{text-align:center;padding:40px;color:#374151}
+.action-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.input-sm{background:#1a1a2e;border:1px solid #2d2d3d;border-radius:8px;padding:8px 12px;color:#f1f5f9;font-size:0.88rem;min-width:220px}
+.btn-sm{background:#6366f1;color:#fff;border:none;border-radius:8px;padding:8px 16px;cursor:pointer;font-size:0.85rem;font-weight:600}
+.msg{padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:12px;display:none}
+.msg.ok{background:#0a1f0a;color:#4ade80;border:1px solid #166534}
+.msg.err{background:#1f0a0a;color:#fca5a5;border:1px solid #991b1b}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div><h1>🎯 ThumbGenius Admin<span class="version">v4.0</span></h1></div>
+  <a href="/admin/logout" class="logout">Sign out</a>
+</div>
+<div class="container">
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat"><div class="label">TOTAL USERS</div><div class="value" id="sTotal">—</div></div>
+    <div class="stat"><div class="label">PAID USERS</div><div class="value" id="sPaid">—</div></div>
+    <div class="stat"><div class="label">MRR</div><div class="value" id="sMRR">—</div><div class="sub">India ₹</div></div>
+    <div class="stat"><div class="label">TODAY SIGNUPS</div><div class="value" id="sToday">—</div></div>
+    <div class="stat"><div class="label">PENDING PAYOUTS</div><div class="value" id="sPending" style="color:#fbbf24">—</div><div class="sub">Affiliate earnings</div></div>
+  </div>
+
+  <!-- Affiliate Payouts Section -->
+  <div class="section">
+    <h2>💸 Affiliate Payouts</h2>
+    <div class="tab-row">
+      <button class="tab active" onclick="loadPayouts('pending',this)">Pending</button>
+      <button class="tab" onclick="loadPayouts('released',this)">Released</button>
+      <button class="tab" onclick="loadPayouts('all',this)">All</button>
+    </div>
+    <div class="msg" id="payoutMsg"></div>
+    <div id="payoutsTable"><div class="empty">Loading...</div></div>
+  </div>
+
+  <!-- User Management -->
+  <div class="section">
+    <h2>👤 User Management</h2>
+    <div class="msg" id="userMsg"></div>
+    <div class="action-row">
+      <input class="input-sm" id="uEmail" placeholder="user@email.com">
+      <select class="input-sm" id="uPlan" style="cursor:pointer">
+        <option value="free">Free</option>
+        <option value="creator">Creator</option>
+        <option value="pro">Pro</option>
+        <option value="agency">Agency</option>
+        <option value="enterprise">Enterprise</option>
+      </select>
+      <button class="btn-sm" onclick="setUserPlan()">Set Plan</button>
+      <button class="btn-sm" style="background:#0f766e" onclick="resetCredits()">Reset Credits</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ADMIN_TOKEN = localStorage.getItem('tg_admin_token') || '';
+const ADMIN_CODE  = localStorage.getItem('tg_admin_code') || 'VIKAS2025';
+
+function adminHeaders() {
+  return {'Content-Type':'application/json','X-Admin-Code': ADMIN_CODE, 'X-Admin-Token': ADMIN_TOKEN};
+}
+
+function showMsg(id, text, isErr) {
+  const el = document.getElementById(id);
+  el.textContent = text; el.className = 'msg ' + (isErr ? 'err' : 'ok');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display='none', 4000);
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch('/admin/stats', {headers: adminHeaders()});
+    const d = await r.json();
+    document.getElementById('sTotal').textContent = d.total_users ?? '—';
+    document.getElementById('sPaid').textContent  = d.paid_users  ?? '—';
+    document.getElementById('sMRR').textContent   = d.mrr ? '₹' + d.mrr.toLocaleString('en-IN') : '—';
+    document.getElementById('sToday').textContent = d.today_signups ?? '—';
+  } catch(e) { console.error(e); }
+  // Load pending total
+  try {
+    const r2 = await fetch('/admin/affiliate-payouts?status=pending', {headers: adminHeaders()});
+    const d2 = await r2.json();
+    document.getElementById('sPending').textContent = d2.total ? '₹' + d2.total.toLocaleString('en-IN') : '₹0';
+  } catch(e) {}
+}
+
+async function loadPayouts(status, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const filter = status === 'all' ? '' : '?status=' + status;
+  try {
+    const r = await fetch('/admin/affiliate-payouts' + filter, {headers: adminHeaders()});
+    const d = await r.json();
+    const rows = d.payouts || [];
+    if(!rows.length) {
+      document.getElementById('payoutsTable').innerHTML = '<div class="empty">No ' + status + ' payouts.</div>';
+      return;
+    }
+    let html = '<table><tr><th>Affiliate</th><th>Buyer</th><th>Plan</th><th>Amount</th><th>Currency</th><th>Status</th><th>Date</th><th>Action</th></tr>';
+    rows.forEach(row => {
+      const isPending = row.status === 'pending';
+      html += \`<tr>
+        <td>\${row.affiliate_email}</td>
+        <td style="color:#64748b;font-size:0.82rem">\${row.buyer_email}</td>
+        <td style="text-transform:capitalize">\${row.plan} \${row.interval||''}</td>
+        <td style="font-weight:700;color:\${isPending?'#fbbf24':'#4ade80'}">\${row.currency==='INR'?'₹':'$'}\${(row.amount||0).toLocaleString()}</td>
+        <td>\${row.currency}</td>
+        <td><span class="badge \${row.status}">\${row.status}</span></td>
+        <td style="color:#64748b;font-size:0.8rem">\${(row.created_at||'').substring(0,10)}</td>
+        <td>\${isPending ? \`<button class="btn-release" onclick="releasePayout(\${row.id},'\${row.affiliate_email}',this)">Release ✓</button>\` : '—'}</td>
+      </tr>\`;
+    });
+    html += '</table>';
+    document.getElementById('payoutsTable').innerHTML = html;
+  } catch(e) {
+    document.getElementById('payoutsTable').innerHTML = '<div class="empty">Error loading payouts.</div>';
+  }
+}
+
+async function releasePayout(id, affEmail, btn) {
+  btn.disabled = true; btn.textContent = 'Releasing...';
+  try {
+    const r = await fetch('/admin/affiliate-release', {
+      method: 'POST', headers: adminHeaders(),
+      body: JSON.stringify({payout_id: id, affiliate_email: affEmail, note: 'Released via admin dashboard'})
+    });
+    const d = await r.json();
+    if(d.success) {
+      showMsg('payoutMsg', '✅ Payout released for ' + affEmail, false);
+      loadPayouts('pending', null);
+      loadStats();
+    } else {
+      showMsg('payoutMsg', '❌ Error: ' + (d.error||'Failed'), true);
+      btn.disabled = false; btn.textContent = 'Release ✓';
+    }
+  } catch(e) {
+    showMsg('payoutMsg', '❌ Network error', true);
+    btn.disabled = false; btn.textContent = 'Release ✓';
+  }
+}
+
+async function setUserPlan() {
+  const email = document.getElementById('uEmail').value.trim();
+  const plan  = document.getElementById('uPlan').value;
+  if(!email) { showMsg('userMsg','Enter email first',true); return; }
+  const r = await fetch('/admin/set-plan-user', {method:'POST', headers:adminHeaders(), body:JSON.stringify({email,plan})});
+  const d = await r.json();
+  showMsg('userMsg', d.success ? '✅ '+email+' → '+plan : '❌ '+(d.error||'Failed'), !d.success);
+}
+
+async function resetCredits() {
+  const email = document.getElementById('uEmail').value.trim();
+  if(!email) { showMsg('userMsg','Enter email first',true); return; }
+  const r = await fetch('/admin/reset-credits', {method:'POST', headers:adminHeaders(), body:JSON.stringify({email})});
+  const d = await r.json();
+  showMsg('userMsg', d.success ? '✅ Credits reset for '+email : '❌ '+(d.error||'Failed'), !d.success);
+}
+
+// Init
+loadStats();
+loadPayouts('pending', null);
+</script>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
 
 @app.get("/billing/region")
 async def billing_region(request: Request):
@@ -3353,17 +3851,87 @@ async def affiliate_info(request: Request):
         return JSONResponse({"error":"Not logged in"}, status_code=401)
     user = await sb_get_user(email)
     if not user:
-        return JSONResponse({"referral_link": f"{APP_URL}?ref=tg", "commission_rate": "Sign up to get your link", "total_referrals": 0, "total_earnings": 0, "pending_payout": 0, "link_clicks": 0})
+        return JSONResponse({"referral_link": f"{APP_URL}?ref=tg",
+                             "commission_rate": "Sign up to get your link",
+                             "total_referrals": 0, "total_earnings": 0,
+                             "pending_payout": 0, "released_payout": 0,
+                             "link_clicks": 0, "currency": "INR"})
     plan = user.get("plan","free")
-    rate_info = AFFILIATE_RATES.get(plan, AFFILIATE_RATES.get("free", {"label":"₹100 flat","rate":0,"lifetime_rate":0}))
+    rate_info = AFFILIATE_RATES.get(plan, AFFILIATE_RATES["free"])
     import hashlib as _hl
     ref_code = user.get("referral_code") or "tg" + _hl.md5(email.encode()).hexdigest()[:8]
-    return JSONResponse({"plan":plan,"commission_rate":rate_info.get("label",""),"rate":rate_info.get("rate",0),"lifetime_rate":rate_info.get("lifetime_rate",0),"referral_code":ref_code,"referral_link":f"{APP_URL}?ref={ref_code}","total_referrals":user.get("total_referrals",0),"total_earnings":user.get("affiliate_earnings",0),"pending_payout":user.get("pending_payout",0),"link_clicks":user.get("referral_clicks",0)})
+    # Ensure referral_code is saved
+    if not user.get("referral_code"):
+        await sb_update_user(email, {"referral_code": ref_code})
+    # Fetch payout breakdown from affiliate_payouts table
+    pending_amt = 0
+    released_amt = 0
+    try:
+        pr = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/affiliate_payouts?affiliate_email=eq.{email}&select=amount,status,currency",
+            headers=SB_HEADERS
+        )
+        if pr.status_code == 200:
+            for row in pr.json():
+                amt = row.get("amount", 0)
+                if row.get("status") == "pending":
+                    pending_amt += amt
+                elif row.get("status") == "released":
+                    released_amt += amt
+    except:
+        pass
+    # Commission label for display
+    r = rate_info
+    if plan == "free":
+        label = f"₹{r['flat_inr']} flat per paid conversion"
+    else:
+        label = f"{int(r['month1']*100)}% first payment · {int(r['recurring']*100)}% recurring · {int(r['annual']*100)}% annual"
+    return JSONResponse({
+        "plan": plan,
+        "commission_rate": label,
+        "month1_rate": r.get("month1", 0),
+        "recurring_rate": r.get("recurring", 0),
+        "annual_rate": r.get("annual", 0),
+        "referral_code": ref_code,
+        "referral_link": f"{APP_URL}?ref={ref_code}",
+        "total_referrals": user.get("total_referrals", 0),
+        "total_earnings": user.get("affiliate_earnings", 0),
+        "pending_payout": pending_amt,
+        "released_payout": released_amt,
+        "link_clicks": user.get("referral_clicks", 0),
+        "currency": "INR"
+    })
 
 @app.post("/affiliate/track")
 async def affiliate_track(request: Request):
+    """Record referral click when user lands via ?ref=CODE"""
     try:
         data = await request.json()
-        return JSONResponse({"success": True})
-    except:
+        ref_code = (data.get("ref_code") or "").strip().lower()
+        visitor_email = (data.get("visitor_email") or "").strip().lower()
+        if not ref_code or ref_code == "tg":
+            return JSONResponse({"success": False, "reason": "no_code"})
+        # Find affiliate by referral_code
+        r = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/users?referral_code=eq.{ref_code}&select=email,referral_clicks",
+            headers=SB_HEADERS
+        )
+        rows = r.json() if r.status_code == 200 else []
+        if not rows:
+            return JSONResponse({"success": False, "reason": "code_not_found"})
+        aff_email = rows[0]["email"]
+        new_clicks = (rows[0].get("referral_clicks") or 0) + 1
+        await sb_update_user(aff_email, {"referral_clicks": new_clicks})
+        # Store pending referral so when visitor converts we can credit affiliate
+        if visitor_email:
+            await _http_sb.post(
+                f"{SUPABASE_URL}/rest/v1/affiliate_referrals",
+                headers={**SB_HEADERS, "Prefer": "resolution=merge-duplicates"},
+                json={"visitor_email": visitor_email, "affiliate_email": aff_email,
+                      "ref_code": ref_code, "status": "clicked",
+                      "created_at": datetime.utcnow().isoformat()}
+            )
+        return JSONResponse({"success": True, "affiliate": aff_email})
+    except Exception as e:
+        logger.warning(f"[affiliate_track] {e}")
         return JSONResponse({"success": False})
