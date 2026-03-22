@@ -1302,26 +1302,20 @@ function tg_initSession() {
     // Admin code does NOT auto-login — must enter each session
     // Admin is only active when explicitly entered in current session
 
-    // Logged in paid user
-    if (email && isPaid) {
-        // Check idle timeout
-        if (lastActive && (now - lastActive) > TG_IDLE_TIMEOUT) {
-            tg_logout('idle');
-            return;
-        }
-        tg_updateActivity();
-        document.getElementById('appWrapper').style.display = 'block';
-        return;
-    }
-
-    // Logged in free user
+    // Logged in user (paid or free)
     if (email) {
         if (lastActive && (now - lastActive) > TG_IDLE_TIMEOUT) {
             tg_logout('idle');
             return;
         }
         tg_updateActivity();
+        currentUserEmail = email;
         document.getElementById('appWrapper').style.display = 'block';
+        setTimeout(function(){
+            if(typeof loadUserPlan === 'function') loadUserPlan(email);
+            if(typeof showPage === 'function') showPage('home');
+            if(typeof updateNavBar === 'function') updateNavBar({plan: plan, email: email});
+        }, 100);
         return;
     }
     // No valid session — must login
