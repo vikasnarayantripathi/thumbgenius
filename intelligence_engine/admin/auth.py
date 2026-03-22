@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from jose import JWTError, jwt
+import jwt
 from passlib.context import CryptContext
 from intelligence_engine.config import ADMIN_USERNAME, ADMIN_PASSWORD, JWT_SECRET
 
@@ -18,5 +18,5 @@ def verify_token(token: str) -> str | None:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
         return payload.get("sub")
-    except JWTError:
+    except jwt.PyJWTError:
         return None
