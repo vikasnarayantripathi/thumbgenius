@@ -153,7 +153,7 @@ class CSPMiddleware(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' "
-                "https://checkout.razorpay.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+                "https://checkout.razorpay.com https://cdn.razorpay.com https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com; "
             "img-src 'self' data: blob: https://oaidalleapiprodscus.blob.core.windows.net "
@@ -3344,3 +3344,26 @@ async def admin_set_key(request: Request):
     return JSONResponse({"success": True, "message": f"{key_name} updated successfully"})
 
 # OAuth fix Mon Mar 16 18:39:00 UTC 2026
+
+# ══ AFFILIATE ENDPOINTS ══
+@app.get("/affiliate/info")
+async def affiliate_info(request: Request):
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error":"Not logged in"}, status_code=401)
+    user = await sb_get_user(email)
+    if not user:
+        return JSONResponse({"referral_link": f"{APP_URL}?ref=tg", "commission_rate": "Sign up to get your link", "total_referrals": 0, "total_earnings": 0, "pending_payout": 0, "link_clicks": 0})
+    plan = user.get("plan","free")
+    rate_info = AFFILIATE_RATES.get(plan, AFFILIATE_RATES.get("free", {"label":"₹100 flat","rate":0,"lifetime_rate":0}))
+    import hashlib as _hl
+    ref_code = user.get("referral_code") or "tg" + _hl.md5(email.encode()).hexdigest()[:8]
+    return JSONResponse({"plan":plan,"commission_rate":rate_info.get("label",""),"rate":rate_info.get("rate",0),"lifetime_rate":rate_info.get("lifetime_rate",0),"referral_code":ref_code,"referral_link":f"{APP_URL}?ref={ref_code}","total_referrals":user.get("total_referrals",0),"total_earnings":user.get("affiliate_earnings",0),"pending_payout":user.get("pending_payout",0),"link_clicks":user.get("referral_clicks",0)})
+
+@app.post("/affiliate/track")
+async def affiliate_track(request: Request):
+    try:
+        data = await request.json()
+        return JSONResponse({"success": True})
+    except:
+        return JSONResponse({"success": False})

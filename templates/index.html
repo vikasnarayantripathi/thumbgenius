@@ -1268,7 +1268,7 @@ function tg_initSession() {
             var em = oauthEmail || localStorage.getItem('tg_email') || '';
             currentUserEmail = em;
             if(typeof loadUserPlan === 'function' && em) loadUserPlan(em);
-            if(typeof showPage === 'function') showPage('home');
+            var lastPage = localStorage.getItem('tg_last_page') || 'home'; if(typeof showPage === 'function') showPage(lastPage);
             if(typeof updateNavBar === 'function') updateNavBar({plan: localStorage.getItem('tg_plan')||'free', email: em});
             // Reopen payment modal if user was trying to upgrade
             var pendingPlan = localStorage.getItem('tg_pending_plan');
@@ -1313,7 +1313,7 @@ function tg_initSession() {
         document.getElementById('appWrapper').style.display = 'block';
         setTimeout(function(){
             if(typeof loadUserPlan === 'function') loadUserPlan(email);
-            if(typeof showPage === 'function') showPage('home');
+            var lastPage = localStorage.getItem('tg_last_page') || 'home'; if(typeof showPage === 'function') showPage(lastPage);
             if(typeof updateNavBar === 'function') updateNavBar({plan: plan, email: email});
         }, 100);
         return;
@@ -1386,6 +1386,7 @@ document.addEventListener('touchstart', function(e){
     if(!inDropdown) closeNavDropdowns();
 });
 function showPage(p){
+    if(p && p !== 'home') localStorage.setItem('tg_last_page', p);
     closeNavDropdowns();
     document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
     document.querySelectorAll('.nav-tab').forEach(function(el){el.classList.remove('active');});
