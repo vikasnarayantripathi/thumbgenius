@@ -74,7 +74,7 @@ PLAN_LIMITS = {
     "creator":    {"generations": 30,   "images": 10,   "thumb_analysis": 15,  "reverse": 10,   "ctr_predict": 0,    "ab_tests": 20,  "ab_thumbs": 5,  "blueprint": 10,   "channel": 10,   "trending": 9999, "watermark": False, "hd_images": 0,   "team_seats": 1,   "api_access": False, "brand_kits": 0},
     "pro":        {"generations": 100,  "images": 30,   "thumb_analysis": 50,  "reverse": 30,   "ctr_predict": 50,   "ab_tests": 9999,"ab_thumbs": 20, "blueprint": 30,   "channel": 30,   "trending": 9999, "watermark": False, "hd_images": 10,  "team_seats": 1,   "api_access": False, "brand_kits": 1},
     "agency":     {"generations": 300,  "images": 100,  "thumb_analysis": 150, "reverse": 100,  "ctr_predict": 150,  "ab_tests": 9999,"ab_thumbs": 75, "blueprint": 100,  "channel": 100,  "trending": 9999, "watermark": False, "hd_images": 50,  "team_seats": 3,   "api_access": True,  "brand_kits": 5},
-    "enterprise": {"generations": 9999, "images": 9999, "thumb_analysis": 9999,"reverse": 9999, "ctr_predict": 9999, "ab_tests": 9999,"ab_thumbs": 9999,"blueprint": 9999, "channel": 9999, "trending": 9999, "watermark": False, "hd_images": 9999,"team_seats": 10,  "api_access": True,  "brand_kits": 999},
+    "enterprise": {"generations": 500,  "images": 200,  "thumb_analysis": 300, "reverse": 200,  "ctr_predict": 500,  "ab_tests": 9999,"ab_thumbs": 200,"blueprint": 200,  "channel": 200,  "trending": 9999, "watermark": False, "hd_images": 200, "team_seats": 10,  "api_access": True,  "brand_kits": 999},
 }
 
 # Top-up packages (images)
