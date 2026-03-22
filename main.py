@@ -746,8 +746,13 @@ TRENDING_TTL   = 6 * 3600
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # Always serve the app — JS handles session/redirect to landing if not logged in
-    return templates.TemplateResponse("index.html", {"request": request})
+    try:
+        return templates.TemplateResponse("index.html", {"request": request})
+    except Exception as e:
+        import traceback
+        tb = traceback.format_exc()
+        logger.error(f"[HOME] Template error: {e}\n{tb}")
+        return HTMLResponse(f"<pre>ERROR: {e}\n\n{tb}</pre>", status_code=500)
 
 
 @app.get("/privacy", response_class=HTMLResponse)
