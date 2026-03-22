@@ -3888,7 +3888,7 @@ async def affiliate_convert(request: Request):
         aff_plan  = (aff_user or {}).get("plan", "free")
         rates     = AFFILIATE_RATES.get(aff_plan, AFFILIATE_RATES["free"])
         base_amount = amount_inr if currency == "INR" else amount_usd
-        if plan == "free":
+        if aff_plan == "free":
             commission = rates["flat_inr"] if currency == "INR" else rates["flat_usd"]
         elif interval == "annual":
             rate = rates["annual_renewal"] if is_renewal else rates["annual"]
