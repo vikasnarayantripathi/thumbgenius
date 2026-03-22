@@ -1658,14 +1658,14 @@ async function loadPayouts(status, btn) {
     rows.forEach(row => {
       const isPending = row.status === 'pending';
       html += `<tr>
-        <td>\${row.affiliate_email}</td>
-        <td style="color:#64748b;font-size:0.82rem">\${row.buyer_email}</td>
-        <td style="text-transform:capitalize">\${row.plan} \${row.interval||''}</td>
-        <td style="font-weight:700;color:\${isPending?'#fbbf24':'#4ade80'}">\${row.currency==='INR'?'₹':'$'}\${(row.amount||0).toLocaleString()}</td>
-        <td>\${row.currency}</td>
-        <td><span class="badge \${row.status}">\${row.status}</span></td>
-        <td style="color:#64748b;font-size:0.8rem">\${(row.created_at||'').substring(0,10)}</td>
-        <td>\${isPending ? `<button class="btn-release" onclick="releasePayout(\${row.id},'\${row.affiliate_email}',this)">Release ✓</button>` : '—'}</td>
+        <td>${row.affiliate_email}</td>
+        <td style="color:#64748b;font-size:0.82rem">${row.buyer_email}</td>
+        <td style="text-transform:capitalize">${row.plan} ${row.interval||''}</td>
+        <td style="font-weight:700;color:${isPending?'#fbbf24':'#4ade80'}">${row.currency==='INR'?'₹':'$'}${(row.amount||0).toLocaleString()}</td>
+        <td>${row.currency}</td>
+        <td><span class="badge ${row.status}">${row.status}</span></td>
+        <td style="color:#64748b;font-size:0.8rem">${(row.created_at||'').substring(0,10)}</td>
+        <td>${isPending ? `<button class="btn-release" onclick="releasePayout(${row.id},'${row.affiliate_email}',this)">Release ✓</button>` : '—'}</td>
       </tr>`;
     });
     html += '</table>';
