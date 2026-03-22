@@ -769,11 +769,17 @@ async def refund(request: Request):
 
 @app.get("/landing")
 async def landing_page(request: Request):
-    return templates.TemplateResponse("landing.html", {"request": request})
+    import os as _os3
+    _p = _os3.path.join(_os3.path.dirname(__file__), "templates", "landing.html")
+    with open(_p, "r", encoding="utf-8") as _f:
+        return HTMLResponse(_f.read())
 
 @app.get("/enterprise")
 async def enterprise_page(request: Request):
-    return templates.TemplateResponse("enterprise.html", {"request": request})
+    import os as _os4
+    _p = _os4.path.join(_os4.path.dirname(__file__), "templates", "enterprise.html")
+    with open(_p, "r", encoding="utf-8") as _f:
+        return HTMLResponse(_f.read())
 
 
 # ══════════════════════════════════════════════════════════════════════════════
