@@ -1657,7 +1657,7 @@ async function loadPayouts(status, btn) {
     let html = '<table><tr><th>Affiliate</th><th>Buyer</th><th>Plan</th><th>Amount</th><th>Currency</th><th>Status</th><th>Date</th><th>Action</th></tr>';
     rows.forEach(row => {
       const isPending = row.status === 'pending';
-      html += \`<tr>
+      html += `<tr>
         <td>\${row.affiliate_email}</td>
         <td style="color:#64748b;font-size:0.82rem">\${row.buyer_email}</td>
         <td style="text-transform:capitalize">\${row.plan} \${row.interval||''}</td>
@@ -1665,8 +1665,8 @@ async function loadPayouts(status, btn) {
         <td>\${row.currency}</td>
         <td><span class="badge \${row.status}">\${row.status}</span></td>
         <td style="color:#64748b;font-size:0.8rem">\${(row.created_at||'').substring(0,10)}</td>
-        <td>\${isPending ? \`<button class="btn-release" onclick="releasePayout(\${row.id},'\${row.affiliate_email}',this)">Release ✓</button>\` : '—'}</td>
-      </tr>\`;
+        <td>\${isPending ? `<button class="btn-release" onclick="releasePayout(\${row.id},'\${row.affiliate_email}',this)">Release ✓</button>` : '—'}</td>
+      </tr>`;
     });
     html += '</table>';
     document.getElementById('payoutsTable').innerHTML = html;
@@ -1879,8 +1879,7 @@ async def billing_success(request: Request):
 # TOP-UP BOOST PACKS
 # ══════════════════════════════════════════════════════
 
-TOPUP_PACKS = {
-    "topup_20":   {"images": 20,   "price_inr": 24900,  "price_usd": 299,  "label": "+20 Images"},
+TOPUP_PACKS = TOPUP_PACKAGES  # aliased to canonical def,
     "topup_50":   {"images": 50,   "price_inr": 49900,  "price_usd": 499,  "label": "+50 Images"},
     "topup_150":  {"images": 150,  "price_inr": 149900, "price_usd": 1499, "label": "+150 Images"},
     "topup_500":  {"images": 500,  "price_inr": 499900, "price_usd": 4999, "label": "+500 Images"},
@@ -3901,6 +3900,129 @@ async def affiliate_info(request: Request):
         "link_clicks": user.get("referral_clicks", 0),
         "currency": "INR"
     })
+
+
+@app.post("/affiliate/convert")
+async def affiliate_convert(request: Request):
+    """Called internally after payment verified. Credits affiliate commission."""
+    try:
+        data = await request.json()
+        buyer_email  = (data.get("buyer_email") or "").strip().lower()
+        plan         = (data.get("plan") or "free").strip().lower()
+        interval     = (data.get("interval") or "monthly").strip().lower()
+        amount_inr   = float(data.get("amount_paid_inr") or 0)
+        amount_usd   = float(data.get("amount_paid_usd") or 0)
+        currency     = (data.get("currency") or "INR").upper()
+        is_renewal   = bool(data.get("is_renewal", False))
+        if not buyer_email or plan == "free":
+            return JSONResponse({"success": False, "reason": "no_buyer_or_free"})
+        rr = await _http_sb.get(
+            f"{SUPABASE_URL}/rest/v1/affiliate_referrals?visitor_email=eq.{buyer_email}&order=created_at.desc&limit=1",
+            headers=SB_HEADERS
+        )
+        rows = rr.json() if rr.status_code == 200 else []
+        if not rows:
+            return JSONResponse({"success": False, "reason": "no_referral_found"})
+        aff_email = rows[0]["affiliate_email"]
+        aff_user  = await sb_get_user(aff_email)
+        aff_plan  = (aff_user or {}).get("plan", "free")
+        rates     = AFFILIATE_RATES.get(aff_plan, AFFILIATE_RATES["free"])
+        base_amount = amount_inr if currency == "INR" else amount_usd
+        if plan == "free":
+            commission = rates["flat_inr"] if currency == "INR" else rates["flat_usd"]
+        elif interval == "annual":
+            rate = rates["annual_renewal"] if is_renewal else rates["annual"]
+            commission = round(base_amount * rate, 2)
+        else:
+            rate = rates["recurring"] if is_renewal else rates["month1"]
+            commission = round(base_amount * rate, 2)
+        if commission <= 0:
+            return JSONResponse({"success": False, "reason": "zero_commission"})
+        await _http_sb.post(
+            f"{SUPABASE_URL}/rest/v1/affiliate_payouts",
+            headers={**SB_HEADERS, "Prefer": "return=minimal"},
+            json={
+                "affiliate_email": aff_email,
+                "buyer_email": buyer_email,
+                "plan": plan,
+                "interval": interval,
+                "is_renewal": is_renewal,
+                "amount": commission,
+                "currency": currency,
+                "status": "pending",
+                "created_at": datetime.utcnow().isoformat(),
+                "notes": f"{plan} {interval} base={base_amount}"
+            }
+        )
+        current_earnings  = (aff_user or {}).get("affiliate_earnings", 0)
+        current_referrals = (aff_user or {}).get("total_referrals", 0)
+        await sb_update_user(aff_email, {
+            "affiliate_earnings": round(current_earnings + commission, 2),
+            "total_referrals": current_referrals + (0 if is_renewal else 1),
+            "pending_payout": round((aff_user or {}).get("pending_payout", 0) + commission, 2)
+        })
+        await _http_sb.patch(
+            f"{SUPABASE_URL}/rest/v1/affiliate_referrals?visitor_email=eq.{buyer_email}",
+            headers={**SB_HEADERS, "Prefer": "return=minimal"},
+            json={"status": "converted", "converted_at": datetime.utcnow().isoformat()}
+        )
+        logger.info(f"[affiliate] {aff_email} earned {commission} {currency} from {buyer_email}")
+        return JSONResponse({"success": True, "affiliate": aff_email, "commission": commission})
+    except Exception as e:
+        logger.error(f"[affiliate/convert] {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/admin/affiliate-payouts")
+async def admin_affiliate_payouts(request: Request):
+    """Admin: view all affiliate payouts by status"""
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(code):
+        return JSONResponse({"error":"Unauthorized"}, status_code=401)
+    try:
+        status_filter = request.query_params.get("status", "pending")
+        url = f"{SUPABASE_URL}/rest/v1/affiliate_payouts?order=created_at.desc"
+        if status_filter != "all":
+            url += f"&status=eq.{status_filter}"
+        r = await _http_sb.get(url, headers=SB_HEADERS)
+        rows = r.json() if r.status_code == 200 else []
+        total = sum(row.get("amount", 0) for row in rows)
+        return JSONResponse({"payouts": rows, "total": total, "count": len(rows), "status": status_filter})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/admin/affiliate-release")
+async def admin_affiliate_release(request: Request):
+    """Admin: approve and release a payout"""
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(code):
+        return JSONResponse({"error":"Unauthorized"}, status_code=401)
+    try:
+        data        = await request.json()
+        payout_id   = data.get("payout_id")
+        aff_email   = (data.get("affiliate_email") or "").strip().lower()
+        if not payout_id:
+            return JSONResponse({"error": "payout_id required"}, status_code=400)
+        await _http_sb.patch(
+            f"{SUPABASE_URL}/rest/v1/affiliate_payouts?id=eq.{payout_id}",
+            headers={**SB_HEADERS, "Prefer": "return=minimal"},
+            json={"status": "released",
+                  "released_at": datetime.utcnow().isoformat(),
+                  "release_note": data.get("note","Released by admin")}
+        )
+        if aff_email:
+            aff_user = await sb_get_user(aff_email)
+            if aff_user:
+                pr = await _http_sb.get(
+                    f"{SUPABASE_URL}/rest/v1/affiliate_payouts?affiliate_email=eq.{aff_email}&status=eq.pending&select=amount",
+                    headers=SB_HEADERS
+                )
+                remaining = sum(r.get("amount",0) for r in (pr.json() if pr.status_code==200 else []))
+                await sb_update_user(aff_email, {"pending_payout": remaining})
+        return JSONResponse({"success": True, "payout_id": payout_id, "status": "released"})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.post("/affiliate/track")
 async def affiliate_track(request: Request):
