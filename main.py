@@ -722,12 +722,8 @@ TRENDING_TTL   = 6 * 3600
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # Serve app if any login/session params present
-    params = request.query_params
-    if params.get("login") or params.get("login_token") or params.get("token") or params.get("email"):
-        return templates.TemplateResponse("index.html", {"request": request})
-    # Otherwise redirect to landing
-    return RedirectResponse("/landing")
+    # Always serve the app — JS handles session/redirect to landing if not logged in
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/privacy", response_class=HTMLResponse)
