@@ -3541,8 +3541,6 @@ async function applyPromoCode(){
         errorBox.textContent='❌ Could not validate code. Try again.';
     }
 }
-    document.getElementById('adminApiKeysPanel').style.display = 'block';
-}
 
 function activateAdminPlan(plan){
     const email = currentUserEmail || localStorage.getItem('tg_email');
