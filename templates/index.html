@@ -3475,7 +3475,7 @@ function togglePromoField(){
     arrow.textContent = open ? '▲' : '▼';
 }
 
-function applyPromoCode(){
+async function applyPromoCode(){
     const raw = document.getElementById('promoCode').value.trim().toUpperCase();
     const successBox = document.getElementById('promoSuccessBox');
     const errorBox = document.getElementById('promoErrorBox');
@@ -3486,25 +3486,61 @@ function applyPromoCode(){
 
     if(!raw){ errorBox.style.display='block'; errorBox.textContent='❌ Please enter a code.'; return; }
 
+    // Admin codes
     const match = ADMIN_CODES[raw];
-    if(!match){ errorBox.style.display='block'; errorBox.textContent='❌ Invalid code. Please try again.'; return; }
-
-    const email = document.getElementById('paymentEmail').value.trim().toLowerCase();
-    if(!email || !email.includes('@')){
-        errorBox.style.display='block';
-        errorBox.textContent='❌ Please enter your email above first.';
+    if(match){
+        const email = document.getElementById('paymentEmail').value.trim().toLowerCase();
+        if(!email || !email.includes('@')){
+            errorBox.style.display='block';
+            errorBox.textContent='❌ Please enter your email above first.';
+            return;
+        }
+        currentUserEmail = email;
+        localStorage.setItem('tg_email', email);
+        localStorage.setItem('tg_admin_code', raw);
+        payFooter.style.display = 'none';
+        document.getElementById('adminPlanPicker').style.display = 'block';
+        document.getElementById('adminApiKeysPanel').style.display = 'block';
         return;
     }
 
-    // Store email & code
-    currentUserEmail = email;
-    localStorage.setItem('tg_email', email);
-    localStorage.setItem('tg_admin_code', raw);
-
-    // Show plan picker
-    payFooter.style.display = 'none';
-    document.getElementById('adminPlanPicker').style.display = 'block';
-    document.getElementById('adminApiKeysPanel').style.display = 'block';
+    // Promo codes — validate against backend
+    try {
+        const plan = _selPlan || selectedPlan || 'creator';
+        const interval = _selInterval || 'monthly';
+        const vRes = await fetch('/promo/validate', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({code: raw, plan, interval})
+        });
+        const vData = await vRes.json();
+        if(vData.valid) {
+            localStorage.setItem('tg_promo_code', raw);
+            localStorage.setItem('tg_promo_discount', vData.discount_percent);
+            successBox.style.display='block';
+            document.getElementById('promoSuccessMsg').textContent =
+                '🎉 ' + vData.discount_percent + '% off! You pay ₹' +
+                vData.discounted_price.toLocaleString('en-IN') +
+                ' instead of ₹' + vData.original_price.toLocaleString('en-IN');
+            if(payFooter) {
+                var badge = document.getElementById('promoSavingsBadge');
+                if(!badge){
+                    badge = document.createElement('div');
+                    badge.id = 'promoSavingsBadge';
+                    badge.style.cssText = 'background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;text-align:center;margin-bottom:12px';
+                    payFooter.insertBefore(badge, payFooter.firstChild);
+                }
+                badge.textContent = '✅ ' + raw + ' applied — Save ₹' + vData.savings.toLocaleString('en-IN') + ' on first payment!';
+            }
+        } else {
+            errorBox.style.display='block';
+            errorBox.textContent='❌ ' + (vData.error || 'Invalid code. Please try again.');
+        }
+    } catch(e) {
+        errorBox.style.display='block';
+        errorBox.textContent='❌ Could not validate code. Try again.';
+    }
+}
     document.getElementById('adminApiKeysPanel').style.display = 'block';
 }
 
