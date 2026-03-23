@@ -3461,6 +3461,11 @@ function detectUserRegion(){
 var ADMIN_CODES = {
     'VIKAS2025': { plans: ['creator','pro','enterprise'], label: 'Admin Access', emoji: '👑' },
 };
+var PROMO_CODES = {
+    'LAUNCH25': { discount: 25, label: '25% off — Product Hunt Launch Special', emoji: '🚀', type: 'percent' },
+    'INDIA50':  { discount: 50, label: '50% off — India Creator Special',        emoji: '🇮🇳', type: 'percent' },
+    'WELCOME20':{ discount: 20, label: '20% off — Welcome Offer',                emoji: '🎁', type: 'percent' },
+};
 
 function togglePromoField(){
     const field = document.getElementById('promoField');

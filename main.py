@@ -119,6 +119,11 @@ PLAN_PRICES_USD = {"creator": 9.99, "pro": 19.99, "agency": 49.99, "enterprise":
 PLAN_ANNUAL_INR = {k: round(v * 12 * 0.80) for k, v in PLAN_PRICES_INR.items()}
 PLAN_ANNUAL_USD = {k: round(v * 12 * 0.80, 2) for k, v in PLAN_PRICES_USD.items()}
 ADMIN_CODES = {"VIKAS2025": {"plans": ["creator", "pro", "agency", "enterprise"]}}
+PROMO_CODES = {
+    "LAUNCH25":  {"discount": 0.25, "type": "percent", "label": "Product Hunt Launch"},
+    "INDIA50":   {"discount": 0.50, "type": "percent", "label": "India Creator Special"},
+    "WELCOME20": {"discount": 0.20, "type": "percent", "label": "Welcome Offer"},
+}
 
 def is_admin(code: str) -> bool:
     return code.upper() in ADMIN_CODES
