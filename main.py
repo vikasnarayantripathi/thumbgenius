@@ -1077,7 +1077,7 @@ async def activate(request: Request, token: str = "", login_token: str = ""):
             localStorage.setItem('tg_entered_app','1');
             localStorage.setItem('tg_last_active', Date.now().toString());
             localStorage.removeItem('tg_trial_start');
-            setTimeout(function(){{ window.location.href = '/?login=1'; }}, 1500);
+            setTimeout(function(){{ window.location.href = '/?login=1&email=' + encodeURIComponent(email); }}, 50);
         </script></body></html>""")
 
     # ── Payment activation flow ────────────────────────────────

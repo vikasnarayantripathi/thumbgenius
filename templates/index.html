@@ -1336,14 +1336,19 @@ function tg_initSession() {
         localStorage.setItem('tg_last_active', Date.now().toString());
         window.history.replaceState({}, '', '/');
         document.getElementById('appWrapper').style.display = 'block';
+        // Show page immediately — don't wait for plan fetch
+        var em = oauthEmail || localStorage.getItem('tg_email') || '';
+        currentUserEmail = em;
+        var lastPage = localStorage.getItem('tg_last_page') || 'home';
+        if(typeof showPage === 'function') showPage(lastPage);
+        if(typeof updateNavBar === 'function') updateNavBar({plan: localStorage.getItem('tg_plan')||'free', email: em});
+        // Load plan in background — non-blocking
+        if(typeof loadUserPlan === 'function' && em) loadUserPlan(em);
         setTimeout(function(){
             var em = oauthEmail || localStorage.getItem('tg_email') || '';
             currentUserEmail = em;
-            if(typeof loadUserPlan === 'function' && em) loadUserPlan(em);
-            var lastPage = localStorage.getItem('tg_last_page') || 'home'; if(typeof showPage === 'function') showPage(lastPage);
             // Show welcome modal for new users
             if(typeof checkShowWelcome === 'function') checkShowWelcome();
-            if(typeof updateNavBar === 'function') updateNavBar({plan: localStorage.getItem('tg_plan')||'free', email: em});
             // Reopen payment modal if user was trying to upgrade
             var pendingPlan = localStorage.getItem('tg_pending_plan');
             if(pendingPlan) {
@@ -1385,11 +1390,12 @@ function tg_initSession() {
         tg_updateActivity();
         currentUserEmail = email;
         document.getElementById('appWrapper').style.display = 'block';
-        setTimeout(function(){
-            if(typeof loadUserPlan === 'function') loadUserPlan(email);
-            var lastPage = localStorage.getItem('tg_last_page') || 'home'; if(typeof showPage === 'function') showPage(lastPage);
-            if(typeof updateNavBar === 'function') updateNavBar({plan: plan, email: email});
-        }, 100);
+        // Show immediately — non-blocking
+        var lastPage = localStorage.getItem('tg_last_page') || 'home';
+        if(typeof showPage === 'function') showPage(lastPage);
+        if(typeof updateNavBar === 'function') updateNavBar({plan: plan, email: email});
+        // Load fresh plan data in background
+        if(typeof loadUserPlan === 'function') loadUserPlan(email);
         return;
     }
     console.log('tg_initSession: email='+email+' plan='+plan+' entered='+entered);
