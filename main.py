@@ -1394,7 +1394,7 @@ async def admin_set_plan_user(request: Request):
     plan  = data.get("plan","free").strip().lower()
     if not email:
         return JSONResponse({"error":"Email required"}, status_code=400)
-    await sb_upsert_user(email, {"plan": plan, "generations_used": 0, "images_used": 0})
+    await sb_update_user(email, {"plan": plan})
     await invalidate_plan_cache(email)
     return {"success": True, "email": email, "plan": plan}
 
