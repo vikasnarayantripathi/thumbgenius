@@ -4025,6 +4025,53 @@ async def affiliate_info(request: Request):
     })
 
 
+
+@app.post("/affiliate/payment-details")
+async def save_affiliate_payment_details(request: Request):
+    """Save affiliate payment details for payout"""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    try:
+        data = await request.json()
+        method = data.get("method","upi")
+        # Store payment details in user record
+        payment_info = {"payout_method": method}
+        if method == "upi":
+            payment_info["payout_upi"] = data.get("upi_id","")
+        elif method == "bank":
+            payment_info["payout_bank_name"]   = data.get("account_name","")
+            payment_info["payout_bank_account"] = data.get("account_number","")
+            payment_info["payout_bank_ifsc"]    = data.get("ifsc","")
+        elif method == "paypal":
+            payment_info["payout_paypal"] = data.get("paypal_email","")
+        await sb_update_user(email, payment_info)
+        logger.info(f"[affiliate] Payment details saved for {email}: {method}")
+        return JSONResponse({"success": True, "method": method})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+@app.get("/affiliate/payment-details")
+async def get_affiliate_payment_details(request: Request):
+    """Get affiliate payment details"""
+    email = request.headers.get("X-User-Email","").strip().lower()
+    if not email:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    try:
+        user = await sb_get_user(email)
+        if not user:
+            return JSONResponse({})
+        return JSONResponse({
+            "method":          user.get("payout_method",""),
+            "upi_id":          user.get("payout_upi",""),
+            "account_name":    user.get("payout_bank_name",""),
+            "account_number":  user.get("payout_bank_account",""),
+            "ifsc":            user.get("payout_bank_ifsc",""),
+            "paypal_email":    user.get("payout_paypal",""),
+        })
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 @app.post("/affiliate/convert")
 async def affiliate_convert(request: Request):
     """Called internally after payment verified. Credits affiliate commission."""

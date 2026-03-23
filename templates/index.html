@@ -1732,6 +1732,9 @@ function showPage(p){
 .wniche-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
 .wniche-btn:hover{border-color:rgba(255,224,54,0.4);background:rgba(255,224,54,0.06)}
 .wniche-btn.selected{border-color:#FFE036;background:rgba(255,224,54,0.1);color:#FFE036}
+.pm-tab{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 14px;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+.pm-tab:hover{border-color:rgba(255,224,54,0.3);color:#fff}
+.pm-active{border-color:rgba(255,224,54,0.4)!important;background:rgba(255,224,54,0.08)!important;color:#FFE036!important}
 </style>
 
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -6602,6 +6605,8 @@ async function loadAffiliateSection() {
         if(upgradeEl) upgradeEl.style.display = plan==='free' ? 'block' : 'none';
         // Store referral link globally
         window._affLink = data.referral_link || '';
+        // Load saved payment details
+        if(typeof loadAffPaymentDetails === 'function') loadAffPaymentDetails();
     } catch(e) { console.warn('Affiliate section error:', e); }
 }
 
