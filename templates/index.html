@@ -1552,6 +1552,23 @@ function showPage(p){
             onfocus="this.style.borderColor='rgba(255,224,54,0.4)';this.style.background='rgba(255,255,255,0.07)'"
             onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'" />
 
+        <!-- Optional promo/referral code -->
+        <div id="promoRefToggle" style="margin-bottom:10px">
+            <button onclick="document.getElementById('promoRefField').style.display=document.getElementById('promoRefField').style.display==='none'?'block':'none';this.style.color='rgba(255,224,54,0.8)'"
+                style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;font-family:inherit;cursor:pointer;padding:0;transition:all 0.2s">
+                🎟️ Have a referral or promo code? (optional)
+            </button>
+            <div id="promoRefField" style="display:none;margin-top:8px">
+                <input type="text" id="loginPromoRef"
+                    placeholder="Enter code e.g. LAUNCH25 or tg38ce36ed"
+                    style="width:100%;background:rgba(255,224,54,0.05);border:1px solid rgba(255,224,54,0.2);border-radius:10px;padding:11px 16px;font-size:13px;font-family:inherit;color:#fff;outline:none;box-sizing:border-box;transition:all 0.2s"
+                    onfocus="this.style.borderColor='rgba(255,224,54,0.5)'"
+                    onblur="this.style.borderColor='rgba(255,224,54,0.2)'"
+                    oninput="saveLoginPromoRef(this.value)" />
+                <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:6px;text-align:left">Referral link codes and promo discount codes both work here</p>
+            </div>
+        </div>
+
         <!-- Magic link button -->
         <button class="login-modal-btn" id="loginBtn" onclick="sendLoginLink()"
             style="width:100%;background:linear-gradient(135deg,#FFE036,#FFC107);color:#02020A;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer;transition:all 0.2s;letter-spacing:-0.3px"
