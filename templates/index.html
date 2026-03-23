@@ -2863,7 +2863,7 @@ function showPage(p){
                 var border = p.color !== 'var(--yellow)' ? 'border-color:rgba(139,133,255,0.25)' : '';
                 if(p.color==='#43E97B') border='border-color:rgba(67,233,123,0.25)';
                 if(p.color==='var(--yellow)' && p.badge==='BEST VALUE') border='border-color:rgba(255,224,54,0.25)';
-                html += '<div onclick="buyTopup(''+p.id+'')" class="dash-topup-card" style="'+border+'">';
+                html += '<div onclick="buyTopup(&quot;'+p.id+'&quot;)" class="dash-topup-card" style="'+border+'">';
                 html += '<div style="font-size:20px;font-weight:900;color:'+p.color+'">'+p.imgs+'</div>';
                 html += '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin:4px 0">Images</div>';
                 html += '<div style="font-size:13px;font-weight:700;color:#fff">'+price+'</div>';
