@@ -390,7 +390,7 @@
         .trending-slider-wrap { position:relative; }
         .trending-slider { display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:4px; }
         .trending-slider::-webkit-scrollbar { display:none; }
-        .trending-slide { min-width:280px; max-width:280px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:20px; scroll-snap-align:start; transition:border-color 0.2s; flex-shrink:0; }
+        .trending-slide { min-width:300px; max-width:300px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:16px; padding:20px; scroll-snap-align:start; transition:border-color 0.2s; flex-shrink:0; }
         .trending-slide:hover { border-color:rgba(255,224,54,0.2); }
         .trending-slide-num { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,224,54,0.4); margin-bottom:10px; }
         .trending-slide-topic { font-size:15px; font-weight:700; color:var(--white); line-height:1.4; margin-bottom:8px; }
@@ -4347,12 +4347,46 @@ function renderAllCategoryBlocks() {
         }
 
         var slides = topics.map(function(t, i) {
-            return '<div class="trending-slide" data-topic="' + escapeHtml(t.topic) + '" data-niche="' + catId + '">' +
-                '<div class="trending-slide-num">TOPIC ' + (i+1) + ' OF ' + topics.length + '</div>' +
+            var ctrColor = t.ctr_potential === 'Explosive' ? '#FF5C00' : t.ctr_potential === 'Very High' ? '#FFE036' : '#4ade80';
+            var ctrBg    = t.ctr_potential === 'Explosive' ? 'rgba(255,92,0,0.12)' : t.ctr_potential === 'Very High' ? 'rgba(255,224,54,0.1)' : 'rgba(74,222,128,0.1)';
+            return '<div class="trending-slide" data-topic="' + escapeHtml(t.youtube_title || t.topic) + '" data-niche="' + catId + '">' +
+
+                // Header row
+                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
                 '<div class="trending-slide-heat">' + escapeHtml(t.heat || '🔥 Trending') + '</div>' +
+                (t.ctr_potential ? '<div style="background:'+ctrBg+';color:'+ctrColor+';font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;border:1px solid '+ctrColor+'40">'+escapeHtml(t.ctr_potential)+' CTR</div>' : '') +
+                '</div>' +
+
+                // Topic idea
+                '<div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">💡 TOPIC IDEA</div>' +
                 '<div class="trending-slide-topic">' + escapeHtml(t.topic) + '</div>' +
-                '<div class="trending-slide-why">'   + escapeHtml(t.why   || '') + '</div>' +
-                '<button class="trending-use-btn" onclick="useTrendingTopicDirect(this)">⚡ Use This Topic</button>' +
+
+                // Why trending
+                '<div class="trending-slide-why">' + escapeHtml(t.why || '') + '</div>' +
+
+                // YouTube title
+                (t.youtube_title ? '<div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:10px;padding:10px 12px;margin-bottom:10px">' +
+                '<div style="font-size:10px;font-weight:700;color:var(--yellow);margin-bottom:4px">📺 READY-TO-USE TITLE</div>' +
+                '<div style="font-size:13px;color:#fff;font-weight:600;line-height:1.4">' + escapeHtml(t.youtube_title) + '</div>' +
+                '<button onclick="navigator.clipboard.writeText(''+escapeHtml(t.youtube_title).replace(/'/g,"\'")+'')" style="margin-top:6px;background:transparent;border:1px solid rgba(255,224,54,0.3);color:var(--yellow);font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer">Copy Title</button>' +
+                '</div>' : '') +
+
+                // Thumbnail concept
+                (t.thumbnail_concept ? '<div style="background:rgba(139,133,255,0.06);border:1px solid rgba(139,133,255,0.15);border-radius:10px;padding:10px 12px;margin-bottom:10px">' +
+                '<div style="font-size:10px;font-weight:700;color:#8B85FF;margin-bottom:4px">🎨 THUMBNAIL CONCEPT</div>' +
+                '<div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5">' + escapeHtml(t.thumbnail_concept) + '</div>' +
+                '</div>' : '') +
+
+                // Hook script
+                (t.hook ? '<div style="background:rgba(255,45,122,0.06);border:1px solid rgba(255,45,122,0.15);border-radius:10px;padding:10px 12px;margin-bottom:14px">' +
+                '<div style="font-size:10px;font-weight:700;color:#FF2D7A;margin-bottom:4px">🎤 HOOK (first 5 seconds)</div>' +
+                '<div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5;font-style:italic">"' + escapeHtml(t.hook) + '"</div>' +
+                '</div>' : '') +
+
+                // CTA buttons
+                '<div style="display:flex;gap:8px">' +
+                '<button class="trending-use-btn" style="flex:1" onclick="useTrendingTopicDirect(this)">⚡ Generate Now</button>' +
+                '</div>' +
                 '</div>';
         }).join('');
 
