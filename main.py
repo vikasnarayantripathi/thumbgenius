@@ -3037,7 +3037,7 @@ async def trending(request: Request, niches: str = ""):
         requested = ["tech","finance"]
 
     # Cache key per niche combo
-    cache_key = "trending:" + "_".join(sorted(requested))
+    cache_key = "trending_v2:" + "_".join(sorted(requested))
     cached = await redis_get(cache_key)
     if cached:
         try:
