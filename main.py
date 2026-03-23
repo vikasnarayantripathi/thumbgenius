@@ -4156,6 +4156,17 @@ async def admin_affiliate_payouts(request: Request):
             url += f"&status=eq.{status_filter}"
         r = await _http_sb.get(url, headers=SB_HEADERS)
         rows = r.json() if r.status_code == 200 else []
+        # Enrich with payment details
+        for row in rows:
+            aff_email = row.get("affiliate_email","")
+            if aff_email:
+                aff_user = await sb_get_user(aff_email)
+                if aff_user:
+                    row["payout_method"]  = aff_user.get("payout_method","")
+                    row["payout_upi"]     = aff_user.get("payout_upi","")
+                    row["payout_paypal"]  = aff_user.get("payout_paypal","")
+                    row["payout_bank"]    = aff_user.get("payout_bank_account","")
+                    row["payout_ifsc"]    = aff_user.get("payout_bank_ifsc","")
         total = sum(row.get("amount", 0) for row in rows)
         return JSONResponse({"payouts": rows, "total": total, "count": len(rows), "status": status_filter})
     except Exception as e:
