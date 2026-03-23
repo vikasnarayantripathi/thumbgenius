@@ -1736,6 +1736,26 @@ loadPayouts('pending', null);
     return HTMLResponse(content=html)
 
 
+@app.get("/admin/bust-trending-cache")
+async def bust_trending_cache(request: Request):
+    code = request.headers.get("X-Admin-Code","").strip().upper()
+    if not is_admin(code):
+        return JSONResponse({"error":"Unauthorized"}, status_code=401)
+    # Delete all trending cache keys
+    count = 0
+    niches = ["tech","finance","gaming","fitness","food","travel","education","motivation",
+              "beauty","entertainment","business","productivity","cricket","automobiles",
+              "examprep","health","music","realestate","spirituality","stocks",
+              "cooking","comedy","news","astrology","relationship","parenting",
+              "fashion","mythology","selfdevelopment","career"]
+    for n in niches:
+        await redis_del(f"trending:{n}")
+        count += 1
+    # Also bust common combos
+    await redis_del("trending:tech")
+    await redis_del("trending:finance")
+    return JSONResponse({"success": True, "cleared": count})
+
 @app.get("/billing/region")
 async def billing_region(request: Request):
     region = await detect_region(request)
