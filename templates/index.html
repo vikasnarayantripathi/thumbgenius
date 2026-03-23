@@ -6571,11 +6571,38 @@ function shareAffLink() {
     }
 }
 
+function updateAffiliateUI(data) {
+    if(!data || data.error) return;
+    const plan = data.plan || 'free';
+    const badge = document.getElementById('dashAffBadge');
+    const badgeColors = {free:'rgba(255,255,255,0.4)',creator:'#8B85FF',pro:'#FDE036',enterprise:'#43E97B'};
+    if(badge){ badge.textContent = plan.toUpperCase(); badge.style.color = badgeColors[plan]||'#fff'; }
+    const rateEl = document.getElementById('dashAffRateLabel');
+    if(rateEl) rateEl.textContent = data.commission_rate || '—';
+    const linkEl = document.getElementById('dashAffLink');
+    if(linkEl) linkEl.textContent = data.referral_link || '';
+    const clicksEl = document.getElementById('dashAffClicks');
+    if(clicksEl) clicksEl.textContent = data.link_clicks || 0;
+    const refEl = document.getElementById('dashAffReferrals');
+    if(refEl) refEl.textContent = data.total_referrals || 0;
+    const isGlobalUser = typeof _userRegion !== 'undefined' && _userRegion !== 'IN';
+    const currSymbol = isGlobalUser ? '$' : '₹';
+    const earnEl = document.getElementById('dashAffEarnings');
+    if(earnEl) earnEl.textContent = currSymbol + (data.total_earnings || 0);
+    const pendEl = document.getElementById('dashAffPending');
+    if(pendEl) pendEl.textContent = currSymbol + (data.pending_payout || 0);
+    const relEl = document.getElementById('dashAffReleased');
+    if(relEl) relEl.textContent = currSymbol + (data.released_payout || 0);
+    window._affLink = data.referral_link || '';
+    if(typeof loadAffPaymentDetails === 'function') loadAffPaymentDetails();
+}
+
 async function loadAffiliateSection() {
     try {
         const res  = await fetch('/affiliate/info', {headers: _hdrs()});
         const data = await res.json();
         if(data.error) return;
+        updateAffiliateUI(data);
         const plan = data.plan || 'free';
         // Badge
         const badge = document.getElementById('dashAffBadge');
