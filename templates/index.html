@@ -3567,10 +3567,14 @@ async function startCheckout(){
         return;
     }
     try{
+        // Get promo code and ref code
+        const promoCode = localStorage.getItem('tg_promo_code') || '';
+        const refCode   = localStorage.getItem('tg_ref') || '';
         const res = await fetch('/subscribe', {
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({email, plan, interval, payment_method:'razorpay'})
+            body: JSON.stringify({email, plan, interval, payment_method:'razorpay',
+                                  promo_code: promoCode, ref_code: refCode})
         });
         const data = await res.json();
         if(data.error){alert(data.error);if(btn){btn.disabled=false;btn.textContent='⚡ Pay '+priceLabel+' with Razorpay';}return;}

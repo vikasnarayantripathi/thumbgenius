@@ -433,7 +433,38 @@ async def send_magic_link(email, token, plan):
     except Exception as e:
         logger.error(f"Email send error: {e}")
 
-async def create_razorpay_subscription(plan, email, interval="monthly"):
+async def create_discounted_razorpay_plan(plan: str, interval: str, discount: float) -> str:
+    """Create a discounted Razorpay plan on the fly and return its plan_id."""
+    base_prices = PLAN_PRICES_INR
+    annual_prices = PLAN_ANNUAL_INR
+    if interval == "annual":
+        base_amount = annual_prices.get(plan, 0)
+    else:
+        base_amount = base_prices.get(plan, 0)
+    discounted = round(base_amount * (1 - discount))
+    period = "monthly" if interval == "monthly" else "yearly"
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as h:
+            r = await h.post("https://api.razorpay.com/v1/plans",
+                auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET),
+                json={
+                    "period": period,
+                    "interval": 1,
+                    "item": {
+                        "name": f"ThumbGenius {plan.title()} ({int(discount*100)}% off)",
+                        "amount": discounted * 100,
+                        "currency": "INR",
+                        "description": f"Discounted {plan} plan"
+                    }
+                })
+            data = r.json()
+            logger.info(f"[promo] Created discounted plan: {data.get('id')} amount={discounted}")
+            return data.get("id", "")
+    except Exception as e:
+        logger.error(f"[promo] Plan creation error: {e}")
+        return ""
+
+async def create_razorpay_subscription(plan, email, interval="monthly", promo_code: str = ""):
     rzp_plan_map = {
         ("creator",    "monthly"): RAZORPAY_CREATOR_MONTHLY,
         ("creator",    "annual"):  RAZORPAY_CREATOR_ANNUAL,
@@ -447,12 +478,24 @@ async def create_razorpay_subscription(plan, email, interval="monthly"):
     plan_id = rzp_plan_map.get((plan, interval), "")
     if not plan_id:
         return None
+
+    # Apply promo code discount — create discounted plan for first cycle
+    discounted_plan_id = ""
+    promo_discount = 0.0
+    if promo_code:
+        promo = PROMO_CODES.get(promo_code.upper())
+        if promo:
+            promo_discount = promo["discount"]
+            discounted_plan_id = await create_discounted_razorpay_plan(plan, interval, promo_discount)
+
+    active_plan_id = discounted_plan_id if discounted_plan_id else plan_id
+
     try:
-        logger.info(f"Razorpay: plan={plan} interval={interval} plan_id={plan_id} key={RAZORPAY_KEY_ID[:8] if RAZORPAY_KEY_ID else 'MISSING'}")
+        logger.info(f"Razorpay: plan={plan} interval={interval} plan_id={active_plan_id} promo={promo_code} key={RAZORPAY_KEY_ID[:8] if RAZORPAY_KEY_ID else 'MISSING'}")
         async with httpx.AsyncClient(timeout=15.0) as h:
             r = await h.post("https://api.razorpay.com/v1/subscriptions",
                 auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET),
-                json={"plan_id": plan_id, "total_count": 12, "quantity": 1,
+                json={"plan_id": active_plan_id, "total_count": 12, "quantity": 1,
                       "notify_info": {"notify_phone": None, "notify_email": email}})
             logger.info(f"Razorpay response: {r.status_code} {r.text[:200]}")
             return r.json()
@@ -985,7 +1028,12 @@ async def subscribe(request: Request):
                              "plan": plan, "email": email})
 
     # ── Razorpay (India users) ─────────────────────────────────────────────
-    sub = await create_razorpay_subscription(plan, email, data.get("interval","monthly"))
+    promo_code = data.get("promo_code", "").strip().upper()
+    ref_code   = data.get("ref_code", "").strip()
+    # Store ref code against user for affiliate tracking
+    if ref_code:
+        await sb_update_user(email, {"referred_by": ref_code})
+    sub = await create_razorpay_subscription(plan, email, data.get("interval","monthly"), promo_code)
     if not sub or "id" not in sub:
         return JSONResponse({"error": "Payment setup failed."}, status_code=500)
     token = secrets.token_urlsafe(32)
@@ -1761,6 +1809,41 @@ async def bust_trending_cache(request: Request):
     await redis_del("trending:finance")
     return JSONResponse({"success": True, "cleared": count})
 
+
+@app.post("/promo/validate")
+async def promo_validate(request: Request):
+    """Validate promo code and return discount info"""
+    try:
+        data = await request.json()
+        code = (data.get("code") or "").strip().upper()
+        plan = (data.get("plan") or "creator").strip().lower()
+        interval = (data.get("interval") or "monthly").strip().lower()
+        if not code:
+            return JSONResponse({"valid": False, "error": "No code provided"})
+        promo = PROMO_CODES.get(code)
+        if not promo:
+            return JSONResponse({"valid": False, "error": "Invalid promo code"})
+        # Calculate discounted price
+        if interval == "annual":
+            base = PLAN_ANNUAL_INR.get(plan, 0)
+        else:
+            base = PLAN_PRICES_INR.get(plan, 0)
+        discount = promo["discount"]
+        discounted = round(base * (1 - discount))
+        savings = base - discounted
+        return JSONResponse({
+            "valid": True,
+            "code": code,
+            "discount_percent": int(discount * 100),
+            "original_price": base,
+            "discounted_price": discounted,
+            "savings": savings,
+            "label": promo["label"],
+            "currency": "INR"
+        })
+    except Exception as e:
+        return JSONResponse({"valid": False, "error": str(e)})
+
 @app.get("/billing/region")
 async def billing_region(request: Request):
     region = await detect_region(request)
@@ -1804,14 +1887,27 @@ async def razorpay_checkout(request: Request):
     try:
         import razorpay as rzp_sdk
         rzp_client = rzp_sdk.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+        promo_code = body.get("promo_code","").strip().upper()
+        ref_code   = body.get("ref_code","").strip()
+        if ref_code:
+            await sb_update_user(user["email"], {"referred_by": ref_code})
+        # Apply promo discount
+        active_plan_id = plan_id
+        if promo_code and promo_code in PROMO_CODES:
+            disc = PROMO_CODES[promo_code]["discount"]
+            dp = await create_discounted_razorpay_plan(plan, interval, disc)
+            if dp:
+                active_plan_id = dp
         subscription = rzp_client.subscription.create({
-            "plan_id": plan_id,
+            "plan_id": active_plan_id,
             "total_count": 12 if interval == "monthly" else 1,
             "quantity": 1,
             "customer_notify": 1,
-            "notes": {"email": user["email"], "plan": plan, "interval": interval}
+            "notes": {"email": user["email"], "plan": plan, "interval": interval,
+                      "promo_code": promo_code, "ref_code": ref_code}
         })
-        return {"subscription_id": subscription["id"], "razorpay_key": RAZORPAY_KEY_ID, "plan": plan, "interval": interval}
+        return {"subscription_id": subscription["id"], "razorpay_key": RAZORPAY_KEY_ID,
+                "plan": plan, "interval": interval, "promo_applied": bool(promo_code and active_plan_id != plan_id)}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
