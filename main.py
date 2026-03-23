@@ -3058,42 +3058,23 @@ async def trending(request: Request, niches: str = ""):
             per_niche = max(3, min(5, 20 // len(requested)))
             niche_list = ", ".join(requested)
             total = per_niche * len(requested)
-            prompt = f"""Generate {total} trending YouTube video topics for creators right now in 2025.
-Niches requested: {niche_list}
-Generate exactly {per_niche} topics per niche.
+            prompt = f"""Generate {total} trending YouTube video topics for 2025.
+Niches: {niche_list}
+Exactly {per_niche} topics per niche.
 
-Return a JSON object with a "topics" key containing an array:
-{{"topics": [
-  {{
-    "niche": "tech",
-    "topic": "Specific compelling video title",
-    "why": "One sentence why this is trending right now",
-    "heat": "🔥🔥 High Momentum",
-    "youtube_title": "Exact ready-to-use YouTube title with power words (max 60 chars)",
-    "thumbnail_concept": "Visual description: what to show in thumbnail — face expression, text overlay, background",
-    "hook": "First 5-second hook script the creator should say on camera",
-    "ctr_potential": "High" or "Very High" or "Explosive"
-  }},
-  ...
-]}}
+Return JSON: {{"topics":[{{"niche":"tech","topic":"Video idea title","why":"Why trending","heat":"🔥🔥 High Momentum","youtube_title":"Ready YouTube title max 60 chars","thumbnail_concept":"Thumbnail visual description","hook":"Opening 5-second line","ctr_potential":"High"}}]}}
 
-Rules:
-- Topics must be specific, actionable video title ideas (not generic)
-- youtube_title must be punchy, curiosity-driven, max 60 characters
-- thumbnail_concept must describe a specific visual — not generic
-- hook must be a single sentence the creator says in first 5 seconds
-- ctr_potential: Explosive for viral topics, Very High for strong topics, High for solid topics
-- Highly relevant to the {niche_list} YouTube audience in 2025
-- Each topic must have all 7 fields
-- niche must exactly match one of: {niche_list}"""
+ctr_potential values: High, Very High, Explosive
+Each topic needs all 7 fields. Niche must match: {niche_list}"""
 
             response = await client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role":"system","content":"YouTube trends expert for global creators. Return only valid JSON."},
+                    {"role":"system","content":"YouTube trends expert. Return only valid JSON, no markdown."},
                     {"role":"user","content":prompt}
                 ],
-                temperature=0.85, max_tokens=2000,
+                temperature=0.8, max_tokens=3000,
+                timeout=45,
                 response_format={"type": "json_object"})
 
             raw = response.choices[0].message.content.strip()
