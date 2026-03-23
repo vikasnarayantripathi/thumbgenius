@@ -429,9 +429,10 @@
             #landingPage .landing-pricing { grid-template-columns:1fr !important; }
             #landingPage section { padding:40px 16px !important; }
             .nav-top { padding:0 12px; height:52px; }
-            .nav-bottom { padding:0 8px 8px; gap:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+            .nav-bottom { padding:0 8px 8px 8px; gap:4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; display:flex; flex-wrap:nowrap; }
             .nav-bottom::-webkit-scrollbar { display:none; }
             .nav-tab { padding:5px 8px; font-size:11px; white-space:nowrap; flex-shrink:0; }
+            .nav-bottom::after { content:''; min-width:8px; display:block; }
             .nav-badge { display:none !important; }
             .status-email { display:none !important; }
             .status-usage { display:none !important; }
@@ -448,6 +449,7 @@
             .nav-gen-count { display:none !important; }
             .nav-user-bar { gap:4px !important; }
             #userStatusBar { padding:6px 12px; flex-wrap:wrap; gap:4px; top:76px; }
+            .dash-plan-header { display:none !important; }
             .hero { padding:80px 16px 40px; }
             .hero-h1 { font-size:42px; letter-spacing:-2px; }
             .hero-p { font-size:15px; }
