@@ -735,10 +735,11 @@ footer{padding:38px 56px;border-top:1px solid var(--border);display:flex;align-i
 
     <!-- Optional promo/ref code -->
     <div style="margin-bottom:10px;text-align:left">
-      <button onclick="var f=document.getElementById('landPromoField');f.style.display=f.style.display==='none'?'block':'none'"
-        style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;font-family:inherit;cursor:pointer;padding:0">
-        🎟️ Have a referral or promo code? (optional)
-      </button>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+        <input type="checkbox" id="promoCheckbox" onchange="var f=document.getElementById('landPromoField');f.style.display=this.checked?'block':'none'"
+          style="width:15px;height:15px;accent-color:#FFD700;cursor:pointer;flex-shrink:0">
+        <span style="color:rgba(255,255,255,0.4);font-size:12px">I have a referral or promo code</span>
+      </label>
       <div id="landPromoField" style="display:none;margin-top:8px">
         <input type="text" id="landPromoRef" placeholder="e.g. LAUNCH25 or tg38ce36ed"
           oninput="saveLandPromoRef(this.value)"

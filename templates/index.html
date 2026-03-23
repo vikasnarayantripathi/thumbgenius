@@ -1554,10 +1554,11 @@ function showPage(p){
 
         <!-- Optional promo/referral code -->
         <div id="promoRefToggle" style="margin-bottom:10px">
-            <button onclick="document.getElementById('promoRefField').style.display=document.getElementById('promoRefField').style.display==='none'?'block':'none';this.style.color='rgba(255,224,54,0.8)'"
-                style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;font-family:inherit;cursor:pointer;padding:0;transition:all 0.2s">
-                🎟️ Have a referral or promo code? (optional)
-            </button>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+                <input type="checkbox" id="promoCheckboxApp" onchange="document.getElementById('promoRefField').style.display=this.checked?'block':'none'"
+                    style="width:15px;height:15px;accent-color:#FFE036;cursor:pointer;flex-shrink:0">
+                <span style="color:rgba(255,255,255,0.4);font-size:12px">I have a referral or promo code</span>
+            </label>
             <div id="promoRefField" style="display:none;margin-top:8px">
                 <input type="text" id="loginPromoRef"
                     placeholder="Enter code e.g. LAUNCH25 or tg38ce36ed"
