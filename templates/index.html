@@ -4368,7 +4368,7 @@ function renderAllCategoryBlocks() {
                 (t.youtube_title ? '<div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:10px;padding:10px 12px;margin-bottom:10px">' +
                 '<div style="font-size:10px;font-weight:700;color:var(--yellow);margin-bottom:4px">📺 READY-TO-USE TITLE</div>' +
                 '<div style="font-size:13px;color:#fff;font-weight:600;line-height:1.4">' + escapeHtml(t.youtube_title) + '</div>' +
-                '<button onclick="navigator.clipboard.writeText(''+escapeHtml(t.youtube_title).replace(/'/g,"\'")+'')" style="margin-top:6px;background:transparent;border:1px solid rgba(255,224,54,0.3);color:var(--yellow);font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer">Copy Title</button>' +
+                '<button onclick="copyTrendingTitle(this)" data-title="' + escapeHtml(t.youtube_title) + '" style="margin-top:6px;background:transparent;border:1px solid rgba(255,224,54,0.3);color:var(--yellow);font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer">Copy Title</button>' +
                 '</div>' : '') +
 
                 // Thumbnail concept
@@ -4414,6 +4414,26 @@ function updateDots(sliderEl) {
     var dots  = document.querySelectorAll('#dots-' + catId + ' .slider-dot');
     var idx   = Math.round(sliderEl.scrollLeft / (sliderEl.offsetWidth || 300));
     dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+}
+
+function copyTrendingTitle(btn) {
+    var title = btn.getAttribute('data-title') || '';
+    if (!title) return;
+    navigator.clipboard.writeText(title).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(function(){ btn.textContent = orig; }, 2000);
+    }).catch(function() {
+        // fallback
+        var ta = document.createElement('textarea');
+        ta.value = title;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = '✅ Copied!';
+        setTimeout(function(){ btn.textContent = 'Copy Title'; }, 2000);
+    });
 }
 
 function useTrendingTopicDirect(btn) {
