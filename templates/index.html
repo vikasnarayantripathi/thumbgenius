@@ -1257,6 +1257,68 @@ function tg_logout(reason) {
     window.location.href = '/landing' + (reason ? '?msg=' + reason : '');
 }
 
+// ── WELCOME ONBOARDING ──────────────────────────────────
+var _welcomeNiche = '';
+var _welcomeSize  = '';
+
+function showWelcomeModal() {
+    var modal = document.getElementById('welcomeModal');
+    if(modal) modal.style.display = 'flex';
+}
+
+function selectWelcomeNiche(niche, el) {
+    _welcomeNiche = niche;
+    document.querySelectorAll('#welcomeStep1 .wniche-btn').forEach(function(b){ b.classList.remove('selected'); });
+    if(el) el.classList.add('selected');
+}
+
+function selectWelcomeSize(size, el) {
+    _welcomeSize = size;
+    document.querySelectorAll('#welcomeStep2 .wniche-btn').forEach(function(b){ b.classList.remove('selected'); });
+    if(el) el.classList.add('selected');
+}
+
+function welcomeNext(step) {
+    // Hide all steps
+    document.getElementById('welcomeStep1').style.display = 'none';
+    document.getElementById('welcomeStep2').style.display = 'none';
+    document.getElementById('welcomeStep3').style.display = 'none';
+    // Show current step
+    document.getElementById('welcomeStep'+step).style.display = 'block';
+    // Update step indicators
+    for(var i=1;i<=3;i++){
+        var s = document.getElementById('ws'+i);
+        if(s) s.style.background = i <= step ? '#FFE036' : 'rgba(255,255,255,0.15)';
+    }
+    // Save niche if set
+    if(_welcomeNiche) {
+        localStorage.setItem('tg_niche', _welcomeNiche);
+        // Auto-select niche chip on main page
+        var chip = document.querySelector('[data-niche="'+_welcomeNiche+'"]');
+        if(chip) {
+            document.querySelectorAll('.niche-chip').forEach(function(c){ c.classList.remove('active'); });
+            chip.classList.add('active');
+        }
+    }
+}
+
+function finishWelcome() {
+    localStorage.setItem('tg_welcomed', '1');
+    localStorage.setItem('tg_channel_size', _welcomeSize);
+    var modal = document.getElementById('welcomeModal');
+    if(modal) modal.style.display = 'none';
+    // Go to generate page
+    if(typeof showPage === 'function') showPage('home');
+}
+
+function checkShowWelcome() {
+    var welcomed   = localStorage.getItem('tg_welcomed');
+    var email      = localStorage.getItem('tg_email');
+    if(!welcomed && email) {
+        setTimeout(showWelcomeModal, 800);
+    }
+}
+
 function tg_updateActivity() {
     localStorage.setItem('tg_last_active', Date.now().toString());
 }
@@ -1279,6 +1341,8 @@ function tg_initSession() {
             currentUserEmail = em;
             if(typeof loadUserPlan === 'function' && em) loadUserPlan(em);
             var lastPage = localStorage.getItem('tg_last_page') || 'home'; if(typeof showPage === 'function') showPage(lastPage);
+            // Show welcome modal for new users
+            if(typeof checkShowWelcome === 'function') checkShowWelcome();
             if(typeof updateNavBar === 'function') updateNavBar({plan: localStorage.getItem('tg_plan')||'free', email: em});
             // Reopen payment modal if user was trying to upgrade
             var pendingPlan = localStorage.getItem('tg_pending_plan');
@@ -1589,6 +1653,80 @@ function showPage(p){
         </div>
     </div>
 </div>
+
+<!-- WELCOME ONBOARDING MODAL -->
+<div id="welcomeModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:linear-gradient(160deg,#0d0d1f,#0a0a15);border:1px solid rgba(255,224,54,0.2);border-radius:24px;padding:40px;max-width:480px;width:90%;text-align:center;position:relative">
+
+    <!-- Step indicator -->
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:28px" id="welcomeSteps">
+      <div id="ws1" style="width:32px;height:4px;border-radius:2px;background:#FFE036"></div>
+      <div id="ws2" style="width:32px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15)"></div>
+      <div id="ws3" style="width:32px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15)"></div>
+    </div>
+
+    <!-- Step 1: Niche -->
+    <div id="welcomeStep1">
+      <div style="font-size:36px;margin-bottom:12px">🎯</div>
+      <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px">What's your niche?</h2>
+      <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px">We'll personalize your experience</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px">
+        <button onclick="selectWelcomeNiche('tech',this)" class="wniche-btn">📱 Tech</button>
+        <button onclick="selectWelcomeNiche('finance',this)" class="wniche-btn">💰 Finance</button>
+        <button onclick="selectWelcomeNiche('gaming',this)" class="wniche-btn">🎮 Gaming</button>
+        <button onclick="selectWelcomeNiche('fitness',this)" class="wniche-btn">💪 Fitness</button>
+        <button onclick="selectWelcomeNiche('education',this)" class="wniche-btn">📚 Education</button>
+        <button onclick="selectWelcomeNiche('motivation',this)" class="wniche-btn">🔥 Motivation</button>
+        <button onclick="selectWelcomeNiche('food',this)" class="wniche-btn">🍕 Food</button>
+        <button onclick="selectWelcomeNiche('other',this)" class="wniche-btn">✨ Other</button>
+      </div>
+      <button onclick="welcomeNext(2)" style="width:100%;background:linear-gradient(135deg,#FFE036,#FFC107);color:#02020A;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer">Continue →</button>
+    </div>
+
+    <!-- Step 2: Channel size -->
+    <div id="welcomeStep2" style="display:none">
+      <div style="font-size:36px;margin-bottom:12px">📊</div>
+      <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px">Your channel size?</h2>
+      <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px">Helps us calibrate your results</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+        <button onclick="selectWelcomeSize('new',this)" class="wniche-btn" style="text-align:left;padding:14px 18px">🌱 Just starting out (0-1K subs)</button>
+        <button onclick="selectWelcomeSize('growing',this)" class="wniche-btn" style="text-align:left;padding:14px 18px">📈 Growing (1K-50K subs)</button>
+        <button onclick="selectWelcomeSize('established',this)" class="wniche-btn" style="text-align:left;padding:14px 18px">🚀 Established (50K+ subs)</button>
+        <button onclick="selectWelcomeSize('agency',this)" class="wniche-btn" style="text-align:left;padding:14px 18px">🏢 Agency / Multiple channels</button>
+      </div>
+      <button onclick="welcomeNext(3)" style="width:100%;background:linear-gradient(135deg,#FFE036,#FFC107);color:#02020A;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer">Continue →</button>
+    </div>
+
+    <!-- Step 3: Ready -->
+    <div id="welcomeStep3" style="display:none">
+      <div style="font-size:48px;margin-bottom:16px">🎉</div>
+      <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:8px">You're all set!</h2>
+      <p style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:24px">Here's what you can do for free today</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;text-align:left">
+        <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">⚡</span>
+          <div><div style="color:#fff;font-size:13px;font-weight:700">Generate 3 viral titles</div><div style="color:rgba(255,255,255,0.4);font-size:12px">With thumbnail blueprint + hook script</div></div>
+        </div>
+        <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">🔍</span>
+          <div><div style="color:#fff;font-size:13px;font-weight:700">Analyze 1 thumbnail</div><div style="color:rgba(255,255,255,0.4);font-size:12px">Get CTR score across 7 dimensions</div></div>
+        </div>
+        <div style="background:rgba(255,224,54,0.06);border:1px solid rgba(255,224,54,0.15);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">📐</span>
+          <div><div style="color:#fff;font-size:13px;font-weight:700">Reverse engineer 1 viral video</div><div style="color:rgba(255,255,255,0.4);font-size:12px">Paste any YouTube URL</div></div>
+        </div>
+      </div>
+      <button onclick="finishWelcome()" style="width:100%;background:linear-gradient(135deg,#FFE036,#FFC107);color:#02020A;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer">Start Creating →</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.wniche-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.2s}
+.wniche-btn:hover{border-color:rgba(255,224,54,0.4);background:rgba(255,224,54,0.06)}
+.wniche-btn.selected{border-color:#FFE036;background:rgba(255,224,54,0.1);color:#FFE036}
+</style>
 
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- LANDING PAGE -->
