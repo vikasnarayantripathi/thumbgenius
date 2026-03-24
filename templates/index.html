@@ -3049,7 +3049,8 @@ function showPage(p){
         <div id="dashTopupCards" style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch"></div>
         <script>
         function renderTopupCards(){
-            var isGlobal = typeof _userRegion !== 'undefined' && _userRegion !== 'IN';
+            // Wait for region detection if not done yet
+            var isGlobal = (typeof _userRegion !== 'undefined') && _userRegion !== 'IN';
             var packs = [
                 {id:'topup_20',  imgs:'+20',   inr:'₹249',    usd:'$2.99',  color:'var(--yellow)', badge:''},
                 {id:'topup_50',  imgs:'+50',   inr:'₹499',    usd:'$5.99',  color:'var(--yellow)', badge:''},
