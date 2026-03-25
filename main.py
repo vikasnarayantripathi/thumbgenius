@@ -2534,6 +2534,83 @@ async def image_status(job_id: str):
     return JSONResponse({"status":"pending"})
 
 
+
+async def fetch_niche_benchmark(niche: str) -> dict:
+    """Fetch top trending thumbnails in niche and return benchmark scores"""
+    cache_key = f"benchmark:{niche}"
+    cached = await redis_get(cache_key)
+    if cached:
+        try:
+            return json.loads(cached)
+        except:
+            pass
+
+    try:
+        # Fetch trending videos in niche
+        async with httpx.AsyncClient(timeout=15.0) as h:
+            r = await h.get(
+                "https://www.googleapis.com/youtube/v3/videos",
+                params={
+                    "part": "snippet,statistics",
+                    "chart": "mostPopular",
+                    "videoCategoryId": "28" if niche == "tech" else "22",
+                    "maxResults": 10,
+                    "key": YOUTUBE_API_KEY,
+                    "regionCode": "IN"
+                }
+            )
+            videos = r.json().get("items", [])
+
+        if not videos:
+            return {"avg_score": 75, "top_score": 88, "count": 0, "top_thumbnails": []}
+
+        # Get thumbnail URLs
+        top_thumbnails = []
+        for v in videos[:6]:
+            thumb = v.get("snippet", {}).get("thumbnails", {})
+            url = (thumb.get("maxres") or thumb.get("high") or thumb.get("medium") or {}).get("url", "")
+            title = v.get("snippet", {}).get("title", "")
+            views = int(v.get("statistics", {}).get("viewCount", 0))
+            if url:
+                top_thumbnails.append({"url": url, "title": title, "views": views})
+
+        # Ask AI to score the benchmark thumbnails
+        thumb_list = chr(10).join([str(idx+1) + ". Title: " + t["title"] + " Views: " + str(t["views"]) for idx, t in enumerate(top_thumbnails)])
+
+
+        bench_prompt = f"""You are a YouTube thumbnail expert. Based on these top trending {niche} videos this week:
+
+{thumb_list}
+
+Estimate the average CTR score (0-10) these thumbnails would get based on their titles and typical {niche} thumbnail patterns.
+
+Return ONLY this JSON:
+{{
+  "avg_score": 8.2,
+  "top_score": 9.1,
+  "benchmark_insight": "One sentence about what makes top {niche} thumbnails work right now",
+  "winning_patterns": ["pattern1", "pattern2", "pattern3"]
+}}"""
+
+        bench_response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": bench_prompt}],
+            max_tokens=300
+        )
+        bench_data = parse_json_safe(bench_response.choices[0].message.content)
+        bench_data["top_thumbnails"] = top_thumbnails[:3]
+        bench_data["count"] = len(top_thumbnails)
+
+        # Cache for 6 hours
+        await redis_set(cache_key, json.dumps(bench_data), ex=21600)
+        return bench_data
+
+    except Exception as e:
+        logger.error(f"[benchmark] Error: {e}")
+        return {"avg_score": 7.5, "top_score": 8.8, "count": 0, "top_thumbnails": [],
+                "benchmark_insight": f"Top {niche} thumbnails use bold text, high contrast, and strong emotional hooks.",
+                "winning_patterns": ["Bold text overlay", "High contrast colors", "Strong face expressions"]}
+
 @app.post("/analyze-thumbnail")
 async def analyze_thumbnail(request: Request):
     email      = request.headers.get("X-User-Email","").strip().lower()
@@ -2601,6 +2678,37 @@ Return ONLY this JSON:
             ]}],
             max_tokens=1000)
         result = parse_json_safe(response.choices[0].message.content)
+        if not is_adm and email:
+            asyncio.create_task(sb_update_user(email,{"thumb_analysis_used":used+1}))
+            asyncio.create_task(invalidate_plan_cache(email))
+        elif not is_adm and not email:
+            asyncio.create_task(increment_free_limit(request,"tana"))
+        # Add competitor benchmarking in parallel
+        try:
+            benchmark = await fetch_niche_benchmark(niche)
+            user_score = result.get("ctr_score", 5) * 10  # convert to 0-100
+            bench_avg = benchmark.get("avg_score", 7.5) * 10
+            bench_top = benchmark.get("top_score", 8.8) * 10
+
+            # Gap analysis
+            gap = round(bench_avg - user_score, 1)
+            percentile = "top 10%" if user_score >= bench_top else                         "top 25%" if user_score >= bench_avg + 5 else                         "above average" if user_score >= bench_avg else                         "below average"
+
+            result["benchmark"] = {
+                "your_score": round(user_score, 1),
+                "niche_avg": round(bench_avg, 1),
+                "niche_top": round(bench_top, 1),
+                "gap": gap,
+                "percentile": percentile,
+                "insight": benchmark.get("benchmark_insight", ""),
+                "winning_patterns": benchmark.get("winning_patterns", []),
+                "top_thumbnails": benchmark.get("top_thumbnails", []),
+                "gap_message": f"You're {abs(gap):.0f} points {'above' if gap < 0 else 'below'} the {niche} niche average" if gap != 0 else "You match the niche average"
+            }
+        except Exception as be:
+            logger.error(f"[benchmark] Failed: {be}")
+            result["benchmark"] = None
+
         if not is_adm and email:
             asyncio.create_task(sb_update_user(email,{"thumb_analysis_used":used+1}))
             asyncio.create_task(invalidate_plan_cache(email))
