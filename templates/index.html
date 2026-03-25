@@ -1950,15 +1950,17 @@ function showPage(p){
                 <div style="font-size:12px;font-weight:700;color:#FFE036">Clean Image</div>
                 <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px">No text — pure visual</div>
             </div>
-            <div class="img-mode-card" id="mode-baked" onclick="setImgMode('baked')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s">
-                <div style="font-size:24px;margin-bottom:6px">✍️</div>
-                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Text in Image</div>
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px">AI bakes text inside</div>
+            <div class="img-mode-card" id="mode-baked" onclick="setImgMode('overlay')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s;position:relative">
+                <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#FF6584;color:#fff;font-size:8px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap">USE OVERLAY ↓</div>
+                <div style="font-size:24px;margin-bottom:6px;opacity:0.4">✍️</div>
+                <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.4)">Text in Image</div>
+                <div style="font-size:9px;color:#FF6584;margin-top:3px">AI misspells text</div>
             </div>
-            <div class="img-mode-card" id="mode-overlay" onclick="setImgMode('overlay')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s">
+            <div class="img-mode-card" id="mode-overlay" onclick="setImgMode('overlay')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:all 0.2s;position:relative">
+                <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#43E97B;color:#000;font-size:8px;font-weight:800;padding:2px 8px;border-radius:99px;white-space:nowrap">✅ RECOMMENDED</div>
                 <div style="font-size:24px;margin-bottom:6px">🔤</div>
                 <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.8)">Text Overlay</div>
-                <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:3px">Drawn on top after gen</div>
+                <div style="font-size:10px;color:#43E97B;margin-top:3px">Pixel-perfect text</div>
             </div>
         </div>
 
