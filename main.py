@@ -2362,14 +2362,15 @@ async def generate_image(request: Request):
         if clean_mode or no_baked_text:
             # CLEAN MODE - absolutely no text
             img_prompt = (
-                f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
+                f"YouTube thumbnail for a {niche} channel. "
                 f"SCENE: {concept}. "
                 f"STYLE: {niche_style}. {style_mod}. "
                 f"PERSON: Indian/South Asian creator with highly expressive face, "
                 f"face on one side of frame, background scene on other side. "
                 f"LIGHTING: Dramatic 3-point lighting, rim light, colored accent matching niche. "
                 f"STRICT RULE: NO TEXT. NO WORDS. NO LETTERS. NO NUMBERS. NO SIGNS. "
-                f"NO WATERMARKS. NO LOGOS. Absolutely nothing written anywhere. Pure visual only."
+                f"NO WATERMARKS. NO LOGOS. NO LABELS. NO ASPECT RATIO TEXT. NO TECHNICAL SPECS. "
+                f"Absolutely nothing written anywhere in the image. Pure visual only."
             )
         else:
             # BAKED TEXT MODE - AI includes text in image
@@ -2377,17 +2378,17 @@ async def generate_image(request: Request):
             # Clean text — remove special chars that confuse AI
             text_to_bake = text_to_bake.upper().strip()
             img_prompt = (
-                f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
+                f"YouTube thumbnail for a {niche} channel. "
                 f"SCENE: {concept}. "
                 f"STYLE: {niche_style}. {style_mod}. "
                 f"PERSON: Indian/South Asian creator with expressive shocked face on LEFT THIRD of image. "
                 f"RIGHT SIDE: Large bold text saying EXACTLY '{text_to_bake}'. "
-                f"TEXT RULES: Impact font, ALL CAPS, size fills right 60% of image, "
-                f"bright yellow (#FFE036) color, thick black outline/stroke 8px, "
+                f"TEXT RULES: Impact font, ALL CAPS, bright yellow color, thick black outline, "
                 f"high contrast readable, no blur, crisp sharp edges. "
                 f"BACKGROUND: {niche_style}. "
                 f"LIGHTING: Dramatic 3-point cinematic lighting with rim light. "
-                f"CRITICAL: Text must be PERFECTLY READABLE. Every letter crystal clear."
+                f"IMPORTANT: Do NOT include any labels, watermarks, aspect ratio text, "
+                f"or technical specifications in the image."
             )
 
         # If custom image provided — use Gemini Vision to generate around it
