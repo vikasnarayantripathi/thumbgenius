@@ -2374,15 +2374,20 @@ async def generate_image(request: Request):
         else:
             # BAKED TEXT MODE - AI includes text in image
             text_to_bake = overlay if overlay else title[:30] if title else concept[:30]
+            # Clean text — remove special chars that confuse AI
+            text_to_bake = text_to_bake.upper().strip()
             img_prompt = (
                 f"YouTube thumbnail, 16:9 widescreen, photorealistic 8K. "
                 f"SCENE: {concept}. "
                 f"STYLE: {niche_style}. {style_mod}. "
-                f"PERSON: Indian/South Asian creator with highly expressive face on left third. "
-                f"TEXT: Include bold readable text saying exactly '{text_to_bake}' "
-                f"in large Impact or Bebas font on the right side, "
-                f"white or yellow color with dark shadow for readability. "
-                f"LIGHTING: Dramatic cinematic lighting."
+                f"PERSON: Indian/South Asian creator with expressive shocked face on LEFT THIRD of image. "
+                f"RIGHT SIDE: Large bold text saying EXACTLY '{text_to_bake}'. "
+                f"TEXT RULES: Impact font, ALL CAPS, size fills right 60% of image, "
+                f"bright yellow (#FFE036) color, thick black outline/stroke 8px, "
+                f"high contrast readable, no blur, crisp sharp edges. "
+                f"BACKGROUND: {niche_style}. "
+                f"LIGHTING: Dramatic 3-point cinematic lighting with rim light. "
+                f"CRITICAL: Text must be PERFECTLY READABLE. Every letter crystal clear."
             )
 
         # If custom image provided — use Gemini Vision to generate around it

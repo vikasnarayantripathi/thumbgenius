@@ -4927,38 +4927,102 @@ function drawCanvasOverlayStyled(text, font, color) {
     const img = document.getElementById('thumbnailImg');
     if (!img || !img.src) return;
     const canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth || 1280;
-    canvas.height = img.naturalHeight || 720;
+    const W = 1280, H = 720;
+    canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');
     const tmpImg = new Image();
     tmpImg.crossOrigin = 'anonymous';
     tmpImg.onload = function() {
-        ctx.drawImage(tmpImg, 0, 0, canvas.width, canvas.height);
-        // Draw gradient overlay at bottom
-        const grad = ctx.createLinearGradient(0, canvas.height*0.6, 0, canvas.height);
+        // Draw base image
+        ctx.drawImage(tmpImg, 0, 0, W, H);
+
+        // Word wrap function
+        function wrapText(ctx, text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let current = '';
+            for (let w of words) {
+                const test = current ? current + ' ' + w : w;
+                if (ctx.measureText(test).width > maxWidth && current) {
+                    lines.push(current);
+                    current = w;
+                } else {
+                    current = test;
+                }
+            }
+            if (current) lines.push(current);
+            return lines;
+        }
+
+        const textUpper = text.toUpperCase();
+        const selectedFont = font || _overlayFont || 'Impact';
+        const selectedColor = color || _overlayColor || '#FFE036';
+
+        // Calculate font size — fit to width
+        let fontSize = 100;
+        ctx.font = `900 ${fontSize}px "${selectedFont}", Impact, Arial Black, sans-serif`;
+        while (ctx.measureText(textUpper).width > W * 0.85 && fontSize > 40) {
+            fontSize -= 4;
+            ctx.font = `900 ${fontSize}px "${selectedFont}", Impact, Arial Black, sans-serif`;
+        }
+
+        const lines = wrapText(ctx, textUpper, W * 0.85);
+        const lineHeight = fontSize * 1.15;
+        const totalTextH = lines.length * lineHeight;
+
+        // Position: center of lower 40% of image
+        const startY = H * 0.58 + (H * 0.35 - totalTextH) / 2 + fontSize;
+
+        // Dark gradient behind text for readability
+        const gradH = totalTextH + 60;
+        const gradY = startY - fontSize - 20;
+        const grad = ctx.createLinearGradient(0, gradY - 20, 0, gradY + gradH + 20);
         grad.addColorStop(0, 'rgba(0,0,0,0)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.82)');
+        grad.addColorStop(0.2, 'rgba(0,0,0,0.75)');
+        grad.addColorStop(0.8, 'rgba(0,0,0,0.85)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Draw text
-        const fontSize = Math.floor(canvas.width / 10);
-        ctx.font = `900 ${fontSize}px "${font || 'Impact'}", Impact, sans-serif`;
+        ctx.fillRect(0, gradY - 20, W, gradH + 40);
+
+        // Draw each line
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        // Shadow
-        ctx.shadowColor = 'rgba(0,0,0,0.9)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetX = 3;
-        ctx.shadowOffsetY = 3;
-        // Stroke
-        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
-        ctx.lineWidth = fontSize / 8;
-        ctx.strokeText(text.toUpperCase(), canvas.width/2, canvas.height - 40);
-        // Fill
-        ctx.fillStyle = color || '#FFE036';
-        ctx.fillText(text.toUpperCase(), canvas.width/2, canvas.height - 40);
-        // Update image
-        img.src = canvas.toDataURL('image/jpeg', 0.95);
+        ctx.textBaseline = 'alphabetic';
+        ctx.font = `900 ${fontSize}px "${selectedFont}", Impact, Arial Black, sans-serif`;
+
+        lines.forEach((line, i) => {
+            const y = startY + i * lineHeight;
+
+            // Outer glow
+            ctx.shadowColor = 'rgba(0,0,0,1)';
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Thick stroke for outline
+            ctx.strokeStyle = 'rgba(0,0,0,0.95)';
+            ctx.lineWidth = fontSize / 5;
+            ctx.lineJoin = 'round';
+            ctx.strokeText(line, W / 2, y);
+
+            // Clear shadow for fill
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Main text fill
+            ctx.fillStyle = selectedColor;
+            ctx.fillText(line, W / 2, y);
+
+            // Subtle highlight on top of text
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.fillText(line, W / 2, y - 2);
+        });
+
+        // Update image src
+        img.src = canvas.toDataURL('image/jpeg', 0.97);
+        // Update download button
+        const dlBtn = document.getElementById('downloadBtn');
+        if (dlBtn) dlBtn.href = img.src;
     };
     tmpImg.src = img.src;
 }
