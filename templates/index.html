@@ -4065,9 +4065,9 @@ function setImgMode(mode) {
     const cust = document.getElementById('overlayCustomizer');
     if (cust) cust.style.display = mode === 'overlay' ? 'block' : 'none';
     // Update backend flags
-    window._imgModeBaked = mode === 'baked';
+    window._imgModeBaked = false; // Never use baked — AI text unreliable
     window._imgModeOverlay = mode === 'overlay';
-    window._imgModeClean = mode === 'clean';
+    window._imgModeClean = mode === 'clean' || mode === 'overlay'; // Overlay uses clean base
 }
 
 function selectFontNew(el, font) {
