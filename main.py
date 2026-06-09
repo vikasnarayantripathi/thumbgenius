@@ -323,6 +323,38 @@ async def sb_update_user(email, data):
     except Exception as e:
         logger.error(f"sb_update_user: {e}")
 
+async def sb_create_user(email: str):
+    """Create a new user with free plan defaults."""
+    try:
+        import hashlib as _hl
+        ref_code = "tg" + _hl.md5(email.encode()).hexdigest()[:8]
+        await _http_sb.post(
+            f"{SUPABASE_URL}/rest/v1/users",
+            headers={**SB_HEADERS, "Prefer": "return=minimal"},
+            json={
+                "email": email,
+                "plan": "free",
+                "is_active": True,
+                "generations_used": 0,
+                "images_used": 0,
+                "thumb_analysis_used": 0,
+                "reverse_used": 0,
+                "ctr_predict_used": 0,
+                "ab_tests_used": 0,
+                "blueprint_used": 0,
+                "topup_images": 0,
+                "referral_code": ref_code,
+                "referral_clicks": 0,
+                "total_referrals": 0,
+                "affiliate_earnings": 0,
+            }
+        )
+        logger.info(f"Created new user: {email}")
+    except Exception as e:
+        logger.error(f"sb_create_user error: {e}")
+
+
+
 async def sb_get_user_by_token(token):
     try:
         r = await _http_sb.get(
@@ -984,8 +1016,61 @@ async def favicon():
 
 @app.get("/robots.txt")
 async def robots():
-    from fastapi.responses import FileResponse
-    return FileResponse("static/robots.txt", media_type="text/plain")
+    content = """User-agent: *
+Allow: /landing
+Allow: /pricing
+Allow: /features
+Allow: /demo
+Allow: /enterprise
+Allow: /privacy
+Allow: /terms
+Allow: /refund
+Allow: /api-docs
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /webhook/
+Disallow: /user/
+Disallow: /billing/
+Disallow: /affiliate/
+Disallow: /generate
+Disallow: /generate-image
+Disallow: /analyze-thumbnail
+Disallow: /predict-ctr
+Disallow: /reverse-engineer
+Disallow: /ab-test
+Disallow: /topup/
+
+Sitemap: https://thumbgenius.in/sitemap.xml"""
+    return Response(content=content, media_type="text/plain")
+
+
+@app.get("/sitemap.xml")
+async def sitemap():
+    from datetime import date
+    today = date.today().isoformat()
+    pages = [
+        ("https://thumbgenius.in/landing", "1.0", "weekly"),
+        ("https://thumbgenius.in/", "0.9", "weekly"),
+        ("https://thumbgenius.in/features", "0.8", "monthly"),
+        ("https://thumbgenius.in/pricing", "0.8", "monthly"),
+        ("https://thumbgenius.in/demo", "0.8", "monthly"),
+        ("https://thumbgenius.in/enterprise", "0.7", "monthly"),
+        ("https://thumbgenius.in/api-docs", "0.6", "monthly"),
+        ("https://thumbgenius.in/privacy", "0.3", "yearly"),
+        ("https://thumbgenius.in/terms", "0.3", "yearly"),
+        ("https://thumbgenius.in/refund", "0.3", "yearly"),
+    ]
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    for url, priority, changefreq in pages:
+        xml += f'  <url>\n'
+        xml += f'    <loc>{url}</loc>\n'
+        xml += f'    <lastmod>{today}</lastmod>\n'
+        xml += f'    <changefreq>{changefreq}</changefreq>\n'
+        xml += f'    <priority>{priority}</priority>\n'
+        xml += f'  </url>\n'
+    xml += '</urlset>'
+    return Response(content=xml, media_type="application/xml")
 
 @app.get("/health")
 async def health():
